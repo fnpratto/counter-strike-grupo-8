@@ -8,6 +8,7 @@ target_sources(taller_client
     protocol.cpp
     receiver.cpp
     sender.cpp
+    text_display.cpp
     text_input.cpp
     PUBLIC
     # .h files
@@ -17,6 +18,7 @@ target_sources(taller_client
     protocol.h
     receiver.h
     sender.h
+    text_display.h
     text_input.h
     )
 

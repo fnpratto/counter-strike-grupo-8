@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "commands.h"
+#include "common/commands.h"
 
 void TextInput::setup() {
 // Set stdin to non-blocking
@@ -32,7 +32,8 @@ void TextInput::work() {
     ssize_t n = ::read(STDIN_FILENO, &c, 1);
     if (n > 0) {
         handle_char(c);
-    } else if (n == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+        // } else if (n == -1 && ((errno == EAGAIN) || (errno == EWOULDBLOCK))) {
+    } else if (n == -1 && (errno == EAGAIN)) {
         // no data yet
     } else if (n == 0) {
         stop();

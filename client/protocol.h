@@ -7,9 +7,9 @@
 
 #include "common/message.h"
 #include "common/protocol.h"
+#include "common/socket.h"
 
 #include "errors.h"
-#include "socket.h"
 
 /**
  * @class ClientProtocol
@@ -39,5 +39,5 @@ public:
 private:
     payload_t serialize_create_game_cmd(const CreateGameCommand& cmd);
     payload_t serialize_join_game_cmd(const JoinGameCommand& cmd);
-    payload_t serialize_list_games_cmd(const ListGamesCommand& cmd);
+    payload_t serialize_list_games_cmd();
 };

@@ -9,13 +9,14 @@
 
 #include <arpa/inet.h>
 
+#include "common/queue.h"
+#include "common/socket.h"
+#include "common/thread.h"
+
 #include "display.h"
 #include "input.h"
-#include "queue.h"
 #include "receiver.h"
 #include "sender.h"
-#include "socket.h"
-#include "thread.h"
 
 class Client {
 private:

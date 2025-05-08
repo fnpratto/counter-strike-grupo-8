@@ -6,8 +6,9 @@
 #include <utility>
 #include <vector>
 
+#include "common/socket.h"
+
 #include "message.h"
-#include "socket.h"
 
 enum class CmdType : uint8_t {
     CMD_CREATE = 0x6E,

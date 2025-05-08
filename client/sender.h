@@ -3,11 +3,11 @@
 #include <utility>
 
 #include "common/message.h"
+#include "common/queue.h"
+#include "common/socket.h"
+#include "common/thread.h"
 
 #include "protocol.h"
-#include "queue.h"
-#include "socket.h"
-#include "thread.h"
 
 /**
  * @class ClientSender

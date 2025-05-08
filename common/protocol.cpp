@@ -8,8 +8,9 @@
 
 #include <sys/socket.h>
 
+#include "common/socket.h"
+
 #include "message.h"
-#include "socket.h"
 
 BaseProtocol::BaseProtocol(std::shared_ptr<Socket>&& skt): socket(std::move(skt)) {
     if (!socket)

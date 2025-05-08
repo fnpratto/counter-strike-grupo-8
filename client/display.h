@@ -5,9 +5,8 @@
 #include <string>
 
 #include "common/message.h"
-
-#include "queue.h"
-#include "thread.h"
+#include "common/queue.h"
+#include "common/thread.h"
 
 class Display: public Thread {
     Queue<Message>& queue;

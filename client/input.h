@@ -11,9 +11,8 @@
 #include <unistd.h>
 
 #include "common/message.h"
-
-#include "queue.h"
-#include "thread.h"
+#include "common/queue.h"
+#include "common/thread.h"
 
 class Input: public Thread {
 protected:

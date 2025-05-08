@@ -8,10 +8,10 @@
 #include <arpa/inet.h>
 
 #include "common/message.h"
+#include "common/socket.h"
 
 #include "errors.h"
 #include "protocol.h"
-#include "socket.h"
 
 Message ClientProtocol::recv() {
     // uint16_t length_n;
@@ -35,7 +35,7 @@ payload_t ClientProtocol::serialize_message(const Message& message) {
         case MessageType::JOIN_GAME_CMD:
             return serialize_join_game_cmd(message.get_content<JoinGameCommand>());
         case MessageType::LIST_GAMES_CMD:
-            return serialize_list_games_cmd(message.get_content<ListGamesCommand>());
+            return serialize_list_games_cmd();
         default:
             throw std::runtime_error("Invalid message type for serialization");
     }
@@ -75,7 +75,7 @@ payload_t ClientProtocol::serialize_join_game_cmd(const JoinGameCommand& cmd) {
     return payload;
 }
 
-payload_t ClientProtocol::serialize_list_games_cmd(const ListGamesCommand& cmd) {
+payload_t ClientProtocol::serialize_list_games_cmd() {
     payload_t payload;
 
     uint8_t cmd_type = static_cast<uint8_t>(CmdType::CMD_LIST);

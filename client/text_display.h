@@ -10,5 +10,6 @@
 
 class TextDisplay: public Display {
 public:
+    explicit TextDisplay(Queue<Message>& input_queue): Display(input_queue) {}
     void draw(const Message& message) override;
 };
