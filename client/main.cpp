@@ -6,7 +6,9 @@
 
 #include "common/foo.h"
 
-using SDL2pp;
+using SDL2pp::Renderer;
+using SDL2pp::SDL;
+using SDL2pp::Window;
 
 int main() try {
     // Initialize SDL library
