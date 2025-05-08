@@ -1,0 +1,60 @@
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: check-merge-conflict
+      - id: no-commit-to-branch
+        args: [--branch, main]
+
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v9.22.0
+    hooks:
+      - id: commitlint
+        stages: [commit-msg]
+        additional_dependencies: ['@commitlint/config-conventional']
+        args: ["--config",".commitlintrc.yaml"]
+
+  # C/C++ specific hooks
+  - repo: https://github.com/ssciwr/clang-format-hook
+    rev: v14.0.0
+    hooks:
+      - id: clang-format
+        files: ^(.*[.]cpp|.*[.]h)$
+        args: ["--style=file", "-i"]
+  - repo: https://github.com/cpplint/cpplint
+    rev: 1.6.0
+    hooks:
+      - id: cpplint
+        files: ^(.*[.]cpp|.*[.]h)$
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: 9a9bbc00895bbdb7670231c2565d4f1309c42905  # pragma: allowlist secret
+    hooks:
+      - id: cppcheck
+        files: ^(.*[.]cpp|.*[.]h)$
+        args: ["--inline-suppr", "--enable=all", "--suppress=missingIncludeSystem", "--suppress=missingInclude", "--suppress=unusedFunction", "--suppress=unmatchedSuppression", "--suppress=unusedStructMember", "--language=c++", "--std=c++20", "--error-exitcode=1"]
+
+
+  # Markdown specific hooks
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.32.2
+    hooks:
+      - id: markdownlint
+        args: ["--fix"]
+  - repo: https://github.com/tcort/markdown-link-check
+    rev: v3.13.7
+    hooks:
+      - id: markdown-link-check
+        args: [-q]
+
+  # Detect secrets
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
