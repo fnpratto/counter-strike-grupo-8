@@ -8,6 +8,8 @@ compile-debug:
 run-tests: compile-debug
 	./build/taller_tests
 
+test: run-tests
+
 all: clean run-tests
 
 clean:
