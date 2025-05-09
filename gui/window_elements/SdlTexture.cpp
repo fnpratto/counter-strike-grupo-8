@@ -1,21 +1,21 @@
 #include "SdlTexture.h"
-#include <SDL2/SDL_image.h>
-#include <string>
-#include "SdlWindow.h"
-#include "SdlException.h"
 
-SdlTexture::SdlTexture(const std::string &filename, const SdlWindow& window)
-    : renderer(window.getRenderer()) {
+#include <string>
+
+#include <SDL2/SDL_image.h>
+
+#include "SdlException.h"
+#include "SdlWindow.h"
+
+SdlTexture::SdlTexture(const std::string& filename, const SdlWindow& window):
+        renderer(window.getRenderer()) {
     this->texture = loadTexture(filename);
 }
 
-SdlTexture::~SdlTexture() {
-    SDL_DestroyTexture(this->texture);
-}
+SdlTexture::~SdlTexture() { SDL_DestroyTexture(this->texture); }
 
-SDL_Texture* SdlTexture::loadTexture(const std::string &filename) {
-    SDL_Texture* texture = IMG_LoadTexture(this->renderer,
-                                           filename.c_str());
+SDL_Texture* SdlTexture::loadTexture(const std::string& filename) {
+    texture = IMG_LoadTexture(this->renderer, filename.c_str());
     if (!texture) {
         throw SdlException("Error al cargar la textura", SDL_GetError());
     }
@@ -23,14 +23,8 @@ SDL_Texture* SdlTexture::loadTexture(const std::string &filename) {
 }
 
 int SdlTexture::render(const Area& src, const Area& dest) const {
-    SDL_Rect sdlSrc = {
-            src.getX(), src.getY(),
-            src.getWidth(), src.getHeight()
-    };
-    SDL_Rect sdlDest = {
-            dest.getX(), dest.getY(),
-            dest.getWidth(), dest.getHeight()
-    };
+    SDL_Rect sdlSrc = {src.getX(), src.getY(), src.getWidth(), src.getHeight()};
+    SDL_Rect sdlDest = {dest.getX(), dest.getY(), dest.getWidth(), dest.getHeight()};
 
     return SDL_RenderCopy(this->renderer, this->texture, &sdlSrc, &sdlDest);
 }
