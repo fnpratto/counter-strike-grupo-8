@@ -16,7 +16,7 @@ using SDL2pp::Window;
 int main(int argc, char* argv[]) try {
     QApplication app(argc, argv);
 
-    LogInWindow window(416, 150);
+    LogInWindow window();
 
     window.show();
 

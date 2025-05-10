@@ -8,15 +8,10 @@
 #include <QPushButton>
 #include <string>
 
-// #define FONT_PATH ":/resources/counter_strike.ttf"
-// #define ICON_PATH ":/resources/cs2d.bmp"
-#define FONT_PATH "assets/gfx/fonts/counter_strike.ttf"
-#define ICON_PATH "assets/gfx/cs2d.bmp"
-
-LogInWindow::LogInWindow(int width, int height): QWidget(nullptr) {
-    this->setWindowTitle("Counter Strike 2D");
+LogInWindow::LogInWindow(): QWidget(nullptr) {
+    this->setWindowTitle(WINDOW_TITLE);
     this->setWindowIcon(QIcon(ICON_PATH));
-    this->setFixedSize(width, height);
+    this->setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     QFontDatabase::addApplicationFont(FONT_PATH);
     this->init_gui();
     // this->center_window();

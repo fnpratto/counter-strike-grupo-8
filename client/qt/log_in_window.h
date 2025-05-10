@@ -5,6 +5,15 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+// #define FONT_PATH ":/resources/counter_strike.ttf"
+// #define ICON_PATH ":/resources/cs2d.bmp"
+#define FONT_PATH "assets/gfx/fonts/counter_strike.ttf"
+#define ICON_PATH "assets/gfx/cs2d.bmp"
+
+#define WINDOW_WIDTH 416
+#define WINDOW_HEIGHT 150
+#define WINDOW_TITLE "Counter Strike 2D"
+
 class LogInWindow: public QWidget {
     Q_OBJECT
 private:
@@ -13,7 +22,7 @@ private:
     QLineEdit* port_input;
 
 public:
-    explicit LogInWindow(int width, int height);
+    LogInWindow();
     ~LogInWindow();
 
 private:
