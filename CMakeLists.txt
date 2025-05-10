@@ -100,6 +100,7 @@ if(TALLER_CLIENT OR TALLER_EDITOR)
 
     # Find and include Qt5 packages
     find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui)
+    set(CMAKE_AUTOMOC ON)
 endif()
 
 # Program section

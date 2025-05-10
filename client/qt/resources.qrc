@@ -1,0 +1,7 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource>
+        <file>resources/counter_strike.ttf</file>
+        <file>resources/cs2d.bmp</file>
+    </qresource>
+</RCC>

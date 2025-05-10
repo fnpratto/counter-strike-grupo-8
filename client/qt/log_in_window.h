@@ -1,15 +1,19 @@
 #ifndef LOG_IN_WINDOW_H
 #define LOG_IN_WINDOW_H
 
+#include <QLineEdit>
+#include <QVBoxLayout>
 #include <QWidget>
 
-class LogInWindow: public Qwidget {
+class LogInWindow: public QWidget {
     Q_OBJECT
 private:
     QVBoxLayout* main_layout;
+    QLineEdit* ip_input;
+    QLineEdit* port_input;
 
 public:
-    explicit LogInWindow(QWidget* parent = nullptr);
+    explicit LogInWindow(int width, int height);
     ~LogInWindow();
 
 private:
@@ -18,6 +22,7 @@ private:
     void add_ip_input();
     void add_port_input();
     void add_login_button();
-}
+    void on_login_button_clicked();
+};
 
 #endif  // LOG_IN_WINDOW_H

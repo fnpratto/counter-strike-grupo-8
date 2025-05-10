@@ -6,6 +6,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
 
+#include "./qt/log_in_window.h"
 #include "common/foo.h"
 
 using SDL2pp::Renderer;
@@ -13,14 +14,12 @@ using SDL2pp::SDL;
 using SDL2pp::Window;
 
 int main(int argc, char* argv[]) try {
-    // Clase que contiene el loop principal
     QApplication app(argc, argv);
-    // Instancio un componente grafico para salida de texto
-    // Llamo a QLabel(const QString &text, QWidget *parent=0, Qt::WindowFlags f=0);
-    QLabel label("Hello QT");
-    // Muestro el elemento
-    label.show();
-    // Arranca el loop de la UI
+
+    LogInWindow window(416, 150);
+
+    window.show();
+
     return app.exec();
 
     // // Initialize SDL library
