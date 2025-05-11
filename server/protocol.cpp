@@ -18,7 +18,6 @@
 #include "common/thread.h"
 
 #include "errors.h"
-#include "game.h"
 #include "lobby_monitor.h"
 #include "protocol.h"
 

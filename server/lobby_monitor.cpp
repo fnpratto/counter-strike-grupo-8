@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "errors.h"
-#include "game.h"
 #include "game_thread.h"
 
 

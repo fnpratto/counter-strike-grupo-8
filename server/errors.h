@@ -34,3 +34,17 @@ class JoinGameError: public GameError {
 public:
     JoinGameError(): GameError("game not found") {}
 };
+
+class PlayerError: public ServerError {
+    public:
+        explicit PlayerError(const std::string& message): ServerError(message) {}
+        const char* what() const noexcept override {
+            static std::string full_message = "Player Error: " + std::string(ServerError::what());
+            return full_message.c_str();
+        }
+    };
+
+class BuyWeaponError: public PlayerError {
+public:
+    BuyWeaponError(): PlayerError("not enough money to buy weapon") {}
+};

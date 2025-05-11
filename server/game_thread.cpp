@@ -1,7 +1,9 @@
 #include "game_thread.h"
 
+#include "game/clock/real_clock.h"
+
 GameThread::GameThread(const std::string& name):
-        game(name), input_queue(std::make_shared<Queue<Message>>()) {}
+        game(name, RealClock()), input_queue(std::make_shared<Queue<Message>>()) {}
 
 // TODO: Tick rate
 void GameThread::run() {
