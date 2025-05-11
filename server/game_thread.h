@@ -7,8 +7,8 @@
 #include "common/message.h"
 #include "common/queue.h"
 #include "common/thread.h"
+#include "game/game.h"
 
-#include "game.h"
 #include "pipe.h"
 
 class GameThread: public Thread {
