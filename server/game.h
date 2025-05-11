@@ -19,8 +19,9 @@ class Game {
 public:
     explicit Game(const std::string& name): name(name) {}
 
+    void join(const std::string& player_name);
+    void finish();
+
     bool is_full() const;
     bool is_finished() const;
-
-    void finish();
 };

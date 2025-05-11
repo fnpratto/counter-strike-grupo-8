@@ -27,7 +27,7 @@ typedef std::vector<char> payload_t;
  */
 class BaseProtocol {
 protected:
-    std::shared_ptr<Socket> socket;
+    Socket socket;
 
 public:
     /**
@@ -35,7 +35,7 @@ public:
      * @param skt Shared pointer to a Socket used for communication.
      * @throws std::runtime_error if the provided socket is null.
      */
-    explicit BaseProtocol(std::shared_ptr<Socket>&& skt);
+    explicit BaseProtocol(Socket&& skt);
 
     /**
      * @brief Destructor for BaseProtocol.

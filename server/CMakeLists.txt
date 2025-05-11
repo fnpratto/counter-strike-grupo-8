@@ -3,6 +3,7 @@ target_sources(taller_server
     acceptor.cpp
     client_handler.cpp
     game.cpp
+    game_thread.cpp
     lobby_monitor.cpp
     protocol.cpp
     main.cpp
@@ -10,6 +11,7 @@ target_sources(taller_server
     acceptor.h
     client_handler.h
     game.h
+    game_thread.h
     lobby_monitor.h
     protocol.h
     )

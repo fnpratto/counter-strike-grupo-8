@@ -8,23 +8,30 @@
 #include <vector>
 
 #include "errors.h"
-#include "game_monitor.h"
+#include "game_thread.h"
+#include "pipe.h"
+
 
 class LobbyMonitor {
 private:
     std::mutex mtx;
-    std::map<std::string, std::shared_ptr<GameMonitor>> games;
+
+    // Using shared_ptr is not strictly necessary here,
+    // but it allows for easier management of a GameThread
+    // because unique_ptr cannot be referenced
+    std::map<std::string, std::shared_ptr<GameThread>> games;
 
 public:
     LobbyMonitor() = default;
 
-    // Create a new game with the given name
-    // throws GameExistsError if the game already exists
-    std::shared_ptr<GameMonitor> create_game(const std::string& name);
+    // @brief Create a new game with the given name
+    // @throws GameExistsError if the game already exists
+    pipe_t create_game(const std::string& name);
 
-    // Join an existing game
-    // throws GameNotFoundError if the game doesn't exist or is full
-    std::shared_ptr<GameMonitor> join_game(const std::string& name);
+    // @brief Join an existing game
+    // @throws GameNotFoundError if the game doesn't exist or is full
+    // @note The mutex lock is necessary in case the game finishes and is reaped while we're joining
+    pipe_t join_game(const std::string& name);
 
     // Get a list of available games
     std::vector<std::string> get_games_names();

@@ -9,34 +9,31 @@
 
 #include "errors.h"
 #include "game.h"
+#include "game_thread.h"
 
-std::shared_ptr<GameMonitor> LobbyMonitor::create_game(const std::string& name) {
+
+pipe_t LobbyMonitor::create_game(const std::string& name) {
     std::lock_guard<std::mutex> lock(mtx);
 
     if (games.find(name) != games.end())
         throw GameExistsError();
 
-    auto game = std::make_shared<GameMonitor>(name);
+    auto game = std::make_shared<GameThread>(name);
+    game->start();
     games[name] = game;
 
-    return game;
+    return game->join_game("player_name");  // TODO: take the player name from the message
 }
 
-std::shared_ptr<GameMonitor> LobbyMonitor::join_game(const std::string& name) {
+pipe_t LobbyMonitor::join_game(const std::string& name) {
     std::lock_guard<std::mutex> lock(mtx);
 
-    auto it = games.find(name);
-    if (it == games.end())
+    auto game = games[name];
+
+    if (!game->is_alive())
         throw JoinGameError();
 
-    auto game = it->second;
-
-    if (game->is_full())
-        throw JoinGameError();
-
-    // game->join_player2(); // Join the game
-
-    return game;
+    return game->join_game("player_name");  // TODO: take the player name from the message
 }
 
 std::vector<std::string> LobbyMonitor::get_games_names() {
@@ -54,6 +51,8 @@ void LobbyMonitor::reap() {
     std::lock_guard<std::mutex> lock(mtx);
 
     for (const auto& [name, game]: games)
-        if (game->is_finished())
+        if (!game->is_alive()) {
+            game->join();
             games.erase(name);
+        }
 }

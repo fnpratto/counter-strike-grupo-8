@@ -16,8 +16,8 @@ void Acceptor::run() {
     while (should_keep_running()) {
         try {
             Socket peer = socket.accept();
-            auto client_handler = std::make_unique<ClientHandler>(std::move(peer), lobby_monitor);
-            client_handler->start();
+
+            ClientHandler client_handler(std::move(peer), lobby_monitor);
 
             clients.push_back(std::move(client_handler));
 
@@ -30,22 +30,18 @@ void Acceptor::run() {
             break;
         }
     }
-
-    for (auto& client: clients) {
-        client->stop();
-        client->join();
-    }
 }
 
 void Acceptor::reap() {
-    auto it = std::remove_if(clients.begin(), clients.end(), [](const auto& client) {
-        if (!client->is_alive()) {
-            client->join();
-            return true;
-        }
-        return false;
-    });
-    clients.erase(it, clients.end());
+    // TODO: correct
+    // auto it = std::remove_if(clients.begin(), clients.end(), [](const auto& client) {
+    //     if (!client->is_alive()) {
+    //         client->join();
+    //         return true;
+    //     }
+    //     return false;
+    // });
+    // clients.erase(it, clients.end());
 
     lobby_monitor.reap();
 }

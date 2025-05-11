@@ -24,7 +24,7 @@ enum class PlayerSymbol { NONE = ' ', PLAYER1 = 'O', PLAYER2 = 'X' };
 
 class ServerProtocol: public BaseProtocol {
 public:
-    explicit ServerProtocol(std::shared_ptr<Socket>&& skt): BaseProtocol(std::move(skt)) {}
+    explicit ServerProtocol(Socket&& skt): BaseProtocol(std::move(skt)) {}
 
     Message recv() override;
     payload_t serialize_message(const Message& message) override;

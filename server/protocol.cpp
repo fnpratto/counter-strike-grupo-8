@@ -24,7 +24,7 @@
 
 Message ServerProtocol::recv() {
     uint8_t command;
-    int bytes_read = socket->recvall(&command, 1);
+    int bytes_read = socket.recvall(&command, 1);
     if (bytes_read <= 0)
         throw ServerDisconnectError();
 
@@ -45,14 +45,14 @@ Message ServerProtocol::recv() {
 
 Message ServerProtocol::deserialize_create_game_cmd() {
     uint16_t name_length_n;
-    if (socket->recvall(&name_length_n, sizeof(name_length_n)) <= 0) {
+    if (socket.recvall(&name_length_n, sizeof(name_length_n)) <= 0) {
         throw std::runtime_error("Connection closed while reading name length");
     }
 
     uint16_t name_length = ntohs(name_length_n);
 
     std::vector<char> name_buffer(name_length + 1, '\0');
-    if (socket->recvall(name_buffer.data(), name_length) <= 0) {
+    if (socket.recvall(name_buffer.data(), name_length) <= 0) {
         throw std::runtime_error("Connection closed while reading game name");
     }
 
@@ -63,14 +63,14 @@ Message ServerProtocol::deserialize_create_game_cmd() {
 
 Message ServerProtocol::deserialize_join_game_cmd() {
     uint16_t name_length_n;
-    if (socket->recvall(&name_length_n, sizeof(name_length_n)) <= 0)
+    if (socket.recvall(&name_length_n, sizeof(name_length_n)) <= 0)
         throw std::runtime_error("Connection closed while reading name length");
 
     uint16_t name_length = ntohs(name_length_n);
 
     // Read game name
     std::vector<char> name_buffer(name_length + 1, '\0');
-    if (socket->recvall(name_buffer.data(), name_length) <= 0)
+    if (socket.recvall(name_buffer.data(), name_length) <= 0)
         throw std::runtime_error("Connection closed while reading game name");
 
     std::string game_name(name_buffer.data(), name_length);
