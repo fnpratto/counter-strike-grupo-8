@@ -23,7 +23,7 @@ private:
 public:
     /**
      * @brief Constructs a ClientReceiver.
-     * @param skt Shared pointer to a connected Socket.
+     * @param p Shared pointer to a connected ClientProtocol.
      * @param queue Reference to the message queue to populate.
      */
     ClientReceiver(std::shared_ptr<ClientProtocol> p, Queue<Message>& queue):

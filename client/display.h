@@ -9,13 +9,11 @@
 #include "common/thread.h"
 
 class Display: public Thread {
-    Queue<Message>& queue;
+protected:
+    Queue<Message>& input_queue;
+    Queue<Message>& output_queue;
 
 public:
-    explicit Display(Queue<Message>& input_queue): queue(input_queue) {}
-    virtual ~Display() = default;
-
-    void run() override;
-
-    virtual void draw(const Message& message) = 0;
+    explicit Display(Queue<Message>& input_queue, Queue<Message>& output_queue):
+            input_queue(input_queue), output_queue(output_queue) {}
 };
