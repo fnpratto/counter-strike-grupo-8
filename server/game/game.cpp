@@ -10,22 +10,19 @@
 #include <utility>
 #include <vector>
 
+#include "common/message.h"
 #include "common/models.h"
 #include "server/errors.h"
 
 #define MAX_NUM_PLAYERS 10
 
-Game::Game(const std::string& name, const Clock& clock): 
-        name(name), 
-        phase(clock) {}
+Game::Game(const std::string& name, const Clock& clock): name(name), phase(clock) {}
 
 GamePhaseType Game::get_phase_type() const { return phase.get_type(); }
 
 int Game::get_num_players() const { return players.size(); }
 
-Player& Game::get_player(const std::string& player_name) {
-    return players.at(player_name);
-}
+Player& Game::get_player(const std::string& player_name) { return players.at(player_name); }
 
 int Game::get_buying_phase_duration() const { return phase.get_buying_phase_duration(); }
 
@@ -47,10 +44,9 @@ void Game::join(const std::string& player_name) {
     players[player_name] = Player();
 }
 
-void Game::start() {
-    phase.start();
-}
+void Game::start() { phase.start(); }
 
-void Game::tick() {
+void Game::tick(const Message& msg) {
+    if (msg.get_type() == MessageType::NONE) {}
     phase.update();
 }

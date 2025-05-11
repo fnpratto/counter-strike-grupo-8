@@ -2,17 +2,19 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <sstream>
 #include <string>
 #include <utility>
-#include <map>
 
+#include "common/message.h"
 #include "common/models.h"
+#include "server/errors.h"
+
 #include "game_phase.h"
 #include "player.h"
-#include "server/errors.h"
 
 class Game {
 private:
@@ -34,10 +36,10 @@ public:
 
     bool is_full() const;
     bool is_started() const;
-    
+
     void join(const std::string& player_name);
-    
+
     void start();
 
-    void tick();
+    void tick(const Message& msg);
 };
