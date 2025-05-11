@@ -3,8 +3,11 @@
 GameThread::GameThread(const std::string& name):
         game(name), input_queue(std::make_shared<Queue<Message>>()) {}
 
+// TODO: Tick rate
 void GameThread::run() {
-    // Empty implementation for now
+    Message msg;
+    input_queue->try_pop(msg);
+    game.tick(msg);
 }
 
 pipe_t GameThread::join_game(const std::string& player_name) {
@@ -18,7 +21,4 @@ pipe_t GameThread::join_game(const std::string& player_name) {
 
 bool GameThread::is_full() { return game.is_full(); }
 
-void GameThread::stop() {
-    // Implementation of stop method
-    // You might want to add signal mechanism to stop the thread
-}
+void GameThread::stop() { game.finish(); }

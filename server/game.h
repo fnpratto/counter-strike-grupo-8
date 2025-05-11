@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 
+#include "common/message.h"
 #include "common/models.h"
 
 #include "errors.h"
@@ -20,6 +21,7 @@ public:
     explicit Game(const std::string& name): name(name) {}
 
     void join(const std::string& player_name);
+    void tick(const Message& msg);
     void finish();
 
     bool is_full() const;

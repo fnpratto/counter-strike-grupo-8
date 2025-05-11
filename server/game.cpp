@@ -15,10 +15,13 @@
 #include "errors.h"
 
 void Game::join(const std::string& player_name) {
-    if (is_full() || player_name.empty()) {
+    if (is_full() || player_name.empty())
         throw JoinGameError();
-    }  // TODO: Implement this method
+
+    // TODO: Implement this method
 }
+
+void Game::tick(const Message& msg) {}  // TODO: Implement this method
 
 bool Game::is_full() const { return false; }  // TODO: Implement this method
 
