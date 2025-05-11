@@ -18,11 +18,11 @@
 class ClientSender: public Thread {
 private:
     Queue<Message>& queue;
-    ClientProtocol protocol;
+    std::shared_ptr<ClientProtocol> protocol;
 
 public:
-    ClientSender(std::shared_ptr<Socket> skt, Queue<Message>& queue):
-            queue(queue), protocol(std::move(skt)) {}
+    ClientSender(std::shared_ptr<ClientProtocol> protocol, Queue<Message>& queue):
+            queue(queue), protocol(std::move(protocol)) {}
 
     void run() override;
     void stop() override;

@@ -8,7 +8,7 @@
 void ClientReceiver::run() {
     try {
         while (should_keep_running()) {
-            Message message = protocol.recv();
+            Message message = protocol->recv();
 
             if (message.get_type() != MessageType::NONE)
                 queue.push(message);
@@ -29,6 +29,6 @@ void ClientReceiver::run() {
 void ClientReceiver::stop() {
     Thread::stop();
 
-    if (protocol.is_open())
-        protocol.close();
+    if (protocol->is_open())
+        protocol->close();
 }

@@ -20,7 +20,7 @@
 
 class Client {
 private:
-    std::shared_ptr<Socket> client_socket;
+    std::shared_ptr<ClientProtocol> protocol;
 
     Queue<Message> input_queue;
     Queue<Message> display_queue;

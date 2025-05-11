@@ -21,7 +21,7 @@ public:
      * @brief Constructs a ClientProtocol with a connected socket.
      * @param skt Shared pointer to a connected Socket.
      */
-    explicit ClientProtocol(std::shared_ptr<Socket>&& skt): BaseProtocol(std::move(skt)) {}
+    explicit ClientProtocol(Socket&& skt): BaseProtocol(std::move(skt)) {}
 
     /**
      * @brief Receives a Message from the server.

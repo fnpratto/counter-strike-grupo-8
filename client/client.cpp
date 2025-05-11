@@ -23,13 +23,13 @@
 #include "sender.h"
 
 Client::Client(const char* hostname, const char* port):
-        client_socket(std::make_shared<Socket>(hostname, port)),
+        protocol(std::make_shared<ClientProtocol>(Socket(hostname, port))),
 #if CLIENT_TYPE == text
         input(std::make_unique<TextInput>(input_queue)),
         display(std::make_unique<TextDisplay>(display_queue)),
 #endif
-        sender(client_socket, input_queue),       // Feed the input queue to the sender
-        receiver(client_socket, display_queue) {  // Feed the receiver queue to the display
+        sender(protocol, input_queue),       // Feed the input queue to the sender
+        receiver(protocol, display_queue) {  // Feed the receiver queue to the display
     input->start();
     display->start();
     sender.start();

@@ -18,7 +18,7 @@
 class ClientReceiver: public Thread {
 private:
     Queue<Message>& queue;
-    ClientProtocol protocol;
+    std::shared_ptr<ClientProtocol> protocol;
 
 public:
     /**
@@ -26,8 +26,8 @@ public:
      * @param skt Shared pointer to a connected Socket.
      * @param queue Reference to the message queue to populate.
      */
-    ClientReceiver(std::shared_ptr<Socket> skt, Queue<Message>& queue):
-            queue(queue), protocol(std::move(skt)) {}
+    ClientReceiver(std::shared_ptr<ClientProtocol> p, Queue<Message>& queue):
+            queue(queue), protocol(std::move(p)) {}
 
     void run() override;
     void stop() override;
