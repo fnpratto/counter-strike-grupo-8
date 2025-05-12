@@ -6,6 +6,8 @@ target_sources(taller_server
     lobby_monitor.cpp
     lobby_thread.cpp
     protocol.cpp
+    receiver.cpp
+    sender.cpp
     main.cpp
     game/game.cpp
     game/player.cpp
@@ -16,6 +18,7 @@ target_sources(taller_server
     game_thread.h
     lobby_monitor.h
     protocol.h
+    receiver.h
     game/game.h
     game/player.h
     game/shop.h

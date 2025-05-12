@@ -19,8 +19,6 @@
 
 #include "lobby_monitor.h"
 
-enum class PlayerSymbol { NONE = ' ', PLAYER1 = 'O', PLAYER2 = 'X' };
-
 class ServerProtocol: public BaseProtocol {
 public:
     explicit ServerProtocol(Socket&& skt): BaseProtocol(std::move(skt)) {}
