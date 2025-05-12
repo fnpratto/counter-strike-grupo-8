@@ -9,35 +9,41 @@
 #include <utility>
 #include <map>
 
-#include "common/models.h"
-#include "game_phase.h"
+#include "round_phase.h"
+#include "game_config.h"
+#include "shop.h"
 #include "player.h"
 #include "server/errors.h"
+#include "common/models.h"
+#include "common/message.h"
 
 class Game {
 private:
     std::string name;
-    GamePhase phase;
+    RoundPhase phase;
+    const GameConfig& config;
+    const Shop& shop;
     std::map<std::string, Player> players;
+    int num_rounds;
 
     bool is_invalid_player_name(const std::string& player_name);
 
 public:
-    Game(const std::string& name, const Clock& clock);
+    Game(const std::string& name, const Clock& clock, const GameConfig& config, const Shop& shop);
 
-    GamePhaseType get_phase_type() const;
+    RoundPhaseType get_phase_type() const;
     int get_num_players() const;
-    Player& get_player(const std::string& player_name);
-    int get_buying_phase_duration() const;
-    int get_playing_phase_duration() const;
-    int get_max_num_players() const;
+    int get_num_rounds_played() const;
+    Team get_player_team(const std::string& player_name) const;
+    Inventory get_player_inventory(const std::string& player_name) const;
 
     bool is_full() const;
     bool is_started() const;
     
     void join(const std::string& player_name);
-    
+    void change_player_team(const std::string& player_name, Team team);
     void start();
+    void player_buy_weapon(const std::string& player_name, WeaponType weapon);
 
     void tick();
 };

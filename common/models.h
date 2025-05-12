@@ -2,6 +2,6 @@
 
 enum class Team { Terrorist, CounterTerrorist };
 enum class MoveDirection { Up, Down, Left, Right };
-enum class WeaponType { Glock, AK47, M3, AWP };
-enum class WeaponSlot { Primary, Secondary, Knife, Bomb };
-enum class GamePhaseType { NotStarted, Buying, Playing, Finished };
+enum class WeaponType { AK47, M3, AWP, Glock, Knife, C4 };
+enum class WeaponSlot { Primary, Secondary, Melee, Bomb };
+enum class RoundPhaseType { NotStarted, Buying, Playing, Finished };

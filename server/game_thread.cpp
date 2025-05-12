@@ -1,8 +1,8 @@
 #include "game_thread.h"
-#include "game/clock/real_clock.h"
+#include "clock/real_clock.h"
 
 GameThread::GameThread(const std::string& name):
-        game(name, RealClock()), input_queue(std::make_shared<Queue<Message>>()) {}
+        game(name, RealClock(), GameConfig(), Shop()), input_queue(std::make_shared<Queue<Message>>()) {}
 
 void GameThread::run() {
     // Empty implementation for now

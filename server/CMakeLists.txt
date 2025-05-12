@@ -8,7 +8,7 @@ target_sources(taller_server
     main.cpp
     game/game.cpp
     game/player.cpp
-    game/game_phase.cpp
+    game/round_phase.cpp
     PUBLIC
     acceptor.h
     client_handler.h
@@ -17,10 +17,11 @@ target_sources(taller_server
     protocol.h
     game/game.h
     game/player.h
-    game/shop.h
     game/inventory.h
-    game/game_phase.h
-    game/clock/clock.h
-    game/clock/mock_clock.h
-    game/clock/real_clock.h
+    game/round_phase.h
+    game/shop.h
+    game/game_config.h
+    clock/clock.h
+    clock/mock_clock.h
+    clock/real_clock.h
     )

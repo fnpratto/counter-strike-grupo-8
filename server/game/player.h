@@ -9,7 +9,7 @@ private:
     Inventory inventory;
 
 public:
-    Player();
+    explicit Player(Inventory inventory);
 
     Team get_team() const;
     Inventory get_inventory() const;

@@ -13,29 +13,30 @@
 #include "common/models.h"
 #include "server/errors.h"
 
-#define MAX_NUM_PLAYERS 10
+Game::Game(const std::string& name, const Clock& clock, const GameConfig& config, const Shop& shop): 
+        name(name),
+        phase(clock, config.get_buying_phase_secs(), config.get_playing_phase_secs()),
+        config(config),
+        shop(shop),
+        num_rounds(0) {}
 
-Game::Game(const std::string& name, const Clock& clock): 
-        name(name), 
-        phase(clock) {}
-
-GamePhaseType Game::get_phase_type() const { return phase.get_type(); }
+RoundPhaseType Game::get_phase_type() const { return phase.get_type(); }
 
 int Game::get_num_players() const { return players.size(); }
 
-Player& Game::get_player(const std::string& player_name) {
-    return players.at(player_name);
+int Game::get_num_rounds_played() const { return num_rounds; }
+
+Team Game::get_player_team(const std::string& player_name) const { 
+    return players.at(player_name).get_team();
 }
 
-int Game::get_buying_phase_duration() const { return phase.get_buying_phase_duration(); }
+Inventory Game::get_player_inventory(const std::string& player_name) const {
+    return players.at(player_name).get_inventory();
+}
 
-int Game::get_playing_phase_duration() const { return phase.get_playing_phase_duration(); }
+bool Game::is_full() const { return players.size() == config.get_max_players(); }
 
-int Game::get_max_num_players() const { return MAX_NUM_PLAYERS; }
-
-bool Game::is_full() const { return players.size() == MAX_NUM_PLAYERS; }
-
-bool Game::is_started() const { return phase.get_type() != GamePhaseType::NotStarted; }
+bool Game::is_started() const { return phase.get_type() != RoundPhaseType::NotStarted; }
 
 bool Game::is_invalid_player_name(const std::string& player_name) {
     return players.find(player_name) != players.end() || player_name.empty();
@@ -44,13 +45,30 @@ bool Game::is_invalid_player_name(const std::string& player_name) {
 void Game::join(const std::string& player_name) {
     if (is_invalid_player_name(player_name) || is_full() || is_started())
         throw JoinGameError();
-    players[player_name] = Player();
+    players.emplace(player_name, Player(config.get_initial_inventory()));
+}
+
+void Game::change_player_team(const std::string& player_name, Team team) {
+    players.at(player_name).change_team(team);
 }
 
 void Game::start() {
-    phase.start();
+    if (is_started())
+        throw StartGameError();
+    phase.start_buying_phase();
+}
+
+void Game::player_buy_weapon(const std::string& player_name, WeaponType weapon) {
+    int weapon_price = shop.get_weapon_price(weapon);
+    int player_money = get_player_inventory(player_name).money;
+    if (weapon_price > player_money)
+        throw BuyWeaponError();
+    players.at(player_name).buy_weapon(weapon, weapon_price);
 }
 
 void Game::tick() {
     phase.update();
+    if (phase.get_type() == RoundPhaseType::Finished) {
+        num_rounds += 1;
+    }
 }

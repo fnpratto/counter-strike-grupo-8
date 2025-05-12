@@ -35,6 +35,11 @@ public:
     JoinGameError(): GameError("game not found") {}
 };
 
+class StartGameError: public GameError {
+public:
+    StartGameError(): GameError("try to start an already started game") {}
+};
+
 class PlayerError: public ServerError {
     public:
         explicit PlayerError(const std::string& message): ServerError(message) {}

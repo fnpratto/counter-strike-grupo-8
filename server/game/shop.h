@@ -19,8 +19,8 @@ public:
         weapon_prices[WeaponType::AWP] = PRICE_AWP;
     }
 
-    int get_weapon_price(const WeaponType& weapon) { 
-        return weapon_prices[weapon]; 
+    int get_weapon_price(const WeaponType& weapon) const { 
+        return weapon_prices.at(weapon); 
     }
 
     ~Shop() {}

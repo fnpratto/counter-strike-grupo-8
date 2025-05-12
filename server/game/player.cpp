@@ -1,12 +1,9 @@
 #include "player.h"
 #include "server/errors.h"
 
-#define INIT_MONEY 800
-
-Player::Player() : team(Team::Terrorist) {
-    inventory.money = INIT_MONEY;
-    inventory.weapons[WeaponSlot::Secondary] = WeaponType::Glock;
-}
+Player::Player(Inventory inventory) : 
+        team(Team::Terrorist),
+        inventory(inventory) {}
 
 Team Player::get_team() const { return team; }
 
@@ -19,8 +16,6 @@ void Player::gain_money(int amount) {
 }
 
 void Player::buy_weapon(const WeaponType& weapon, int weapon_price) {
-    if (weapon_price > inventory.money)
-        throw BuyWeaponError();
     inventory.weapons[WeaponSlot::Primary] = weapon;
     inventory.money -= weapon_price;
 }
