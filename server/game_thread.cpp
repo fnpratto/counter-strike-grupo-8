@@ -8,8 +8,11 @@ GameThread::GameThread(const std::string& name):
 // TODO: Tick rate
 void GameThread::run() {
     Message msg;
-    input_queue->try_pop(msg);
-    game.tick(msg);
+    while (should_keep_running()) {
+        input_queue->try_pop(msg);
+        game.tick(msg);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
 }
 
 pipe_t GameThread::join_game(const std::string& player_name) {
