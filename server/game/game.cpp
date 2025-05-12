@@ -18,7 +18,9 @@ Game::Game(const std::string& name, const Clock& clock, const GameConfig& config
         phase(clock, config.get_buying_phase_secs(), config.get_playing_phase_secs()),
         config(config),
         shop(shop),
-        num_rounds(0) {}
+        num_rounds(0),
+        num_terrorists(0),
+        num_counter_terrorists(0) {}
 
 RoundPhaseType Game::get_phase_type() const { return phase.get_type(); }
 
@@ -34,7 +36,13 @@ Inventory Game::get_player_inventory(const std::string& player_name) const {
     return players.at(player_name).get_inventory();
 }
 
-bool Game::is_full() const { return players.size() == config.get_max_players(); }
+bool Game::is_full() const { return players.size() == config.get_max_players_game(); }
+
+bool Game::team_is_full(Team team) const {
+    if (team == Team::Terrorist)
+        return num_terrorists == config.get_max_players_team();
+    return num_counter_terrorists == config.get_max_players_team();
+}
 
 bool Game::is_started() const { return phase.get_type() != RoundPhaseType::NotStarted; }
 
@@ -42,14 +50,21 @@ bool Game::is_invalid_player_name(const std::string& player_name) {
     return players.find(player_name) != players.end() || player_name.empty();
 }
 
-void Game::join(const std::string& player_name) {
-    if (is_invalid_player_name(player_name) || is_full() || is_started())
+void Game::join(const std::string& player_name, Team team) {
+    if (is_invalid_player_name(player_name) || is_full() || team_is_full(team) || is_started())
         throw JoinGameError();
-    players.emplace(player_name, Player(config.get_initial_inventory()));
-}
+    
+    Inventory initial_inventory = config.get_default_inventory();
+    if (team == Team::Terrorist && num_terrorists == 0)
+        initial_inventory.weapons[WeaponSlot::Bomb] = WeaponType::C4;
 
-void Game::change_player_team(const std::string& player_name, Team team) {
-    players.at(player_name).change_team(team);
+    players.emplace(player_name, Player(team, initial_inventory));
+
+    if (team == Team::Terrorist) {
+        num_terrorists++;
+    } else {
+        num_counter_terrorists++;
+    }
 }
 
 void Game::start() {
@@ -69,6 +84,6 @@ void Game::player_buy_weapon(const std::string& player_name, WeaponType weapon) 
 void Game::tick() {
     phase.update();
     if (phase.get_type() == RoundPhaseType::Finished) {
-        num_rounds += 1;
+        num_rounds++;
     }
 }

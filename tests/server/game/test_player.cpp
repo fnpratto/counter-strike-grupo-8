@@ -18,44 +18,76 @@ protected:
             player_name("test_player") {}
 };
 
-TEST_F(TestPlayer, CanChangeTeam) {
-    MockClock clock(std::chrono::steady_clock::now());
-    Game game(game_name, clock, GameConfig(), Shop());
-    game.join(player_name);
-
-    EXPECT_EQ(game.get_player_team(player_name), Team::Terrorist);
-    game.change_player_team(player_name, Team::CounterTerrorist);
-    EXPECT_EQ(game.get_player_team(player_name), Team::CounterTerrorist);
-}
-
 TEST_F(TestPlayer, DefaultInventory) {
     MockClock clock(std::chrono::steady_clock::now());
     GameConfig config;
     Game game(game_name, clock, config, Shop());
-    game.join(player_name);
+    game.join(player_name, Team::Terrorist);
     
-    Inventory default_inventory = config.get_initial_inventory();
+    Inventory default_inventory = config.get_default_inventory();
     Inventory player_inventory = game.get_player_inventory(player_name);
     
     EXPECT_EQ(default_inventory.money, player_inventory.money);
-    EXPECT_EQ(default_inventory.weapons.size(), player_inventory.weapons.size());
-    EXPECT_EQ(default_inventory.weapons.size(), 3);
     EXPECT_EQ(default_inventory.weapons.at(WeaponSlot::Secondary), WeaponType::Glock);
     EXPECT_EQ(default_inventory.weapons.at(WeaponSlot::Melee), WeaponType::Knife);
-    EXPECT_EQ(default_inventory.weapons.at(WeaponSlot::Bomb), WeaponType::C4);
+    EXPECT_THROW({
+        default_inventory.weapons.at(WeaponSlot::Primary);
+    }, std::out_of_range);
+}
+
+TEST_F(TestPlayer, CounterTerroristDoesNotHaveBomb) {
+    MockClock clock(std::chrono::steady_clock::now());
+    GameConfig config;
+    Game game(game_name, clock, config, Shop());
+
+    game.join(player_name, Team::CounterTerrorist);
+
+    Inventory counter_terrorist_inventory = game.get_player_inventory(player_name);
+    
+    EXPECT_THROW({
+        counter_terrorist_inventory.weapons.at(WeaponSlot::Bomb);
+    }, std::out_of_range);
+}
+
+TEST_F(TestPlayer, FirstTerroristInGameHasBomb) {
+    MockClock clock(std::chrono::steady_clock::now());
+    Game game(game_name, clock, GameConfig(), Shop());
+    
+    game.join(player_name, Team::CounterTerrorist);
+    std::string another_player_name = "another_player";
+    game.join(another_player_name, Team::Terrorist);
+    
+    Inventory first_terrorist_inventory = game.get_player_inventory(another_player_name);
+
+    EXPECT_EQ(first_terrorist_inventory.weapons.at(WeaponSlot::Bomb), WeaponType::C4);
+}
+
+TEST_F(TestPlayer, OneBombPerGame) {
+    MockClock clock(std::chrono::steady_clock::now());
+    Game game(game_name, clock, GameConfig(), Shop());
+    
+    game.join(player_name, Team::Terrorist);
+    std::string another_player_name = "another_player";
+    game.join(another_player_name, Team::Terrorist);
+
+    Inventory second_terrorist_inventory = game.get_player_inventory(another_player_name);
+
+    EXPECT_THROW({
+        second_terrorist_inventory.weapons.at(WeaponSlot::Bomb);
+    }, std::out_of_range);
 }
 
 TEST_F(TestPlayer, CanBuyAnyPrimaryWeapon) {
     MockClock clock(std::chrono::steady_clock::now());
     GameConfig config;
 
-    Inventory inventory = config.get_initial_inventory();
+    Inventory inventory = config.get_default_inventory();
     inventory.money = 10000;
-    config.set_initial_inventory(inventory);
+    config.set_default_inventory(inventory);
 
     Shop shop;
     Game game(game_name, clock, config, shop);
-    game.join(player_name);
+    game.join(player_name, Team::Terrorist);
     
     std::vector<WeaponType> weapons = {WeaponType::AK47, WeaponType::M3, WeaponType::AWP};
     for (WeaponType w : weapons) {
@@ -71,7 +103,7 @@ TEST_F(TestPlayer, CannotBuyWeaponIfNotEnoughMoney) {
     MockClock clock(std::chrono::steady_clock::now());
     Shop shop;
     Game game(game_name, clock, GameConfig(), shop);
-    game.join(player_name);
+    game.join(player_name, Team::Terrorist);
 
     WeaponType weapon = WeaponType::AK47;
     int initial_money = game.get_player_inventory(player_name).money;

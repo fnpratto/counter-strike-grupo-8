@@ -30,33 +30,46 @@ TEST_F(TestGame, StartEmpty) {
 }
 
 TEST_F(TestGame, PlayerCanJoinGame) {
-    game.join("test_player");
+    game.join("test_player", Team::Terrorist);
     EXPECT_EQ(game.get_num_players(), 1);
 }
 
 TEST_F(TestGame, PlayerCannotJoinGameTwice) {
-    game.join("test_player");
+    game.join("test_player", Team::Terrorist);
     EXPECT_THROW({
-        game.join("test_player");
+        game.join("test_player", Team::Terrorist);
     }, JoinGameError);
     EXPECT_EQ(game.get_num_players(), 1);
 }
 
 TEST_F(TestGame, PlayerCannotJoinGameWithInvalidName) {
     EXPECT_THROW({
-        game.join("");
+        game.join("", Team::Terrorist);
     }, JoinGameError);
     EXPECT_EQ(game.get_num_players(), 0);
 }
 
-TEST_F(TestGame, PlayerCannotJoinFullGame) {
-    for (unsigned int i = 1; i <= config.get_max_players(); i++) {
-        game.join("test_player_" + std::to_string(i));
+TEST_F(TestGame, PlayerCannotJoinFullTeam) {
+    for (unsigned int i = 1; i <= config.get_max_players_team(); i++) {
+        game.join("test_player_" + std::to_string(i), Team::Terrorist);
     }
     EXPECT_THROW({
-        game.join("extra_player");
+        game.join("extra_player", Team::Terrorist);
     }, JoinGameError);
-    EXPECT_EQ(game.get_num_players(), config.get_max_players());
+    EXPECT_EQ(game.get_num_players(), config.get_max_players_team());
+}
+
+TEST_F(TestGame, PlayerCannotJoinFullGame) {
+    for (unsigned int i = 1; i <= config.get_max_players_team(); i++) {
+        game.join("test_terrorist_" + std::to_string(i), Team::Terrorist);
+    }
+    for (unsigned int i = 1; i <= config.get_max_players_team(); i++) {
+        game.join("test_counter_terrorist_" + std::to_string(i), Team::CounterTerrorist);
+    }
+    EXPECT_THROW({
+        game.join("extra_player", Team::Terrorist);
+    }, JoinGameError);
+    EXPECT_EQ(game.get_num_players(), config.get_max_players_game());
 }
 
 TEST_F(TestGame, StartInBuyingPhase) {
@@ -83,7 +96,7 @@ TEST_F(TestGame, StartPlayingAfterBuyingDuration) {
 TEST_F(TestGame, PlayerCannotJoinStartedGame) {
     game.start();
     EXPECT_THROW({
-        game.join("test_player");
+        game.join("test_player", Team::Terrorist);
     }, JoinGameError);
     EXPECT_EQ(game.get_num_players(), 0);
 }

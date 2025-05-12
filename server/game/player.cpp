@@ -1,15 +1,13 @@
 #include "player.h"
 #include "server/errors.h"
 
-Player::Player(Inventory inventory) : 
-        team(Team::Terrorist),
+Player::Player(Team team, Inventory inventory) : 
+        team(team),
         inventory(inventory) {}
 
 Team Player::get_team() const { return team; }
 
 Inventory Player::get_inventory() const { return inventory; };
-
-void Player::change_team(const Team& team) { this->team = team; };
 
 void Player::gain_money(int amount) {
     inventory.money += amount;

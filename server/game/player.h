@@ -9,12 +9,10 @@ private:
     Inventory inventory;
 
 public:
-    explicit Player(Inventory inventory);
+    Player(Team team, Inventory inventory);
 
     Team get_team() const;
     Inventory get_inventory() const;
-
-    void change_team(const Team& team);
 
     void gain_money(int amount);
 

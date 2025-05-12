@@ -9,7 +9,7 @@ void GameThread::run() {
 }
 
 pipe_t GameThread::join_game(const std::string& player_name) {
-    game.join(player_name);
+    game.join(player_name, Team::Terrorist);
 
     auto output_queue = std::make_shared<Queue<Message>>();
     output_queues.push_back(output_queue);
