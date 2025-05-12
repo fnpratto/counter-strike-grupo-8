@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(window)
-
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+project(elements)
 
 add_library(elements
   window_elements/Area.cpp
@@ -9,13 +7,12 @@ add_library(elements
   window_elements/SdlException.cpp
   window_elements/SdlWindow.cpp
   window_elements/SdlText.cpp
-  window_elements/Component.cpp
+  hud_component/hud_display.cpp
+  hud_component/BitmapFontNumber.cpp
+
 )
 
-# Find SDL2
-message("Agregando '${PROJECT_BINARY_DIR}' como directorio de includes")
-include_directories(${PROJECT_BINARY_DIR})
-
-add_executable(sdl-window main.cpp hud/hud_display.cpp)
-
-target_link_libraries(sdl-window elements SDL2 SDL2_image SDL2_ttf)
+target_include_directories(elements PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/window_elements
+    ${CMAKE_CURRENT_SOURCE_DIR}/hud
+)

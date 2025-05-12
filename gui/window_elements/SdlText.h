@@ -21,9 +21,9 @@ private:
 public:
     SdlText(const std::string& fontFile, int fontSize, SDL_Color color, const SdlWindow& window);
     ~SdlText();
-
-    void setText(const std::string& text);
+    void setTextString(const std::string& text);
     int render(const Area& dest) const;
+    SDL_Texture* getText() const { return texture; }  // Added getter for texture
 };
 
 #endif  // SDLTEXT_H

@@ -22,6 +22,8 @@ public:
      **/
     int render(const Area& src, const Area& dest) const;
 
+    SDL_Texture* getTexture() const { return texture; }
+
 private:
     SDL_Texture* loadTexture(const std::string& filename);
     SDL_Renderer* renderer;
