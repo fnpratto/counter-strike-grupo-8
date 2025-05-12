@@ -4,6 +4,7 @@ target_sources(taller_server
     client_handler.cpp
     game_thread.cpp
     lobby_monitor.cpp
+    lobby_thread.cpp
     protocol.cpp
     main.cpp
     game/game.cpp
