@@ -5,10 +5,11 @@
 
 void ClientSender::run() {
     try {
+        Message message;
         while (should_keep_running()) {
-            Message message = Message();
+            queue.try_pop(message);
 
-            if (queue.try_pop(message) && message.get_type() != MessageType::NONE)
+            if (message.get_type() != MessageType::NONE)
                 protocol->send(message);
 
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -23,7 +24,5 @@ void ClientSender::run() {
 
 void ClientSender::stop() {
     Thread::stop();
-
-    if (protocol->is_open())
-        protocol->close();
+    protocol->close();
 }
