@@ -63,8 +63,3 @@ void LobbyThread::handle_list_games_cmd() {
     // auto games = lobby_monitor.get_games_names();
     // TODO: send the list of games to the client
 }
-
-void LobbyThread::stop() {
-    Thread::stop();
-    protocol->close();
-}
