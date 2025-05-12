@@ -1,7 +1,7 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource>
-        <file>resources/counter_strike.ttf</file>
-        <file>resources/cs2d.bmp</file>
+        <file alias="resources/counter_strike.ttf">../../assets/gfx/fonts/counter_strike.ttf</file>
+        <file alias="resources/cs2d.bmp">../../assets/gfx/cs2d.bmp</file>
     </qresource>
 </RCC>

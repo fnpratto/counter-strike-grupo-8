@@ -101,6 +101,8 @@ if(TALLER_CLIENT OR TALLER_EDITOR)
     # Find and include Qt5 packages
     find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui)
     set(CMAKE_AUTOMOC ON)
+    set(CMAKE_AUTORCC ON)
+    set(CMAKE_AUTOUIC ON)
 endif()
 
 # Program section
@@ -125,7 +127,9 @@ if(TALLER_CLIENT)
     target_link_libraries(taller_client
         taller_common
         SDL2pp::SDL2pp
+        Qt5::Core
         Qt5::Widgets
+        Qt5::Gui
     )
 endif()
 
