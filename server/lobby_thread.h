@@ -28,4 +28,6 @@ public:
     void handle_create_game_cmd(const CreateGameCommand& cmd);
     void handle_join_game_cmd(const JoinGameCommand& cmd);
     void handle_list_games_cmd();
+
+    void stop() override;
 };

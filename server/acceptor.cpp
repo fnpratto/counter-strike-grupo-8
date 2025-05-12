@@ -49,6 +49,8 @@ void Acceptor::reap() {
 void Acceptor::stop() {
     Thread::stop();
 
+    for (auto& client: clients) client.disconnect();
+
     // Shutdown and close the socket in case we're stuck on accept()
     socket.shutdown(SHUT_RDWR);
     socket.close();
