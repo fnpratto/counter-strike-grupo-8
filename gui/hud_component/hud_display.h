@@ -2,6 +2,7 @@
 #define HUD_DISPLAY_H
 
 #include <string>
+#include <vector>
 
 #include "../window_elements/Area.h"  // Assuming Area is in this header
 #include "../window_elements/SdlText.h"
@@ -23,11 +24,16 @@ private:
     BitmapFont money_amount;
     SdlTexture life;
     BitmapFont life_amount;
-    //   Component equipedGunsComponent;
-    //   Component bulletsComponent;
+    /*SdlTexture equipedGuns;
+    BitmapFont equipedGuns_amount;*/
+    SdlTexture equipedBullets;
+    BitmapFont equipedBulletsAmount;
     BitmapFont timer_amount;
     SdlTexture timer_dots;
     SdlText roundText;
+    SdlText gunNumber;
+    void renderGunIcons();
+
     void show_timer();
 
     void updateComponents();
