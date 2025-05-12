@@ -40,4 +40,6 @@ public:
 
     LobbyMonitor(const LobbyMonitor&) = delete;
     LobbyMonitor& operator=(const LobbyMonitor&) = delete;
+
+    ~LobbyMonitor();
 };

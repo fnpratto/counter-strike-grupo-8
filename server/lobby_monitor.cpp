@@ -55,3 +55,10 @@ void LobbyMonitor::reap() {
             games.erase(name);
         }
 }
+
+LobbyMonitor::~LobbyMonitor() {
+    for (const auto& [name, game]: games) {
+        game->stop();
+        game->join();
+    }
+}

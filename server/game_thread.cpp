@@ -26,4 +26,4 @@ pipe_t GameThread::join_game(const std::string& player_name) {
 
 bool GameThread::is_full() { return game.is_full(); }
 
-void GameThread::stop() {}  // TODO: finish game
+void GameThread::stop() { Thread::stop(); }  // TODO: finish game
