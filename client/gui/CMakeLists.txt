@@ -14,5 +14,5 @@ add_library(elements
 
 target_include_directories(elements PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/window_elements
-    ${CMAKE_CURRENT_SOURCE_DIR}/hud
+    ${CMAKE_CURRENT_SOURCE_DIR}/hud_component
 )

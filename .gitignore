@@ -117,4 +117,7 @@ build/**/*
 .vscode/*
 
 .exe
-Makefile
+taller_client
+taller_server
+taller_test
+taller_editor

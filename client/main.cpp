@@ -3,8 +3,8 @@
 
 #include <SDL2/SDL.h>
 
-#include "../gui/hud_component/hud_display.h"
-#include "../gui/window_elements/SdlWindow.h"
+#include "gui/hud_component/hud_display.h"
+#include "gui/window_elements/SdlWindow.h"
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;

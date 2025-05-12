@@ -14,18 +14,18 @@ const float scale = 0.5f;
 const int digitSpacingSmall = static_cast<int>(42 * scale) + 1;
 
 // Paths
-const std::string& BACKGROUND_PATH = "assets/gfx/backgrounds/water1.jpg";
-const std::string& POINTER_PATH = "assets/gfx/hud/pointer.xcf";
-const std::string& MONEY_PATH = "assets/gfx/hud/hud_symbols.xcf";
-const std::string& LIFE_PATH = "assets/gfx/hud/hud_symbols.xcf";
-const std::string& FONT_PATH = "assets/gfx/fonts/joystix_monospace.otf";
-const std::string& BULLET_PATH = "assets/gfx/hud/bullet-icon1.xcf";
-const std::string& TRAPECIO_PATH = "assets/gfx/hud/trapezoid.xcf";
-const std::string& HUD_NUMS_PATH = "assets/gfx/fonts/hud_nums.xcf";
-const std::string& PARALELO_RED_PATH = "assets/gfx/hud/parallelogram.xcf";
-const std::string& PARALELO_BLUE_PATH = "assets/gfx/hud/parallelogram_blue.xcf";
-const std::string& PARALELO_RED_O_PATH = "assets/gfx/hud/parallelogram_red_op.xcf";
-const std::string& PARALELO_BLUE_O_PATH = "assets/gfx/hud/parallelogram_blue_op.xcf";
+const std::string& BACKGROUND_PATH = "../assets/gfx/backgrounds/water1.jpg";
+const std::string& POINTER_PATH = "../assets/gfx/hud/pointer.xcf";
+const std::string& MONEY_PATH = "../assets/gfx/hud/hud_symbols.xcf";
+const std::string& LIFE_PATH = "../assets/gfx/hud/hud_symbols.xcf";
+const std::string& FONT_PATH = "../assets/gfx/fonts/joystix_monospace.otf";
+const std::string& BULLET_PATH = "../assets/gfx/hud/bullet-icon1.xcf";
+const std::string& TRAPECIO_PATH = "../assets/gfx/hud/trapezoid.xcf";
+const std::string& HUD_NUMS_PATH = "../assets/gfx/fonts/hud_nums.xcf";
+const std::string& PARALELO_RED_PATH = "../assets/gfx/hud/parallelogram.xcf";
+const std::string& PARALELO_BLUE_PATH = "../assets/gfx/hud/parallelogram_blue.xcf";
+const std::string& PARALELO_RED_O_PATH = "../assets/gfx/hud/parallelogram_red_op.xcf";
+const std::string& PARALELO_BLUE_O_PATH = "../assets/gfx/hud/parallelogram_blue_op.xcf";
 
 
 // Constructor
@@ -34,14 +34,14 @@ hudDisplay::hudDisplay(SdlWindow& window):
         back(BACKGROUND_PATH, window),
         pointer(POINTER_PATH, window),
         money(MONEY_PATH, window),
-        money_amount(window.getRenderer(), "assets/gfx/fonts/hud_nums.xcf"),
+        money_amount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
         life(LIFE_PATH, window),
-        life_amount(window.getRenderer(), "assets/gfx/fonts/hud_nums.xcf"),
-        timer_dots("assets/gfx/fonts/hud_nums.xcf", window),
-        timer_amount(window.getRenderer(), "assets/gfx/fonts/hud_nums.xcf"),
+        life_amount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
+        timer_dots("../assets/gfx/fonts/hud_nums.xcf", window),
+        timer_amount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
         roundText(FONT_PATH, 20, {150, 150, 150, 255}, window),
         equipedBullets(BULLET_PATH, window),
-        equipedBulletsAmount(window.getRenderer(), "assets/gfx/fonts/hud_nums.xcf"),
+        equipedBulletsAmount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
         gunNumber(FONT_PATH, 20, {150, 150, 150, 255}, window),
         scoreText(FONT_PATH, 20, {255, 255, 255, 255}, window) {}
 
@@ -193,11 +193,11 @@ void hudDisplay::renderGunIcons() {
     int y = SCREEN_HEIGHT / 2;
     int spacing = 64;
 
-    renderGunIcon("assets/gfx/guns/ak47_k.xcf", "1", x, y);
+    renderGunIcon("../assets/gfx/guns/ak47_k.xcf", "1", x, y);
     y += spacing;
-    renderGunIcon("assets/gfx/guns/aug_k.xcf", "2", x, y);
+    renderGunIcon("../assets/gfx/guns/aug_k.xcf", "2", x, y);
     y += spacing;
-    renderGunIcon("assets/gfx/guns/elite_k.xcf", "3", x, y);
+    renderGunIcon("../assets/gfx/guns/elite_k.xcf", "3", x, y);
 }
 
 // Helper to render gun icon

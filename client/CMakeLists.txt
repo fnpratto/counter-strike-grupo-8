@@ -1,4 +1,6 @@
 # Adding sources
+add_subdirectory(gui)
+
 target_sources(taller_client
     PRIVATE
         main.cpp
@@ -14,6 +16,7 @@ target_link_libraries(taller_client
 
 
 target_include_directories(taller_client
-    PRIVATE
-        ${CMAKE_SOURCE_DIR}/gui
+   PRIVATE
+        gui/window_elements
+        gui/hud_component
 )
