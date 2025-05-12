@@ -39,6 +39,7 @@ void TextDisplay::run() {
         if (input_queue.try_pop(message))
             draw(message);
         read_input();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 
