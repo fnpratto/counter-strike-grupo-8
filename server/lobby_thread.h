@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <utility>
 
@@ -13,15 +14,14 @@
 
 class LobbyThread: public Thread {
 private:
+    ServerProtocol& protocol;
     LobbyMonitor& lobby_monitor;  // TODO: check lifetime of this reference
-    std::shared_ptr<ServerProtocol> protocol;
 
-    std::unique_ptr<Sender>& sender;
-    std::unique_ptr<Receiver>& receiver;
+    std::function<void(pipe_t)> join_callback;
 
 public:
-    explicit LobbyThread(LobbyMonitor& lobby_monitor, std::shared_ptr<ServerProtocol> proto,
-                         std::unique_ptr<Sender>& sender, std::unique_ptr<Receiver>& receiver);
+    LobbyThread(ServerProtocol& proto, LobbyMonitor& lobby_monitor,
+                std::function<void(pipe_t)> join_callback);
 
     void run() override;
 

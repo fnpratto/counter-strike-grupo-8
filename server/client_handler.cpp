@@ -8,9 +8,18 @@
 #include "errors.h"
 
 ClientHandler::ClientHandler(Socket&& client_socket, LobbyMonitor& lobby_monitor):
-        protocol(std::make_shared<ServerProtocol>(std::move(client_socket))),
-        lobby_thread(std::make_unique<LobbyThread>(lobby_monitor, protocol, sender, receiver)) {
+        protocol(ServerProtocol(std::move(client_socket))),
+        lobby_thread(std::make_unique<LobbyThread>(
+                protocol, lobby_monitor, [this](pipe_t pipe) { this->connect(std::move(pipe)); })) {
     lobby_thread->start();
+}
+
+void ClientHandler::connect(pipe_t pipe) {
+    sender = std::make_unique<Sender>(protocol, std::move(pipe.first));
+    receiver = std::make_unique<Receiver>(protocol, std::move(pipe.second));
+
+    sender->start();
+    receiver->start();
 }
 
 void ClientHandler::disconnect() {
@@ -26,5 +35,5 @@ void ClientHandler::disconnect() {
         receiver->stop();
         receiver->join();
     }
-    protocol->close();
+    protocol.close();
 }

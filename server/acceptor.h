@@ -14,7 +14,9 @@ class Acceptor: public Thread {
 private:
     Socket socket;
     LobbyMonitor lobby_monitor;
-    std::vector<ClientHandler> clients;
+
+    // @note These are pointers to allow for easy movement
+    std::vector<std::unique_ptr<ClientHandler>> clients;
 
 public:
     explicit Acceptor(const std::string& port): socket(Socket(port.c_str())), lobby_monitor() {}

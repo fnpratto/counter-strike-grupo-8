@@ -3,19 +3,19 @@
 #include <iostream>
 #include <utility>
 
-Receiver::Receiver(std::shared_ptr<ServerProtocol> protocol, std::shared_ptr<Queue<Message>> queue):
-        protocol(std::move(protocol)), queue(std::move(queue)) {}
+Receiver::Receiver(ServerProtocol& protocol, std::shared_ptr<Queue<Message>> queue):
+        protocol(protocol), queue(std::move(queue)) {}
 
 void Receiver::run() {
     while (should_keep_running()) {
         try {
-            auto msg = protocol->recv();
+            auto msg = protocol.recv();
             queue->push(msg);
         } catch (const ClosedQueue&) {
             stop();
             break;
         } catch (const std::exception& e) {
-            if (protocol->is_closed()) {
+            if (protocol.is_closed()) {
                 stop();
                 break;
             }
@@ -27,5 +27,5 @@ void Receiver::run() {
 
 void Receiver::stop() {
     Thread::stop();
-    protocol->close();
+    protocol.close();
 }

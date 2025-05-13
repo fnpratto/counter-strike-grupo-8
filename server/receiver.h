@@ -9,12 +9,11 @@
 
 class Receiver: public Thread {
 private:
-    std::shared_ptr<ServerProtocol> protocol;
+    ServerProtocol& protocol;
     std::shared_ptr<Queue<Message>> queue;
 
 public:
-    explicit Receiver(std::shared_ptr<ServerProtocol> protocol,
-                      std::shared_ptr<Queue<Message>> queue);
+    explicit Receiver(ServerProtocol& protocol, std::shared_ptr<Queue<Message>> queue);
 
     void run() override;
     void stop() override;

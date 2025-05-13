@@ -2,16 +2,13 @@
 
 #include <iostream>
 
-LobbyThread::LobbyThread(LobbyMonitor& lobby_monitor, std::shared_ptr<ServerProtocol> proto,
-                         std::unique_ptr<Sender>& sender, std::unique_ptr<Receiver>& receiver):
-        lobby_monitor(lobby_monitor),
-        protocol(std::move(proto)),
-        sender(sender),
-        receiver(receiver) {}
+LobbyThread::LobbyThread(ServerProtocol& proto, LobbyMonitor& lobby_monitor,
+                         std::function<void(pipe_t)> join_callback):
+        protocol(proto), lobby_monitor(lobby_monitor), join_callback(std::move(join_callback)) {}
 
 void LobbyThread::run() {
     while (should_keep_running()) {
-        auto msg = protocol->recv();
+        auto msg = protocol.recv();
 
         // TODO: function map
         switch (msg.get_type()) {
@@ -40,10 +37,7 @@ void LobbyThread::run() {
 void LobbyThread::handle_create_game_cmd(const CreateGameCommand& cmd) {
     pipe_t pipe = lobby_monitor.create_game(cmd.get_game_name());
 
-    sender = std::make_unique<Sender>(protocol, std::move(pipe.first));
-    receiver = std::make_unique<Receiver>(protocol, std::move(pipe.second));
-    sender->start();
-    receiver->start();
+    join_callback(pipe);
 
     stop();
 }
@@ -51,10 +45,7 @@ void LobbyThread::handle_create_game_cmd(const CreateGameCommand& cmd) {
 void LobbyThread::handle_join_game_cmd(const JoinGameCommand& cmd) {
     pipe_t pipe = lobby_monitor.join_game(cmd.get_game_name());
 
-    sender = std::make_unique<Sender>(protocol, std::move(pipe.first));
-    receiver = std::make_unique<Receiver>(protocol, std::move(pipe.second));
-    sender->start();
-    receiver->start();
+    join_callback(pipe);
 
     stop();
 }
