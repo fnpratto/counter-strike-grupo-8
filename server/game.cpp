@@ -10,6 +10,7 @@
 #include <utility>
 #include <vector>
 
+#include "common/message.h"
 #include "common/models.h"
 
 #include "errors.h"
@@ -18,6 +19,11 @@ void Game::join(const std::string& player_name) {
     if (is_full() || player_name.empty()) {
         throw JoinGameError();
     }  // TODO: Implement this method
+}
+
+void Game::tick(const Message& msg) {
+    if (msg.get_type() == MessageType::NONE)
+        return;
 }
 
 bool Game::is_full() const { return false; }  // TODO: Implement this method
