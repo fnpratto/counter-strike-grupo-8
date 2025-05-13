@@ -46,3 +46,7 @@ void SdlWindow::render() { SDL_RenderPresent(this->renderer); }
 
 
 SDL_Renderer* SdlWindow::getRenderer() const { return this->renderer; }
+
+
+int SdlWindow::getWidth() const { return this->width; }
+int SdlWindow::getHeight() const { return this->height; }

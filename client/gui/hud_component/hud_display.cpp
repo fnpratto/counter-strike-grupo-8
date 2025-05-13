@@ -3,16 +3,6 @@
 #include <algorithm>
 #include <filesystem>
 #include <vector>
-
-// Constants
-const int size_width = 62;
-const int size_height = 64;
-const int padding = 10;
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
-const float scale = 0.5f;
-const int digitSpacingSmall = static_cast<int>(42 * scale) + 1;
-
 // Paths
 const std::string& BACKGROUND_PATH = "../assets/gfx/backgrounds/water1.jpg";
 const std::string& POINTER_PATH = "../assets/gfx/hud/pointer.xcf";
@@ -28,9 +18,10 @@ const std::string& PARALELO_RED_O_PATH = "../assets/gfx/hud/parallelogram_red_op
 const std::string& PARALELO_BLUE_O_PATH = "../assets/gfx/hud/parallelogram_blue_op.xcf";
 
 
-// Constructor
 hudDisplay::hudDisplay(SdlWindow& window):
         window(window),
+        SCREEN_WIDTH(window.getWidth()),
+        SCREEN_HEIGHT(window.getHeight()),
         back(BACKGROUND_PATH, window),
         pointer(POINTER_PATH, window),
         money(MONEY_PATH, window),
@@ -45,9 +36,8 @@ hudDisplay::hudDisplay(SdlWindow& window):
         gunNumber(FONT_PATH, 20, {150, 150, 150, 255}, window),
         scoreText(FONT_PATH, 20, {255, 255, 255, 255}, window) {}
 
-// Main render function
+
 void hudDisplay::render() {
-    window.fill();
     renderBackground();
     renderParal();
     renderPointer();
@@ -57,14 +47,11 @@ void hudDisplay::render() {
     renderRoundText();
     renderBullets();
     renderGunIcons();
-    window.render();  // Swap buffers
 }
 
 // Render background
 void hudDisplay::renderBackground() {
-    const Area sizeBackground(0, 0, 60, 60);
-    const Area destBackground(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    back.render(sizeBackground, destBackground);
+    // back.render(sizeBackground, destBackground);
     SDL_Renderer* renderer = window.getRenderer();
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
@@ -115,7 +102,7 @@ void hudDisplay::renderParal() {
 // Render pointer
 void hudDisplay::renderPointer() {
     const Area sizePointer(0, 0, 50, 50);
-    const Area destPointer(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 50, 50);
+    const Area destPointer(pointerX - 25, pointerY - 25, 50, 50);
     pointer.render(sizePointer, destPointer);
 }
 
@@ -203,7 +190,7 @@ void hudDisplay::renderGunIcons() {
 // Helper to render gun icon
 void hudDisplay::renderGunIcon(const std::string& path, const std::string& number, int x, int y) {
     SdlTexture gunTexture(path, window);
-    Area destArea(x, y, SCREEN_WIDTH / 10, 34);
+    Area destArea(x + 20, y, SCREEN_WIDTH / 12, 34);
     gunTexture.render(Area(0, 0, 30, 10), destArea);
     gunNumber.setTextString(number);
     gunNumber.render(Area(SCREEN_WIDTH - padding * 2, y, 10, 20));
@@ -217,4 +204,10 @@ void hudDisplay::renderDigits(const std::string& str, int x, int y, BitmapFont& 
             x += digitSpacingSmall;
         }
     }
+}
+
+
+void hudDisplay::updatePointerPosition(int x, int y) {
+    pointerX = x;
+    pointerY = y;
 }

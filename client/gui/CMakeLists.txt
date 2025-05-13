@@ -9,7 +9,9 @@ add_library(elements
   window_elements/SdlText.cpp
   hud_component/hud_display.cpp
   hud_component/BitmapFontNumber.cpp
-
+  shop_view/shop.cpp
+  controllers/keyboardhandler.cpp
+  controllers/mousehandler.cpp
 )
 
 target_include_directories(elements PUBLIC
