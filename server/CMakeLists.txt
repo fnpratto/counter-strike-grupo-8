@@ -2,6 +2,7 @@ target_sources(taller_server
     PRIVATE
     acceptor.cpp
     client_handler.cpp
+    game.cpp
     game_thread.cpp
     lobby_monitor.cpp
     lobby_thread.cpp
@@ -9,22 +10,12 @@ target_sources(taller_server
     receiver.cpp
     sender.cpp
     main.cpp
-    game/game.cpp
-    game/player.cpp
-    game/game_phase.cpp
     PUBLIC
     acceptor.h
     client_handler.h
+    game.h
     game_thread.h
     lobby_monitor.h
     protocol.h
     receiver.h
-    game/game.h
-    game/player.h
-    game/shop.h
-    game/inventory.h
-    game/game_phase.h
-    game/clock/clock.h
-    game/clock/mock_clock.h
-    game/clock/real_clock.h
-    )
+)
