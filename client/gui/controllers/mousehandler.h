@@ -8,11 +8,13 @@
 
 class MouseHandler {
 public:
-    explicit MouseHandler(hudDisplay& hudDisplayRef): hudDisplayRef(hudDisplayRef) {}
+    explicit MouseHandler(hudDisplay& hudDisplayRef, shopDisplay& shopDisplayRef):
+            hudDisplayRef(hudDisplayRef), shopDisplayRef(shopDisplayRef) {}
     void handleEvent(const SDL_Event& event, bool shop);
 
 private:
     hudDisplay& hudDisplayRef;
+    shopDisplay& shopDisplayRef;
 };
 
 #endif  // MOUSEHANDLER_H

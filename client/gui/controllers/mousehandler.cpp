@@ -12,7 +12,7 @@ void MouseHandler::handleEvent(const SDL_Event& event, bool shop) {
                 std::cout << "MOUSE_PRESS_LEFT" << std::endl;
                 if (shop) {
                     SDL_GetMouseState(&x, &y);
-                    // shopDisplay.updatePointerPosition(x, y);
+                    shopDisplayRef.updatePointerPosition(x, y);
                 }
                 break;
             case SDL_BUTTON_RIGHT:
@@ -22,8 +22,5 @@ void MouseHandler::handleEvent(const SDL_Event& event, bool shop) {
     } else if (event.type == SDL_MOUSEMOTION) {
         SDL_GetMouseState(&x, &y);
         hudDisplayRef.updatePointerPosition(x, y);
-        if (shop) {
-            // shopDisplay.updatePointerPosition(x, y);
-        }
     }
 }

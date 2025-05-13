@@ -23,9 +23,12 @@ private:
     std::vector<SdlTexture> gun_icons;
     SdlText cost_money;
     SdlTexture back;
+    SdlTexture back_chosen;
     SdlText gunNumber;
+    int gun_buy;
     void renderSlots();
     void renderItem();
+    void renderblokedSlots();
 };
 
 #endif  // SHOP_DISPLAY_H

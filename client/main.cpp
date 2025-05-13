@@ -68,7 +68,7 @@ int main(int, char**) {
         SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
         hudDisplay hudDisplay(window);
         shopDisplay shopDisplay(window);
-        MouseHandler mouseHandler(hudDisplay);
+        MouseHandler mouseHandler(hudDisplay, shopDisplay);
         KeyboardHandler keyboardHandler;
         bool shop = false;
 
