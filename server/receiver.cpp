@@ -24,8 +24,3 @@ void Receiver::run() {
         }
     }
 }
-
-void Receiver::stop() {
-    Thread::stop();
-    protocol.close();
-}

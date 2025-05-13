@@ -16,5 +16,4 @@ public:
     explicit Receiver(ServerProtocol& protocol, std::shared_ptr<Queue<Message>> queue);
 
     void run() override;
-    void stop() override;
 };

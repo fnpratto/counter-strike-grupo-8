@@ -23,6 +23,7 @@ void ClientHandler::connect(pipe_t pipe) {
 }
 
 void ClientHandler::disconnect() {
+    protocol.close();
     if (lobby_thread) {
         lobby_thread->stop();
         lobby_thread->join();
@@ -35,5 +36,4 @@ void ClientHandler::disconnect() {
         receiver->stop();
         receiver->join();
     }
-    protocol.close();
 }
