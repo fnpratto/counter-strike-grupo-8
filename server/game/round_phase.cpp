@@ -34,6 +34,7 @@ void RoundPhase::update() {
             }
             break;
         case RoundPhaseType::Finished:
+            // TODO: RoundPhaseType::Finished could also have a duration
             phase = RoundPhaseType::Buying;
             break;
         default:

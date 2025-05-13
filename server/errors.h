@@ -40,6 +40,11 @@ public:
     StartGameError(): GameError("try to start an already started game") {}
 };
 
+class SelectTeamError : public GameError {
+public:
+    SelectTeamError(): GameError("error at select team") {}
+};
+
 class PlayerError: public ServerError {
     public:
         explicit PlayerError(const std::string& message): ServerError(message) {}

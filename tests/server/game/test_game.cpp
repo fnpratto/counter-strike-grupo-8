@@ -30,99 +30,121 @@ TEST_F(TestGame, StartEmpty) {
 }
 
 TEST_F(TestGame, PlayerCanJoinGame) {
-    game.join("test_player", Team::Terrorist);
+    Message msg_join = Message(JoinGameCommand(""));
+    game.tick(msg_join, "test_player");
     EXPECT_EQ(game.get_num_players(), 1);
 }
 
 TEST_F(TestGame, PlayerCannotJoinGameTwice) {
-    game.join("test_player", Team::Terrorist);
+    Message msg_join = Message(JoinGameCommand(""));
+    game.tick(msg_join, "test_player");
     EXPECT_THROW({
-        game.join("test_player", Team::Terrorist);
+        game.tick(msg_join, "test_player");
     }, JoinGameError);
     EXPECT_EQ(game.get_num_players(), 1);
 }
 
 TEST_F(TestGame, PlayerCannotJoinGameWithInvalidName) {
+    Message msg_join = Message(JoinGameCommand(""));
     EXPECT_THROW({
-        game.join("", Team::Terrorist);
+        game.tick(msg_join, "");
     }, JoinGameError);
     EXPECT_EQ(game.get_num_players(), 0);
 }
 
-TEST_F(TestGame, PlayerCannotJoinFullTeam) {
-    for (unsigned int i = 1; i <= config.get_max_players_team(); i++) {
-        game.join("test_player_" + std::to_string(i), Team::Terrorist);
+TEST_F(TestGame, PlayersCanJoinGameUntilItIsFull) {
+    Message msg_join = Message(JoinGameCommand(""));
+    for (unsigned int i = 1; i <= config.get_max_players_game(); i++) {
+        game.tick(msg_join, "test_player_" + std::to_string(i));
     }
     EXPECT_THROW({
-        game.join("extra_player", Team::Terrorist);
-    }, JoinGameError);
-    EXPECT_EQ(game.get_num_players(), config.get_max_players_team());
-}
-
-TEST_F(TestGame, PlayerCannotJoinFullGame) {
-    for (unsigned int i = 1; i <= config.get_max_players_team(); i++) {
-        game.join("test_terrorist_" + std::to_string(i), Team::Terrorist);
-    }
-    for (unsigned int i = 1; i <= config.get_max_players_team(); i++) {
-        game.join("test_counter_terrorist_" + std::to_string(i), Team::CounterTerrorist);
-    }
-    EXPECT_THROW({
-        game.join("extra_player", Team::Terrorist);
+        game.tick(msg_join, "extra_player");
     }, JoinGameError);
     EXPECT_EQ(game.get_num_players(), config.get_max_players_game());
 }
 
+TEST_F(TestGame, PlayerCanSelectTeam) {
+    Message msg_join = Message(JoinGameCommand(""));
+    Message msg_select_team = Message(SelectTeamCommand(Team::Terrorist));
+    game.tick(msg_join, "test_player");
+    game.tick(msg_select_team, "test_player");
+    EXPECT_EQ(game.get_num_players(), 1);
+}
+
+TEST_F(TestGame, PlayerCannotSelectFullTeam) {
+    Message msg_join = Message(JoinGameCommand(""));
+    Message msg_select_team = Message(SelectTeamCommand(Team::Terrorist));
+    for (unsigned int i = 1; i <= config.get_max_players_team(); i++) {
+        game.tick(msg_join, "test_player_" + std::to_string(i));
+        game.tick(msg_select_team, "test_player_" + std::to_string(i));
+    }
+    
+    game.tick(msg_join, "extra_player");
+    EXPECT_THROW({
+        game.tick(msg_select_team, "extra_player");
+    }, SelectTeamError);
+    EXPECT_EQ(game.get_num_players(), config.get_max_players_team() + 1);
+}
+
 TEST_F(TestGame, StartInBuyingPhase) {
-    game.start();
+    Message msg_start = Message(StartGameCommand());
+    game.tick(msg_start, "");
     EXPECT_EQ(game.get_phase_type(), RoundPhaseType::Buying);
 }
 
 TEST_F(TestGame, CannotStartAnAlreadyStartedGame) {
-    game.start();
+    Message msg_start = Message(StartGameCommand());
+    game.tick(msg_start, "");
     EXPECT_THROW({
-        game.start();
+        game.tick(msg_start, "");
     }, StartGameError);
 }
 
 TEST_F(TestGame, StartPlayingAfterBuyingDuration) {
-    game.start();
+    Message msg_start = Message(StartGameCommand());
+    game.tick(msg_start, "");
     
     advance_secs(config.get_buying_phase_secs());
-    game.tick();
+    game.tick(Message(), "");
 
     EXPECT_EQ(game.get_phase_type(), RoundPhaseType::Playing);
 }
 
 TEST_F(TestGame, PlayerCannotJoinStartedGame) {
-    game.start();
+    Message msg_start = Message(StartGameCommand());
+    game.tick(msg_start, "");
+
+    Message msg_join = Message(JoinGameCommand(""));
     EXPECT_THROW({
-        game.join("test_player", Team::Terrorist);
+        game.tick(msg_join, "test_player");
     }, JoinGameError);
     EXPECT_EQ(game.get_num_players(), 0);
 }
 
 TEST_F(TestGame, FinishOneRoundAfterRoundDuration) {
-    game.start();
+    Message msg_start = Message(StartGameCommand());
+    game.tick(msg_start, "");
     EXPECT_EQ(game.get_num_rounds_played(), 0);
 
     advance_secs(config.get_buying_phase_secs());
-    game.tick();
+    game.tick(Message(), "");
     advance_secs(config.get_playing_phase_secs());
-    game.tick();
+    game.tick(Message(), "");
 
     EXPECT_EQ(game.get_phase_type(), RoundPhaseType::Finished);
     EXPECT_EQ(game.get_num_rounds_played(), 1);
 }
 
 TEST_F(TestGame, StartAnotherRoundAfterFinishingOneRound) {
-    game.start();
+    Message msg_start = Message(StartGameCommand());
+    game.tick(msg_start, "");
 
     advance_secs(config.get_buying_phase_secs());
-    game.tick();
+    game.tick(Message(), "");
     advance_secs(config.get_playing_phase_secs());
-    game.tick();
+    game.tick(Message(), "");
     advance_secs(1);
-    game.tick();
+    game.tick(Message(), "");
 
     EXPECT_EQ(game.get_phase_type(), RoundPhaseType::Buying);
 }
