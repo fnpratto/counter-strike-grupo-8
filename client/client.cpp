@@ -14,16 +14,21 @@
 #include "common/socket.h"
 #include "common/thread.h"
 
-#if CLIENT_TYPE == text
+#if UI_TYPE == tui
 #include "text_display.h"
+#elif UI_TYPE == gui
+#include "qt_display.h"
+#include "sdl_display.h"
 #endif
 
 #include "receiver.h"
 #include "sender.h"
 
 Client::Client():
-#if CLIENT_TYPE == text
+#if UI_TYPE == tui
         display(std::make_unique<TextDisplay>(display_queue, input_queue))
+#elif UI_TYPE == gui
+        display(std::make_unique<QtDisplay>(display_queue, input_queue))
 #endif
 {
     display->start();
@@ -62,6 +67,14 @@ void Client::run() {
     receiver->start();
 
     // TODO switch display from QtDisplay to SDLDisplay
+#if UI_TYPE == tui
+    // No need to switch, TUI handles both stages
+#elif UI_TYPE == gui
+    display->stop();
+    display->join();
+    display = std::make_unique<SDLDisplay>(display_queue, input_queue);
+    display->start();
+#endif
 
     while (display->is_alive() && sender->is_alive() && receiver->is_alive())
         std::this_thread::sleep_for(std::chrono::milliseconds(10));

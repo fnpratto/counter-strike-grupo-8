@@ -7,6 +7,8 @@ target_sources(taller_client
     receiver.cpp
     sender.cpp
     text_display.cpp
+    qt_display.cpp
+    sdl_display.cpp
     PUBLIC
     # .h files
     client.h
@@ -15,7 +17,6 @@ target_sources(taller_client
     receiver.h
     sender.h
     text_display.h
+    qt_display.h
+    sdl_display.h
     )
-
-# Define display type (text by default)
-target_compile_definitions(taller_client PRIVATE CLIENT_TYPE=text)
