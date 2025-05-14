@@ -6,22 +6,24 @@ target_sources(taller_server
     lobby_monitor.cpp
     protocol.cpp
     main.cpp
-    game/game.cpp
     game/player.cpp
-    game/round_phase.cpp
+    game/game.cpp
+    game/game_state.cpp
+    game/game_phase.cpp
     PUBLIC
     acceptor.h
     client_handler.h
     game_thread.h
     lobby_monitor.h
     protocol.h
-    game/game.h
-    game/player.h
-    game/inventory.h
-    game/round_phase.h
-    game/shop.h
-    game/game_config.h
     clock/clock.h
     clock/mock_clock.h
     clock/real_clock.h
+    game/shop.h
+    game/player.h
+    game/inventory.h
+    game/game.h
+    game/game_state.h
+    game/game_phase.h
+    game/game_config.h
     )

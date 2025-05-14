@@ -45,14 +45,19 @@ public:
     SelectTeamError(): GameError("error at select team") {}
 };
 
+class InvalidPlayerNameError : public GameError {
+public:
+    InvalidPlayerNameError(): GameError("invalid player name") {}
+};
+
 class PlayerError: public ServerError {
-    public:
-        explicit PlayerError(const std::string& message): ServerError(message) {}
-        const char* what() const noexcept override {
-            static std::string full_message = "Player Error: " + std::string(ServerError::what());
-            return full_message.c_str();
-        }
-    };
+public:
+    explicit PlayerError(const std::string& message): ServerError(message) {}
+    const char* what() const noexcept override {
+        static std::string full_message = "Player Error: " + std::string(ServerError::what());
+        return full_message.c_str();
+    }
+};
 
 class BuyWeaponError: public PlayerError {
 public:
