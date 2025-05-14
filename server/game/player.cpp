@@ -1,19 +1,22 @@
 #include "player.h"
 #include "server/errors.h"
 
-Player::Player(Team team, Inventory inventory) : 
+Player::Player(Team team, Inventory inventory, unsigned int health) : 
         team(team),
-        inventory(inventory) {}
+        inventory(inventory),
+        health(health) {}
 
-bool Player::is_terrorist() const {
+Inventory Player::get_inventory() const { return inventory; };
+
+unsigned int Player::get_health() const { return health; }
+
+bool Player::is_tt() const {
     return team == Team::Terrorist;
 }
 
-bool Player::is_counter_terrorist() const {
+bool Player::is_ct() const {
     return team == Team::CounterTerrorist;
 }
-
-Inventory Player::get_inventory() const { return inventory; };
 
 void Player::gain_money(int amount) {
     inventory.money += amount;

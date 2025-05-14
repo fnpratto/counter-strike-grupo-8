@@ -2,10 +2,13 @@
 
 #include "game_state.h"
 #include "server/errors.h"
+#include <iostream>
 
 GameState::GameState(const GameConfig& conf, const Clock& clock) :
         conf(conf),
-        phase(clock, conf.buying_phase_secs, conf.playing_phase_secs) {}
+        phase(clock, conf.buying_phase_secs, 
+                     conf.playing_phase_secs, 
+                     conf.round_finished_phase_secs) {}
 
 GameConfig GameState::get_config() { return conf; }
 
@@ -16,7 +19,7 @@ void GameState::add_player(const std::string& player_name) {
         throw JoinGameError();
 
     Team team = choose_player_team();
-    conf.players.emplace(player_name, Player(team, conf.default_inventory));
+    conf.players.emplace(player_name, Player(team, conf.default_inventory, conf.full_health));
     if (team == Team::Terrorist) {
         conf.num_tts++;
     } else {
@@ -29,7 +32,7 @@ void GameState::select_team(const std::string& player_name, Team team) {
         throw SelectTeamError();
     
     Team old_team;
-    if (conf.players.at(player_name).is_terrorist()) {
+    if (conf.players.at(player_name).is_tt()) {
         old_team = Team::Terrorist;
     } else {
         old_team = Team::CounterTerrorist;
@@ -65,10 +68,11 @@ void GameState::buy_weapon(const std::string& player_name, WeaponType weapon, in
 }
 
 void GameState::update_round_phase() {
+    if (conf.num_rounds == conf.max_rounds / 2)
+        swap_teams();
     phase.update();
-    if (phase.get_type() == PhaseType::RoundFinished) {
+    if (phase.get_type() == PhaseType::RoundFinished)
         conf.num_rounds++;
-    }
 }
 
 Team GameState::choose_player_team() {
@@ -81,13 +85,23 @@ void GameState::give_bomb_to_random_tt() {
     std::vector<std::string> tt_names;
 
     for (auto& [player_name, player] : conf.players) {
-        if (player.is_terrorist()) {
+        if (player.is_tt()) {
             tt_names.push_back(player_name);
         }
     }
 
     int random_index = rand() % conf.num_tts;
     conf.players.at(tt_names[random_index]).pick_bomb(WeaponType::C4);
+}
+
+void GameState::swap_teams() {
+    for (auto& [_, player] : conf.players) {
+        if (player.is_tt()) {
+            player.select_team(Team::CounterTerrorist);
+        } else if (player.is_ct()) {
+            player.select_team(Team::Terrorist);
+        }
+    }
 }
 
 GameState::~GameState() {}

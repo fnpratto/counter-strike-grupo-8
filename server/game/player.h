@@ -7,13 +7,15 @@ class Player {
 private:
     Team team;
     Inventory inventory;
+    unsigned int health;
 
 public:
-    Player(Team team, Inventory inventory);
+    Player(Team team, Inventory inventory, unsigned int health);
 
     Inventory get_inventory() const;
-    bool is_terrorist() const;
-    bool is_counter_terrorist() const;
+    unsigned int get_health() const;
+    bool is_tt() const;
+    bool is_ct() const;
 
     void gain_money(int amount);
     void pick_bomb(WeaponType bomb);

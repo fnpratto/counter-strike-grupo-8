@@ -121,6 +121,22 @@ TEST_F(TestGame, PlayerCannotJoinStartedGame) {
     EXPECT_EQ(game.get_config().get_num_players(), 0);
 }
 
+TEST_F(TestGame, PlayerCannotSelectTeamWhenStartedGame) {
+    Message msg_join = Message(JoinGameCommand(""));
+    game.tick(msg_join, "test_player");
+    Message msg_select_team = Message(SelectTeamCommand(Team::Terrorist));
+    game.tick(msg_select_team, "test_player");
+    Message msg_start = Message(StartGameCommand());
+    game.tick(msg_start, "test_player");
+    
+    msg_select_team = Message(SelectTeamCommand(Team::CounterTerrorist));
+    EXPECT_THROW({
+        game.tick(msg_select_team, "test_player");
+    }, SelectTeamError);
+    EXPECT_EQ(game.get_config().get_num_tts(), 1);
+    EXPECT_EQ(game.get_config().get_num_cts(), 0);
+}
+
 TEST_F(TestGame, FinishOneRoundAfterRoundDuration) {
     Message msg_start = Message(StartGameCommand());
     game.tick(msg_start, "test_player");
@@ -135,7 +151,7 @@ TEST_F(TestGame, FinishOneRoundAfterRoundDuration) {
     EXPECT_EQ(game.get_config().get_num_rounds(), 1);
 }
 
-TEST_F(TestGame, StartAnotherRoundAfterFinishingOneRound) {
+TEST_F(TestGame, StartAnotherRoundAfterRoundFinishedDuration) {
     Message msg_start = Message(StartGameCommand());
     game.tick(msg_start, "test_player");
 
@@ -143,8 +159,34 @@ TEST_F(TestGame, StartAnotherRoundAfterFinishingOneRound) {
     game.tick(Message(), "test_player");
     advance_secs(game.get_config().get_playing_phase_secs());
     game.tick(Message(), "test_player");
-    advance_secs(1);
+    advance_secs(game.get_config().get_round_finished_phase_secs());
     game.tick(Message(), "test_player");
 
     EXPECT_EQ(game.get_phase(), PhaseType::Buying);
+}
+
+TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
+    Message msg_join = Message(JoinGameCommand(""));
+    game.tick(msg_join, "test_player1");
+    Message msg_select_team = Message(SelectTeamCommand(Team::Terrorist));
+    game.tick(msg_select_team, "test_player1");
+
+    game.tick(msg_join, "test_player2");
+    msg_select_team = Message(SelectTeamCommand(Team::CounterTerrorist));
+    game.tick(msg_select_team, "test_player2");
+
+    Message msg_start = Message(StartGameCommand());
+    game.tick(msg_start, "test_player1");
+
+    for (unsigned int i = 1; i <= game.get_config().get_max_rounds() / 2; i++) {
+        advance_secs(game.get_config().get_buying_phase_secs());
+        game.tick(Message(), "test_player1");
+        advance_secs(game.get_config().get_playing_phase_secs());
+        game.tick(Message(), "test_player1");
+        advance_secs(game.get_config().get_round_finished_phase_secs());
+        game.tick(Message(), "test_player");
+    }
+
+    EXPECT_TRUE(game.get_config().get_player("test_player1").is_ct());
+    EXPECT_TRUE(game.get_config().get_player("test_player2").is_tt());
 }

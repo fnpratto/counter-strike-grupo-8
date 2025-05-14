@@ -14,6 +14,8 @@ private:
     Team choose_player_team();
     void give_bomb_to_random_tt();
     
+    void swap_teams();
+
     bool can_join(const std::string& player_name) const;
     bool player_can_select_team(Team& team) const;
 
