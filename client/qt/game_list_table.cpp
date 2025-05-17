@@ -3,6 +3,8 @@
 #include <QHeaderView>
 #include <QTableWidgetItem>
 
+#include "game_menu_window.h"
+
 #define ROWS 0
 #define COLUMNS 3
 #define ROW_HEIGHT 20
@@ -23,6 +25,7 @@ GameListTable::GameListTable(QWidget* parent): QTableWidget(ROWS, COLUMNS, paren
     this->setColumnWidth(1, 60);
     this->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Fixed);
     this->setColumnWidth(2, 100);
+
     // Game 1
     this->insertRow(0);
     QTableWidgetItem* game_name = new QTableWidgetItem("Game 1");
@@ -46,4 +49,27 @@ GameListTable::GameListTable(QWidget* parent): QTableWidget(ROWS, COLUMNS, paren
     this->setItem(1, 0, game_name2);
     this->setItem(1, 1, players2);
     this->setItem(1, 2, status2);
+
+    connect(this, &QTableWidget::cellDoubleClicked, this, &GameListTable::on_cell_double_clicked);
+}
+
+QString GameListTable::get_selected_game() {
+    int row = this->currentRow();
+    if (row < 0) {
+        return QString();
+    }
+    QTableWidgetItem* item = this->item(row, 0);
+    if (item) {
+        return item->text();
+    }
+    return QString();
+}
+
+void GameListTable::on_cell_double_clicked(int row, int column) {
+    Q_UNUSED(row);
+    Q_UNUSED(column);
+    GameMenu* game_menu = qobject_cast<GameMenu*>(this->parent());
+    if (game_menu) {
+        game_menu->join_game(this->get_selected_game());
+    }
 }

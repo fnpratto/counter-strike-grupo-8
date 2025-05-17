@@ -13,6 +13,9 @@
 
 #include "constants.h"
 
+#define WINDOW_WIDTH 416
+#define WINDOW_HEIGHT 184
+
 LogInWindow::LogInWindow(QWidget* parent): QWidget(parent) {
     this->setWindowTitle(TITLE);
     this->setWindowIcon(QIcon(ICON_PATH));

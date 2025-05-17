@@ -5,10 +5,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include "game_menu.h"
-
-#define WINDOW_WIDTH 416
-#define WINDOW_HEIGHT 184
+#include "game_menu_window.h"
 
 class LogInWindow: public QWidget {
     Q_OBJECT
