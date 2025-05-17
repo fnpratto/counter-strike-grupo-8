@@ -20,6 +20,7 @@ target_sources(taller_server
     game_thread.h
     lobby_monitor.h
     protocol.h
+    cons.h
     # clock
     clock/clock.h
     clock/mock_clock.h
@@ -29,11 +30,11 @@ target_sources(taller_server
     game/game.h
     game/game_state.h
     game/game_phase.h
-    game/game_config.h
     # player
     player/player.h
     player/inventory.h
     # weapons
+    weapons/guns_cons.h
     weapons/gun.h
     weapons/utility.h
     weapons/m3.h

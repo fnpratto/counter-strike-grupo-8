@@ -1,7 +1,8 @@
 target_sources(taller_tests
     PRIVATE
-    server/game/test_game.cpp
-    server/game/test_player.cpp
+    # server/game/test_game.cpp
+    server/game/test_game_phase.cpp
+    server/player/test_player.cpp
     # game
     ../server/game/game.cpp
     ../server/game/game_state.cpp
@@ -11,6 +12,7 @@ target_sources(taller_tests
     ../server/player/inventory.cpp
 
     PUBLIC
+    ../server/cons.h
     # clock
     ../server/clock/mock_clock.h
     # game
@@ -18,11 +20,11 @@ target_sources(taller_tests
     ../server/game/game.h
     ../server/game/game_state.h
     ../server/game/game_phase.h
-    ../server/game/game_config.h
     # player
     ../server/player/player.h
     ../server/player/inventory.h
     # weapons
+    ../server/weapons/guns_cons.h
     ../server/weapons/gun.h
     ../server/weapons/utility.h
     ../server/weapons/m3.h

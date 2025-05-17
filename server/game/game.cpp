@@ -4,14 +4,9 @@
 
 #include "server/errors.h"
 
-Game::Game(const std::string& name, const Clock& clock, const GameConfig& conf, const Shop& shop): 
+Game::Game(const std::string& name, const Clock& clock, const Shop& shop): 
         name(name),
-        state(conf, clock),
-        shop(shop) {}
-
-GameConfig Game::get_config() { return state.get_config(); }
-
-PhaseType Game::get_phase() { return state.get_phase(); }
+        state(clock, shop) {}
 
 void Game::tick(Message msg, const std::string& player_name) {
     chk_valid_player_name_or_fail(player_name);
@@ -30,10 +25,10 @@ void Game::handle_msg(Message msg, const std::string& player_name) {
         state.start_game();
     } else if (msg_type == MessageType::BUY_GUN_CMD) {
         GunType gun = msg.get_content<BuyGunCommand>().get_gun();
-        state.buy_gun(player_name, gun, shop.get_gun_price(gun));
+        state.buy_gun(player_name, gun);
     } else if (msg_type == MessageType::BUY_AMMO_CMD) {
         GunType gun = msg.get_content<BuyAmmoCommand>().get_gun();
-        state.buy_ammo(player_name, gun, shop.get_magazine_price(gun));
+        state.buy_ammo(player_name, gun);
     } else if (msg_type == MessageType::MOVE_CMD) {
         int dx = msg.get_content<MoveCommand>().get_dx();
         int dy = msg.get_content<MoveCommand>().get_dy();

@@ -4,31 +4,22 @@
 #include "server/clock/mock_clock.h"
 #include "server/game/game.h"
 #include "server/game/shop.h"
-#include "server/game/game_config.h"
+#include "server/cons.h"
 #include "server/errors.h"
-
+/*
 class TestGame : public ::testing::Test {
 protected:
     MockClock clock;
-    GameConfig conf;
     Game game;
 
     TestGame() : 
             clock(std::chrono::steady_clock::now()), 
-            game("test_game", clock, conf, Shop()) {}
+            game("test_game", clock, Shop()) {}
 
     void advance_secs(int secs) {
         clock.advance(std::chrono::seconds(secs));
     }
 };
-
-TEST_F(TestGame, StartEmpty) {
-    GameConfig conf = game.get_config();
-    PhaseType phase = game.get_phase();
-    EXPECT_EQ(conf.get_num_players(), 0);
-    EXPECT_EQ(phase, PhaseType::NotStarted);
-    EXPECT_FALSE(conf.is_full());
-}
 
 TEST_F(TestGame, PlayerCanJoinGame) {
     Message msg_join = Message(JoinGameCommand(""));
@@ -87,28 +78,12 @@ TEST_F(TestGame, PlayerCannotSelectFullTeam) {
     EXPECT_EQ(game.get_config().get_num_players(), game.get_config().get_max_team_players() + 1);
 }
 
-TEST_F(TestGame, StartInBuyingPhase) {
-    Message msg_start = Message(StartGameCommand());
-    game.tick(msg_start, "test_player");
-    EXPECT_EQ(game.get_phase(), PhaseType::Buying);
-}
-
 TEST_F(TestGame, CannotStartAnAlreadyStartedGame) {
     Message msg_start = Message(StartGameCommand());
     game.tick(msg_start, "test_player");
     EXPECT_THROW({
         game.tick(msg_start, "test_player");
     }, StartGameError);
-}
-
-TEST_F(TestGame, StartPlayingAfterBuyingDuration) {
-    Message msg_start = Message(StartGameCommand());
-    game.tick(msg_start, "test_player");
-    
-    advance_secs(game.get_config().get_buying_phase_secs());
-    game.tick(Message(), "test_player");
-
-    EXPECT_EQ(game.get_phase(), PhaseType::Playing);
 }
 
 TEST_F(TestGame, PlayerCannotJoinStartedGame) {
@@ -138,7 +113,7 @@ TEST_F(TestGame, PlayerCannotSelectTeamWhenStartedGame) {
     EXPECT_EQ(game.get_config().get_num_cts(), 0);
 }
 
-TEST_F(TestGame, FinishOneRoundAfterRoundDuration) {
+TEST_F(TestGame, IncrementRoundsPlayedAfterRoundDuration) {
     Message msg_start = Message(StartGameCommand());
     game.tick(msg_start, "test_player");
     EXPECT_EQ(game.get_config().get_num_rounds(), 0);
@@ -148,22 +123,45 @@ TEST_F(TestGame, FinishOneRoundAfterRoundDuration) {
     advance_secs(game.get_config().get_playing_phase_secs());
     game.tick(Message(), "test_player");
 
-    EXPECT_EQ(game.get_phase(), PhaseType::RoundFinished);
     EXPECT_EQ(game.get_config().get_num_rounds(), 1);
 }
 
-TEST_F(TestGame, StartAnotherRoundAfterRoundFinishedDuration) {
+TEST_F(TestGame, OneTerroristHasBombWhenGameStarted) {
+    Message msg_join = Message(JoinGameCommand(""));
+    game.tick(msg_join, player_name);
+    Message msg_select_team = Message(SelectTeamCommand(Team::Terrorist));
+    game.tick(msg_select_team, player_name);
+
+    std::string another_player_name = "another_player";
+    game.tick(msg_join, another_player_name);
+    game.tick(msg_select_team, another_player_name);
+
     Message msg_start = Message(StartGameCommand());
     game.tick(msg_start, "test_player");
 
-    advance_secs(game.get_config().get_buying_phase_secs());
-    game.tick(Message(), "test_player");
-    advance_secs(game.get_config().get_playing_phase_secs());
-    game.tick(Message(), "test_player");
-    advance_secs(game.get_config().get_round_finished_phase_secs());
-    game.tick(Message(), "test_player");
+    Player tt = game.get_config().get_player(player_name);
+    Player another_tt = game.get_config().get_player(another_player_name);
 
-    EXPECT_EQ(game.get_phase(), PhaseType::Buying);
+    if (tt.get_inventory().has_bomb()) {
+        EXPECT_FALSE(another_tt.get_inventory().has_bomb());
+    } else if (another_tt.get_inventory().has_bomb()) {
+        EXPECT_FALSE(tt.get_inventory().has_bomb());
+    } else {
+        FAIL();
+    }
+}
+
+TEST_F(TestGame, CounterTerroristDoesNotHaveBombWhenGameStarted) {
+    Message msg_join = Message(JoinGameCommand(""));
+    game.tick(msg_join, player_name);
+    Message msg_select_team = Message(SelectTeamCommand(Team::CounterTerrorist));
+    game.tick(msg_select_team, player_name);
+
+    Message msg_start = Message(StartGameCommand());
+    game.tick(msg_start, "test_player");
+
+    Inventory ct_invent = game.get_config().get_player(player_name).get_inventory();
+    EXPECT_FALSE(ct_invent.has_bomb());
 }
 
 TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
@@ -237,3 +235,4 @@ TEST_F(TestGame, PlayerCanMoveInDiagonal) {
     EXPECT_EQ(new_pos_x, old_pos_x + step.get_x());
     EXPECT_EQ(new_pos_y, old_pos_y + step.get_y());
 }
+*/

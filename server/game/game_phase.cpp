@@ -1,17 +1,17 @@
 #include "game_phase.h"
+#include "server/cons.h"
 
-GamePhase::GamePhase(const Clock& clock, int buying_phase_secs, 
-                                         int playing_phase_secs, 
-                                         int round_finished_phase_secs) : 
+using namespace PhaseTimes;
+
+GamePhase::GamePhase(const Clock& clock) : 
         clock(clock),
-        phase(PhaseType::NotStarted),
-        buying_phase_secs(buying_phase_secs),
-        playing_phase_secs(playing_phase_secs),
-        round_finished_phase_secs(round_finished_phase_secs) {}
+        phase(PhaseType::NotStarted) {}
 
 bool GamePhase::is_started() const { return phase != PhaseType::NotStarted; }
 
-PhaseType GamePhase::get_type() const { return phase; }
+bool GamePhase::is_round_finished() const { return phase == PhaseType::RoundFinished; }
+
+bool GamePhase::is_buying_phase() const { return phase == PhaseType::Buying; }
 
 void GamePhase::start_buying_phase() {
     phase = PhaseType::Buying;

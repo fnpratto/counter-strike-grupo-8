@@ -27,7 +27,7 @@ public:
 
     void select_team(Team team);
     
-    void buy_gun(const GunType& weapon, int weapon_price);
+    void buy_gun(const GunType& gun, int gun_price);
     
     void buy_ammo(const WeaponSlot& slot, int mag_price, int num_mags);
     

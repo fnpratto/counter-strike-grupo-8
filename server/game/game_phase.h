@@ -10,18 +10,13 @@ private:
     const Clock& clock;
     PhaseType phase;
     std::chrono::steady_clock::time_point phase_start;
-    int buying_phase_secs;
-    int playing_phase_secs;
-    int round_finished_phase_secs;
 
 public:
-    GamePhase(const Clock& clock, int buying_phase_secs, 
-                                  int playing_phase_secs, 
-                                  int round_finished_phase_secs);
+    GamePhase(const Clock& clock);
 
     bool is_started() const;
-
-    PhaseType get_type() const;
+    bool is_round_finished() const;
+    bool is_buying_phase() const;
 
     void start_buying_phase();
 

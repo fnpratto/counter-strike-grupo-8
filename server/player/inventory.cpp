@@ -3,6 +3,7 @@
 #include <map>
 
 #include "common/models.h"
+#include "server/cons.h"
 #include "server/weapons/glock.h"
 #include "server/weapons/knife.h"
 #include "server/weapons/bomb.h"
@@ -10,9 +11,7 @@
 #include "server/weapons/m3.h"
 #include "server/weapons/awp.h"
 
-#define INITIAL_MONEY 800
-
-Inventory::Inventory() : money(INITIAL_MONEY) {
+Inventory::Inventory() : money(PlayerInitialConfig::initial_money) {
     guns[WeaponSlot::Secondary] = std::make_unique<Glock>();
     utilities[WeaponSlot::Melee] = std::make_unique<Knife>();
 }

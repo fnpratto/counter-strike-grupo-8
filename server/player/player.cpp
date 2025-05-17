@@ -31,21 +31,20 @@ void Player::select_team(Team team) {
     this->team = team;
 }
 
-void Player::buy_gun(const GunType& weapon, int weapon_price) {
+void Player::buy_gun(const GunType& gun, int gun_price) {
     int player_money = inventory.get_money();
-    if (weapon_price > player_money)
+    if (gun_price > player_money)
         throw BuyGunError();
-    inventory.add_primary_weapon(weapon);
-    inventory.decrease_money(weapon_price);
+    inventory.add_primary_weapon(gun);
+    inventory.decrease_money(gun_price);
 }
 
-void Player::buy_ammo(const WeaponSlot& slot, int mag_price, int num_mags) {
+void Player::buy_ammo(const WeaponSlot& slot, int ammo_price, int num_mags) {
     int player_money = inventory.get_money();
-    int total_ammo_price = mag_price * num_mags;
-    if (total_ammo_price > player_money)
-        throw BuyGunError();
+    if (ammo_price > player_money)
+        throw BuyAmmoError();
     inventory.add_magazines(slot, num_mags);
-    inventory.decrease_money(total_ammo_price);
+    inventory.decrease_money(ammo_price);
 }
 
 void Player::move(Vector2D step) {

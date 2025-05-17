@@ -63,3 +63,8 @@ class BuyGunError: public PlayerError {
 public:
     BuyGunError(): PlayerError("not enough money to buy gun") {}
 };
+
+class BuyAmmoError: public PlayerError {
+public:
+    BuyAmmoError(): PlayerError("not enough money to buy ammo") {}
+};
