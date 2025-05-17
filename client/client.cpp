@@ -14,25 +14,30 @@
 #include "common/socket.h"
 #include "common/thread.h"
 
-// #if UI_TYPE == tui
-// #include "text_display.h"
-// #elif UI_TYPE == gui
+// Default to GUI if not defined
+// Actually not necessary just better for IntelliSense
+#ifndef UI_TYPE_GUI
+#define UI_TYPE_GUI
+#endif  // !UI_TYPE_GUI
+
+#ifdef UI_TYPE_GUI
 #include "qt_display.h"
 #include "sdl_display.h"
-// #endif
+#elif defined(UI_TYPE_TUI)
+#include "text_display.h"
+#endif
 
 #include "receiver.h"
 #include "sender.h"
 
 Client::Client():
-        // #if UI_TYPE == tui
-        //         display(std::make_unique<TextDisplay>(display_queue, input_queue))
-        // #elif UI_TYPE == gui
+#ifdef UI_TYPE_GUI
         display(std::make_unique<QtDisplay>(display_queue, input_queue)),
+#elif defined(UI_TYPE_TUI)
+        display(std::make_unique<TextDisplay>(display_queue, input_queue)),
+#endif
         sender(nullptr),
-        receiver(nullptr)
-// #endif
-{
+        receiver(nullptr) {
     display->start();
 }
 
@@ -78,15 +83,15 @@ void Client::run() {
     receiver = std::make_unique<ClientReceiver>(protocol, display_queue);
     receiver->start();
 
-    // #if UI_TYPE == tui
-    //     // No need to switch, TUI handles both stages
-    // #elif UI_TYPE == gui
+#ifdef UI_TYPE_GUI
     display->stop();
     display->join();
     display = std::make_unique<SDLDisplay>(display_queue, input_queue);
     display->start();
-    // #endif
     std::cout << "Switched to SDLDisplay" << std::endl;
+#elif defined(UI_TYPE_TUI)
+    // No need to switch, TUI handles both stages
+#endif
 
     while (display->is_alive() && sender->is_alive() && receiver->is_alive())
         std::this_thread::sleep_for(std::chrono::milliseconds(10));

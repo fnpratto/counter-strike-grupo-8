@@ -1,9 +1,16 @@
-.PHONY: all test clean editor client common server build gui tui
+.PHONY: all test clean editor client common server build gui tui default
+
+default: gui
 
 compile-debug:
 	mkdir -p build/
 	cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Debug $(EXTRA_GENERATE)
 	cmake --build  build/ $(EXTRA_COMPILE)
+
+gui:
+	mkdir -p build/
+	cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Debug -DUI_TYPE=gui $(EXTRA_GENERATE)
+	cmake --build build/ $(EXTRA_COMPILE)
 
 tui:
 	mkdir -p build/

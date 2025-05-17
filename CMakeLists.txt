@@ -120,6 +120,13 @@ if(TALLER_CLIENT)
 
     # Link the taller_common lib target
     target_link_libraries(taller_client taller_common SDL2pp::SDL2pp)
+
+    # Add UI_TYPE definition
+    if(UI_TYPE STREQUAL "gui")
+        target_compile_definitions(taller_client PRIVATE UI_TYPE_GUI)
+    elseif(UI_TYPE STREQUAL "tui")
+        target_compile_definitions(taller_client PRIVATE UI_TYPE_TUI)
+    endif()
 endif()
 
 if(TALLER_SERVER)
