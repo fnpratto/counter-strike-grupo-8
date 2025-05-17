@@ -23,12 +23,14 @@ target_sources(taller_tests
     ../server/player/player.h
     ../server/player/inventory.h
     # weapons
-    ../server/weapons/weapon.h
+    ../server/weapons/gun.h
+    ../server/weapons/utility.h
     ../server/weapons/m3.h
     ../server/weapons/knife.h
-    ../server/weapons/gun.h
     ../server/weapons/glock.h
     ../server/weapons/bomb.h
     ../server/weapons/awp.h
     ../server/weapons/ak47.h
+    # utils
+    ../server/utils/vector_2d.h
     )

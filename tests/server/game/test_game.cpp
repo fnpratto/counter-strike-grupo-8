@@ -10,11 +10,12 @@
 class TestGame : public ::testing::Test {
 protected:
     MockClock clock;
+    GameConfig conf;
     Game game;
 
     TestGame() : 
             clock(std::chrono::steady_clock::now()), 
-            game("test_game", clock, GameConfig(), Shop()) {}
+            game("test_game", clock, conf, Shop()) {}
 
     void advance_secs(int secs) {
         clock.advance(std::chrono::seconds(secs));
@@ -189,4 +190,50 @@ TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
 
     EXPECT_TRUE(game.get_config().get_player("test_player1").is_ct());
     EXPECT_TRUE(game.get_config().get_player("test_player2").is_tt());
+}
+
+TEST_F(TestGame, PlayerCanMove) {
+    Message msg_join = Message(JoinGameCommand(""));
+    game.tick(msg_join, "test_player");
+    
+    advance_secs(game.get_config().get_buying_phase_secs());
+    game.tick(Message(), "test_player");
+
+    Player player = game.get_config().get_player("test_player");
+    float old_pos_x = player.get_pos_x();
+    float old_pos_y = player.get_pos_y();
+    
+    Message msg_move = Message(MoveCommand(0, 1));
+    game.tick(msg_move, "test_player");
+
+    player = game.get_config().get_player("test_player");
+    float new_pos_x = player.get_pos_x();
+    float new_pos_y = player.get_pos_y();
+    
+    EXPECT_EQ(new_pos_x, old_pos_x);
+    EXPECT_EQ(new_pos_y, old_pos_y + 1 * conf.get_player_speed() * (1 / conf.get_tickrate()));
+}
+
+TEST_F(TestGame, PlayerCanMoveInDiagonal) {
+    Message msg_join = Message(JoinGameCommand(""));
+    game.tick(msg_join, "test_player");
+    
+    advance_secs(game.get_config().get_buying_phase_secs());
+    game.tick(Message(), "test_player");
+
+    Player player = game.get_config().get_player("test_player");
+    float old_pos_x = player.get_pos_x();
+    float old_pos_y = player.get_pos_y();
+    
+    Vector2D dir(1, 1);
+    Message msg_move = Message(MoveCommand(1, 1));
+    game.tick(msg_move, "test_player");
+
+    player = game.get_config().get_player("test_player");
+    float new_pos_x = player.get_pos_x();
+    float new_pos_y = player.get_pos_y();
+    
+    Vector2D step = dir.normalize() * conf.get_player_speed() * (1 / conf.get_tickrate());
+    EXPECT_EQ(new_pos_x, old_pos_x + step.get_x());
+    EXPECT_EQ(new_pos_y, old_pos_y + step.get_y());
 }

@@ -31,14 +31,12 @@ public:
     PhaseType get_phase();
 
     void add_player(const std::string& player_name);
-    
-    void select_team(const std::string& player_name, Team team);
-    
+    Vector2D set_init_pos();
+    void select_team(const std::string& player_name, Team team);    
     void start_game();
-    
     void buy_gun(const std::string& player_name, GunType gun, int gun_price);
-
     void buy_ammo(const std::string& player_name, GunType gun, int mag_price);
+    void move(const std::string& player_name, int dx, int dy);
 
     void update_round_phase();
 

@@ -2,7 +2,7 @@
 
 #include "game_state.h"
 #include "server/errors.h"
-#include <iostream>
+#include "server/utils/vector_2d.h"
 
 GameState::GameState(const GameConfig& conf, const Clock& clock) :
         conf(conf),
@@ -19,12 +19,19 @@ void GameState::add_player(const std::string& player_name) {
         throw JoinGameError();
 
     Team team = choose_player_team();
-    conf.players.emplace(player_name, Player(team, conf.default_inventory, conf.full_health));
+    Player player = Player(team, conf.init_invent, conf.full_health, set_init_pos());
+    conf.players.emplace(player_name, player);
     if (team == Team::Terrorist) {
         conf.num_tts++;
     } else {
         conf.num_cts++;
     }
+}
+
+Vector2D GameState::set_init_pos() {
+    // TODO: calculate init pos according to team spawn
+    // TODO: check colissions with other players and objects
+    return Vector2D();
 }
 
 void GameState::select_team(const std::string& player_name, Team team) {
@@ -71,6 +78,16 @@ void GameState::buy_ammo(const std::string& player_name, GunType gun, int mag_pr
     }
     WeaponSlot slot = gun == GunType::Glock ? WeaponSlot::Secondary : WeaponSlot::Primary;
     conf.players.at(player_name).buy_ammo(slot, mag_price, num_mags);
+}
+
+void GameState::move(const std::string& player_name, int dx, int dy) {
+    Vector2D dir(dx, dy);
+    float tick_duration = 1 / conf.tickrate;
+    Vector2D step = dir.normalize() * conf.player_speed * tick_duration;
+
+    // TODO: Check collisions
+
+    conf.players.at(player_name).move(step);
 }
 
 void GameState::update_round_phase() {

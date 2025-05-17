@@ -38,17 +38,17 @@ TEST_F(TestPlayer, PlayerStartWithDefaultInventory) {
     Message msg_join = Message(JoinGameCommand(""));
     game.tick(msg_join, player_name);
     
-    Inventory d_inv = game.get_config().get_default_inventory();
+    Inventory i_inv = game.get_config().get_init_invent();
     Inventory p_inv = game.get_config().get_player(player_name).get_inventory();
     
-    EXPECT_EQ(d_inv.get_money(), p_inv.get_money());
-    EXPECT_EQ(d_inv.get_sec_weapon()->get_type(), 
+    EXPECT_EQ(i_inv.get_money(), p_inv.get_money());
+    EXPECT_EQ(i_inv.get_sec_weapon()->get_type(), 
                     p_inv.get_sec_weapon()->get_type());
-    EXPECT_EQ(d_inv.get_sec_weapon()->get_magazine_ammo(), 
+    EXPECT_EQ(i_inv.get_sec_weapon()->get_magazine_ammo(), 
                     p_inv.get_sec_weapon()->get_magazine_ammo());
-    EXPECT_EQ(d_inv.get_sec_weapon()->get_reserve_ammo(), 
+    EXPECT_EQ(i_inv.get_sec_weapon()->get_reserve_ammo(), 
                     p_inv.get_sec_weapon()->get_reserve_ammo());
-    EXPECT_EQ(d_inv.get_melee_weapon()->get_type(),
+    EXPECT_EQ(i_inv.get_melee_weapon()->get_type(),
                     p_inv.get_melee_weapon()->get_type());
     EXPECT_THROW({
         p_inv.get_prim_weapon();
@@ -106,9 +106,9 @@ TEST_F(TestPlayer, CounterTerroristDoesNotHaveBombWhenGameStarted) {
 TEST_F(TestPlayer, CanBuyAnyPrimaryWeapon) {
     MockClock clock(std::chrono::steady_clock::now());
     GameConfig conf;
-    Inventory inventory = conf.get_default_inventory();
+    Inventory inventory = conf.get_init_invent();
     inventory.add_money(10000);
-    conf.set_default_inventory(inventory);
+    conf.set_init_invent(inventory);
 
     Shop shop;
     Game game(game_name, clock, conf, shop);
@@ -160,24 +160,24 @@ TEST_F(TestPlayer, CannotBuyWeaponIfNotEnoughMoney) {
 TEST_F(TestPlayer, CanBuyAmmo) {
     MockClock clock(std::chrono::steady_clock::now());
     GameConfig conf;
-    Inventory inventory = conf.get_default_inventory();
+    Inventory inventory = conf.get_init_invent();
     inventory.add_money(10000);
-    conf.set_default_inventory(inventory);
+    conf.set_init_invent(inventory);
 
     Shop shop;
     Game game(game_name, clock, conf, shop);
     Message msg_join = Message(JoinGameCommand(""));
     game.tick(msg_join, player_name);
     
-    Inventory old_inven = game.get_config().get_player(player_name).get_inventory();
+    Inventory old_inv = game.get_config().get_player(player_name).get_inventory();
     Message msg_buy_ammo = Message(BuyAmmoCommand(GunType::Glock));
     game.tick(msg_buy_ammo, player_name);
-    Inventory new_inven = game.get_config().get_player(player_name).get_inventory();
+    Inventory new_inv = game.get_config().get_player(player_name).get_inventory();
 
-    EXPECT_EQ(new_inven.get_money(), old_inven.get_money() - shop.get_magazine_price(GunType::Glock));
+    EXPECT_EQ(new_inv.get_money(), old_inv.get_money() - shop.get_magazine_price(GunType::Glock));
     
-    std::unique_ptr<Gun> old_glock = old_inven.get_sec_weapon();
-    std::unique_ptr<Gun> new_glock = new_inven.get_sec_weapon();
+    std::unique_ptr<Gun> old_glock = old_inv.get_sec_weapon();
+    std::unique_ptr<Gun> new_glock = new_inv.get_sec_weapon();
     EXPECT_EQ(new_glock->get_magazine_ammo(), old_glock->get_magazine_ammo());
     EXPECT_EQ(new_glock->get_reserve_ammo(), 
                     old_glock->get_reserve_ammo() + 

@@ -34,12 +34,14 @@ target_sources(taller_server
     player/player.h
     player/inventory.h
     # weapons
-    weapons/weapon.h
+    weapons/gun.h
+    weapons/utility.h
     weapons/m3.h
     weapons/knife.h
-    weapons/gun.h
     weapons/glock.h
     weapons/bomb.h
     weapons/awp.h
     weapons/ak47.h
+    # utils
+    utils/vector_2d.h
     )

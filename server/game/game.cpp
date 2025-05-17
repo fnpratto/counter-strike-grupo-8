@@ -34,6 +34,10 @@ void Game::handle_msg(Message msg, const std::string& player_name) {
     } else if (msg_type == MessageType::BUY_AMMO_CMD) {
         GunType gun = msg.get_content<BuyAmmoCommand>().get_gun();
         state.buy_ammo(player_name, gun, shop.get_magazine_price(gun));
+    } else if (msg_type == MessageType::MOVE_CMD) {
+        int dx = msg.get_content<MoveCommand>().get_dx();
+        int dy = msg.get_content<MoveCommand>().get_dy();
+        state.move(player_name, dx, dy);
     }
 }
 

@@ -90,16 +90,17 @@ public:
 
 /**
  * @class MoveCommand
- * @brief Command to start or stop movement in a direction.
+ * @brief Command move in a direction.
  */
 class MoveCommand: public Command {
-    MoveDirection direction;
-    bool start;
+    int dx;
+    int dy;
 
 public:
-    MoveCommand(MoveDirection dir, bool s): direction(dir), start(s) {}
-    MoveDirection get_direction() const { return direction; }
-    bool is_start() const { return start; }
+    MoveCommand(int dx, int dy) : dx(dx), dy(dy) {}
+
+    bool get_dx() const { return dx; }
+    bool get_dy() const { return dy; }
 };
 
 /**

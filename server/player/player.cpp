@@ -1,22 +1,23 @@
 #include "player.h"
 #include "server/errors.h"
 
-Player::Player(Team team, Inventory inventory, int health) : 
+Player::Player(Team team, Inventory inventory, int health, Vector2D position) : 
         team(team),
         inventory(inventory),
-        health(health) {}
+        health(health),
+        position(position) {}
 
 Inventory Player::get_inventory() const { return inventory; };
 
 int Player::get_health() const { return health; }
 
-bool Player::is_tt() const {
-    return team == Team::Terrorist;
-}
+bool Player::is_tt() const { return team == Team::Terrorist; }
 
-bool Player::is_ct() const {
-    return team == Team::CounterTerrorist;
-}
+bool Player::is_ct() const { return team == Team::CounterTerrorist; }
+
+float Player::get_pos_x() const { return position.get_x(); }
+
+float Player::get_pos_y() const { return position.get_y(); }
 
 void Player::gain_money(int amount) {
     inventory.add_money(amount);
@@ -45,6 +46,10 @@ void Player::buy_ammo(const WeaponSlot& slot, int mag_price, int num_mags) {
         throw BuyGunError();
     inventory.add_magazines(slot, num_mags);
     inventory.decrease_money(total_ammo_price);
+}
+
+void Player::move(Vector2D step) {
+    position = position + step;
 }
 
 Player::~Player() {}
