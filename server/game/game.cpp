@@ -28,17 +28,13 @@ void Game::handle_msg(Message msg, const std::string& player_name) {
         state.select_team(player_name, team);
     } else if (msg_type == MessageType::START_GAME_CMD) {
         state.start_game();
-    } else if (msg_type == MessageType::BUY_WEAPON_CMD) {
-        WeaponType weapon = msg.get_content<BuyWeaponCommand>().get_weapon();
-        state.buy_weapon(player_name, weapon, shop.get_weapon_price(weapon));
-    } 
-    // else if (msg_type == MessageType::MOVE_CMD) {
-        
-    // } else if (msg_type == MessageType::AIM_CMD) {
-        
-    // } else if (msg_type == MessageType::SHOOT_CMD) {
-        
-    // }
+    } else if (msg_type == MessageType::BUY_GUN_CMD) {
+        GunType gun = msg.get_content<BuyGunCommand>().get_gun();
+        state.buy_gun(player_name, gun, shop.get_gun_price(gun));
+    } else if (msg_type == MessageType::BUY_AMMO_CMD) {
+        GunType gun = msg.get_content<BuyAmmoCommand>().get_gun();
+        state.buy_ammo(player_name, gun, shop.get_magazine_price(gun));
+    }
 }
 
 Game::~Game() {}

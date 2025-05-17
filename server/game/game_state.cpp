@@ -60,11 +60,17 @@ void GameState::start_game() {
     phase.start_buying_phase();
 }
 
-void GameState::buy_weapon(const std::string& player_name, WeaponType weapon, int weapon_price) {
-    int player_money = conf.players.at(player_name).get_inventory().money;
-    if (weapon_price > player_money)
-        throw BuyWeaponError();
-    conf.players.at(player_name).buy_weapon(weapon, weapon_price);
+void GameState::buy_gun(const std::string& player_name, GunType gun, int gun_price) {
+    conf.players.at(player_name).buy_gun(gun, gun_price);
+}
+
+void GameState::buy_ammo(const std::string& player_name, GunType gun, int mag_price) {
+    int num_mags = 1;
+    if (gun == GunType::M3) {
+        num_mags = 8;
+    }
+    WeaponSlot slot = gun == GunType::Glock ? WeaponSlot::Secondary : WeaponSlot::Primary;
+    conf.players.at(player_name).buy_ammo(slot, mag_price, num_mags);
 }
 
 void GameState::update_round_phase() {
@@ -91,7 +97,7 @@ void GameState::give_bomb_to_random_tt() {
     }
 
     int random_index = rand() % conf.num_tts;
-    conf.players.at(tt_names[random_index]).pick_bomb(WeaponType::C4);
+    conf.players.at(tt_names[random_index]).pick_bomb();
 }
 
 void GameState::swap_teams() {

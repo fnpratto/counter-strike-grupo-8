@@ -65,15 +65,27 @@ public:
 class StartGameCommand: public Command {};
 
 /**
- * @class BuyWeaponCommand
- * @brief Command to buy a weapon during the preparation phase.
+ * @class BuyGunCommand
+ * @brief Command to buy a gun during the preparation phase.
  */
-class BuyWeaponCommand: public Command {
-    WeaponType weapon;
+class BuyGunCommand: public Command {
+    GunType gun;
 
 public:
-    explicit BuyWeaponCommand(WeaponType w): weapon(w) {}
-    WeaponType get_weapon() const { return weapon; }
+    explicit BuyGunCommand(GunType g): gun(g) {}
+    GunType get_gun() const { return gun; }
+};
+
+/**
+ * @class BuyAmmoCommand
+ * @brief Command to buy ammo during the preparation phase.
+ */
+class BuyAmmoCommand: public Command {
+    GunType gun;
+
+public:
+    explicit BuyAmmoCommand(GunType g): gun(g) {}
+    GunType get_gun() const { return gun; }
 };
 
 /**
@@ -88,19 +100,6 @@ public:
     MoveCommand(MoveDirection dir, bool s): direction(dir), start(s) {}
     MoveDirection get_direction() const { return direction; }
     bool is_start() const { return start; }
-};
-
-/**
- * @class AimCommand
- * @brief Command to update the aiming direction.
- */
-class AimCommand: public Command {
-    float x, y;
-
-public:
-    AimCommand(float targetX, float targetY): x(targetX), y(targetY) {}
-    float get_x() const { return x; }
-    float get_y() const { return y; }
 };
 
 /**

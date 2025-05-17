@@ -1,10 +1,12 @@
+#pragma once
+
 #include <string>
 #include <map>
 
-#include "game_phase.h"
-#include "player.h"
-#include "server/clock/clock.h"
 #include "game_config.h"
+#include "game_phase.h"
+#include "server/player/player.h"
+#include "server/clock/clock.h"
 
 class GameState {
 private:
@@ -34,7 +36,9 @@ public:
     
     void start_game();
     
-    void buy_weapon(const std::string& player_name, WeaponType weapon, int weapon_price);
+    void buy_gun(const std::string& player_name, GunType gun, int gun_price);
+
+    void buy_ammo(const std::string& player_name, GunType gun, int mag_price);
 
     void update_round_phase();
 

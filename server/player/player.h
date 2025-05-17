@@ -18,10 +18,11 @@ public:
     bool is_ct() const;
 
     void gain_money(int amount);
-    void pick_bomb(WeaponType bomb);
+    void pick_bomb();
 
     void select_team(Team team);
-    void buy_weapon(const WeaponType& weapon, int weapon_price);
+    void buy_gun(const GunType& weapon, int weapon_price);
+    void buy_ammo(const WeaponSlot& slot, int mag_price, int num_mags);
 
     ~Player();
 };

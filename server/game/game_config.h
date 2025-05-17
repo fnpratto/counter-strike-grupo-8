@@ -3,7 +3,7 @@
 #include <map>
 
 #include "common/models.h"
-#include "inventory.h"
+#include "server/player/player.h"
 
 class GameConfig {
 private:
@@ -23,14 +23,9 @@ private:
     
     std::map<std::string, Player> players;
     Inventory default_inventory;
+
 public:
-    GameConfig() {
-        default_inventory.money = 800;
-        default_inventory.weapons = {
-            {WeaponSlot::Secondary, WeaponType::Glock},
-            {WeaponSlot::Melee, WeaponType::Knife}
-        };
-    }
+    GameConfig() {}
 
     // TODO: add constructor to set a specific configuration.
 
@@ -44,10 +39,9 @@ public:
     int get_buying_phase_secs() { return buying_phase_secs; }
     int get_playing_phase_secs() { return playing_phase_secs; }
     int get_round_finished_phase_secs() { return round_finished_phase_secs; }
+    Inventory get_default_inventory() { return default_inventory; }
 
     int get_num_players() { return players.size(); }
-    Inventory get_default_inventory() { return default_inventory; }
-    
     Player get_player(const std::string& player_name) { 
         return players.at(player_name);
     }

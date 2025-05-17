@@ -1,12 +1,13 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-#include "server/game/player.h"
+#include "server/player/player.h"
 #include "common/models.h"
 #include "server/errors.h"
+#include "server/clock/mock_clock.h"
 #include "server/game/game.h"
 #include "server/game/game_config.h"
-#include "server/clock/mock_clock.h"
+#include "server/weapons/gun.h"
 
 class TestPlayer : public ::testing::Test {
 protected:
@@ -30,20 +31,30 @@ TEST_F(TestPlayer, PlayerStartWithFullHealth) {
     EXPECT_EQ(full_health, player_health);
 }
 
-TEST_F(TestPlayer, DefaultInventory) {
+TEST_F(TestPlayer, PlayerStartWithDefaultInventory) {
     MockClock clock(std::chrono::steady_clock::now());
-    Game game(game_name, clock, GameConfig(), Shop());
+    GameConfig conf;
+    Game game(game_name, clock, conf, Shop());
     Message msg_join = Message(JoinGameCommand(""));
     game.tick(msg_join, player_name);
     
-    Inventory default_inventory = game.get_config().get_default_inventory();
-    Inventory player_inventory = game.get_config().get_player(player_name).get_inventory();
+    Inventory d_inv = game.get_config().get_default_inventory();
+    Inventory p_inv = game.get_config().get_player(player_name).get_inventory();
     
-    EXPECT_EQ(default_inventory.money, player_inventory.money);
-    EXPECT_EQ(default_inventory.weapons.at(WeaponSlot::Secondary), WeaponType::Glock);
-    EXPECT_EQ(default_inventory.weapons.at(WeaponSlot::Melee), WeaponType::Knife);
+    EXPECT_EQ(d_inv.get_money(), p_inv.get_money());
+    EXPECT_EQ(d_inv.get_sec_weapon()->get_type(), 
+                    p_inv.get_sec_weapon()->get_type());
+    EXPECT_EQ(d_inv.get_sec_weapon()->get_magazine_ammo(), 
+                    p_inv.get_sec_weapon()->get_magazine_ammo());
+    EXPECT_EQ(d_inv.get_sec_weapon()->get_reserve_ammo(), 
+                    p_inv.get_sec_weapon()->get_reserve_ammo());
+    EXPECT_EQ(d_inv.get_melee_weapon()->get_type(),
+                    p_inv.get_melee_weapon()->get_type());
     EXPECT_THROW({
-        default_inventory.weapons.at(WeaponSlot::Primary);
+        p_inv.get_prim_weapon();
+    }, std::out_of_range);
+    EXPECT_THROW({
+        p_inv.get_bomb();
     }, std::out_of_range);
 }
 
@@ -63,12 +74,13 @@ TEST_F(TestPlayer, OneTerroristHasBombWhenGameStarted) {
     Message msg_start = Message(StartGameCommand());
     game.tick(msg_start, "test_player");
 
-    Inventory first_tt_invent = game.get_config().get_player(player_name).get_inventory();
-    Inventory second_tt_invent = game.get_config().get_player(another_player_name).get_inventory();
-    if (first_tt_invent.weapons.find(WeaponSlot::Bomb) != first_tt_invent.weapons.end()) {
-        EXPECT_TRUE(second_tt_invent.weapons.find(WeaponSlot::Bomb) == second_tt_invent.weapons.end());
-    } else if (second_tt_invent.weapons.find(WeaponSlot::Bomb) != second_tt_invent.weapons.end()) {
-        EXPECT_TRUE(first_tt_invent.weapons.find(WeaponSlot::Bomb) == first_tt_invent.weapons.end());
+    Player tt = game.get_config().get_player(player_name);
+    Player another_tt = game.get_config().get_player(another_player_name);
+
+    if (tt.get_inventory().has_bomb()) {
+        EXPECT_FALSE(another_tt.get_inventory().has_bomb());
+    } else if (another_tt.get_inventory().has_bomb()) {
+        EXPECT_FALSE(tt.get_inventory().has_bomb());
     } else {
         FAIL();
     }
@@ -88,14 +100,14 @@ TEST_F(TestPlayer, CounterTerroristDoesNotHaveBombWhenGameStarted) {
     game.tick(msg_start, "test_player");
 
     Inventory ct_invent = game.get_config().get_player(player_name).get_inventory();
-    EXPECT_TRUE(ct_invent.weapons.find(WeaponSlot::Bomb) == ct_invent.weapons.end());
+    EXPECT_FALSE(ct_invent.has_bomb());
 }
 
 TEST_F(TestPlayer, CanBuyAnyPrimaryWeapon) {
     MockClock clock(std::chrono::steady_clock::now());
     GameConfig conf;
     Inventory inventory = conf.get_default_inventory();
-    inventory.money = 10000;
+    inventory.add_money(10000);
     conf.set_default_inventory(inventory);
 
     Shop shop;
@@ -103,16 +115,17 @@ TEST_F(TestPlayer, CanBuyAnyPrimaryWeapon) {
     Message msg_join = Message(JoinGameCommand(""));
     game.tick(msg_join, player_name);
     
-    std::vector<WeaponType> weapons = {WeaponType::AK47, WeaponType::M3, WeaponType::AWP};
-    for (WeaponType w : weapons) {
-        int initial_money = game.get_config().get_player(player_name).get_inventory().money;
-        int weapon_price = shop.get_weapon_price(w);
+    std::vector<GunType> guns = {GunType::AK47, GunType::M3, GunType::AWP};
+    for (GunType g : guns) {
+        int initial_money = game.get_config().get_player(player_name).get_inventory().get_money();
+        int gun_price = shop.get_gun_price(g);
 
-        Message msg_buy = Message(BuyWeaponCommand(w));
+        Message msg_buy = Message(BuyGunCommand(g));
         game.tick(msg_buy, player_name);
         
-        EXPECT_EQ(game.get_config().get_player(player_name).get_inventory().money, initial_money - weapon_price);
-        EXPECT_EQ(game.get_config().get_player(player_name).get_inventory().weapons.at(WeaponSlot::Primary), w);
+        Player player = game.get_config().get_player(player_name);
+        EXPECT_EQ(player.get_inventory().get_money(), initial_money - gun_price);
+        EXPECT_EQ(player.get_inventory().get_prim_weapon()->get_type(), g);
     }
 }
 
@@ -123,23 +136,50 @@ TEST_F(TestPlayer, CannotBuyWeaponIfNotEnoughMoney) {
     Message msg_join = Message(JoinGameCommand(""));
     game.tick(msg_join, player_name);
 
-    WeaponType weapon = WeaponType::AK47;
-    int initial_money = game.get_config().get_player(player_name).get_inventory().money;
-    int exp_weapon_price = shop.get_weapon_price(weapon);
+    GunType gun = GunType::AK47;
+    int initial_money = game.get_config().get_player(player_name).get_inventory().get_money();
+    int exp_gun_price = shop.get_gun_price(gun);
     
-    Message msg_buy = Message(BuyWeaponCommand(weapon));
-    while (exp_weapon_price <= initial_money) {
+    Message msg_buy = Message(BuyGunCommand(gun));
+    while (exp_gun_price <= initial_money) {
         game.tick(msg_buy, player_name);
-        initial_money = game.get_config().get_player(player_name).get_inventory().money;
+        initial_money = game.get_config().get_player(player_name).get_inventory().get_money();
     }
 
     EXPECT_THROW({
         game.tick(msg_buy, player_name);
-    }, BuyWeaponError);
+    }, BuyGunError);
     
-    EXPECT_EQ(game.get_config().get_player(player_name).get_inventory().money, initial_money);
+    EXPECT_EQ(game.get_config().get_player(player_name).get_inventory().get_money(), initial_money);
     
     EXPECT_THROW({
-        game.get_config().get_player(player_name).get_inventory().weapons.at(WeaponSlot::Primary);
+        game.get_config().get_player(player_name).get_inventory().get_prim_weapon();
     }, std::out_of_range);
+}
+
+TEST_F(TestPlayer, CanBuyAmmo) {
+    MockClock clock(std::chrono::steady_clock::now());
+    GameConfig conf;
+    Inventory inventory = conf.get_default_inventory();
+    inventory.add_money(10000);
+    conf.set_default_inventory(inventory);
+
+    Shop shop;
+    Game game(game_name, clock, conf, shop);
+    Message msg_join = Message(JoinGameCommand(""));
+    game.tick(msg_join, player_name);
+    
+    Inventory old_inven = game.get_config().get_player(player_name).get_inventory();
+    Message msg_buy_ammo = Message(BuyAmmoCommand(GunType::Glock));
+    game.tick(msg_buy_ammo, player_name);
+    Inventory new_inven = game.get_config().get_player(player_name).get_inventory();
+
+    EXPECT_EQ(new_inven.get_money(), old_inven.get_money() - shop.get_magazine_price(GunType::Glock));
+    
+    std::unique_ptr<Gun> old_glock = old_inven.get_sec_weapon();
+    std::unique_ptr<Gun> new_glock = new_inven.get_sec_weapon();
+    EXPECT_EQ(new_glock->get_magazine_ammo(), old_glock->get_magazine_ammo());
+    EXPECT_EQ(new_glock->get_reserve_ammo(), 
+                    old_glock->get_reserve_ammo() + 
+                            new_glock->get_bullets_per_magazine());
 }

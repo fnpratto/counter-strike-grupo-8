@@ -6,24 +6,40 @@ target_sources(taller_server
     lobby_monitor.cpp
     protocol.cpp
     main.cpp
-    game/player.cpp
+    # game
     game/game.cpp
     game/game_state.cpp
     game/game_phase.cpp
+    # player
+    player/player.cpp
+    player/inventory.cpp
+
     PUBLIC
     acceptor.h
     client_handler.h
     game_thread.h
     lobby_monitor.h
     protocol.h
+    # clock
     clock/clock.h
     clock/mock_clock.h
     clock/real_clock.h
+    # game
     game/shop.h
-    game/player.h
-    game/inventory.h
     game/game.h
     game/game_state.h
     game/game_phase.h
     game/game_config.h
+    # player
+    player/player.h
+    player/inventory.h
+    # weapons
+    weapons/weapon.h
+    weapons/m3.h
+    weapons/knife.h
+    weapons/gun.h
+    weapons/glock.h
+    weapons/bomb.h
+    weapons/awp.h
+    weapons/ak47.h
     )

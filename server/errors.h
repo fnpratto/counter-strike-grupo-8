@@ -59,7 +59,7 @@ public:
     }
 };
 
-class BuyWeaponError: public PlayerError {
+class BuyGunError: public PlayerError {
 public:
-    BuyWeaponError(): PlayerError("not enough money to buy weapon") {}
+    BuyGunError(): PlayerError("not enough money to buy gun") {}
 };
