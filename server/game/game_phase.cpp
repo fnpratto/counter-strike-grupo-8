@@ -1,8 +1,8 @@
 #include "game_phase.h"
 
-GamePhase::GamePhase(const Clock& clock, unsigned int buying_phase_secs, 
-                                         unsigned int playing_phase_secs, 
-                                         unsigned int round_finished_phase_secs) : 
+GamePhase::GamePhase(const Clock& clock, int buying_phase_secs, 
+                                         int playing_phase_secs, 
+                                         int round_finished_phase_secs) : 
         clock(clock),
         phase(PhaseType::NotStarted),
         buying_phase_secs(buying_phase_secs),

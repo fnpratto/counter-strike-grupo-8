@@ -7,13 +7,13 @@ class Player {
 private:
     Team team;
     Inventory inventory;
-    unsigned int health;
+    int health;
 
 public:
-    Player(Team team, Inventory inventory, unsigned int health);
+    Player(Team team, Inventory inventory, int health);
 
     Inventory get_inventory() const;
-    unsigned int get_health() const;
+    int get_health() const;
     bool is_tt() const;
     bool is_ct() const;
 

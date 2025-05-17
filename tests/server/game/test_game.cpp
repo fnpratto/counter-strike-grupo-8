@@ -54,7 +54,7 @@ TEST_F(TestGame, PlayerCannotJoinGameWithInvalidName) {
 
 TEST_F(TestGame, PlayersCanJoinGameUntilItIsFull) {
     Message msg_join = Message(JoinGameCommand(""));
-    for (unsigned int i = 1; i <= game.get_config().get_max_players(); i++) {
+    for (int i = 1; i <= game.get_config().get_max_players(); i++) {
         game.tick(msg_join, "test_player_" + std::to_string(i));
     }
     EXPECT_THROW({
@@ -74,7 +74,7 @@ TEST_F(TestGame, PlayerCanSelectTeam) {
 TEST_F(TestGame, PlayerCannotSelectFullTeam) {
     Message msg_join = Message(JoinGameCommand(""));
     Message msg_select_team = Message(SelectTeamCommand(Team::Terrorist));
-    for (unsigned int i = 1; i <= game.get_config().get_max_players_per_team(); i++) {
+    for (int i = 1; i <= game.get_config().get_max_team_players(); i++) {
         game.tick(msg_join, "test_player_" + std::to_string(i));
         game.tick(msg_select_team, "test_player_" + std::to_string(i));
     }
@@ -83,7 +83,7 @@ TEST_F(TestGame, PlayerCannotSelectFullTeam) {
     EXPECT_THROW({
         game.tick(msg_select_team, "extra_player");
     }, SelectTeamError);
-    EXPECT_EQ(game.get_config().get_num_players(), game.get_config().get_max_players_per_team() + 1);
+    EXPECT_EQ(game.get_config().get_num_players(), game.get_config().get_max_team_players() + 1);
 }
 
 TEST_F(TestGame, StartInBuyingPhase) {
@@ -178,7 +178,7 @@ TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
     Message msg_start = Message(StartGameCommand());
     game.tick(msg_start, "test_player1");
 
-    for (unsigned int i = 1; i <= game.get_config().get_max_rounds() / 2; i++) {
+    for (int i = 1; i <= game.get_config().get_max_rounds() / 2; i++) {
         advance_secs(game.get_config().get_buying_phase_secs());
         game.tick(Message(), "test_player1");
         advance_secs(game.get_config().get_playing_phase_secs());

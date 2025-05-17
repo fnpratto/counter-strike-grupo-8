@@ -114,10 +114,12 @@ bool GameState::player_can_select_team(Team& team) const {
     return !team_is_full(team) && !phase.is_started();
 }
 
-bool GameState::is_full() const { return conf.players.size() == conf.max_players; }
+bool GameState::is_full() const { 
+    return static_cast<int>(conf.players.size()) == conf.max_players; 
+}
 
 bool GameState::team_is_full(Team& team) const {
     if (team == Team::Terrorist)
-        return conf.num_tts == conf.max_players_per_team;
-    return conf.num_cts == conf.max_players_per_team;
+        return conf.num_tts == conf.max_team_players;
+    return conf.num_cts == conf.max_team_players;
 }
