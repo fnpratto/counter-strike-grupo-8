@@ -14,33 +14,43 @@
 #include "common/socket.h"
 #include "common/thread.h"
 
-#if UI_TYPE == tui
-#include "text_display.h"
-#elif UI_TYPE == gui
+// #if UI_TYPE == tui
+// #include "text_display.h"
+// #elif UI_TYPE == gui
 #include "qt_display.h"
 #include "sdl_display.h"
-#endif
+// #endif
 
 #include "receiver.h"
 #include "sender.h"
 
 Client::Client():
-#if UI_TYPE == tui
-        display(std::make_unique<TextDisplay>(display_queue, input_queue))
-#elif UI_TYPE == gui
-        display(std::make_unique<QtDisplay>(display_queue, input_queue))
-#endif
+        // #if UI_TYPE == tui
+        //         display(std::make_unique<TextDisplay>(display_queue, input_queue))
+        // #elif UI_TYPE == gui
+        display(std::make_unique<QtDisplay>(display_queue, input_queue)),
+        sender(nullptr),
+        receiver(nullptr)
+// #endif
 {
     display->start();
 }
 
 void Client::run() {
-    while (display->is_alive()) {
+    while (true) {
         Message msg;
         input_queue.try_pop(msg);
 
         if (msg.get_type() != MessageType::CONN_REQ) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+            // fuck this specific race condition
+            // if (!display->is_alive()) {
+            //     display->stop();
+            //     display->join();
+            //     return;
+            // }
+
             continue;
         }
 
@@ -58,6 +68,8 @@ void Client::run() {
         break;
     }
 
+    std::cout << "Connected to server" << std::endl;
+
     // Feed the input queue to the sender
     sender = std::make_unique<ClientSender>(protocol, input_queue);
     sender->start();
@@ -66,15 +78,15 @@ void Client::run() {
     receiver = std::make_unique<ClientReceiver>(protocol, display_queue);
     receiver->start();
 
-    // TODO switch display from QtDisplay to SDLDisplay
-#if UI_TYPE == tui
-    // No need to switch, TUI handles both stages
-#elif UI_TYPE == gui
+    // #if UI_TYPE == tui
+    //     // No need to switch, TUI handles both stages
+    // #elif UI_TYPE == gui
     display->stop();
     display->join();
     display = std::make_unique<SDLDisplay>(display_queue, input_queue);
     display->start();
-#endif
+    // #endif
+    std::cout << "Switched to SDLDisplay" << std::endl;
 
     while (display->is_alive() && sender->is_alive() && receiver->is_alive())
         std::this_thread::sleep_for(std::chrono::milliseconds(10));

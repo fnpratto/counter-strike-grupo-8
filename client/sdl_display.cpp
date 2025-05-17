@@ -13,4 +13,4 @@
 SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue):
         Display(input_queue, output_queue) {}
 void SDLDisplay::run() {}
-void SDLDisplay::stop() {}
+void SDLDisplay::stop() { Thread::stop(); }
