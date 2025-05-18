@@ -7,6 +7,7 @@
 #include "server/cons.h"
 #include "server/errors.h"
 #include "server/map/map.h"
+#include "server/map/map_builder.h"
 
 using namespace GameConfig;
 using namespace PhaseTimes;
@@ -19,6 +20,7 @@ protected:
     
     TestGame() : 
             clock(std::chrono::steady_clock::now()), 
+            map(MapBuilder("tests/server/map/map.yaml").build()),
             game("test_game", clock, Shop(), map) {}
     
     void advance_secs(int secs) {
@@ -239,7 +241,7 @@ TEST_F(TestGame, PlayerCanMoveInDiagonal) {
     float new_pos_x = player.pos_x;
     float new_pos_y = player.pos_y;
     
-    Vector2D step = dir.normalized() * player_speed * (1 / tickrate);
+    Vector2D step = dir.normalized() * player_speed * (1.0f / tickrate);
     EXPECT_EQ(new_pos_x, old_pos_x + step.get_x());
     EXPECT_EQ(new_pos_y, old_pos_y + step.get_y());
 }

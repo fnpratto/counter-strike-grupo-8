@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <vector>
 
 #include "server/player/player.h"
 #include "common/models.h"
@@ -80,7 +79,7 @@ TEST_F(TestPlayer, CannotBuyWeaponIfNotEnoughMoney) {
     }, std::out_of_range);
 }
 
-TEST_F(TestPlayer, CanBuyAmmo) {
+TEST_F(TestPlayer, BuyAmmo) {
     Shop shop;
     player.gain_money(10000);
 

@@ -33,6 +33,8 @@ add_library(taller_common STATIC)
 # HEY!! TODO XXX: add more subfolders here
 add_subdirectory(common/)
 
+find_package(yaml-cpp REQUIRED)
+target_link_libraries(taller_common PUBLIC yaml-cpp)
 
 # set compiler warnings to the targets
 include(cmake/CompilerWarnings.cmake)
