@@ -6,17 +6,23 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "common/message.h"
+#include "common/queue.h"
+
 #include "game_list_table.h"
 
-class GameMenu: public QWidget {
+class GameMenuWindow: public QWidget {
     Q_OBJECT
 private:
+    Queue<Message>& input_queue;
+    Queue<Message>& output_queue;
     QVBoxLayout* main_layout;
     GameListTable* game_list_table;
 
 public:
-    explicit GameMenu(QWidget* parent = nullptr);
-    ~GameMenu();
+    explicit GameMenuWindow(Queue<Message>& input_queue, Queue<Message>& output_queue,
+                            QWidget* parent = nullptr);
+    ~GameMenuWindow();
 
     void join_game(QString game_name);
 

@@ -5,18 +5,24 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "common/message.h"
+#include "common/queue.h"
+
 #include "game_menu_window.h"
 
 class LogInWindow: public QWidget {
     Q_OBJECT
 private:
+    Queue<Message>& input_queue;
+    Queue<Message>& output_queue;
     QVBoxLayout* main_layout;
     QLineEdit* ip_input;
     QLineEdit* port_input;
-    GameMenu* game_menu;
+    GameMenuWindow* game_menu;
 
 public:
-    explicit LogInWindow(QWidget* parent = nullptr);
+    explicit LogInWindow(Queue<Message>& input_queue, Queue<Message>& output_queue,
+                         QWidget* parent = nullptr);
     ~LogInWindow();
 
 private:

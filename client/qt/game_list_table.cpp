@@ -68,7 +68,7 @@ QString GameListTable::get_selected_game() {
 void GameListTable::on_cell_double_clicked(int row, int column) {
     Q_UNUSED(row);
     Q_UNUSED(column);
-    GameMenu* game_menu = qobject_cast<GameMenu*>(this->parent());
+    GameMenuWindow* game_menu = qobject_cast<GameMenuWindow*>(this->parent());
     if (game_menu) {
         game_menu->join_game(this->get_selected_game());
     }

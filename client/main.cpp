@@ -1,5 +1,3 @@
-#include <QApplication>
-#include <QLabel>
 #include <exception>
 #include <iostream>
 

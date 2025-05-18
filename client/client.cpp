@@ -67,9 +67,11 @@ void Client::run() {
                            conn_req.get_port().c_str()));  // TODO this might throw
         } catch (const std::exception& e) {
             std::cerr << "Error: " << e.what() << std::endl;
+            display_queue.push(Message(ConnectionResponse(false)));
             continue;
         }
 
+        display_queue.push(Message(ConnectionResponse(true)));
         break;
     }
 

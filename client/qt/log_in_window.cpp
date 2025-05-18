@@ -16,7 +16,9 @@
 #define WINDOW_WIDTH 416
 #define WINDOW_HEIGHT 184
 
-LogInWindow::LogInWindow(QWidget* parent): QWidget(parent) {
+LogInWindow::LogInWindow(Queue<Message>& input_queue, Queue<Message>& output_queue,
+                         QWidget* parent):
+        QWidget(parent), input_queue(input_queue), output_queue(output_queue) {
     this->setWindowTitle(TITLE);
     this->setWindowIcon(QIcon(ICON_PATH));
     this->setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -101,7 +103,23 @@ void LogInWindow::on_login_button_clicked() {
         return;
     }
 
+    output_queue.push(Message(ConnectionRequest(ip, port)));
+
+    auto msg = input_queue.pop();
+    if (msg.get_type() != MessageType::CONN_RES) {
+        QMessageBox::warning(this, "Connection Error", "Failed to connect to server.",
+                             QMessageBox::Ok);
+        return;
+    }
+
+    auto conn_res = msg.get_content<ConnectionResponse>();
+    if (conn_res.has_failed()) {
+        QMessageBox::warning(this, "Connection Error", "Failed to connect to server.",
+                             QMessageBox::Ok);
+        return;
+    }
+
     this->close();
-    this->game_menu = new GameMenu();
+    this->game_menu = new GameMenuWindow(input_queue, output_queue);
     this->game_menu->show();
 }
