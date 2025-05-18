@@ -7,13 +7,17 @@ Player::Player(Team team, Inventory inventory, int health, Vector2D position) :
         health(health),
         position(position) {}
 
-Inventory Player::get_inventory() const { return inventory; };
-
-int Player::get_health() const { return health; }
-
 bool Player::is_tt() const { return team == Team::Terrorist; }
-
+        
 bool Player::is_ct() const { return team == Team::CounterTerrorist; }
+
+bool Player::has_bomb() const { return inventory.has_bomb(); }
+
+bool Player::has_prim_weapon() const { return inventory.has_prim_weapon(); }
+
+Inventory Player::get_inventory() const { return inventory; };
+        
+int Player::get_health() const { return health; }
 
 float Player::get_pos_x() const { return position.get_x(); }
 
@@ -43,7 +47,7 @@ void Player::buy_ammo(const WeaponSlot& slot, int ammo_price, int num_mags) {
     int player_money = inventory.get_money();
     if (ammo_price > player_money)
         throw BuyAmmoError();
-    inventory.add_magazines(slot, num_mags);
+    inventory.add_mags(slot, num_mags);
     inventory.decrease_money(ammo_price);
 }
 

@@ -14,10 +14,13 @@ private:
 public:
     Player(Team team, Inventory inventory, int health, Vector2D position);
 
-    Inventory get_inventory() const;
-    int get_health() const;
     bool is_tt() const;
     bool is_ct() const;
+    bool has_bomb() const;
+    bool has_prim_weapon() const;
+    
+    Inventory get_inventory() const;
+    int get_health() const;
     float get_pos_x() const;
     float get_pos_y() const;
 

@@ -1,11 +1,11 @@
 target_sources(taller_tests
     PRIVATE
-    # server/game/test_game.cpp
+    server/game/test_game.cpp
     server/game/test_game_phase.cpp
     server/player/test_player.cpp
     # game
     ../server/game/game.cpp
-    ../server/game/game_state.cpp
+    ../server/game/game_logic.cpp
     ../server/game/game_phase.cpp
     # player
     ../server/player/player.cpp
@@ -18,8 +18,10 @@ target_sources(taller_tests
     # game
     ../server/game/shop.h
     ../server/game/game.h
-    ../server/game/game_state.h
+    ../server/game/game_logic.h
     ../server/game/game_phase.h
+    ../server/game/game_state.h
+    ../server/game/game_state_builder.h
     # player
     ../server/player/player.h
     ../server/player/inventory.h

@@ -1,18 +1,19 @@
 #include <vector>
 
-#include "game_state.h"
+#include "game_logic.h"
 #include "server/cons.h"
 #include "server/errors.h"
 #include "server/utils/vector_2d.h"
+#include "game_state_builder.h"
 
 using namespace GameConfig;
 using namespace PlayerInitialConfig;
 
-GameState::GameState(const Clock& clock, const Shop& shop) :
+GameLogic::GameLogic(const Clock& clock, const Shop& shop) :
         phase(clock),
         shop(shop) {}
 
-void GameState::add_player(const std::string& player_name) {
+void GameLogic::add_player(const std::string& player_name) {
     if (!can_join(player_name))
         throw JoinGameError();
 
@@ -26,13 +27,13 @@ void GameState::add_player(const std::string& player_name) {
     }
 }
 
-Vector2D GameState::set_initial_pos() {
+Vector2D GameLogic::set_initial_pos() {
     // TODO: calculate init pos according to team spawn
     // TODO: check colissions with other players and objects
     return Vector2D();
 }
 
-void GameState::select_team(const std::string& player_name, Team team) {
+void GameLogic::select_team(const std::string& player_name, Team team) {
     if (!player_can_select_team(team))
         throw SelectTeamError();
     
@@ -57,7 +58,7 @@ void GameState::select_team(const std::string& player_name, Team team) {
 }
 
 // TODO: revise logic for starting a game.
-void GameState::start_game() {
+void GameLogic::start_game() {
     if (phase.is_started())
         throw StartGameError();
     if (num_tts > 0)
@@ -65,12 +66,12 @@ void GameState::start_game() {
     phase.start_buying_phase();
 }
 
-void GameState::buy_gun(const std::string& player_name, GunType gun) {
+void GameLogic::buy_gun(const std::string& player_name, GunType gun) {
     int gun_price = shop.get_gun_price(gun);
     players.at(player_name).buy_gun(gun, gun_price);
 }
 
-void GameState::buy_ammo(const std::string& player_name, GunType gun) {
+void GameLogic::buy_ammo(const std::string& player_name, GunType gun) {
     int num_mags = 1;
     if (gun == GunType::M3) {
         num_mags = 8;
@@ -80,7 +81,7 @@ void GameState::buy_ammo(const std::string& player_name, GunType gun) {
     players.at(player_name).buy_ammo(slot, ammo_price, num_mags);
 }
 
-void GameState::move(const std::string& player_name, int dx, int dy) {
+void GameLogic::move(const std::string& player_name, int dx, int dy) {
     Vector2D dir(dx, dy);
     float tick_duration = 1 / tickrate;
     Vector2D step = dir.normalize() * player_speed * tick_duration;
@@ -88,7 +89,7 @@ void GameState::move(const std::string& player_name, int dx, int dy) {
     players.at(player_name).move(step);
 }
 
-void GameState::update_round_phase() {
+void GameLogic::update_round_phase() {
     if (num_rounds == max_rounds / 2)
         swap_teams();
     phase.update();
@@ -96,13 +97,13 @@ void GameState::update_round_phase() {
         num_rounds++;
 }
 
-Team GameState::choose_player_team() {
+Team GameLogic::choose_player_team() {
     if (num_tts > num_cts)
         return Team::CounterTerrorist;
     return Team::Terrorist;
 }
 
-void GameState::give_bomb_to_random_tt() {
+void GameLogic::give_bomb_to_random_tt() {
     std::vector<std::string> tt_names;
 
     for (auto& [player_name, player] : players) {
@@ -115,7 +116,7 @@ void GameState::give_bomb_to_random_tt() {
     players.at(tt_names[random_index]).pick_bomb();
 }
 
-void GameState::swap_teams() {
+void GameLogic::swap_teams() {
     for (auto& [_, player] : players) {
         if (player.is_tt()) {
             player.select_team(Team::CounterTerrorist);
@@ -125,21 +126,25 @@ void GameState::swap_teams() {
     }
 }
 
-GameState::~GameState() {}
+GameState GameLogic::get_game_state() const {
+    return GameStateBuilder::build(*this);
+}
 
-bool GameState::can_join(const std::string& player_name) const {
+GameLogic::~GameLogic() {}
+
+bool GameLogic::can_join(const std::string& player_name) const {
     return players.find(player_name) == players.end() && !is_full() && !phase.is_started();
 }
 
-bool GameState::player_can_select_team(Team& team) const {
+bool GameLogic::player_can_select_team(Team& team) const {
     return !team_is_full(team) && !phase.is_started();
 }
 
-bool GameState::is_full() const { 
+bool GameLogic::is_full() const { 
     return static_cast<int>(players.size()) == max_players; 
 }
 
-bool GameState::team_is_full(Team& team) const {
+bool GameLogic::team_is_full(Team& team) const {
     if (team == Team::Terrorist)
         return num_tts == max_team_players;
     return num_cts == max_team_players;

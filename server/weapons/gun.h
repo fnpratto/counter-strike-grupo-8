@@ -21,11 +21,11 @@ public:
     virtual std::unique_ptr<Gun> clone() const = 0;
 
     GunType get_type() const { return gun; }
-    int get_bullets_per_magazine() const { return bullets_per_magazine; }
-    int get_magazine_ammo() const { return magazine_ammo; }
+    int get_bullets_per_mag() const { return bullets_per_magazine; }
+    int get_mag_ammo() const { return magazine_ammo; }
     int get_reserve_ammo() const { return reserve_ammo; }
 
-    void add_magazines(int num_mags) {
+    void add_mags(int num_mags) {
         reserve_ammo += bullets_per_magazine * num_mags;
     }
 

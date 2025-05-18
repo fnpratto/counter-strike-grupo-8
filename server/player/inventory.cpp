@@ -29,6 +29,10 @@ bool Inventory::has_bomb() const {
     return utilities.find(WeaponSlot::Bomb) != utilities.end();
 }
 
+bool Inventory::has_prim_weapon() const {
+    return guns.find(WeaponSlot::Primary) != guns.end();
+}
+
 int Inventory::get_money() const { return money; }
 
 std::unique_ptr<Gun> Inventory::get_prim_weapon() const {
@@ -65,8 +69,8 @@ void Inventory::add_primary_weapon(const GunType& weapon_type) {
     }
 }
 
-void Inventory::add_magazines(const WeaponSlot& slot, int num_mags) {
-    guns.at(slot)->add_magazines(num_mags);
+void Inventory::add_mags(const WeaponSlot& slot, int num_mags) {
+    guns.at(slot)->add_mags(num_mags);
 }
 
 Inventory::~Inventory() {}

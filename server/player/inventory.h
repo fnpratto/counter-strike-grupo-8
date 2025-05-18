@@ -20,6 +20,7 @@ public:
     Inventory& operator=(const Inventory& other);
 
     bool has_bomb() const;
+    bool has_prim_weapon() const;
 
     int get_money() const;
     std::unique_ptr<Gun> get_prim_weapon() const;
@@ -32,7 +33,7 @@ public:
     
     void add_bomb();
     void add_primary_weapon(const GunType& weapon_type);
-    void add_magazines(const WeaponSlot& weapon_slot, int num_mags);
+    void add_mags(const WeaponSlot& weapon_slot, int num_mags);
 
     ~Inventory();
 };

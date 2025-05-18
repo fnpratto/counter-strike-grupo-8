@@ -4,12 +4,13 @@
 
 #include "shop.h"
 #include "common/message.h"
+#include "game_logic.h"
 #include "game_state.h"
 
 class Game {
 private:
     std::string name;
-    GameState state;
+    GameLogic logic;
     
     void handle_msg(Message msg, const std::string& player_name);
 
@@ -17,6 +18,8 @@ private:
 
 public:
     Game(const std::string& name, const Clock& clock, const Shop& shop);
+
+    GameState get_game_state() const;
 
     void tick(Message msg, const std::string& player_name);
 

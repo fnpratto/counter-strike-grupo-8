@@ -30,8 +30,8 @@ TEST_F(TestPlayer, PlayerStartWithDefaultInventory) {
     EXPECT_EQ(i_inv.get_money(), p_inv.get_money());
     EXPECT_EQ(i_inv.get_sec_weapon()->get_type(), 
                     p_inv.get_sec_weapon()->get_type());
-    EXPECT_EQ(i_inv.get_sec_weapon()->get_magazine_ammo(), 
-                    p_inv.get_sec_weapon()->get_magazine_ammo());
+    EXPECT_EQ(i_inv.get_sec_weapon()->get_mag_ammo(), 
+                    p_inv.get_sec_weapon()->get_mag_ammo());
     EXPECT_EQ(i_inv.get_sec_weapon()->get_reserve_ammo(), 
                     p_inv.get_sec_weapon()->get_reserve_ammo());
     EXPECT_EQ(i_inv.get_melee_weapon()->get_type(),
@@ -92,8 +92,8 @@ TEST_F(TestPlayer, CanBuyAmmo) {
     
     std::unique_ptr<Gun> old_glock = old_inv.get_sec_weapon();
     std::unique_ptr<Gun> new_glock = new_inv.get_sec_weapon();
-    EXPECT_EQ(new_glock->get_magazine_ammo(), old_glock->get_magazine_ammo());
+    EXPECT_EQ(new_glock->get_mag_ammo(), old_glock->get_mag_ammo());
     EXPECT_EQ(new_glock->get_reserve_ammo(), 
                     old_glock->get_reserve_ammo() + 
-                            new_glock->get_bullets_per_magazine());
+                            new_glock->get_bullets_per_mag());
 }
