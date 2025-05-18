@@ -21,6 +21,7 @@ option(TALLER_CLIENT "Enable / disable client program." ON)
 option(TALLER_SERVER "Enable / disable server program." ON)
 option(TALLER_EDITOR "Enable / disable editor program." ON)
 option(TALLER_MAKE_WARNINGS_AS_ERRORS "Enable / disable warnings as errors." ON)
+set(UI_TYPE "gui" CACHE STRING "UI type to build: gui or tui")
 
 message(CMAKE_CXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}")
 
@@ -131,6 +132,13 @@ if(TALLER_CLIENT)
         Qt5::Widgets
         Qt5::Gui
     )
+
+    # Add UI_TYPE definition
+    if(UI_TYPE STREQUAL "gui")
+        target_compile_definitions(taller_client PRIVATE UI_TYPE_GUI)
+    elseif(UI_TYPE STREQUAL "tui")
+        target_compile_definitions(taller_client PRIVATE UI_TYPE_TUI)
+    endif()
 endif()
 
 if(TALLER_SERVER)
