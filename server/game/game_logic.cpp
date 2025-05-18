@@ -88,6 +88,8 @@ void GameLogic::buy_ammo(const std::string& player_name, GunType gun) {
 }
 
 void GameLogic::move(const std::string& player_name, int dx, int dy) {
+    if (phase.is_buying_phase())
+        return;
     Vector2D dir(dx, dy);
     float tick_duration = 1 / tickrate;
     Vector2D step = dir.normalized() * player_speed * tick_duration;
