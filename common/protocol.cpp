@@ -30,6 +30,9 @@ void BaseProtocol::send(const Message& message) {
 }
 
 void BaseProtocol::close() {
+    if (is_closed())
+        return;
+
     socket.shutdown(SHUT_RDWR);
     socket.close();
 }

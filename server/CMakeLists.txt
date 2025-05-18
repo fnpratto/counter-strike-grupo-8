@@ -2,9 +2,13 @@ target_sources(taller_server
     PRIVATE
     acceptor.cpp
     client_handler.cpp
+    game.cpp
     game_thread.cpp
     lobby_monitor.cpp
+    lobby_thread.cpp
     protocol.cpp
+    receiver.cpp
+    sender.cpp
     main.cpp
     # game
     game/game.cpp
@@ -17,10 +21,12 @@ target_sources(taller_server
     PUBLIC
     acceptor.h
     client_handler.h
+    game.h
     game_thread.h
     lobby_monitor.h
     protocol.h
     cons.h
+    receiver.h
     # clock
     clock/clock.h
     clock/mock_clock.h
@@ -47,4 +53,4 @@ target_sources(taller_server
     weapons/ak47.h
     # utils
     utils/vector_2d.h
-    )
+)

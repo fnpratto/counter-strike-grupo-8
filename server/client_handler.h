@@ -16,7 +16,7 @@
 
 class ClientHandler {
 private:
-    std::shared_ptr<ServerProtocol> protocol;
+    ServerProtocol protocol;
 
     /*
     TODO: lobby_thread lives forever (until the ClientHandler is destroyed)
@@ -30,8 +30,8 @@ private:
 
 
 public:
-    ClientHandler(Socket&& client_socket, LobbyMonitor& lobby_monitor):
-            protocol(std::make_shared<ServerProtocol>(std::move(client_socket))),
-            lobby_thread(std::make_unique<LobbyThread>(lobby_monitor, protocol, sender, receiver)) {
-    }
+    ClientHandler(Socket&& client_socket, LobbyMonitor& lobby_monitor);
+
+    void connect(pipe_t pipe);
+    void disconnect();
 };

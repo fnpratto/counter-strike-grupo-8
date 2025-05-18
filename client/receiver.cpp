@@ -28,7 +28,5 @@ void ClientReceiver::run() {
 
 void ClientReceiver::stop() {
     Thread::stop();
-
-    if (protocol->is_open())
-        protocol->close();
+    protocol->close();
 }

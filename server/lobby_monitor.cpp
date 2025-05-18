@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "errors.h"
+#include "game.h"
 #include "game_thread.h"
 
 
@@ -54,4 +55,11 @@ void LobbyMonitor::reap() {
             game->join();
             games.erase(name);
         }
+}
+
+LobbyMonitor::~LobbyMonitor() {
+    for (const auto& [name, game]: games) {
+        game->stop();
+        game->join();
+    }
 }

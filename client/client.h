@@ -14,7 +14,6 @@
 #include "common/thread.h"
 
 #include "display.h"
-#include "input.h"
 #include "receiver.h"
 #include "sender.h"
 
@@ -25,13 +24,12 @@ private:
     Queue<Message> input_queue;
     Queue<Message> display_queue;
 
-    std::unique_ptr<Input> input;
     std::unique_ptr<Display> display;
 
-    ClientSender sender;
-    ClientReceiver receiver;
+    std::unique_ptr<ClientSender> sender;
+    std::unique_ptr<ClientReceiver> receiver;
 
 public:
-    Client(const char* hostname, const char* port);
+    Client();
     void run();
 };

@@ -17,8 +17,7 @@ void Acceptor::run() {
         try {
             Socket peer = socket.accept();
 
-            ClientHandler client_handler(std::move(peer), lobby_monitor);
-
+            auto client_handler = std::make_unique<ClientHandler>(std::move(peer), lobby_monitor);
             clients.push_back(std::move(client_handler));
 
             reap();
@@ -48,6 +47,8 @@ void Acceptor::reap() {
 
 void Acceptor::stop() {
     Thread::stop();
+
+    for (auto& client: clients) client->disconnect();
 
     // Shutdown and close the socket in case we're stuck on accept()
     socket.shutdown(SHUT_RDWR);

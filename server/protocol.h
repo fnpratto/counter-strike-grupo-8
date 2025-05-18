@@ -17,9 +17,8 @@
 #include "common/socket.h"
 #include "common/thread.h"
 
+#include "game.h"
 #include "lobby_monitor.h"
-
-enum class PlayerSymbol { NONE = ' ', PLAYER1 = 'O', PLAYER2 = 'X' };
 
 class ServerProtocol: public BaseProtocol {
 public:

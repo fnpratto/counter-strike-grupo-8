@@ -7,11 +7,13 @@
 #include <variant>
 #include <vector>
 
+#include "client/requests.h"
+
 #include "commands.h"
-// #include "models.h"
 
 
 #define MESSAGE_TYPE_MAP(F)                            \
+    F(ConnectionRequest, CONN_REQ)                     \
     F(CreateGameCommand, CREATE_GAME_CMD) /*Commands*/ \
     F(JoinGameCommand, JOIN_GAME_CMD)                  \
     F(ListGamesCommand, LIST_GAMES_CMD)                \

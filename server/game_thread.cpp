@@ -1,11 +1,16 @@
 #include "game_thread.h"
-#include "clock/real_clock.h"
 
 GameThread::GameThread(const std::string& name):
-        game(name, RealClock(), GameConfig(), Shop()), input_queue(std::make_shared<Queue<Message>>()) {}
+        game(name), input_queue(std::make_shared<Queue<Message>>()) {}
 
+// TODO: Tick rate
 void GameThread::run() {
-    // Empty implementation for now
+    Message msg;
+    while (should_keep_running()) {
+        input_queue->try_pop(msg);
+        game.tick(msg);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
 }
 
 pipe_t GameThread::join_game(const std::string& player_name) {
@@ -19,7 +24,4 @@ pipe_t GameThread::join_game(const std::string& player_name) {
 
 bool GameThread::is_full() { return game.is_full(); }
 
-void GameThread::stop() {
-    // Implementation of stop method
-    // You might want to add signal mechanism to stop the thread
-}
+void GameThread::stop() { Thread::stop(); }  // TODO: finish game
