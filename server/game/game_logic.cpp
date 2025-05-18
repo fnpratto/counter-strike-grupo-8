@@ -1,17 +1,23 @@
 #include <vector>
+#include <utility>
 
 #include "game_logic.h"
 #include "server/cons.h"
 #include "server/errors.h"
 #include "server/utils/vector_2d.h"
 #include "game_state_builder.h"
+#include "server/weapons/bullet.h"
 
 using namespace GameConfig;
 using namespace PlayerInitialConfig;
 
-GameLogic::GameLogic(const Clock& clock, const Shop& shop) :
+GameLogic::GameLogic(const Clock& clock, const Shop& shop, Map& map) :
+        clock(clock),
+        shop(shop),
         phase(clock),
-        shop(shop) {}
+        map(map) {}
+
+GameState GameLogic::get_game_state() const { return GameStateBuilder::build(*this); }
 
 void GameLogic::add_player(const std::string& player_name) {
     if (!can_join(player_name))
@@ -84,10 +90,29 @@ void GameLogic::buy_ammo(const std::string& player_name, GunType gun) {
 void GameLogic::move(const std::string& player_name, int dx, int dy) {
     Vector2D dir(dx, dy);
     float tick_duration = 1 / tickrate;
-    Vector2D step = dir.normalize() * player_speed * tick_duration;
+    Vector2D step = dir.normalized() * player_speed * tick_duration;
     // TODO: Check collisions
     players.at(player_name).move(step);
 }
+
+void GameLogic::shoot(const std::string& player_name, int x, int y) {
+    Player& player = players.at(player_name);
+    if (player.get_current_weapon() == WeaponSlot::Melee) {
+        Knife knife = player.attack();
+        map.process_melee_attack(std::move(knife));
+    } else {
+        std::vector<Bullet> bullets = player.shoot_gun(x, y, clock.now());
+        for (Bullet& b : bullets) {
+            map.add_bullet(std::move(b));
+        }
+    }
+}
+
+void GameLogic::switch_weapon(const std::string& player_name, WeaponSlot slot) {
+    players.at(player_name).equip_weapon(slot);
+}
+
+void GameLogic::update_map() { map.update(); }
 
 void GameLogic::update_round_phase() {
     if (num_rounds == max_rounds / 2)
@@ -124,10 +149,6 @@ void GameLogic::swap_teams() {
             player.select_team(Team::Terrorist);
         }
     }
-}
-
-GameState GameLogic::get_game_state() const {
-    return GameStateBuilder::build(*this);
 }
 
 GameLogic::~GameLogic() {}

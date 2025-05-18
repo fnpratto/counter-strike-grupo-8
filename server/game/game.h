@@ -6,6 +6,7 @@
 #include "common/message.h"
 #include "game_logic.h"
 #include "game_state.h"
+#include "server/map/map.h"
 
 class Game {
 private:
@@ -17,7 +18,7 @@ private:
     void chk_valid_player_name_or_fail(const std::string& player_name);
 
 public:
-    Game(const std::string& name, const Clock& clock, const Shop& shop);
+    Game(const std::string& name, const Clock& clock, const Shop& shop, Map& map);
 
     GameState get_game_state() const;
 

@@ -55,6 +55,7 @@ private:
         player_state.health = player.get_health();
         player_state.pos_x = player.get_pos_x();
         player_state.pos_y = player.get_pos_y();
+        player_state.current_weapon = player.get_current_weapon();
         return player_state;
     }
 

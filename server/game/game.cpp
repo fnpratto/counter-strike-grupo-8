@@ -4,9 +4,9 @@
 
 #include "server/errors.h"
 
-Game::Game(const std::string& name, const Clock& clock, const Shop& shop): 
+Game::Game(const std::string& name, const Clock& clock, const Shop& shop, Map& map): 
         name(name),
-        logic(clock, shop) {}
+        logic(clock, shop, map) {}
 
 GameState Game::get_game_state() const { 
     return logic.get_game_state(); 
@@ -14,8 +14,9 @@ GameState Game::get_game_state() const {
 
 void Game::tick(Message msg, const std::string& player_name) {
     chk_valid_player_name_or_fail(player_name);
-    handle_msg(msg, player_name);
+    logic.update_map();
     logic.update_round_phase();
+    handle_msg(msg, player_name);
 }
 
 void Game::handle_msg(Message msg, const std::string& player_name) {
@@ -37,6 +38,13 @@ void Game::handle_msg(Message msg, const std::string& player_name) {
         int dx = msg.get_content<MoveCommand>().get_dx();
         int dy = msg.get_content<MoveCommand>().get_dy();
         logic.move(player_name, dx, dy);
+    } else if (msg_type == MessageType::SHOOT_CMD) {
+        int x = msg.get_content<ShootCommand>().get_x();
+        int y = msg.get_content<ShootCommand>().get_y();
+        logic.shoot(player_name, x, y);
+    } else if (msg_type == MessageType::SWITCH_WEAPON_CMD) {
+        WeaponSlot slot = msg.get_content<SwitchWeaponCommand>().get_slot();
+        logic.switch_weapon(player_name, slot);
     }
 }
 

@@ -23,6 +23,7 @@ struct PlayerState {
     int health;
     float pos_x;
     float pos_y;
+    WeaponSlot current_weapon;
 };
 
 struct GameState {

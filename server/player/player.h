@@ -3,6 +3,10 @@
 #include "common/models.h"
 #include "inventory.h"
 #include "server/utils/vector_2d.h"
+#include "server/clock/clock.h"
+#include "server/weapons/bullet.h"
+#include "server/weapons/knife.h"
+#include "server/weapons/bomb.h"
 
 class Player {
 private:
@@ -10,6 +14,7 @@ private:
     Inventory inventory;
     int health;
     Vector2D position;
+    WeaponSlot current_weapon;
 
 public:
     Player(Team team, Inventory inventory, int health, Vector2D position);
@@ -23,6 +28,7 @@ public:
     int get_health() const;
     float get_pos_x() const;
     float get_pos_y() const;
+    WeaponSlot get_current_weapon() const;
 
     void gain_money(int amount);
     
@@ -36,5 +42,11 @@ public:
     
     void move(Vector2D step);
 
+    void equip_weapon(WeaponSlot slot);
+
+    Knife attack();
+
+    std::vector<Bullet> shoot_gun(int x, int y, TimePoint now);
+    
     ~Player();
 };

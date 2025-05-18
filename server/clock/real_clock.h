@@ -4,7 +4,7 @@
 
 class RealClock : public Clock {
 public:
-    std::chrono::steady_clock::time_point now() const override {
+    TimePoint now() const override {
         return std::chrono::steady_clock::now();
     }
 };

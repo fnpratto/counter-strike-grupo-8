@@ -23,6 +23,8 @@ float Player::get_pos_x() const { return position.get_x(); }
 
 float Player::get_pos_y() const { return position.get_y(); }
 
+WeaponSlot Player::get_current_weapon() const { return current_weapon; }
+
 void Player::gain_money(int amount) {
     inventory.add_money(amount);
 }
@@ -53,6 +55,25 @@ void Player::buy_ammo(const WeaponSlot& slot, int ammo_price, int num_mags) {
 
 void Player::move(Vector2D step) {
     position = position + step;
+}
+
+void Player::equip_weapon(WeaponSlot slot) {
+    current_weapon = slot;
+}
+
+Knife Player::attack() {
+    std::unique_ptr<Utility> knife = inventory.get_melee_weapon();
+    return *static_cast<Knife*>(knife.get());
+}
+
+std::vector<Bullet> Player::shoot_gun(int x, int y, TimePoint now) {
+    std::unique_ptr<Gun> gun = nullptr;
+    if (current_weapon == WeaponSlot::Primary) {
+        gun = inventory.get_prim_weapon();
+    } else {
+        gun = inventory.get_sec_weapon();
+    }
+    return gun->shoot(position, Vector2D(x, y), now);
 }
 
 Player::~Player() {}

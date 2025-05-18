@@ -6,6 +6,7 @@
 #include "server/game/shop.h"
 #include "server/cons.h"
 #include "server/errors.h"
+#include "server/map/map.h"
 
 using namespace GameConfig;
 using namespace PhaseTimes;
@@ -13,11 +14,12 @@ using namespace PhaseTimes;
 class TestGame : public ::testing::Test {
 protected:
     MockClock clock;
+    Map map;
     Game game;
     
     TestGame() : 
             clock(std::chrono::steady_clock::now()), 
-            game("test_game", clock, Shop()) {}
+            game("test_game", clock, Shop(), map) {}
     
     void advance_secs(int secs) {
         clock.advance(std::chrono::seconds(secs));
@@ -237,7 +239,7 @@ TEST_F(TestGame, PlayerCanMoveInDiagonal) {
     float new_pos_x = player.pos_x;
     float new_pos_y = player.pos_y;
     
-    Vector2D step = dir.normalize() * player_speed * (1 / tickrate);
+    Vector2D step = dir.normalized() * player_speed * (1 / tickrate);
     EXPECT_EQ(new_pos_x, old_pos_x + step.get_x());
     EXPECT_EQ(new_pos_y, old_pos_y + step.get_y());
 }

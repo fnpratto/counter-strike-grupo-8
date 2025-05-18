@@ -7,9 +7,12 @@
 class Utility {
 protected:
     UtilityType utility;
+    int damage;
 
 public:
-    Utility(UtilityType utility) : utility(utility) {}
+    Utility(UtilityType utility, int damage) : 
+            utility(utility),
+            damage(damage) {}
 
     virtual std::unique_ptr<Utility> clone() const = 0;
     

@@ -9,7 +9,7 @@ class GamePhase {
 private:
     const Clock& clock;
     PhaseType phase;
-    std::chrono::steady_clock::time_point phase_start;
+    TimePoint phase_start;
 
 public:
     GamePhase(const Clock& clock);
