@@ -15,7 +15,7 @@ GameLogic::GameLogic(const Clock& clock, const Shop& shop, Map& map) :
         clock(clock),
         shop(shop),
         phase(clock),
-        map(map) {}
+        map(map) { std::srand(std::time(nullptr)); }
 
 GameState GameLogic::get_game_state() const { return GameStateBuilder::build(*this); }
 
@@ -24,19 +24,15 @@ void GameLogic::add_player(const std::string& player_name) {
         throw JoinGameError();
 
     Team team = choose_player_team();
-    Player player = Player(team, Inventory(), full_health, set_initial_pos());
+    Vector2D initial_pos = map.random_initial_pos(team);
+    Player player = Player(team, Inventory(), full_health, initial_pos);
     players.emplace(player_name, player);
     if (team == Team::Terrorist) {
         num_tts++;
     } else {
         num_cts++;
     }
-}
-
-Vector2D GameLogic::set_initial_pos() {
-    // TODO: calculate init pos according to team spawn
-    // TODO: check colissions with other players and objects
-    return Vector2D();
+    map.update_player_pos(player_name, std::move(initial_pos));
 }
 
 void GameLogic::select_team(const std::string& player_name, Team team) {
@@ -91,10 +87,14 @@ void GameLogic::move(const std::string& player_name, int dx, int dy) {
     if (phase.is_buying_phase())
         return;
     Vector2D dir(dx, dy);
-    float tick_duration = 1 / tickrate;
+    float tick_duration = 1.0f / tickrate;
     Vector2D step = dir.normalized() * player_speed * tick_duration;
-    // TODO: Check collisions
-    players.at(player_name).move(step);
+    if (map.is_collidable(step))
+        return;
+    Player& player = players.at(player_name);
+    player.move(step);
+    Vector2D pos(player.get_pos_x(), player.get_pos_y());
+    map.update_player_pos(player_name, std::move(pos));
 }
 
 void GameLogic::shoot(const std::string& player_name, int x, int y) {

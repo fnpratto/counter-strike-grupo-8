@@ -41,7 +41,6 @@ public:
     GameState get_game_state() const;
     
     void add_player(const std::string& player_name);
-    Vector2D set_initial_pos();
     void select_team(const std::string& player_name, Team team);    
     void start_game();
     void buy_gun(const std::string& player_name, GunType gun);

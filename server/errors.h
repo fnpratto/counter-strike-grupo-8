@@ -68,3 +68,17 @@ class BuyAmmoError: public PlayerError {
 public:
     BuyAmmoError(): PlayerError("not enough money to buy ammo") {}
 };
+
+class MapError: public ServerError {
+public:
+    explicit MapError(const std::string& message): ServerError(message) {}
+    const char* what() const noexcept override {
+        static std::string full_message = "Map Error: " + std::string(ServerError::what());
+        return full_message.c_str();
+    }
+};
+
+class ChooseInitialPositionError: public MapError {
+public:
+    ChooseInitialPositionError(): MapError("could not choose initial posicion for player") {}
+};

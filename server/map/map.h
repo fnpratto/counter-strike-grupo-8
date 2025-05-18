@@ -2,7 +2,9 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
+#include "common/models.h"
 #include "server/utils/vector_2d.h"
 #include "map_cons.h"
 #include "server/weapons/bullet.h"
@@ -16,24 +18,25 @@ private:
     std::vector<Vector2D> spawns_tts;
     std::vector<Vector2D> spawns_cts;
     std::vector<Vector2D> bomb_zones;
+    std::map<std::string, Vector2D> players;
     std::vector<Bullet> bullets;
 
 public:
-    Map() {}
+    Map();
 
-    void add_bullet(Bullet&& bullet) {
-        (void)bullet;
-    }
+    bool is_collidable(const Vector2D& pos);
 
-    void process_melee_attack(Knife&& knife) {
-        (void)knife;
-    }
+    Vector2D random_initial_pos(Team team);
 
-    void place_bomb(Bomb&& bomb) {
-        (void)bomb;
-    }
+    void update_player_pos(const std::string& player_name, Vector2D&& pos);
 
-    void update() {}
+    void add_bullet(Bullet&& bullet);
+
+    void process_melee_attack(Knife&& knife);
+
+    void place_bomb(Bomb&& bomb);
+
+    void update();
 
     ~Map() {}
 };
