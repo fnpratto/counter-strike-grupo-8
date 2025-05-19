@@ -10,9 +10,6 @@
 #include "gui/window_elements/SdlWindow.h"
 
 
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
-
 void keyboard_update(const SDL_Event& event, bool& shop) {
     if (event.type == SDL_KEYDOWN) {
         switch (event.key.keysym.sym) {
@@ -23,6 +20,7 @@ void keyboard_update(const SDL_Event& event, bool& shop) {
                 std::cout << "KEY_PRESS_UP" << std::endl;
                 break;
             case SDLK_LEFT:
+
                 std::cout << "KEY_PRESS_LEFT" << std::endl;
                 break;
             case SDLK_RIGHT:
@@ -64,6 +62,27 @@ void mouse_update(const SDL_Event& event, hudDisplay& hudDisplay, shopDisplay& s
 }
 
 int main(int, char**) {
+
+    // FOR FULL SIZE
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl;
+        exit(1);
+    }
+
+    SDL_DisplayMode displayMode;
+    if (SDL_GetCurrentDisplayMode(0, &displayMode) != 0) {
+        std::cerr << "SDL_GetCurrentDisplayMode failed: " << SDL_GetError() << std::endl;
+        SDL_Quit();
+        exit(1);
+    }
+    int SCREEN_WIDTH = displayMode.w;
+    int SCREEN_HEIGHT = displayMode.h - 150;
+
+    /*const int SCREEN_WIDTH = 800;
+    const int SCREEN_HEIGHT = 600;*/
+
+    // UNTIL HERE
+
     try {
         SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
         hudDisplay hudDisplay(window);
@@ -75,13 +94,14 @@ int main(int, char**) {
         SDL_Event e;
         bool quit = false;
         while (!quit) {
-            while (SDL_PollEvent(&e) != 0) {
+            while (SDL_PollEvent(&e)) {
                 if (e.type == SDL_QUIT) {
                     quit = true;
                 }
                 keyboardHandler.handleEvent(e, shop);
                 mouseHandler.handleEvent(e, shop);
             }
+
             window.fill();
             hudDisplay.render();
             if (shop) {
@@ -89,7 +109,6 @@ int main(int, char**) {
             }
             window.render();
         }
-
     } catch (std::exception& e) {
         std::cout << e.what() << std::endl;
         return 1;

@@ -18,10 +18,6 @@ const std::string& GUNS_PATH_DEAGLE = "../assets/gfx/guns/deagle_m.xcf";
 const std::string& GUNS_PATH_FAMAS = "../assets/gfx/guns/famas_m.xcf";
 const std::string& GUNS_PATH_FIVESEVEN = "../assets/gfx/guns/fiveseven_m.xcf";
 const std::string& GUNS_PATH_G3SG1 = "../assets/gfx/guns/g3sg1_m.xcf";
-const int size_guns_w = 150;
-const int size_guns_h = 40;
-const int size_slots_w = size_guns_w + 80;
-const int size_slots_h = size_guns_h + 10;
 
 struct GunInfo {
     std::string name;
@@ -38,21 +34,30 @@ std::vector<GunInfo> guns = {{"1", GUNS_PATH_DEAGLE, "1000"}, {"2", GUNS_PATH_G3
 
 shopDisplay::shopDisplay(SdlWindow& window):
         window(window),
-        DISPLAY_WIDTH(window.getWidth() / 2),
-        DISPLAY_HEIGHT(window.getHeight() / 2),
+        DISPLAY_WIDTH(window.getWidth()),
+        DISPLAY_HEIGHT(window.getHeight()),
         back(HUD_SLOT_PATH, window),
         back_chosen(HUD_SLOT_CLICKED_PATH, window),
         gunNumber(FONT_PAT, 20, {255, 255, 255, 255}, window),
         cost_money(FONT_PAT, 20, {255, 255, 255, 255}, window) {
 
+    float BASE_WIDTH = 800.0f;
+    float BASE_HEIGHT = 600.0f;
+    float scale_w = DISPLAY_WIDTH / BASE_WIDTH;
+    float scale_h = DISPLAY_HEIGHT / BASE_HEIGHT;
+
+
+    size_guns_w = 150 * scale_w;
+    size_guns_h = 40 * scale_h;
+    size_slots_w = (scale_w == 1) ? size_guns_w * scale_w : size_guns_w * scale_w / 2;
+    size_slots_h = size_guns_h * scale_h;
+
+
     gun_buy = -1;
     for (const auto& gun: guns) {
         try {
             gun_icons.emplace_back(gun.path, window);
-            std::cerr << "Loaded: " << gun.name << " (" << gun.path << ")\n";
-        } catch (const std::exception& e) {
-            std::cerr << "Failed: " << gun.name << " - " << e.what() << "\n";
-        }
+        } catch (const std::exception& e) {}
     }
 }
 
@@ -62,8 +67,8 @@ void shopDisplay::render() {
 }
 
 void shopDisplay::renderSlots() {
-    int base_x = DISPLAY_WIDTH / 2 - size_slots_w / 2;
-    int base_y = DISPLAY_HEIGHT / 2 - size_slots_h / 2;
+    int base_x = DISPLAY_WIDTH / 2 - size_slots_w * 2;
+    int base_y = DISPLAY_HEIGHT / 2 - size_slots_h * 2;
     for (int i = 0; i < guns.size() / 2; ++i) {
         for (int j = 0; j < 2; ++j) {
             Area src(0, 0, size_guns_w, size_guns_h);
@@ -84,8 +89,8 @@ void shopDisplay::renderItem() {
         int row = i / 2;
         int col = i % 2;
 
-        int x = DISPLAY_WIDTH / 2 - size_slots_w / 2 + 10 + col * (size_guns_w * 2 + 10);
-        int y = DISPLAY_HEIGHT / 2 - size_slots_h / 2 + 20 + row * (size_guns_h * 2);
+        int x = DISPLAY_WIDTH / 2 - size_slots_w * 2 + 10 + col * (size_guns_w * 2 + 10);
+        int y = DISPLAY_HEIGHT / 2 - size_slots_h * 2 + 20 + row * (size_guns_h * 2);
 
         Area src(0, 0, 67, 17);
         Area iconDest(x + 30, y, size_guns_w - 30, size_guns_h + 10);
@@ -112,33 +117,38 @@ void shopDisplay::renderItem() {
 }
 
 void shopDisplay::updatePointerPosition(int x, int y) {
-    if (x >= DISPLAY_WIDTH / 2 - size_slots_w / 2 && x <= DISPLAY_WIDTH / 2 + size_slots_w / 2 &&
-        y >= DISPLAY_HEIGHT / 2 - size_slots_h / 2 && y <= DISPLAY_HEIGHT / 2 + size_slots_h / 2) {
-        std::cerr << "Mouse is inside the shop display area." << std::endl;
-    } else {
-        std::cerr << "Mouse is outside the shop display area." << std::endl;
-    }
 
-    int base_x = DISPLAY_WIDTH / 2 - size_slots_w / 2;
-    int base_y = DISPLAY_HEIGHT / 2 - size_slots_h / 2;
-
-    int slot_width = size_guns_w * 2;
-    int slot_height = size_guns_h * 2;
-
-    int column = (x - base_x) / slot_width;
-    int row = (y - base_y) / slot_height;
-
-    if (x >= base_x && x < base_x + slot_width * 2 && y >= base_y &&
-        y < base_y + slot_height * (guns.size() / 2)) {
-        int slot_index = row * 2 + column;
-        if (slot_index >= 0 && slot_index < VALID_SLOTS) {
-            std::cerr << "Mouse is over slot: " << slot_index + 1
-                      << " (Gun: " << guns[slot_index].name << ")" << std::endl;
-            gun_buy = slot_index;
+    for (int i = 0; i < guns.size() / 2; ++i) {
+        if (x >= DISPLAY_WIDTH / 2 - size_slots_w * 2 &&
+            x <= DISPLAY_WIDTH / 2 + size_slots_w * 2 &&
+            y >= DISPLAY_HEIGHT / 2 - size_slots_h * 2 &&
+            y <= DISPLAY_HEIGHT / 2 + size_slots_h * 2) {
+            std::cerr << "Mouse is inside the shop display area." << std::endl;
         } else {
-            std::cerr << "Mouse is over an invalid slot." << std::endl;
+            std::cerr << "Mouse is outside the shop display area." << std::endl;
         }
-    } else {
-        std::cerr << "Mouse is outside the shop display area." << std::endl;
+
+        int base_x = DISPLAY_WIDTH / 2 - size_slots_w * 2;
+        int base_y = DISPLAY_HEIGHT / 2 - size_slots_h * 2;
+
+        int slot_width = size_guns_w * 2;
+        int slot_height = size_guns_h * 2;
+
+        int column = (x - base_x) / slot_width;
+        int row = (y - base_y) / slot_height;
+
+        if (x >= base_x && x < base_x + slot_width * 2 && y >= base_y &&
+            y < base_y + slot_height * (guns.size() / 2)) {
+            int slot_index = row * 2 + column;
+            if (slot_index >= 0 && slot_index < VALID_SLOTS) {
+                std::cerr << "Mouse is over slot: " << slot_index + 1
+                          << " (Gun: " << guns[slot_index].name << ")" << std::endl;
+                gun_buy = slot_index;
+            } else {
+                std::cerr << "Mouse is over an invalid slot." << std::endl;
+            }
+        } else {
+            std::cerr << "Mouse is outside the shop display area." << std::endl;
+        }
     }
 }

@@ -11,14 +11,17 @@
 
 #include "BitmapFontNumber.h"
 
-// Constants
-const int size_width = 62;
-const int size_height = 64;
-const int padding = 10;
-const float scale = 0.5f;
-const int digitSpacingSmall = static_cast<int>(42 * scale) + 1;
 
-
+struct HudLayout {
+    int iconWidth;
+    int iconHeight;
+    int size_width;
+    int size_height;
+    int digitHeight;
+    int digitSpacing;
+    int padding;
+    float scale;
+};
 class hudDisplay {
 public:
     explicit hudDisplay(SdlWindow& window);
@@ -44,6 +47,13 @@ private:
     SdlText scoreText;
     int pointerX = SCREEN_WIDTH / 2;
     int pointerY = SCREEN_HEIGHT / 2;
+
+    float widthRatio;
+    float heightRatio;
+    float scaleRatio;
+    HudLayout layout;
+
+
     void renderBackground();
     void renderParal();
     void renderPointer();

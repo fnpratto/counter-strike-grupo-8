@@ -26,6 +26,10 @@ private:
     SdlTexture back_chosen;
     SdlText gunNumber;
     int gun_buy;
+    int size_guns_w;
+    int size_guns_h;
+    int size_slots_w;
+    int size_slots_h;
     void renderSlots();
     void renderItem();
     void renderblokedSlots();

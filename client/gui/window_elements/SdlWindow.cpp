@@ -47,6 +47,12 @@ void SdlWindow::render() { SDL_RenderPresent(this->renderer); }
 
 SDL_Renderer* SdlWindow::getRenderer() const { return this->renderer; }
 
+void SdlWindow::toggleFullscreen() {
+    Uint32 FullscreenFlag = SDL_WINDOW_FULLSCREEN;
+    bool IsFullscreen = SDL_GetWindowFlags(this->window) & FullscreenFlag;
+    SDL_SetWindowFullscreen(this->window, IsFullscreen ? 0 : FullscreenFlag);
+    SDL_ShowCursor(IsFullscreen);
+}
 
 int SdlWindow::getWidth() const { return this->width; }
 int SdlWindow::getHeight() const { return this->height; }

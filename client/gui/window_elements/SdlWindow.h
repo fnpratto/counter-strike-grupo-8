@@ -19,6 +19,7 @@ public:
     SDL_Renderer* getRenderer() const;
     int getWidth() const;
     int getHeight() const;
+    void toggleFullscreen();
 
 private:
     int width;
