@@ -1,0 +1,38 @@
+#include "protocol.h"
+
+#include <memory>
+#include <string>
+#include <type_traits>
+#include <utility>
+#include <vector>
+
+#include <sys/socket.h>
+
+#include "common/socket.h"
+
+#include "message.h"
+
+BaseProtocol::BaseProtocol(Socket&& skt): socket(std::move(skt)) {}
+
+bool BaseProtocol::is_closed() const {
+    return socket.is_stream_recv_closed() || socket.is_stream_send_closed();
+}
+
+bool BaseProtocol::is_open() const { return !is_closed(); }
+
+void BaseProtocol::send(const Message& message) {
+    payload_t payload = serialize_message(message);
+
+    if (payload.size() == 0)
+        throw std::runtime_error("BaseProtocol: Empty payload");
+
+    socket.sendall(payload.data(), payload.size());
+}
+
+void BaseProtocol::close() {
+    if (is_closed())
+        return;
+
+    socket.shutdown(SHUT_RDWR);
+    socket.close();
+}
