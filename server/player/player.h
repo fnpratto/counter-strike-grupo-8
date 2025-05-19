@@ -40,9 +40,11 @@ public:
     
     void buy_ammo(const WeaponSlot& slot, int mag_price, int num_mags);
     
-    void move(Vector2D step);
+    void move(Vector2D new_pos);
 
     void equip_weapon(WeaponSlot slot);
+
+    void reload();
 
     Knife attack();
 

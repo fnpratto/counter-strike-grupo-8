@@ -45,6 +45,8 @@ void Game::handle_msg(Message msg, const std::string& player_name) {
     } else if (msg_type == MessageType::SWITCH_WEAPON_CMD) {
         WeaponSlot slot = msg.get_content<SwitchWeaponCommand>().get_slot();
         logic.switch_weapon(player_name, slot);
+    } else if (msg_type == MessageType::SWITCH_WEAPON_CMD) {
+        logic.reload_weapon(player_name);
     }
 }
 

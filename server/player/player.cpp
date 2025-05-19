@@ -53,12 +53,24 @@ void Player::buy_ammo(const WeaponSlot& slot, int ammo_price, int num_mags) {
     inventory.decrease_money(ammo_price);
 }
 
-void Player::move(Vector2D step) {
-    position = position + step;
+void Player::move(Vector2D new_pos) {
+    position = new_pos;
 }
 
 void Player::equip_weapon(WeaponSlot slot) {
     current_weapon = slot;
+}
+
+void Player::reload() {
+    if (current_weapon == WeaponSlot::Melee || current_weapon == WeaponSlot::Melee)
+        return;
+    std::unique_ptr<Gun> gun = nullptr;
+    if (current_weapon == WeaponSlot::Primary) {
+        gun = inventory.get_prim_weapon();
+    } else if (current_weapon == WeaponSlot::Secondary) {
+        gun = inventory.get_sec_weapon();
+    }
+    return gun->reload();
 }
 
 Knife Player::attack() {

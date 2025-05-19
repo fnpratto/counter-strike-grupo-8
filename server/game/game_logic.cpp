@@ -86,15 +86,21 @@ void GameLogic::buy_ammo(const std::string& player_name, GunType gun) {
 void GameLogic::move(const std::string& player_name, int dx, int dy) {
     if (phase.is_buying_phase())
         return;
-    Vector2D dir(dx, dy);
+        
+    Player& player = players.at(player_name);
+    Vector2D old_pos(player.get_pos_x(), player.get_pos_y());
+    Vector2D new_pos = old_pos + calculate_step(Vector2D(dx, dy));
+
+    if (map.is_collidable(new_pos))
+        return;
+
+    player.move(new_pos);
+    map.update_player_pos(player_name, std::move(new_pos));
+}
+
+Vector2D GameLogic::calculate_step(const Vector2D& dir) {
     float tick_duration = 1.0f / tickrate;
     Vector2D step = dir.normalized() * player_speed * tick_duration;
-    if (map.is_collidable(step))
-        return;
-    Player& player = players.at(player_name);
-    player.move(step);
-    Vector2D pos(player.get_pos_x(), player.get_pos_y());
-    map.update_player_pos(player_name, std::move(pos));
 }
 
 void GameLogic::shoot(const std::string& player_name, int x, int y) {
@@ -112,6 +118,10 @@ void GameLogic::shoot(const std::string& player_name, int x, int y) {
 
 void GameLogic::switch_weapon(const std::string& player_name, WeaponSlot slot) {
     players.at(player_name).equip_weapon(slot);
+}
+
+void GameLogic::reload_weapon(const std::string& player_name) {
+    players.at(player_name).reload();
 }
 
 void GameLogic::update_map() { map.update(); }

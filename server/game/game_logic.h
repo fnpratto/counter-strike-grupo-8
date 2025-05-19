@@ -24,6 +24,7 @@ private:
     friend class GameStateBuilder;
 
     Team choose_player_team();
+    
     void give_bomb_to_random_tt();
     
     void swap_teams();
@@ -34,6 +35,8 @@ private:
     bool is_full() const;
     bool is_started() const;
     bool team_is_full(Team& team) const;
+
+    Vector2D calculate_step(const Vector2D& dir);
 
 public:
     GameLogic(const Clock& clock, const Shop& shop, Map& map);
@@ -48,6 +51,7 @@ public:
     void move(const std::string& player_name, int dx, int dy);
     void shoot(const std::string& player_name, int x, int y);
     void switch_weapon(const std::string& player_name, WeaponSlot slot);
+    void reload_weapon(const std::string& player_name);
 
     void update_map();
     void update_round_phase();

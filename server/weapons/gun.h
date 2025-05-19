@@ -57,5 +57,11 @@ public:
 
     virtual std::vector<Bullet> shoot(const Vector2D& origin, const Vector2D& dest, TimePoint now) = 0;
 
+    void reload() {
+        int bullets_to_reload = bullets_per_mag - mag_ammo;
+        mag_ammo += bullets_to_reload;
+        reserve_ammo -= bullets_to_reload;
+    }
+
     virtual ~Gun() = default;
 };
