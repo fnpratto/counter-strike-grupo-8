@@ -14,6 +14,22 @@ bool Map::is_collidable(const Vector2D& pos) {
     return false;
 }
 
+bool Map::is_in_spawn_tt(const Vector2D& pos) {
+    return is_pos_in_vector(spawns_tts, pos);
+}
+
+bool Map::is_in_spawn_ct(const Vector2D& pos) {
+    return is_pos_in_vector(spawns_cts, pos);
+}
+
+bool Map::is_pos_in_vector(const std::vector<Vector2D>& vector, const Vector2D& pos) {
+    for (const Vector2D& p : vector) {
+        if (p == pos)
+            return true;
+    }
+    return false;
+}
+
 void Map::add_tiles_row(std::vector<MapTileType>&& tiles_row) { 
     tiles.push_back(std::move(tiles_row)); 
 }

@@ -61,12 +61,12 @@ public:
 
 class BuyGunError: public PlayerError {
 public:
-    BuyGunError(): PlayerError("not enough money to buy gun") {}
+    BuyGunError(): PlayerError("could not buy gun") {}
 };
 
 class BuyAmmoError: public PlayerError {
 public:
-    BuyAmmoError(): PlayerError("not enough money to buy ammo") {}
+    BuyAmmoError(): PlayerError("could not buy ammo") {}
 };
 
 class MapError: public ServerError {

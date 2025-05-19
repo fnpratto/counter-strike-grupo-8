@@ -36,6 +36,8 @@ private:
     bool is_started() const;
     bool team_is_full(Team& team) const;
 
+    bool player_not_in_spawn(const std::string& player_name);
+
     Vector2D calculate_step(const Vector2D& dir);
 
 public:

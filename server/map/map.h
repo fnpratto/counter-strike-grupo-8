@@ -20,10 +20,14 @@ private:
     std::map<std::string, Vector2D> players;
     std::vector<Bullet> bullets;
 
+    bool is_pos_in_vector(const std::vector<Vector2D>& vector, const Vector2D& pos);
+
 public:
     explicit Map(std::string&& name);
 
     bool is_collidable(const Vector2D& pos);
+    bool is_in_spawn_tt(const Vector2D& pos);
+    bool is_in_spawn_ct(const Vector2D& pos);
 
     void add_tiles_row(std::vector<MapTileType>&& tiles_row);
     void add_bullet(Bullet&& bullet);

@@ -69,11 +69,19 @@ void GameLogic::start_game() {
 }
 
 void GameLogic::buy_gun(const std::string& player_name, GunType gun) {
+    if (!phase.is_buying_phase())
+        throw BuyGunError();
+    if (player_not_in_spawn(player_name))
+        return;
     int gun_price = shop.get_gun_price(gun);
     players.at(player_name).buy_gun(gun, gun_price);
 }
 
 void GameLogic::buy_ammo(const std::string& player_name, GunType gun) {
+    if (!phase.is_buying_phase())
+        throw BuyAmmoError();
+    if (player_not_in_spawn(player_name))
+        return;
     int num_mags = 1;
     if (gun == GunType::M3) {
         num_mags = 8;
@@ -81,6 +89,13 @@ void GameLogic::buy_ammo(const std::string& player_name, GunType gun) {
     WeaponSlot slot = (gun == GunType::Glock) ? WeaponSlot::Secondary : WeaponSlot::Primary;
     int ammo_price = shop.get_ammo_price(gun, num_mags);
     players.at(player_name).buy_ammo(slot, ammo_price, num_mags);
+}
+
+bool GameLogic::player_not_in_spawn(const std::string& player_name) {
+    Player& player = players.at(player_name);
+    Vector2D pos(player.get_pos_x(), player.get_pos_y());
+    return (player.is_tt() && !map.is_in_spawn_tt(pos)) || 
+                (player.is_ct() && !map.is_in_spawn_ct(pos));
 }
 
 void GameLogic::move(const std::string& player_name, int dx, int dy) {

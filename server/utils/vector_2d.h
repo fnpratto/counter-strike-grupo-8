@@ -26,6 +26,10 @@ public:
         return Vector2D(x * n, y * n);
     }
 
+    bool operator==(const Vector2D& other) const {
+        return x == other.x && y == other.y;
+    }
+
     Vector2D normalized() const {
         float norm = std::sqrt(x * x + y * y);
         if (norm == 0) 
