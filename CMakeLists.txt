@@ -33,9 +33,6 @@ add_library(taller_common STATIC)
 # HEY!! TODO XXX: add more subfolders here
 add_subdirectory(common/)
 
-find_package(yaml-cpp REQUIRED)
-target_link_libraries(taller_common PUBLIC yaml-cpp)
-
 # set compiler warnings to the targets
 include(cmake/CompilerWarnings.cmake)
 set_project_warnings(taller_common ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
@@ -102,6 +99,18 @@ if(TALLER_CLIENT OR TALLER_EDITOR)
     FetchContent_MakeAvailable(SDL2 SDL2_image SDL2_mixer SDL2_ttf libSDL2pp)
 endif()
 
+if(TALLER_SERVER OR TALLER_TESTS)
+    include(FetchContent)
+    
+    FetchContent_Declare(
+        yaml-cpp
+        GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+        GIT_TAG 0.8.0
+    )
+
+    FetchContent_MakeAvailable(yaml-cpp)
+endif()
+
 # Program section
 # ---------------
 if(TALLER_CLIENT)
@@ -145,7 +154,7 @@ if(TALLER_SERVER)
     set_project_warnings(taller_server ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 
     # Link the taller_common lib target
-    target_link_libraries(taller_server taller_common)
+    target_link_libraries(taller_server taller_common yaml-cpp::yaml-cpp)
 endif()
 
 if(TALLER_EDITOR)
@@ -217,5 +226,6 @@ if(TALLER_TESTS)
     target_link_libraries(taller_tests
         taller_common
         GTest::gtest_main
+        yaml-cpp::yaml-cpp
     )
 endif()
