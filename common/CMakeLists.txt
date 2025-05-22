@@ -9,6 +9,8 @@ target_sources(taller_common
     PUBLIC
     # .h files
     commands.h
+    game_state_update.h
+    game_state.h
     liberror.h
     message.h
     models.h

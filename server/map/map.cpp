@@ -1,25 +1,28 @@
 #include "map.h"
 
-#include <ctime>
-
 #include "server/errors.h"
 
-Map::Map(std::string&& name) : name(std::move(name)) { 
-    std::srand(std::time(nullptr)); 
-}
+Map::Map(const std::string& name) : name(name) {}
 
 bool Map::is_collidable(const Vector2D& pos) {
-    (void)pos;
-    // TODO: check collision
-    return false;
+    for (const auto& tile : tiles) {
+        if (tile.get_pos() == pos)
+            return tile.is_collidable();
+    }
+
+    throw InvalidMapPosition();
 }
 
-bool Map::is_in_spawn_tt(const Vector2D& pos) {
+bool Map::is_spawn_tt(const Vector2D& pos) {
     return is_pos_in_vector(spawns_tts, pos);
 }
 
-bool Map::is_in_spawn_ct(const Vector2D& pos) {
+bool Map::is_spawn_ct(const Vector2D& pos) {
     return is_pos_in_vector(spawns_cts, pos);
+}
+
+bool Map::is_bomb_site(const Vector2D& pos) {
+    return is_pos_in_vector(bomb_sites, pos);
 }
 
 bool Map::is_pos_in_vector(const std::vector<Vector2D>& vector, const Vector2D& pos) {
@@ -30,47 +33,27 @@ bool Map::is_pos_in_vector(const std::vector<Vector2D>& vector, const Vector2D& 
     return false;
 }
 
-void Map::add_tiles_row(std::vector<MapTileType>&& tiles_row) { 
-    tiles.push_back(std::move(tiles_row)); 
+void Map::add_tile(Tile&& tile) {
+    tiles.push_back(std::move(tile));
 }
 
-void Map::add_bullet(Bullet&& bullet) { bullets.push_back(std::move(bullet)); }
+void Map::add_spawn_tt(Vector2D&& pos) { spawns_tts.push_back(std::move(pos)); }
 
-void Map::add_spawn_tt(Vector2D&& spawn_tt) { spawns_tts.push_back(std::move(spawn_tt)); }
+void Map::add_spawn_ct(Vector2D&& pos) { spawns_cts.push_back(std::move(pos)); }
 
-void Map::add_spawn_ct(Vector2D&& spawn_ct) { spawns_cts.push_back(std::move(spawn_ct)); }
+void Map::add_bomb_site(Vector2D&& pos) { bomb_sites.push_back(std::move(pos)); }
 
-void Map::add_bomb_site(Vector2D&& bomb_site) { bomb_sites.push_back(std::move(bomb_site)); }
-
-Vector2D Map::random_initial_pos(Team team) {
-    // std::vector<Vector2D>& spawns = (team == Team::Terrorist) ? spawns_tts : spawns_cts;
-    
-    // const int max_attempts = 10;
-    // for (int i = 0; i < max_attempts; ++i) {
-    //     int idx = std::rand() % spawns.size();
-    //     Vector2D pos = spawns.at(idx);
-    //     if (!is_collidable(pos))
-    //         return pos;
-    // }
-
-    // throw ChooseInitialPositionError();
-    (void)team;
-    return Vector2D();
+Vector2D Map::random_spawn_tt_pos() const {
+    return random_spawn_pos(spawns_tts);
 }
 
-void Map::update_player_pos(const std::string& player_name, Vector2D&& pos) {
-    players[player_name] = pos;
+Vector2D Map::random_spawn_ct_pos() const {
+    return random_spawn_pos(spawns_cts);
 }
 
-void Map::process_melee_attack(Knife&& knife) {
-    (void)knife;
+Vector2D Map::random_spawn_pos(const std::vector<Vector2D>& spawns) const {
+    int rand_idx = std::rand() % spawns.size();
+    return spawns.at(rand_idx);
 }
-
-void Map::place_bomb(Bomb&& bomb) {
-    (void)bomb;
-}
-
-// TODO: update bullets
-void Map::update() {}
 
 Map::~Map() {}

@@ -10,7 +10,6 @@ namespace GlockConfig {
 namespace GlockBulletConfig {
     const int min_damage = 20;
     const int max_damage = 30;
-    const int speed = 200;
     const float precision = 0.85f; // probability of hitting de target
 };
 
@@ -26,7 +25,6 @@ namespace Ak47Config {
 namespace Ak47BulletConfig {
     const int min_damage = 30;
     const int max_damage = 40;
-    const int speed = 500;
     const float precision = 0.70f;
 };
 
@@ -43,7 +41,6 @@ namespace M3Config {
 namespace M3BulletConfig {
     const int min_damage = 8;
     const int max_damage = 12;
-    const int speed = 200;
     const float precision = 0.30f;
 };
 
@@ -56,7 +53,6 @@ namespace AwpConfig {
 
 namespace AwpBulletConfig {
     const int damage = 100;
-    const int speed = 1000;
     const float precision = 1.0f;
 };
 

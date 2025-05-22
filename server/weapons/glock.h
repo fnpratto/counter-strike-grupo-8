@@ -10,8 +10,6 @@ public:
                                   GlockConfig::init_mag_ammo, 
                                   GlockConfig::init_reserve_ammo) {}
 
-    std::unique_ptr<Gun> clone() const override { return std::make_unique<Glock>(*this); }
-
     std::vector<Bullet> shoot(const Vector2D& origin, const Vector2D& dest, TimePoint now) override {
         std::vector<Bullet> bullets;
         if (!can_shoot(GlockConfig::fire_rate, now))
@@ -19,7 +17,7 @@ public:
         
         int damage = get_random_damage(GlockBulletConfig::min_damage, GlockBulletConfig::max_damage);
         Vector2D dir = get_bullet_dir(origin, dest);
-        Bullet bullet(origin, dir, GlockBulletConfig::speed, damage, GlockBulletConfig::precision, 0);
+        Bullet bullet(origin, dir, damage, GlockBulletConfig::precision, 0);
         
         bullets.push_back(std::move(bullet));
         

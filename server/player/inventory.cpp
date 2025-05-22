@@ -11,49 +11,32 @@
 #include "server/weapons/m3.h"
 #include "server/weapons/awp.h"
 
-Inventory::Inventory() : money(PlayerInitialConfig::initial_money) {
+Inventory::Inventory() {
     guns[WeaponSlot::Secondary] = std::make_unique<Glock>();
     utilities[WeaponSlot::Melee] = std::make_unique<Knife>();
 }
 
-Inventory::Inventory(const Inventory& other) : money(other.money) {
-    for (const auto& [slot, gun] : other.guns) {
-        guns[slot] = gun->clone();
+std::unique_ptr<Gun>& Inventory::get_gun(const WeaponSlot& slot) {
+    return guns.at(slot);
+}
+
+InventoryState Inventory::state() const {
+    InventoryState inventory_state;
+    
+    std::map<WeaponSlot, GunState> guns_states;
+    for (auto& [slot, gun] : guns) {
+        guns_states[slot] = gun->state();
     }
-    for (const auto& [slot, utility] : other.utilities) {
-        utilities[slot] = utility->clone();
+    inventory_state.guns = guns_states;
+
+    std::map<WeaponSlot, UtilityState> utilities_states;
+    for (auto& [slot, util] : utilities) {
+        utilities_states[slot] = util->state();
     }
+    inventory_state.guns = guns_states;
+
+    return inventory_state;
 }
-
-bool Inventory::has_bomb() const { 
-    return utilities.find(WeaponSlot::Bomb) != utilities.end();
-}
-
-bool Inventory::has_prim_weapon() const {
-    return guns.find(WeaponSlot::Primary) != guns.end();
-}
-
-int Inventory::get_money() const { return money; }
-
-std::unique_ptr<Gun> Inventory::get_prim_weapon() const {
-    return guns.at(WeaponSlot::Primary)->clone();
-}
-
-std::unique_ptr<Gun> Inventory::get_sec_weapon() const {
-    return guns.at(WeaponSlot::Secondary)->clone();
-}
-
-std::unique_ptr<Utility> Inventory::get_melee_weapon() const {
-    return utilities.at(WeaponSlot::Melee)->clone();
-}
-
-std::unique_ptr<Utility> Inventory::get_bomb() const {
-    return utilities.at(WeaponSlot::Bomb)->clone();
-}
-
-void Inventory::add_money(int amount) { money += amount; }
-
-void Inventory::decrease_money(int amount) { money -= amount; }
 
 void Inventory::add_bomb() {
     utilities[WeaponSlot::Bomb] = std::make_unique<Bomb>();
@@ -69,26 +52,4 @@ void Inventory::add_primary_weapon(const GunType& weapon_type) {
     }
 }
 
-void Inventory::add_mags(const WeaponSlot& slot, int num_mags) {
-    guns.at(slot)->add_mags(num_mags);
-}
-
 Inventory::~Inventory() {}
-
-Inventory& Inventory::operator=(const Inventory& other) {
-    if (this == &other) return *this;
-
-    money = other.money;
-
-    guns.clear();
-    for (const auto& [slot, gun] : other.guns) {
-        guns[slot] = gun->clone();
-    }
-
-    utilities.clear();
-    for (const auto& [slot, utility] : other.utilities) {
-        utilities[slot] = utility->clone();
-    }
-
-    return *this;
-}

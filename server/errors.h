@@ -78,7 +78,7 @@ public:
     }
 };
 
-class ChooseInitialPositionError: public MapError {
+class InvalidMapPosition: public PlayerError {
 public:
-    ChooseInitialPositionError(): MapError("could not choose initial posicion for player") {}
+    InvalidMapPosition(): PlayerError("invalid map position") {}
 };

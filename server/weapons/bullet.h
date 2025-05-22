@@ -6,17 +6,15 @@ class Bullet {
 private:
     Vector2D origin;
     const Vector2D& dir;
-    int speed;
     int damage;
     float precision;
     float delay;
 
 public:
     Bullet(const Vector2D& origin, const Vector2D& dir, 
-            int speed, int damage, float precision, float delay) : 
+            int damage, float precision, float delay) : 
                 origin(origin),
                 dir(dir),
-                speed(speed),
                 damage(damage),
                 precision(precision),
                 delay(delay) {}

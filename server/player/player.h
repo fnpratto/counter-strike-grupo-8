@@ -7,30 +7,32 @@
 #include "server/weapons/bullet.h"
 #include "server/weapons/knife.h"
 #include "server/weapons/bomb.h"
+#include "common/game_state.h"
 
 class Player {
 private:
     Team team;
-    Inventory inventory;
-    int health;
     Vector2D position;
+    bool ready;
+    int health;
+    int money;
     WeaponSlot current_weapon;
+    Inventory inventory;
 
 public:
-    Player(Team team, Inventory inventory, int health, Vector2D position);
+    Player(Team team, Vector2D position);
 
+    bool is_ready() const;
     bool is_tt() const;
     bool is_ct() const;
-    bool has_bomb() const;
-    bool has_prim_weapon() const;
     
-    Inventory get_inventory() const;
-    int get_health() const;
-    float get_pos_x() const;
-    float get_pos_y() const;
-    WeaponSlot get_current_weapon() const;
+    Vector2D get_pos() const;
 
-    void gain_money(int amount);
+    PlayerState state() const;
+
+    void set_ready();
+
+    // void gain_money(int amount);
     
     void pick_bomb();
 
@@ -46,9 +48,5 @@ public:
 
     void reload();
 
-    Knife attack();
-
-    std::vector<Bullet> shoot_gun(int x, int y, TimePoint now);
-    
     ~Player();
 };

@@ -2,7 +2,7 @@
 
 #include <map>
 
-#include "common/models.h"
+#include "models.h"
 
 struct GunState {
     GunType gun;
@@ -11,19 +11,24 @@ struct GunState {
     int reserve_ammo;
 };
 
+struct UtilityState {
+    UtilityType utility;
+};
+
 struct InventoryState {
-    int money;
     std::map<WeaponSlot, GunState> guns;
-    std::map<WeaponSlot, UtilityType> utilities;
+    std::map<WeaponSlot, UtilityState> utilities;
 };
 
 struct PlayerState {
     Team team;
-    InventoryState inventory;
-    int health;
     float pos_x;
     float pos_y;
+    bool ready;
+    int health;
+    int money;
     WeaponSlot current_weapon;
+    InventoryState inventory;
 };
 
 struct GameState {

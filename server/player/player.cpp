@@ -1,33 +1,43 @@
 #include "player.h"
+
+#include "common/models.h"
 #include "server/errors.h"
+#include "server/cons.h"
 
-Player::Player(Team team, Inventory inventory, int health, Vector2D position) : 
+Player::Player(Team team, Vector2D position) : 
         team(team),
-        inventory(inventory),
-        health(health),
-        position(position) {}
+        position(position),
+        ready(false),
+        health(PlayerInitialConfig::full_health),
+        money(PlayerInitialConfig::initial_money),
+        current_weapon(WeaponSlot::Secondary) {}
 
-bool Player::is_tt() const { return team == Team::Terrorist; }
+bool Player::is_ready() const { return ready; }
+
+bool Player::is_tt() const { return team == Team::TT; }
         
-bool Player::is_ct() const { return team == Team::CounterTerrorist; }
+bool Player::is_ct() const { return team == Team::CT; }
 
-bool Player::has_bomb() const { return inventory.has_bomb(); }
+Vector2D Player::get_pos() const { return position; }
 
-bool Player::has_prim_weapon() const { return inventory.has_prim_weapon(); }
-
-Inventory Player::get_inventory() const { return inventory; };
-        
-int Player::get_health() const { return health; }
-
-float Player::get_pos_x() const { return position.get_x(); }
-
-float Player::get_pos_y() const { return position.get_y(); }
-
-WeaponSlot Player::get_current_weapon() const { return current_weapon; }
-
-void Player::gain_money(int amount) {
-    inventory.add_money(amount);
+PlayerState Player::state() const {
+    PlayerState player_state;
+    player_state.team = team;
+    player_state.pos_x = position.get_x();
+    player_state.pos_y = position.get_y();
+    player_state.ready = ready;
+    player_state.health = health;
+    player_state.money = money;
+    player_state.current_weapon = current_weapon;
+    player_state.inventory = inventory.state();
+    return player_state;
 }
+
+void Player::set_ready() { ready = true; }
+
+// void Player::gain_money(int amount) {
+//     inventory.add_money(amount);
+// }
 
 void Player::pick_bomb() {
     inventory.add_bomb();
@@ -38,19 +48,17 @@ void Player::select_team(Team team) {
 }
 
 void Player::buy_gun(const GunType& gun, int gun_price) {
-    int player_money = inventory.get_money();
-    if (gun_price > player_money)
+    if (gun_price > money)
         throw BuyGunError();
     inventory.add_primary_weapon(gun);
-    inventory.decrease_money(gun_price);
+    money += gun_price;
 }
 
 void Player::buy_ammo(const WeaponSlot& slot, int ammo_price, int num_mags) {
-    int player_money = inventory.get_money();
-    if (ammo_price > player_money)
+    if (ammo_price > money)
         throw BuyAmmoError();
-    inventory.add_mags(slot, num_mags);
-    inventory.decrease_money(ammo_price);
+    inventory.get_gun(slot)->add_mags(num_mags);
+    money -= ammo_price;
 }
 
 void Player::move(Vector2D new_pos) {
@@ -62,30 +70,9 @@ void Player::equip_weapon(WeaponSlot slot) {
 }
 
 void Player::reload() {
-    if (current_weapon == WeaponSlot::Melee || current_weapon == WeaponSlot::Melee)
+    if (current_weapon == WeaponSlot::Melee || current_weapon == WeaponSlot::Bomb)
         return;
-    std::unique_ptr<Gun> gun = nullptr;
-    if (current_weapon == WeaponSlot::Primary) {
-        gun = inventory.get_prim_weapon();
-    } else if (current_weapon == WeaponSlot::Secondary) {
-        gun = inventory.get_sec_weapon();
-    }
-    return gun->reload();
-}
-
-Knife Player::attack() {
-    std::unique_ptr<Utility> knife = inventory.get_melee_weapon();
-    return *static_cast<Knife*>(knife.get());
-}
-
-std::vector<Bullet> Player::shoot_gun(int x, int y, TimePoint now) {
-    std::unique_ptr<Gun> gun = nullptr;
-    if (current_weapon == WeaponSlot::Primary) {
-        gun = inventory.get_prim_weapon();
-    } else {
-        gun = inventory.get_sec_weapon();
-    }
-    return gun->shoot(position, Vector2D(x, y), now);
+    inventory.get_gun(current_weapon)->reload();
 }
 
 Player::~Player() {}

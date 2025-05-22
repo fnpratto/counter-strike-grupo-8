@@ -9,6 +9,7 @@
 #include "server/utils/vector_2d.h"
 #include "server/utils/random_float_generator.h"
 #include "bullet.h"
+#include "common/game_state.h"
 
 class Gun {
 protected:
@@ -25,8 +26,6 @@ public:
             mag_ammo(mag_ammo), 
             reserve_ammo(reserve_ammo) {}
 
-    virtual std::unique_ptr<Gun> clone() const = 0;
-
     bool can_shoot(const float fire_rate, TimePoint now) {
         if (mag_ammo == 0)
             return false;
@@ -40,6 +39,15 @@ public:
     int get_bullets_per_mag() const { return bullets_per_mag; }
     int get_mag_ammo() const { return mag_ammo; }
     int get_reserve_ammo() const { return reserve_ammo; }
+
+    GunState state() const {
+        GunState gun_state;
+        gun_state.gun = gun;
+        gun_state.bullets_per_mag = bullets_per_mag;
+        gun_state.mag_ammo = mag_ammo;
+        gun_state.reserve_ammo = reserve_ammo;
+        return gun_state;
+    }
 
     void add_mags(int num_mags) {
         reserve_ammo += bullets_per_mag * num_mags;
