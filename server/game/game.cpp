@@ -210,7 +210,7 @@ GameStateUpdate Game::state_update() {
     GameStateUpdate gs_upd;
     gs_upd.add_change(GameStateAttr::NUM_ROUNDS, num_rounds);
     gs_upd.add_change(GameStateAttr::NUM_TTS, num_tts);
-    gs_upd.add_change(GameStateAttr::NUM_PLAYERS, num_cts);
+    gs_upd.add_change(GameStateAttr::NUM_PLAYERS, static_cast<int>(players.size()));
     gs_upd.add_change(GameStateAttr::PLAYERS, std::map<std::string, PlayerState>{});
 
     return gs_upd;
