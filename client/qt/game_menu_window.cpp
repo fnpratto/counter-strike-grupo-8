@@ -4,6 +4,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <string>
 
 #include "constants.h"
 
@@ -14,6 +15,7 @@ GameMenuWindow::GameMenuWindow(Queue<Message>& input_queue, Queue<Message>& outp
                                QWidget* parent):
         QWidget(parent), input_queue(input_queue), output_queue(output_queue) {
     this->setWindowTitle(TITLE);
+    this->setWindowIcon(QIcon(ICON_PATH));
     this->setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     this->init_gui();
 }
@@ -27,6 +29,7 @@ void GameMenuWindow::init_gui() {
     this->add_game_title();
     this->add_window_subtitle();
     this->add_game_list();
+    this->add_player_name_input();
     this->add_start_buttons();
 }
 
@@ -51,6 +54,16 @@ void GameMenuWindow::add_game_list() {
     this->main_layout->addWidget(this->game_list_table);
 }
 
+void GameMenuWindow::add_player_name_input() {
+    QHBoxLayout* player_name_layout = new QHBoxLayout();
+    QLabel* player_name_label = new QLabel("Player Name:", this);
+    player_name_layout->addWidget(player_name_label);
+    this->player_name_input = new QLineEdit(this);
+    player_name_layout->addWidget(this->player_name_input);
+    this->player_name_input->setPlaceholderText("Enter player name");
+    this->main_layout->addLayout(player_name_layout);
+}
+
 void GameMenuWindow::add_start_buttons() {
     QHBoxLayout* button_layout = new QHBoxLayout();
     this->main_layout->addLayout(button_layout);
@@ -65,9 +78,10 @@ void GameMenuWindow::add_start_buttons() {
 }
 
 void GameMenuWindow::on_create_button_clicked() {
-    qDebug() << "Create Game button clicked";
-    qDebug() << "Window width:" << this->width();
-    qDebug() << "Window height:" << this->height();
+    std::string player_name = this->player_name_input->text().toStdString();
+    this->close();
+    this->create_game_window = new CreateGameWindow(input_queue, output_queue, player_name);
+    this->create_game_window->show();
 }
 
 void GameMenuWindow::on_join_button_clicked() {
@@ -76,4 +90,9 @@ void GameMenuWindow::on_join_button_clicked() {
     this->join_game(selected_game);
 }
 
-void GameMenuWindow::join_game(QString game_name) { qDebug() << "Joining game:" << game_name; }
+void GameMenuWindow::join_game(QString game_name) {
+    qDebug() << "Joining game:" << game_name;
+    output_queue.push(Message(JoinGameCommand(game_name.toStdString())));
+
+    auto msg = input_queue.pop();
+}

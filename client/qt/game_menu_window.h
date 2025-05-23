@@ -1,6 +1,7 @@
 #ifndef GAME_MENU_H
 #define GAME_MENU_H
 
+#include <QLineEdit>
 #include <QString>
 #include <QTableWidget>
 #include <QVBoxLayout>
@@ -9,6 +10,7 @@
 #include "common/message.h"
 #include "common/queue.h"
 
+#include "create_game_window.h"
 #include "game_list_table.h"
 
 class GameMenuWindow: public QWidget {
@@ -18,6 +20,8 @@ private:
     Queue<Message>& output_queue;
     QVBoxLayout* main_layout;
     GameListTable* game_list_table;
+    QLineEdit* player_name_input;
+    CreateGameWindow* create_game_window;
 
 public:
     explicit GameMenuWindow(Queue<Message>& input_queue, Queue<Message>& output_queue,
@@ -31,6 +35,7 @@ private:
     void add_game_title();
     void add_window_subtitle();
     void add_game_list();
+    void add_player_name_input();
     void add_start_buttons();
 
     void on_create_button_clicked();
