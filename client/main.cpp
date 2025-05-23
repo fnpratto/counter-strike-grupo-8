@@ -6,6 +6,7 @@
 #include "gui/controllers/keyboardhandler.h"
 #include "gui/controllers/mousehandler.h"
 #include "gui/hud_component/hud_display.h"
+#include "gui/pre_game_view/list_teams.h"
 #include "gui/shop_view/shop.h"
 #include "gui/window_elements/SdlWindow.h"
 
@@ -75,11 +76,12 @@ int main(int, char**) {
         SDL_Quit();
         exit(1);
     }
-    int SCREEN_WIDTH = displayMode.w;
+    /*int SCREEN_WIDTH = displayMode.w;
     int SCREEN_HEIGHT = displayMode.h - 150;
+    */
 
-    /*const int SCREEN_WIDTH = 800;
-    const int SCREEN_HEIGHT = 600;*/
+    const int SCREEN_WIDTH = 800;
+    const int SCREEN_HEIGHT = 600;
 
     // UNTIL HERE
 
@@ -87,9 +89,12 @@ int main(int, char**) {
         SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
         hudDisplay hudDisplay(window);
         shopDisplay shopDisplay(window);
-        MouseHandler mouseHandler(hudDisplay, shopDisplay);
+        listTeams listTeams(window);
+
+        MouseHandler mouseHandler(hudDisplay, shopDisplay, listTeams);
         KeyboardHandler keyboardHandler;
         bool shop = false;
+        bool list_teams = true;
 
         SDL_Event e;
         bool quit = false;
@@ -99,14 +104,17 @@ int main(int, char**) {
                     quit = true;
                 }
                 keyboardHandler.handleEvent(e, shop);
-                mouseHandler.handleEvent(e, shop);
+                mouseHandler.handleEvent(e, shop, list_teams);
             }
 
             window.fill();
-            hudDisplay.render();
+            // hudDisplay.render();
+            /*if(first 20 seconds)*/
+            listTeams.render();
             if (shop) {
                 shopDisplay.render();
             }
+
             window.render();
         }
     } catch (std::exception& e) {

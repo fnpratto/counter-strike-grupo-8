@@ -12,6 +12,7 @@ add_library(elements
   shop_view/shop.cpp
   controllers/keyboardhandler.cpp
   controllers/mousehandler.cpp
+  pre_game_view/list_teams.cpp
 )
 
 target_include_directories(elements PUBLIC

@@ -4,7 +4,7 @@
 
 #include <SDL2/SDL.h>
 
-void MouseHandler::handleEvent(const SDL_Event& event, bool shop) {
+void MouseHandler::handleEvent(const SDL_Event& event, bool shop, bool list_teams) {
     int x, y;
     if (event.type == SDL_MOUSEBUTTONDOWN) {
         switch (event.button.button) {
@@ -13,6 +13,10 @@ void MouseHandler::handleEvent(const SDL_Event& event, bool shop) {
                 if (shop) {
                     SDL_GetMouseState(&x, &y);
                     shopDisplayRef.updatePointerPosition(x, y);
+                }
+                if (list_teams) {
+                    SDL_GetMouseState(&x, &y);
+                    listTeamsRef.updatePointerPosition(x, y);
                 }
                 break;
             case SDL_BUTTON_RIGHT:
