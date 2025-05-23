@@ -35,16 +35,16 @@ void GameMenuWindow::init_gui() {
 
 void GameMenuWindow::add_game_title() {
     QLabel* game_title_label = new QLabel(TITLE, this);
-    game_title_label->setFixedHeight(32);
-    game_title_label->setFont(QFont(CS_FONT_NAME, 32, QFont::Bold));
+    game_title_label->setFixedHeight(TITLE_FONT_SIZE);
+    game_title_label->setFont(QFont(CS_FONT_NAME, TITLE_FONT_SIZE, QFont::Bold));
     game_title_label->setAlignment(Qt::AlignCenter);
     this->main_layout->addWidget(game_title_label);
 }
 
 void GameMenuWindow::add_window_subtitle() {
     QLabel* window_subtitle_label = new QLabel("Game Menu", this);
-    window_subtitle_label->setFixedHeight(16);
-    window_subtitle_label->setFont(QFont(CS_FONT_NAME, 16, QFont::Bold));
+    window_subtitle_label->setFixedHeight(SUBTITLE_FONT_SIZE);
+    window_subtitle_label->setFont(QFont(CS_FONT_NAME, SUBTITLE_FONT_SIZE, QFont::Bold));
     window_subtitle_label->setAlignment(Qt::AlignCenter);
     this->main_layout->addWidget(window_subtitle_label);
 }

@@ -14,7 +14,7 @@
 #include "constants.h"
 
 #define WINDOW_WIDTH 416
-#define WINDOW_HEIGHT 184
+#define WINDOW_HEIGHT 175
 
 LogInWindow::LogInWindow(Queue<Message>& input_queue, Queue<Message>& output_queue,
                          QWidget* parent):
@@ -58,14 +58,16 @@ LogInWindow::~LogInWindow() {}
 
 void LogInWindow::add_game_title() {
     QLabel* game_title = new QLabel(TITLE, this);
-    game_title->setFont(QFont(CS_FONT_NAME, 32, QFont::Bold));
+    game_title->setFont(QFont(CS_FONT_NAME, TITLE_FONT_SIZE, QFont::Bold));
+    game_title->setFixedHeight(TITLE_FONT_SIZE);
     game_title->setAlignment(Qt::AlignCenter);
     this->main_layout->addWidget(game_title);
 }
 
 void LogInWindow::add_window_subtitle() {
     QLabel* window_title = new QLabel("Log In", this);
-    window_title->setFont(QFont(CS_FONT_NAME, 16, QFont::Bold));
+    window_title->setFont(QFont(CS_FONT_NAME, SUBTITLE_FONT_SIZE, QFont::Bold));
+    window_title->setFixedHeight(SUBTITLE_FONT_SIZE);
     window_title->setAlignment(Qt::AlignCenter);
     this->main_layout->addWidget(window_title);
 }

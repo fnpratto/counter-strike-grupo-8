@@ -4,3 +4,6 @@
 #define CS_FONT_NAME "Counter-Strike"
 
 #define ICON_PATH ":/resources/cs2d.bmp"
+
+#define TITLE_FONT_SIZE 32
+#define SUBTITLE_FONT_SIZE 16
