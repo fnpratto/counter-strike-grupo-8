@@ -22,10 +22,13 @@ public:
  */
 class CreateGameCommand: public Command {
     std::string game_name;
+    std::string player_name;
 
 public:
-    explicit CreateGameCommand(const std::string& name): game_name(name) {}
+    explicit CreateGameCommand(const std::string& name, const std::string& player):
+            game_name(name), player_name(player) {}
     std::string get_game_name() const { return game_name; }
+    std::string get_player_name() const { return player_name; }
 };
 
 /**
@@ -34,10 +37,13 @@ public:
  */
 class JoinGameCommand: public Command {
     std::string game_name;
+    std::string player_name;
 
 public:
-    explicit JoinGameCommand(const std::string& name): game_name(name) {}
+    explicit JoinGameCommand(const std::string& name, const std::string& player):
+            game_name(name), player_name(player) {}
     std::string get_game_name() const { return game_name; }
+    std::string get_player_name() const { return player_name; }
 };
 
 /**
