@@ -16,7 +16,6 @@
 #include "gui/map_view/map_view.h"
 #include "gui/pre_game_view/list_teams.h"
 #include "gui/shop_view/shop.h"
-#include "gui/window_elements/SdlWindow.h"
 #include "gui/window_elements/sdl_window.h"
 
 #include "display.h"

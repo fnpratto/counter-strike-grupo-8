@@ -10,9 +10,9 @@
 
 #include <SDL2/SDL.h>
 
-#include "../window_elements/Area.h"
-#include "../window_elements/SdlTexture.h"
-#include "../window_elements/SdlWindow.h"
+#include "../window_elements/area.h"
+#include "../window_elements/sdl_texture.h"
+#include "../window_elements/sdl_window.h"
 
 // #include "camera.h"
 
