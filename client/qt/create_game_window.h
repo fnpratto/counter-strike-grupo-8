@@ -20,12 +20,13 @@ class CreateGameWindow: public QWidget {
 private:
     Queue<Message>& input_queue;
     Queue<Message>& output_queue;
-    std::string game_name;
+    std::string player_name;
     QVBoxLayout* main_layout;
+    QLineEdit* game_name_input;
 
 public:
     explicit CreateGameWindow(Queue<Message>& input_queue, Queue<Message>& output_queue,
-                              const std::string& game_name, QWidget* parent = nullptr);
+                              const std::string& player_name, QWidget* parent = nullptr);
 
     ~CreateGameWindow();
 

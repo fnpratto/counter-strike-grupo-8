@@ -1,11 +1,11 @@
 #include "create_game_window.h"
 
 CreateGameWindow::CreateGameWindow(Queue<Message>& input_queue, Queue<Message>& output_queue,
-                                   const std::string& game_name, QWidget* parent):
+                                   const std::string& player_name, QWidget* parent):
         QWidget(parent),
         input_queue(input_queue),
         output_queue(output_queue),
-        game_name(game_name) {
+        player_name(player_name) {
     this->setWindowTitle(TITLE);
     this->setWindowIcon(QIcon(ICON_PATH));
     // this->setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -20,8 +20,8 @@ void CreateGameWindow::init_gui() {
 
     this->add_game_title();
     this->add_window_subtitle();
-    this->add_map_list();
     this->add_game_name_input();
+    this->add_map_list();
     this->add_create_button();
 }
 
@@ -57,9 +57,9 @@ void CreateGameWindow::add_game_name_input() {
     QHBoxLayout* game_name_layout = new QHBoxLayout();
     QLabel* game_name_label = new QLabel("Game Name:", this);
     game_name_layout->addWidget(game_name_label);
-    QLineEdit* game_name_input = new QLineEdit(this);
-    game_name_layout->addWidget(game_name_input);
-    game_name_input->setPlaceholderText("Enter game name");
+    this->game_name_input = new QLineEdit(this);
+    this->game_name_input->setPlaceholderText("Enter game name");
+    game_name_layout->addWidget(this->game_name_input);
     this->main_layout->addLayout(game_name_layout);
 }
 
@@ -71,5 +71,19 @@ void CreateGameWindow::add_create_button() {
 }
 
 void CreateGameWindow::on_create_button_clicked() {
-    output_queue.push(Message(CreateGameCommand(game_name)));
+    std::string game_name = this->game_name_input->text().toStdString();
+    output_queue.push(Message(CreateGameCommand(game_name, player_name)));
+
+    auto msg = input_queue.pop();
+    while (msg.get_type() != MessageType::BOOL) {
+        msg = input_queue.pop();
+    }
+
+    bool create_res = msg.get_content<bool>();
+    if (!create_res) {
+        QMessageBox::warning(this, "Create Game Error", "Failed to create game.", QMessageBox::Ok);
+        return;
+    }
+
+    this->close();
 }

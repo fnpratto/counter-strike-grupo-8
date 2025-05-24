@@ -97,13 +97,13 @@ void GameMenuWindow::join_game(QString game_name) {
     std::string player_name = this->player_name_input->text().toStdString();
     output_queue.push(Message(JoinGameCommand(game_name_str, player_name)));
 
-    auto res = input_queue.pop();
-    while (res.get_type() != MessageType::JOIN_RES) {
-        res = input_queue.pop();
+    auto msg = input_queue.pop();
+    while (msg.get_type() != MessageType::BOOL) {
+        msg = input_queue.pop();
     }
 
-    auto join_res = res.get_content<JoinGameResponse>();
-    if (join_res.has_failed()) {
+    bool join_res = msg.get_content<bool>();
+    if (!join_res) {
         QMessageBox::warning(this, "Join Game Error", "Failed to join game.", QMessageBox::Ok);
         return;
     }
