@@ -7,9 +7,9 @@
 
 #include "player_config.h"
 
-Player::Player(Team team, Vector2D position):
+Player::Player(Team team, Vector2D pos):
         team(team),
-        position(position),
+        pos(pos),
         ready(false),
         health(PlayerConfig::full_health),
         money(PlayerConfig::initial_money),
@@ -21,13 +21,13 @@ bool Player::is_tt() const { return team == Team::TT; }
 
 bool Player::is_ct() const { return team == Team::CT; }
 
-Vector2D Player::get_pos() const { return position; }
+Vector2D Player::get_pos() const { return pos; }
 
 PlayerState Player::state() const {
     PlayerState player_state;
     player_state.team = team;
-    player_state.pos_x = position.get_x();
-    player_state.pos_y = position.get_y();
+    player_state.pos_x = pos.get_x();
+    player_state.pos_y = pos.get_y();
     player_state.ready = ready;
     player_state.health = health;
     player_state.money = money;
@@ -60,7 +60,7 @@ void Player::buy_ammo(const WeaponSlot& slot, int ammo_price, int num_mags) {
     money -= ammo_price;
 }
 
-void Player::move(Vector2D new_pos) { position = new_pos; }
+void Player::move(Vector2D new_pos) { pos = new_pos; }
 
 void Player::equip_weapon(WeaponSlot slot) { current_weapon = slot; }
 

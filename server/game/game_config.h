@@ -1,8 +1,8 @@
 #pragma once
 
 namespace GameConfig {
-const float tickrate = 60;       // ticks per second
-const float player_speed = 180;  // pixels per second
+const float tickrate = 60;
+const float player_speed = 2;
 const int max_rounds = 10;
 const int max_players = 10;
 const int max_team_players = max_players / 2;

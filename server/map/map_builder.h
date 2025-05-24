@@ -7,7 +7,6 @@
 #include <yaml-cpp/yaml.h>
 
 #include "common/models.h"
-#include "server/map/tile.h"
 #include "server/utils/vector_2d.h"
 
 #include "map.h"
@@ -27,7 +26,8 @@ public:
         YAML::Node map_data = YAML::LoadFile(filename);
 
         std::string name = map_data["name"].as<std::string>();
-        Map map(name);
+        int tile_size = map_data["tile_size"].as<int>();
+        Map map(name, tile_size);
 
         YAML::Node tiles = map_data["tiles"];
         if (tiles["floors"]) {
@@ -35,8 +35,7 @@ public:
                 int x = tile_data["x"].as<int>();
                 int y = tile_data["y"].as<int>();
                 Vector2D tile_pos(x, y);
-                Tile floor(MapTileType::Floor);
-                map.add_tile(std::move(floor));
+                map.add_tile(MapTileType::Floor, std::move(tile_pos));
             }
         }
 
@@ -45,8 +44,7 @@ public:
                 int x = tile_data["x"].as<int>();
                 int y = tile_data["y"].as<int>();
                 Vector2D tile_pos(x, y);
-                Tile wall(MapTileType::Wall);
-                map.add_tile(std::move(wall));
+                map.add_tile(MapTileType::Wall, std::move(tile_pos));
             }
         }
 
@@ -55,8 +53,7 @@ public:
                 int x = tile_data["x"].as<int>();
                 int y = tile_data["y"].as<int>();
                 Vector2D tile_pos(x, y);
-                Tile box(MapTileType::Box);
-                map.add_tile(std::move(box));
+                map.add_tile(MapTileType::Box, std::move(tile_pos));
             }
         }
 

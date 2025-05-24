@@ -77,8 +77,3 @@ public:
         return full_message.c_str();
     }
 };
-
-class InvalidMapPosition: public PlayerError {
-public:
-    InvalidMapPosition(): PlayerError("invalid map position") {}
-};

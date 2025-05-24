@@ -15,7 +15,7 @@
 class Player {
 private:
     Team team;
-    Vector2D position;
+    Vector2D pos;
     bool ready;
     int health;
     int money;
@@ -23,7 +23,7 @@ private:
     Inventory inventory;
 
 public:
-    Player(Team team, Vector2D position);
+    Player(Team team, Vector2D pos);
 
     bool is_ready() const;
     bool is_tt() const;
@@ -35,6 +35,7 @@ public:
 
     void set_ready();
 
+    // TODO: Player gain money after round finished
     // void gain_money(int amount);
 
     void pick_bomb();

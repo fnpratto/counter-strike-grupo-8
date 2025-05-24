@@ -130,7 +130,7 @@ void Game::handle_move_msg(std::unique_ptr<Player>& player, int dx, int dy) {
     Vector2D old_pos = player->get_pos();
     Vector2D new_pos = old_pos + physics_system.calculate_step(Vector2D(dx, dy));
 
-    // TODO: Check collision with physics_system
+    // TODO: Check collisions with physics_system (with tiles and entities)
 
     player->move(new_pos);
 }
