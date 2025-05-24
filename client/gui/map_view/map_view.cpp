@@ -3,14 +3,16 @@
 // #define MAPS_FILE "assets/maps/maps.yaml"
 const std::string& BACKGROUND2_PATH = "../assets/gfx/tiles/dust.bmp";
 const std::string& TILES_PATH = "../assets/gfx/backgrounds/stone1.jpg";
-const std::string& CHARACTER_PATH = "../assets/gfx/player/ct2.bmp";
+const std::string& CHARACTER_PATH = "../assets/gfx/player/ct2.xcf";
 
 
 Map::Map(SdlWindow& window):
         window(window),
         background(BACKGROUND2_PATH, window),
         tiles(TILES_PATH, window),
-        character(CHARACTER_PATH, window) {}
+        character(CHARACTER_PATH, window),
+        DISPLAY_WIDTH(window.getWidth()),
+        DISPLAY_HEIGHT(window.getHeight()) {}
 
 void Map::load_map(int map_id) {
 
@@ -35,8 +37,8 @@ void Map::load_map(int map_id) {
 
 void Map::render() {
 
-    Area src(0, 0, 67, 17);
-    Area iconDest(30, 0, 30, 10);
+    Area src(0, 0, 28, 29);
+    Area iconDest(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, 30, 10);
 
     character.render(src, iconDest);
 }

@@ -6,6 +6,7 @@
 
 #include <SDL2/SDL.h>
 
+#include "../client/requests.h"
 #include "../common/message.h"
 #include "gui/controllers/keyboardhandler.h"
 #include "gui/controllers/mousehandler.h"
@@ -75,6 +76,7 @@ void mouse_update(const SDL_Event& event, hudDisplay& hudDisplay, shopDisplay& s
 
 SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue):
         Display(input_queue, output_queue) {}
+
 void SDLDisplay::run() {
 
     // FOR FULL SIZE
@@ -90,8 +92,8 @@ void SDLDisplay::run() {
         exit(1);
     }
     /*int SCREEN_WIDTH = displayMode.w;
-    int SCREEN_HEIGHT = displayMode.h - 150;
-    */
+    int SCREEN_HEIGHT = displayMode.h - 150;*/
+
 
     const int SCREEN_WIDTH = 800;
     const int SCREEN_HEIGHT = 600;
@@ -115,76 +117,62 @@ void SDLDisplay::run() {
         KeyboardHandler keyboardHandler;
         SDL_Event e;
 
-        try {
-            while (!quit) {
-                while (SDL_PollEvent(&e)) {
-                    if (e.type == SDL_QUIT) {
-                        quit = true;
-                    }
+        bool quit = false;
+        bool shop = false;
+        bool list_teams = true;
+        int clock = 0;  // por ahora
+
+        while (!quit) {
+            while (SDL_PollEvent(&e)) {
+                if (e.type == SDL_QUIT) {
+                    quit = true;
                 }
-                try {
-                    bool shop = false;
-                    bool list_teams = true;
-                    bool quit = false;
-                    int clock = 0;  // por ahora
-
-                    while (!quit) {
-                        while (SDL_PollEvent(&e)) {
-                            if (e.type == SDL_QUIT) {
-                                quit = true;
-                            }
-                            keyboardHandler.handleEvent(e, shop);
-                            mouseHandler.handleEvent(e, shop, list_teams);
-                        }
-
-                        if (rest_time < 0) {
-                            behind = -rest_time;
-                            rest_time = RATE - (behind % RATE);
-                            lost = behind / RATE;
-                            frame_start += lost * RATE;
-                            // clock += lost;  // Increment clock for lost frames
-                        }
-
-                        SDL_Delay(rest_time);
-                        frame_start += RATE;
-
-                        // Increment clock if a second has passed
-                        static Uint32 accumulated_time = 0;
-                        accumulated_time += RATE;
-                        if (accumulated_time >= 1000) {  // 1000 ms = 1 second
-                            clock++;
-                            accumulated_time -= 1000;
-                        }
-
-                        /*update --> pull event from the queue*/
-                        window.fill();
-                        if (clock > 20) {
-                            hudDisplay.update(clock);
-                            map.render();
-                            if (shop) {
-                                shopDisplay.render();
-                            }
-                        } else {
-                            listTeams.update(clock);
-                        }
-
-                        window.render();
-                    }
-                } catch (std::exception& ex) {
-                    std::cout << e.what() << std::endl;
-                    return;
-                }
+                keyboardHandler.handleEvent(e, shop);
+                mouseHandler.handleEvent(e, shop, list_teams);
             }
-        } catch (std::exception& ex) {
-            std::cerr << ex.what() << std::endl;
-            SDL_Quit();
-            return;
+            /* update clock */
+            frame_end = SDL_GetTicks();
+            int elapsed_time = frame_end - frame_start;
+            int rest_time = RATE - elapsed_time;
+
+            if (rest_time < 0) {
+                behind = -rest_time;
+                rest_time = RATE - (behind % RATE);
+                lost = behind / RATE;
+                frame_start += lost * RATE;
+                // clock += lost;  // Increment clock for lost frames
+            }
+
+            SDL_Delay(rest_time);
+            frame_start += RATE;
+
+            // Increment clock if a second has passed
+            static Uint32 accumulated_time = 0;
+            accumulated_time += RATE;
+            if (accumulated_time >= 1000) {  // 1000 ms = 1 second
+                clock++;
+                accumulated_time -= 1000;
+            }
+
+            /*update --> pull event from the queue*/
+            window.fill();
+            if (clock > 20) {
+                hudDisplay.update(clock);
+                map.render();
+                if (shop) {
+                    shopDisplay.render();
+                }
+            } else {
+                listTeams.update(clock);
+            }
+            window.render();
         }
     } catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        SDL_Quit();
+        std::cout << e.what() << std::endl;
         return;
     }
+    return;
 }
+
 
 void SDLDisplay::stop() { Thread::stop(); }

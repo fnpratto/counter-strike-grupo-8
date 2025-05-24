@@ -29,6 +29,8 @@ private:
     SdlTexture background;
     SdlTexture character;
     SdlTexture tiles;
+    int DISPLAY_WIDTH;
+    int DISPLAY_HEIGHT;
 };
 
 #endif  // MAP_VIEW_H
