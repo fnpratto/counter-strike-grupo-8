@@ -16,8 +16,8 @@
 #include "common/queue.h"
 #include "common/socket.h"
 #include "common/thread.h"
+#include "game/game.h"
 
-#include "game.h"
 #include "lobby_monitor.h"
 
 class ServerProtocol: public BaseProtocol {

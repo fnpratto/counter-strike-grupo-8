@@ -13,18 +13,40 @@ struct AttrTypeTrait {
     static constexpr Attr attr = A;
 };
 
+// GunUpdate type checking
+enum class GunAttr { BULLETS_PER_MAG, MAG_AMMO, RESERVE_AMMO };
+typedef std::variant<int> GunValue;
+
+
+// InventoryUpdate type checking
+enum class InventoryAttr { MONEY, GUNS, UTILITIES };
+typedef std::variant<int, GunState> InventoryValue;
+
+
+// PlayerUpdate type checking
+enum class PlayerAttr { TEAM, INVENTORY, HEALTH, POS_X, POS_Y, CURRENT_WEAPON };
+typedef std::variant<Team, InventoryState, int, float, WeaponSlot> PlayerValue;
+
+
+// GameStateUpdate type checking
+enum class GameStateAttr { GAME_PHASE, NUM_ROUNDS, NUM_TTS, NUM_PLAYERS, PLAYERS };
+typedef std::variant<int, std::map<std::string, PlayerState>> GameStateValue;
+
+
 template <typename A, typename V>
 class StateUpdate {
+protected:
     std::map<A, V> changes;
 
 public:
-    // New type-safe method using templates
-    template <typename T>
-    void add_change(A attr, T value) {
-        // Check if T can be stored in variant V
-        static_assert(std::is_convertible_v<T, V>,
-                      "Value type is not compatible with this StateUpdate's variant type");
+    const std::map<A, V>& get_changes() const { return changes; }
+};
 
+
+class InventoryUpdate: public StateUpdate<InventoryAttr, InventoryValue> {
+public:
+    template <typename T>
+    void add_change(InventoryAttr attr, T value) {
         // Validate attribute-specific type at runtime
         if (!is_valid_type_for_attr(attr, value)) {
             throw std::invalid_argument(
@@ -34,22 +56,41 @@ public:
         changes[attr] = value;
     }
 
-    const std::map<A, V>& get_changes() const { return changes; }
-
 protected:
-    // To be specialized by derived classes
     template <typename T>
-    constexpr bool is_valid_type_for_attr(A attr, const T& value) const {
+    constexpr bool is_valid_type_for_attr(InventoryAttr attr, const T& value) const {
+        (void)value;
+
         switch (attr) {
             case InventoryAttr::MONEY:
-            case PlayerAttr::HEALTH:
-            case GameStateAttr::GAME_PHASE:
-            case GameStateAttr::NUM_ROUNDS:
-            case GameStateAttr::NUM_TTS:
-            case GameStateAttr::NUM_PLAYERS:
                 return std::is_same_v<T, int>;
             case InventoryAttr::GUNS:
                 return std::is_same_v<T, GunState>;
+            default:
+                return false;
+        }
+    }
+};
+class PlayerUpdate: public StateUpdate<PlayerAttr, PlayerValue> {
+public:
+    template <typename T>
+    void add_change(PlayerAttr attr, T value) {
+        if (!is_valid_type_for_attr(attr, value)) {
+            throw std::invalid_argument(
+                    "Type mismatch: The provided value type is not valid for this attribute");
+        }
+
+        changes[attr] = value;
+    }
+
+protected:
+    template <typename T>
+    constexpr bool is_valid_type_for_attr(PlayerAttr attr, const T& value) const {
+        (void)value;
+
+        switch (attr) {
+            case PlayerAttr::HEALTH:
+                return std::is_same_v<T, int>;
             case PlayerAttr::TEAM:
                 return std::is_same_v<T, Team>;
             case PlayerAttr::INVENTORY:
@@ -59,6 +100,64 @@ protected:
                 return std::is_same_v<T, float>;
             case PlayerAttr::CURRENT_WEAPON:
                 return std::is_same_v<T, WeaponSlot>;
+            default:
+                return false;
+        }
+    }
+};
+class GunUpdate: public StateUpdate<GunAttr, GunValue> {
+public:
+    template <typename T>
+    void add_change(GunAttr attr, T value) {
+        // Validate attribute-specific type at runtime
+        if (!is_valid_type_for_attr(attr, value)) {
+            throw std::invalid_argument(
+                    "Type mismatch: The provided value type is not valid for this attribute");
+        }
+
+        changes[attr] = value;
+    }
+
+protected:
+    template <typename T>
+    constexpr bool is_valid_type_for_attr(GunAttr attr, const T& value) const {
+        (void)value;
+
+        switch (attr) {
+            case GunAttr::BULLETS_PER_MAG:
+            case GunAttr::MAG_AMMO:
+            case GunAttr::RESERVE_AMMO:
+                return std::is_same_v<T, int>;
+            default:
+                return false;
+        }
+    }
+};
+
+class GameUpdate: public StateUpdate<GameStateAttr, GameStateValue> {
+public:
+    template <typename T>
+    void add_change(GameStateAttr attr, T value) {
+        // Validate attribute-specific type at runtime
+        if (!is_valid_type_for_attr(attr, value)) {
+            throw std::invalid_argument(
+                    "Type mismatch: The provided value type is not valid for this attribute");
+        }
+
+        changes[attr] = value;
+    }
+
+protected:
+    template <typename T>
+    constexpr bool is_valid_type_for_attr(GameStateAttr attr, const T& value) const {
+        (void)value;
+
+        switch (attr) {
+            case GameStateAttr::GAME_PHASE:
+            case GameStateAttr::NUM_ROUNDS:
+            case GameStateAttr::NUM_TTS:
+            case GameStateAttr::NUM_PLAYERS:
+                return std::is_same_v<T, int>;
             case GameStateAttr::PLAYERS:
                 return std::is_same_v<T, std::map<std::string, PlayerState>>;
             default:
@@ -66,30 +165,6 @@ protected:
         }
     }
 };
-
-// GunUpdate type checking
-enum class GunAttr { BULLETS_PER_MAG, MAG_AMMO, RESERVE_AMMO };
-typedef std::variant<int> GunValue;
-
-class GunUpdate: public StateUpdate<GunAttr, GunValue> {};
-
-// InventoryUpdate type checking
-enum class InventoryAttr { MONEY, GUNS, UTILITIES };
-typedef std::variant<int, GunState> InventoryValue;
-
-class InventoryUpdate: public StateUpdate<InventoryAttr, InventoryValue> {};
-
-// PlayerUpdate type checking
-enum class PlayerAttr { TEAM, INVENTORY, HEALTH, POS_X, POS_Y, CURRENT_WEAPON };
-typedef std::variant<Team, InventoryState, int, float, WeaponSlot> PlayerValue;
-
-class PlayerUpdate: public StateUpdate<PlayerAttr, PlayerValue> {};
-
-// GameStateUpdate type checking
-enum class GameStateAttr { GAME_PHASE, NUM_ROUNDS, NUM_TTS, NUM_PLAYERS, PLAYERS };
-typedef std::variant<int, std::map<std::string, PlayerState>> GameStateValue;
-
-class GameUpdate: public StateUpdate<GameStateAttr, GameStateValue> {};
 
 // Example usage
 
