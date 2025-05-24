@@ -103,11 +103,11 @@ Message TextDisplay::parse_line(const std::string& line) {
     } else if (command == "create") {
         std::string game_name;
         iss >> game_name;
-        return Message(CreateGameCommand(game_name));
+        return Message(CreateGameCommand(game_name, "player"));
     } else if (command == "join") {
         std::string game_name;
         iss >> game_name;
-        return Message(JoinGameCommand(game_name));
+        return Message(JoinGameCommand(game_name, "player"));
     } else if (command == "list") {
         return Message(ListGamesCommand());
     } else {
