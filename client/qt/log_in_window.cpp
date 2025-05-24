@@ -112,10 +112,8 @@ void LogInWindow::on_login_button_clicked() {
     output_queue.push(Message(ConnectionRequest(ip, port)));
 
     auto msg = input_queue.pop();
-    if (msg.get_type() != MessageType::CONN_RES) {
-        QMessageBox::warning(this, "Connection Error", "Failed to connect to server.",
-                             QMessageBox::Ok);
-        return;
+    while (msg.get_type() != MessageType::CONN_RES) {
+        msg = input_queue.pop();
     }
 
     auto conn_res = msg.get_content<ConnectionResponse>();
