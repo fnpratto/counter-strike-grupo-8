@@ -2,6 +2,9 @@
 
 #include <QMessageBox>
 
+#define WINDOW_WIDTH 416
+#define WINDOW_HEIGHT 340
+
 CreateGameWindow::CreateGameWindow(Queue<Message>& input_queue, Queue<Message>& output_queue,
                                    const std::string& player_name, QWidget* parent):
         QWidget(parent),
@@ -10,7 +13,7 @@ CreateGameWindow::CreateGameWindow(Queue<Message>& input_queue, Queue<Message>& 
         player_name(player_name) {
     this->setWindowTitle(TITLE);
     this->setWindowIcon(QIcon(ICON_PATH));
-    // this->setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+    this->setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     this->init_gui();
 }
 
