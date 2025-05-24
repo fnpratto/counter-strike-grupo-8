@@ -95,5 +95,16 @@ void GameMenuWindow::join_game(QString game_name) {
     qDebug() << "Joining game:" << game_name;
     output_queue.push(Message(JoinGameCommand(game_name.toStdString())));
 
-    auto msg = input_queue.pop();
+    auto res = input_queue.pop();
+    while (res.get_type() != MessageType::JOIN_RES) {
+        res = input_queue.pop();
+    }
+
+    auto join_res = res.get_content<JoinGameResponse>();
+    if (join_res.has_failed()) {
+        QMessageBox::warning(this, "Join Game Error", "Failed to join game.", QMessageBox::Ok);
+        return;
+    }
+
+    this->close();
 }
