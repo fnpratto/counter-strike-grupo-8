@@ -9,11 +9,11 @@
 #include <vector>
 
 #include <SDL2/SDL.h>
+#include <yaml-cpp/yaml.h>
 
 #include "../window_elements/area.h"
 #include "../window_elements/sdl_texture.h"
 #include "../window_elements/sdl_window.h"
-
 // #include "camera.h"
 
 class Map {
@@ -27,10 +27,12 @@ public:
 private:
     SdlWindow& window;
     SdlTexture background;
+    SdlTexture tiles_area;
     SdlTexture character;
-    SdlTexture tiles;
-    int DISPLAY_WIDTH;
-    int DISPLAY_HEIGHT;
+    YAML::Node map_data;
+    const int DISPLAY_WIDTH;
+    const int DISPLAY_HEIGHT;
+    void build();
 };
 
 #endif  // MAP_VIEW_H

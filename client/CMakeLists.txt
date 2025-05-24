@@ -1,5 +1,6 @@
 # Adding sources
 add_subdirectory(gui)
+find_package(yaml-cpp REQUIRED)
 
 target_sources(taller_client
     PRIVATE
@@ -25,10 +26,12 @@ target_sources(taller_client
     )
 
     target_link_libraries(taller_client
+    PRIVATE
     elements
     SDL2
     SDL2_image
     SDL2_ttf
+    yaml-cpp
 )
 
 

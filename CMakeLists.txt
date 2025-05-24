@@ -100,6 +100,19 @@ if(TALLER_CLIENT OR TALLER_EDITOR)
     FetchContent_MakeAvailable(SDL2 SDL2_image SDL2_mixer SDL2_ttf libSDL2pp)
 endif()
 
+if(TALLER_SERVER OR TALLER_CLIENT OR TALLER_TESTS)
+    include(FetchContent)
+
+    FetchContent_Declare(
+        yaml-cpp
+        GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+        GIT_TAG 0.8.0
+    )
+
+    FetchContent_MakeAvailable(yaml-cpp)
+endif()
+
+
 # Program section
 # ---------------
 
@@ -120,14 +133,16 @@ if(TALLER_CLIENT)
     # add libSDL2pp's headers
     target_include_directories(taller_client PRIVATE ${libSDL2pp_SOURCE_DIR})
 
-    # Link the taller_common lib target
-    target_link_libraries(taller_client taller_common SDL2pp::SDL2pp)
+    target_link_libraries(taller_client PRIVATE taller_common SDL2pp::SDL2pp yaml-cpp::yaml-cpp)
+
 
     # Add UI_TYPE definition
     if(UI_TYPE STREQUAL "gui")
         target_compile_definitions(taller_client PRIVATE UI_TYPE_GUI)
     elseif(UI_TYPE STREQUAL "tui")
         target_compile_definitions(taller_client PRIVATE UI_TYPE_TUI)
+
+
     endif()
 endif()
 
@@ -217,5 +232,6 @@ if(TALLER_TESTS)
     target_link_libraries(taller_tests
         taller_common
         GTest::gtest_main
+        yaml-cpp::yaml-cpp
     )
 endif()
