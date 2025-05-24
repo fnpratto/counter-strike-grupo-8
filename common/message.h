@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "client/requests.h"
-#include "client/response.h"
 
 #include "commands.h"
 
