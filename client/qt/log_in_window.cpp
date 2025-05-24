@@ -78,6 +78,7 @@ void LogInWindow::add_ip_input() {
     ip_layout->addWidget(ip_label);
     this->ip_input = new QLineEdit(this);
     ip_layout->addWidget(this->ip_input);
+    connect(this->ip_input, &QLineEdit::returnPressed, this, &LogInWindow::on_login_button_clicked);
     this->main_layout->addLayout(ip_layout);
 }
 
@@ -87,11 +88,14 @@ void LogInWindow::add_port_input() {
     port_layout->addWidget(port_label);
     this->port_input = new QLineEdit(this);
     port_layout->addWidget(this->port_input);
+    connect(this->port_input, &QLineEdit::returnPressed, this,
+            &LogInWindow::on_login_button_clicked);
     this->main_layout->addLayout(port_layout);
 }
 
 void LogInWindow::add_login_button() {
     QPushButton* login_button = new QPushButton("Login", this);
+    login_button->setDefault(true);
     this->main_layout->addWidget(login_button);
     connect(login_button, &QPushButton::clicked, this, &LogInWindow::on_login_button_clicked);
 }
