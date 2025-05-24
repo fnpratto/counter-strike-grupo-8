@@ -3,7 +3,7 @@
 #include <iostream>
 
 const int VALID_SLOTS = 3;
-// Paths
+
 const std::string& GUNS = "../assets/gfx/guns/guns.xcf";
 const std::string& HUD_SLOT_PATH = "../assets/gfx/shop/hud_slot.xcf";
 const std::string& HUD_SLOT_CLICKED_PATH = "../assets/gfx/shop/hud_slot_clicked.xcf";
@@ -100,12 +100,10 @@ void shopDisplay::renderItem() {
         }
         gun_icons[image].render(src, iconDest);
 
-        // Render gun number
         gunNumber.setTextString(guns[i].name);
         Area numDest(x, y - 10, 15, 15);
         gunNumber.render(numDest);
 
-        // Render price
         if (guns[i].price.empty()) {
             cost_money.setTextString("Not Available");
         } else {

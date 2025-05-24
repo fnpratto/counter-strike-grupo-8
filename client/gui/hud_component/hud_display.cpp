@@ -128,21 +128,6 @@ void hudDisplay::renderParal() {
     scoreText.render(
             Area(trapecioX + trapecioWidth + margin + paralWidth / 2 - layout.size_width / 4,
                  layout.padding * 3, layout.size_width / 1.75, layout.size_height / 2));
-
-
-    /*}
-    else {
-        SdlTexture parallelogram(PARALELO_BLUE_PATH, window);
-        Area srcParallelogram(0, 0, 500, 230);
-        Area destParallelogram(0, 0, 100, size_height * 2);
-        parallelogram.render(srcParallelogram, destParallelogram);
-
-        SdlTexture parallelogram1(PARALELO_RED_O_PATH, window);
-        Area srcParallelogram1(0, 0, 500, 230);
-        Area destParallelogram1(SCREEN_WIDTH / 2 - 200, 0, 100, size_height * 2);
-        parallelogram1.render(srcParallelogram1, destParallelogram1);
-        SDL_Renderer* renderer = window.getRenderer();
-    }*/
 }
 
 

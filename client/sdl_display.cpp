@@ -98,13 +98,12 @@ void SDLDisplay::run() {
     const int SCREEN_WIDTH = 800;
     const int SCREEN_HEIGHT = 600;
 
+    /*TODO maybe will change*/
     Uint32 RATE = 16;  // Define RATE as the frame duration in milliseconds (e.g., 16ms for ~60 FPS)
     Uint32 frame_start = SDL_GetTicks();
     Uint32 frame_end;
     Uint32 behind;
     Uint32 lost;
-
-    // UNTIL HERE
 
     try {
         SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -169,9 +168,7 @@ void SDLDisplay::run() {
         }
     } catch (std::exception& e) {
         std::cout << e.what() << std::endl;
-        return;
     }
-    return;
 }
 
 void SDLDisplay::stop() { Thread::stop(); }
