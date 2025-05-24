@@ -10,6 +10,7 @@
 #include "gui/shop_view/shop.h"
 #include "gui/window_elements/SdlWindow.h"
 
+void update_components() {}
 
 void keyboard_update(const SDL_Event& event, bool& shop) {
     if (event.type == SDL_KEYDOWN) {
@@ -83,6 +84,12 @@ int main(int, char**) {
     const int SCREEN_WIDTH = 800;
     const int SCREEN_HEIGHT = 600;
 
+    Uint32 RATE = 16;  // Define RATE as the frame duration in milliseconds (e.g., 16ms for ~60 FPS)
+    Uint32 frame_start = SDL_GetTicks();
+    Uint32 frame_end;
+    Uint32 behind;
+    Uint32 lost;
+
     // UNTIL HERE
 
     try {
@@ -98,6 +105,8 @@ int main(int, char**) {
 
         SDL_Event e;
         bool quit = false;
+        int clock = 0;  // por ahora
+
         while (!quit) {
             while (SDL_PollEvent(&e)) {
                 if (e.type == SDL_QUIT) {
@@ -107,12 +116,39 @@ int main(int, char**) {
                 mouseHandler.handleEvent(e, shop, list_teams);
             }
 
+            /* update clock */
+            frame_end = SDL_GetTicks();
+            int elapsed_time = frame_end - frame_start;
+            int rest_time = RATE - elapsed_time;
+
+            if (rest_time < 0) {
+                behind = -rest_time;
+                rest_time = RATE - (behind % RATE);
+                lost = behind / RATE;
+                frame_start += lost * RATE;
+                // clock += lost;  // Increment clock for lost frames
+            }
+
+            SDL_Delay(rest_time);
+            frame_start += RATE;
+
+            // Increment clock if a second has passed
+            static Uint32 accumulated_time = 0;
+            accumulated_time += RATE;
+            if (accumulated_time >= 1000) {  // 1000 ms = 1 second
+                clock++;
+                accumulated_time -= 1000;
+            }
+
+            /*update --> pull event from the queue*/
             window.fill();
-            // hudDisplay.render();
-            /*if(first 20 seconds)*/
-            listTeams.render();
-            if (shop) {
-                shopDisplay.render();
+            if (clock > 20) {
+                hudDisplay.update(clock);
+                if (shop) {
+                    shopDisplay.render();
+                }
+            } else {
+                listTeams.update(clock);
             }
 
             window.render();

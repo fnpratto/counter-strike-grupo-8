@@ -27,6 +27,7 @@ public:
     explicit hudDisplay(SdlWindow& window);
     void render();
     void updatePointerPosition(int x, int y);
+    void update(int currentClockTick);
 
 private:
     SdlWindow& window;
@@ -59,7 +60,7 @@ private:
     void renderPointer();
     void renderMoney();
     void renderLife();
-    void renderTimer();
+    void renderTimer(int currentClockTick);
     void renderRoundText();
     void renderBullets();
     void renderGunIcons();

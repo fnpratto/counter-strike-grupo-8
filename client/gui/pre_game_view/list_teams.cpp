@@ -1,5 +1,6 @@
 #include "list_teams.h"
 
+#include <algorithm>
 #include <iostream>
 
 const std::string& RECTANGULE_HORIZONTAL = "../assets/gfx/listTeams/rectanguloxcf.xcf";
@@ -21,7 +22,9 @@ listTeams::listTeams(SdlWindow& window):
         text(TEXT_PATH, 100, {255, 255, 255, 255}, window),
         smaller_text(SMALLER_TEXT_PATH, 100, {255, 255, 255, 255}, window),
         terrorist(TERRORIST_PATH, window),
-        counter_terrorist(COUNTER_TERRORIST_PATH, window) {
+        counter_terrorist(COUNTER_TERRORIST_PATH, window),
+        timer_amount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
+        timer_dots("../assets/gfx/fonts/hud_nums.xcf", window) {
     selected_team = 0;
 
     float BASE_WIDTH = 800.0f;
@@ -32,9 +35,16 @@ listTeams::listTeams(SdlWindow& window):
     size_slots_w = 200 * scale_w;
     base_x = DISPLAY_WIDTH / 2 - size_slots_w;
     base_y = DISPLAY_HEIGHT / 2 - size_slots_h / 2 + 50;
+
+    widthRatio = DISPLAY_WIDTH / BASE_WIDTH;
+    heightRatio = DISPLAY_HEIGHT / BASE_HEIGHT;
+    scaleRatio = std::min(widthRatio, heightRatio);
+    digitSpacing = static_cast<int>(22 * scaleRatio);
+    size_height = static_cast<int>(64 * scaleRatio);
+    scale = 0.5f * scaleRatio;
 }
 
-void listTeams::render() {
+void listTeams::update(int currentClockTick) {
     Area src(0, 0, 250, 250);
     Area dest(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
     background.render(src, dest);
@@ -48,8 +58,31 @@ void listTeams::render() {
 
     rectangulo_horizontal.render(src1, dest1);
     renderSlots();
+    render_timer(currentClockTick);
 }
 
+void listTeams::render_timer(int currentClockTick) {
+    int minutesIdx = std::floor(currentClockTick / 60);
+    int seconds = currentClockTick % 60;
+    int secondsIdxH = std::floor(seconds / 10);
+    int secondsIdxL = seconds % 10;
+
+    int totalTimerWidth = size_slots_w;
+    int x = DISPLAY_WIDTH - totalTimerWidth;
+    int y = padding * 4;
+
+    timer_amount.renderDigit(minutesIdx, x, y, scale);
+    x += digitSpacing;
+
+    Area srcColon(475, 0, 10, size_height);
+    Area dstColon(x, y, 10, size_height / 2);
+    timer_dots.render(srcColon, dstColon);
+    x += digitSpacing;
+
+    timer_amount.renderDigit(secondsIdxH, x, y, scale);
+    x += digitSpacing;
+    timer_amount.renderDigit(secondsIdxL, x, y, scale);
+}
 
 void listTeams::renderSlots() {
     // Calculate the positions for the terrorist and counter-terrorist images

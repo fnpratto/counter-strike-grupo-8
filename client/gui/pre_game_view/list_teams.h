@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "../hud_component/BitmapFontNumber.h"
 #include "../window_elements/Area.h"
 #include "../window_elements/SdlText.h"
 #include "../window_elements/SdlTexture.h"
@@ -13,7 +14,7 @@
 class listTeams {
 public:
     explicit listTeams(SdlWindow& window);
-    void render();
+    void update(int currentClockTick);
     void updatePointerPosition(int x, int y);
 
 private:
@@ -30,10 +31,18 @@ private:
     SdlTexture background;
     SdlTexture terrorist;
     SdlTexture counter_terrorist;
+    BitmapFont timer_amount;
+    SdlTexture timer_dots;
     bool selected_team;
+    int heightRatio;
+    int size_height;
+    int widthRatio;
+    int scaleRatio;
+    int digitSpacing;
+    float scale;
+    void render_timer(int currentClockTick);
     void renderSlots();
     void renderItem();
-    void renderName(int index, int team);
 };
 
 #endif  // LIST_TEAMS

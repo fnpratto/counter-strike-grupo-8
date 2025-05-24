@@ -54,13 +54,36 @@ hudDisplay::hudDisplay(SdlWindow& window):
 }
 
 
+void hudDisplay::update(/*const PlayerDTO& player_info,*/ int currentClockTick) {
+
+    renderBackground();
+    renderParal();
+    renderPointer();
+    renderMoney();
+    renderLife();
+    renderTimer(currentClockTick);
+    renderRoundText();
+    renderBullets();
+    renderGunIcons();
+    // timer->set_text(std::to_string(seconds_left), renderer);
+    // score->set_text("Score: " + std::to_string(player_info.points), renderer);
+    // health->update_health(player_info.health);
+    // int i = 0;
+    // for (auto& bullet: bullets) {
+    //     bullet.update_amount(player_info.weapons[i].ammo, renderer);
+    //    i++;
+    //}
+    // selected_weapon = static_cast<bullet_type_t>(player_info.selected_weapon);
+}
+
+
 void hudDisplay::render() {
     renderBackground();
     renderParal();
     renderPointer();
     renderMoney();
     renderLife();
-    renderTimer();
+    renderTimer(1023);
     renderRoundText();
     renderBullets();
     renderGunIcons();
@@ -169,8 +192,7 @@ void hudDisplay::renderLife() {
 }
 
 // Render timer
-void hudDisplay::renderTimer() {
-    int currentClockTick = 123;
+void hudDisplay::renderTimer(int currentClockTick) {
     int minutesIdx = std::floor(currentClockTick / 60);
     int seconds = currentClockTick % 60;
     int secondsIdxH = std::floor(seconds / 10);
