@@ -12,7 +12,6 @@ target_sources(taller_server
     main.cpp
     # game
     game/game.cpp
-    game/game_logic.cpp
     game/game_phase.cpp
     # player
     player/player.cpp
@@ -34,15 +33,13 @@ target_sources(taller_server
     # game
     game/shop.h
     game/game.h
-    game/game_logic.h
     game/game_phase.h
-    game/game_state.h
-    game/game_state_builder.h
+    ../common/game_state.h
     # player
     player/player.h
     player/inventory.h
     # weapons
-    weapons/guns_cons.h
+    weapons/weapons_cons.h
     weapons/gun.h
     weapons/utility.h
     weapons/m3.h

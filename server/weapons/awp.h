@@ -1,25 +1,30 @@
 #pragma once
 
+#include <utility>
+#include <vector>
+
 #include "common/models.h"
-#include "weapons_cons.h"
+
 #include "gun.h"
+#include "weapons_cons.h"
 
-class Awp : public Gun {
+class Awp: public Gun {
 public:
-    Awp() : Gun(GunType::AWP, AwpConfig::bullets_per_mag, 
-                              AwpConfig::init_mag_ammo, 
-                              AwpConfig::init_reserve_ammo) {}
+    Awp():
+            Gun(GunType::AWP, AwpConfig::bullets_per_mag, AwpConfig::init_mag_ammo,
+                AwpConfig::init_reserve_ammo) {}
 
-    std::vector<Bullet> shoot(const Vector2D& origin, const Vector2D& dest, TimePoint now) override {
+    std::vector<Bullet> shoot(const Vector2D& origin, const Vector2D& dest,
+                              TimePoint now) override {
         std::vector<Bullet> bullets;
         if (!can_shoot(AwpConfig::fire_rate, now))
             return bullets;
-        
+
         Vector2D dir = get_bullet_dir(origin, dest);
         Bullet bullet(origin, dir, AwpBulletConfig::damage, AwpBulletConfig::precision, 0);
-        
+
         bullets.push_back(std::move(bullet));
-        
+
         mag_ammo -= 1;
 
         return bullets;

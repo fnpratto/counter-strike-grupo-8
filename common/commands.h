@@ -97,7 +97,7 @@ class MoveCommand: public Command {
     int dy;
 
 public:
-    MoveCommand(int dx, int dy) : dx(dx), dy(dy) {}
+    MoveCommand(int dx, int dy): dx(dx), dy(dy) {}
 
     bool get_dx() const { return dx; }
     bool get_dy() const { return dy; }

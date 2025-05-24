@@ -3,10 +3,8 @@ target_sources(taller_tests
     server/game/test_game.cpp
     server/game/test_game_phase.cpp
     server/player/test_player.cpp
-    server/map/yaml_map_builder.cpp
     # game
     ../server/game/game.cpp
-    ../server/game/game_logic.cpp
     ../server/game/game_phase.cpp
     # map
     ../server/map/map.cpp
@@ -21,13 +19,10 @@ target_sources(taller_tests
     # game
     ../server/game/shop.h
     ../server/game/game.h
-    ../server/game/game_logic.h
     ../server/game/game_phase.h
-    ../server/game/game_state.h
-    ../server/game/game_state_builder.h
+    ../common/game_state.h
     # map
     ../server/map/map_builder.h
-    ../server/map/map_cons.h
     ../server/map/map.h
     # player
     ../server/player/player.h

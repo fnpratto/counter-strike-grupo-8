@@ -40,12 +40,12 @@ public:
     StartGameError(): GameError("try to start an already started game") {}
 };
 
-class SelectTeamError : public GameError {
+class SelectTeamError: public GameError {
 public:
     SelectTeamError(): GameError("error at select team") {}
 };
 
-class InvalidPlayerNameError : public GameError {
+class InvalidPlayerNameError: public GameError {
 public:
     InvalidPlayerNameError(): GameError("invalid player name") {}
 };

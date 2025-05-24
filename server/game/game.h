@@ -1,18 +1,19 @@
 #pragma once
 
-#include <string>
 #include <map>
 #include <memory>
+#include <string>
 
+#include "common/game_state_update.h"
 #include "common/message.h"
+#include "server/clock/clock.h"
+#include "server/cons.h"
+#include "server/map/map.h"
+#include "server/player/player.h"
+
 #include "game_phase.h"
 #include "physics_system.h"
 #include "shop.h"
-#include "common/game_state_update.h"
-#include "server/cons.h"
-#include "server/player/player.h"
-#include "server/clock/clock.h"
-#include "server/map/map.h"
 
 class Game {
 private:
@@ -24,34 +25,34 @@ private:
     int num_rounds = 0;
     int num_tts = 0;
     int num_cts = 0;
-    
+
     bool player_is_in_game(const std::string& player_name) const;
-    bool team_is_full(Team& team) const;
+    bool team_is_full(const Team& team) const;
     bool all_players_ready() const;
 
     void give_bomb_to_random_tt();
-    
+
     void swap_teams();
 
     void handle_msg(Message msg, const std::string& player_name);
-    void handle_select_team_msg(std::unique_ptr<Player>& player, Team team);    
+    void handle_select_team_msg(std::unique_ptr<Player>& player, Team team);
     void handle_start_game_msg(std::unique_ptr<Player>& player);
     void handle_buy_gun_msg(std::unique_ptr<Player>& player, GunType gun);
     void handle_buy_ammo_msg(std::unique_ptr<Player>& player, GunType gun);
     void handle_move_msg(std::unique_ptr<Player>& player, int dx, int dy);
     // void handle_shoot_msg(std::unique_ptr<Player>& player, int x, int y);
 
-    GameStateUpdate state_update();
+    GameUpdate state_update();
 
 public:
     Game(const std::string& name, const Clock& clock, const Map& map);
-    
+
     bool is_full() const;
 
-    GameStateUpdate join_player(const std::string& player_name);
-    
+    GameUpdate join_player(const std::string& player_name);
+
     void tick(Message msg, const std::string& player_name);
-    
+
     void update();
 
     ~Game();

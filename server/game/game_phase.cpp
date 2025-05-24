@@ -1,11 +1,11 @@
 #include "game_phase.h"
+
 #include "server/cons.h"
 
-using namespace PhaseTimes;
+using PhaseTimes::buying_duration;
+using PhaseTimes::round_duration;
 
-GamePhase::GamePhase(const Clock& clock) : 
-        clock(clock),
-        phase(PhaseType::NotStarted) {}
+GamePhase::GamePhase(const Clock& clock): clock(clock), phase(PhaseType::NotStarted) {}
 
 bool GamePhase::is_started() const { return phase != PhaseType::NotStarted; }
 

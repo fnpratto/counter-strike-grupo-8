@@ -5,7 +5,10 @@
 #include "common/models.h"
 #include "server/cons.h"
 
-using namespace ShopPrices;
+using ShopPrices::ak47;
+using ShopPrices::awp;
+using ShopPrices::glock;
+using ShopPrices::m3;
 
 class Shop {
 private:
@@ -24,9 +27,7 @@ public:
         mag_prices[GunType::Glock] = price_mag_glock;
     }
 
-    int get_gun_price(const GunType& gun) const { 
-        return gun_prices.at(gun); 
-    }
+    int get_gun_price(const GunType& gun) const { return gun_prices.at(gun); }
 
     int get_ammo_price(const GunType& gun, int num_mags) const {
         return mag_prices.at(gun) * num_mags;

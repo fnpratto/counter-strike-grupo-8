@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <string>
 
 #include "server/map/map.h"
@@ -17,6 +18,6 @@ public:
 
     Vector2D random_spawn_tt_pos() const;
     Vector2D random_spawn_ct_pos() const;
-    
+
     Vector2D calculate_step(const Vector2D& dir) const;
 };

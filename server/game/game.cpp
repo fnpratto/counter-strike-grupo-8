@@ -1,18 +1,18 @@
 #include "game.h"
 
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "server/cons.h"
 #include "server/errors.h"
 
-using namespace GameConfig;
-using namespace PlayerInitialConfig;
+using GameConfig::tickrate;
+using PlayerInitialConfig::full_health;
 
-Game::Game(const std::string& name, const Clock& clock, const Map& map) :
-        name(name),
-        phase(clock),
-        physics_system(map, players) { std::srand(std::time(nullptr)); }
+Game::Game(const std::string& name, const Clock& clock, const Map& map):
+        name(name), phase(clock), physics_system(map, players) {
+    std::srand(std::time(nullptr));
+}
 
 void Game::tick(Message msg, const std::string& player_name) {
     handle_msg(msg, player_name);
@@ -37,10 +37,10 @@ void Game::handle_msg(Message msg, const std::string& player_name) {
         int dx = msg.get_content<MoveCommand>().get_dx();
         int dy = msg.get_content<MoveCommand>().get_dy();
         handle_move_msg(player, dx, dy);
-    // } else if (msg_type == MessageType::SHOOT_CMD) {
-    //     int x = msg.get_content<ShootCommand>().get_x();
-    //     int y = msg.get_content<ShootCommand>().get_y();
-    //     handle_shoot_msg(player, x, y);
+        // } else if (msg_type == MessageType::SHOOT_CMD) {
+        //     int x = msg.get_content<ShootCommand>().get_x();
+        //     int y = msg.get_content<ShootCommand>().get_y();
+        //     handle_shoot_msg(player, x, y);
     } else if (msg_type == MessageType::SWITCH_WEAPON_CMD) {
         WeaponSlot slot = msg.get_content<SwitchWeaponCommand>().get_slot();
         player->equip_weapon(slot);
@@ -57,7 +57,7 @@ void Game::update() {
         swap_teams();
 }
 
-GameStateUpdate Game::join_player(const std::string& player_name) {
+GameUpdate Game::join_player(const std::string& player_name) {
     if (player_is_in_game(player_name) || is_full() || phase.is_started())
         throw JoinGameError();
 
@@ -80,7 +80,7 @@ void Game::handle_select_team_msg(std::unique_ptr<Player>& player, Team team) {
         throw SelectTeamError();
     if (team_is_full(team))
         return;
-    
+
     Team old_team = player->is_tt() ? Team::TT : Team::CT;
 
     if (old_team == team)
@@ -131,7 +131,7 @@ void Game::handle_buy_ammo_msg(std::unique_ptr<Player>& player, GunType gun) {
 void Game::handle_move_msg(std::unique_ptr<Player>& player, int dx, int dy) {
     if (phase.is_buying_phase())
         return;
-        
+
     Vector2D old_pos = player->get_pos();
     Vector2D new_pos = old_pos + physics_system.calculate_step(Vector2D(dx, dy));
 
@@ -155,10 +155,10 @@ void Game::handle_move_msg(std::unique_ptr<Player>& player, int dx, int dy) {
 void Game::give_bomb_to_random_tt() {
     if (num_tts == 0)
         return;
-    
+
     std::vector<std::string> tt_names;
 
-    for (auto& [player_name, player] : players) {
+    for (auto& [player_name, player]: players) {
         if (player->is_tt())
             tt_names.push_back(player_name);
     }
@@ -168,7 +168,7 @@ void Game::give_bomb_to_random_tt() {
 }
 
 void Game::swap_teams() {
-    for (auto& [_, player] : players) {
+    for (auto& [_, player]: players) {
         if (player->is_tt()) {
             player->select_team(Team::CT);
         } else if (player->is_ct()) {
@@ -183,31 +183,31 @@ bool Game::player_is_in_game(const std::string& player_name) const {
     return players.find(player_name) == players.end();
 }
 
-bool Game::is_full() const { 
-    return static_cast<int>(players.size()) == max_players; 
-}
+bool Game::is_full() const { return static_cast<int>(players.size()) == max_players; }
 
-bool Game::team_is_full(Team& team) const {
+bool Game::team_is_full(const Team& team) const {
     if (team == Team::TT)
         return num_tts == max_team_players;
     return num_cts == max_team_players;
 }
 
 bool Game::all_players_ready() const {
-    for (auto& [_, player] : players) {
+    for (auto& [_, player]: players) {
         if (!player->is_ready())
             return false;
     }
     return true;
 }
 
-GameStateUpdate Game::state_update() {
+GameUpdate Game::state_update() {
+    GameUpdate gs_upd;
+
     std::map<std::string, PlayerState> players_states;
-    for (auto& [player_name, player] : players) {
+    for (auto& [player_name, player]: players) {
         players_states[player_name] = player->state();
     }
-    
-    GameStateUpdate gs_upd;
+    gs_upd.add_change(GameStateAttr::PLAYERS, players_states);
+
     gs_upd.add_change(GameStateAttr::NUM_ROUNDS, num_rounds);
     gs_upd.add_change(GameStateAttr::NUM_TTS, num_tts);
     gs_upd.add_change(GameStateAttr::NUM_PLAYERS, static_cast<int>(players.size()));

@@ -101,7 +101,7 @@ endif()
 
 if(TALLER_SERVER OR TALLER_TESTS)
     include(FetchContent)
-    
+
     FetchContent_Declare(
         yaml-cpp
         GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git

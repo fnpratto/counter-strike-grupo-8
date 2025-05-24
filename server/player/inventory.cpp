@@ -4,43 +4,39 @@
 
 #include "common/models.h"
 #include "server/cons.h"
+#include "server/weapons/ak47.h"
+#include "server/weapons/awp.h"
+#include "server/weapons/bomb.h"
 #include "server/weapons/glock.h"
 #include "server/weapons/knife.h"
-#include "server/weapons/bomb.h"
-#include "server/weapons/ak47.h"
 #include "server/weapons/m3.h"
-#include "server/weapons/awp.h"
 
 Inventory::Inventory() {
     guns[WeaponSlot::Secondary] = std::make_unique<Glock>();
     utilities[WeaponSlot::Melee] = std::make_unique<Knife>();
 }
 
-std::unique_ptr<Gun>& Inventory::get_gun(const WeaponSlot& slot) {
-    return guns.at(slot);
-}
+std::unique_ptr<Gun>& Inventory::get_gun(const WeaponSlot& slot) { return guns.at(slot); }
 
 InventoryState Inventory::state() const {
     InventoryState inventory_state;
-    
+
     std::map<WeaponSlot, GunState> guns_states;
-    for (auto& [slot, gun] : guns) {
+    for (auto& [slot, gun]: guns) {
         guns_states[slot] = gun->state();
     }
     inventory_state.guns = guns_states;
 
     std::map<WeaponSlot, UtilityState> utilities_states;
-    for (auto& [slot, util] : utilities) {
+    for (auto& [slot, util]: utilities) {
         utilities_states[slot] = util->state();
     }
-    inventory_state.guns = guns_states;
+    inventory_state.utilities = utilities_states;
 
     return inventory_state;
 }
 
-void Inventory::add_bomb() {
-    utilities[WeaponSlot::Bomb] = std::make_unique<Bomb>();
-}
+void Inventory::add_bomb() { utilities[WeaponSlot::Bomb] = std::make_unique<Bomb>(); }
 
 void Inventory::add_primary_weapon(const GunType& weapon_type) {
     if (weapon_type == GunType::AK47) {

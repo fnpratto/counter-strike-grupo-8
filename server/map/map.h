@@ -3,8 +3,9 @@
 #include <string>
 #include <vector>
 
-#include "tile.h"
 #include "server/utils/vector_2d.h"
+
+#include "tile.h"
 
 class Map {
 private:
@@ -30,7 +31,7 @@ public:
     void add_spawn_tt(Vector2D&& pos);
     void add_spawn_ct(Vector2D&& pos);
     void add_bomb_site(Vector2D&& pos);
-    
+
     Vector2D random_spawn_tt_pos() const;
     Vector2D random_spawn_ct_pos() const;
 

@@ -12,7 +12,7 @@ private:
     TimePoint phase_start;
 
 public:
-    GamePhase(const Clock& clock);
+    explicit GamePhase(const Clock& clock);
 
     bool is_started() const;
     bool is_round_finished() const;

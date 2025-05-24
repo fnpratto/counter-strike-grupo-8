@@ -2,28 +2,23 @@
 
 #include "common/models.h"
 #include "server/clock/mock_clock.h"
-#include "server/game/game_phase.h"
 #include "server/cons.h"
+#include "server/game/game_phase.h"
 
-using namespace PhaseTimes;
+using PhaseTimes::buying_duration;
+using PhaseTimes::round_duration;
 
-class TestGamePhase : public ::testing::Test {
+class TestGamePhase: public ::testing::Test {
 protected:
     MockClock clock;
     GamePhase game_phase;
 
-    TestGamePhase() : 
-            clock(std::chrono::steady_clock::now()), 
-            game_phase(clock) {}
+    TestGamePhase(): clock(std::chrono::steady_clock::now()), game_phase(clock) {}
 
-    void advance_secs(int secs) {
-        clock.advance(std::chrono::seconds(secs));
-    }
+    void advance_secs(int secs) { clock.advance(std::chrono::seconds(secs)); }
 };
 
-TEST_F(TestGamePhase, NotStartedWhenInitialized) {
-    EXPECT_FALSE(game_phase.is_started());
-}
+TEST_F(TestGamePhase, NotStartedWhenInitialized) { EXPECT_FALSE(game_phase.is_started()); }
 
 TEST_F(TestGamePhase, StartInBuyingPhase) {
     game_phase.start_buying_phase();

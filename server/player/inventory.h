@@ -1,12 +1,12 @@
 #pragma once
 
-#include <memory>
 #include <map>
+#include <memory>
 
+#include "common/game_state.h"
 #include "common/models.h"
 #include "server/weapons/gun.h"
 #include "server/weapons/utility.h"
-#include "common/game_state.h"
 
 class Inventory {
 private:
@@ -19,9 +19,9 @@ public:
     std::unique_ptr<Gun>& get_gun(const WeaponSlot& slot);
 
     InventoryState state() const;
-    
+
     void add_bomb();
     void add_primary_weapon(const GunType& weapon_type);
-    
+
     ~Inventory();
 };

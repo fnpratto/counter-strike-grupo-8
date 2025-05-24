@@ -3,13 +3,14 @@
 #include <memory>
 #include <vector>
 
-#include "common/models.h"
-#include "server/map/map.h"
-#include "server/clock/clock.h"
-#include "server/utils/vector_2d.h"
-#include "server/utils/random_float_generator.h"
-#include "bullet.h"
 #include "common/game_state.h"
+#include "common/models.h"
+#include "server/clock/clock.h"
+#include "server/map/map.h"
+#include "server/utils/random_float_generator.h"
+#include "server/utils/vector_2d.h"
+
+#include "bullet.h"
 
 class Gun {
 protected:
@@ -20,10 +21,10 @@ protected:
     TimePoint time_last_shoot = TimePoint{};
 
 public:
-    Gun(GunType gun, int bullets_per_mag, int mag_ammo, int reserve_ammo) : 
-            gun(gun), 
+    Gun(GunType gun, int bullets_per_mag, int mag_ammo, int reserve_ammo):
+            gun(gun),
             bullets_per_mag(bullets_per_mag),
-            mag_ammo(mag_ammo), 
+            mag_ammo(mag_ammo),
             reserve_ammo(reserve_ammo) {}
 
     bool can_shoot(const float fire_rate, TimePoint now) {
@@ -49,9 +50,7 @@ public:
         return gun_state;
     }
 
-    void add_mags(int num_mags) {
-        reserve_ammo += bullets_per_mag * num_mags;
-    }
+    void add_mags(int num_mags) { reserve_ammo += bullets_per_mag * num_mags; }
 
     int get_random_damage(const int min_dam, const int max_dam) {
         RandomFloatGenerator rfg(min_dam, max_dam);
@@ -63,7 +62,8 @@ public:
         return dir.normalized();
     }
 
-    virtual std::vector<Bullet> shoot(const Vector2D& origin, const Vector2D& dest, TimePoint now) = 0;
+    virtual std::vector<Bullet> shoot(const Vector2D& origin, const Vector2D& dest,
+                                      TimePoint now) = 0;
 
     void reload() {
         int bullets_to_reload = bullets_per_mag - mag_ammo;
