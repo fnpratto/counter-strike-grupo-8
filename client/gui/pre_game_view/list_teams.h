@@ -4,11 +4,11 @@
 #include <string>
 #include <vector>
 
-#include "../hud_component/BitmapFontNumber.h"
-#include "../window_elements/Area.h"
-#include "../window_elements/SdlText.h"
-#include "../window_elements/SdlTexture.h"
-#include "../window_elements/SdlWindow.h"
+#include "../hud_component/bit_map_font_number.h"
+#include "../window_elements/area.h"
+#include "../window_elements/sdl_text.h"
+#include "../window_elements/sdl_texture.h"
+#include "../window_elements/sdl_window.h"
 
 
 class listTeams {
