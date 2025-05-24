@@ -2,7 +2,7 @@
 #define GAME_LIST_TABLE_H
 
 #include <QTableWidget>
-class GameMenuWindow;
+class LobbyWindow;
 
 class GameListTable: public QTableWidget {
     Q_OBJECT

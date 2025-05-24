@@ -1,5 +1,5 @@
-#ifndef GAME_MENU_H
-#define GAME_MENU_H
+#ifndef LOBBY_WINDOW_H
+#define LOBBY_WINDOW_H
 
 #include <QLineEdit>
 #include <QString>
@@ -13,7 +13,7 @@
 #include "create_game_window.h"
 #include "game_list_table.h"
 
-class GameMenuWindow: public QWidget {
+class LobbyWindow: public QWidget {
     Q_OBJECT
 private:
     Queue<Message>& input_queue;
@@ -24,9 +24,9 @@ private:
     CreateGameWindow* create_game_window;
 
 public:
-    explicit GameMenuWindow(Queue<Message>& input_queue, Queue<Message>& output_queue,
-                            QWidget* parent = nullptr);
-    ~GameMenuWindow();
+    explicit LobbyWindow(Queue<Message>& input_queue, Queue<Message>& output_queue,
+                         QWidget* parent = nullptr);
+    ~LobbyWindow();
 
     void join_game(QString game_name);
 
@@ -42,4 +42,4 @@ private:
     void on_join_button_clicked();
 };
 
-#endif  // GAME_MENU_H
+#endif  // LOBBY_WINDOW_H

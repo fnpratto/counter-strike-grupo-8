@@ -11,7 +11,7 @@ target_sources(taller_client
     sdl_display.cpp
     qt/create_game_window.cpp
     qt/game_list_table.cpp
-    qt/game_menu_window.cpp
+    qt/lobby_window.cpp
     qt/log_in_window.cpp
     qt/resources.qrc
 
@@ -27,6 +27,6 @@ target_sources(taller_client
     sdl_display.h
     qt/create_game_window.h
     qt/game_list_table.h
-    qt/game_menu_window.h
+    qt/lobby_window.h
     qt/log_in_window.h
     )

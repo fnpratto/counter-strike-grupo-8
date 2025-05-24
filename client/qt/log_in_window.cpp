@@ -124,6 +124,6 @@ void LogInWindow::on_login_button_clicked() {
     }
 
     this->close();
-    this->game_menu = new GameMenuWindow(input_queue, output_queue);
+    this->game_menu = new LobbyWindow(input_queue, output_queue);
     this->game_menu->show();
 }

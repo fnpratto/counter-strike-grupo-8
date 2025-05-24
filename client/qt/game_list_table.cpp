@@ -3,7 +3,7 @@
 #include <QHeaderView>
 #include <QTableWidgetItem>
 
-#include "game_menu_window.h"
+#include "lobby_window.h"
 
 #define ROWS 0
 #define COLUMNS 3
@@ -68,7 +68,7 @@ QString GameListTable::get_selected_game() {
 void GameListTable::on_cell_double_clicked(int row, int column) {
     Q_UNUSED(row);
     Q_UNUSED(column);
-    GameMenuWindow* game_menu = qobject_cast<GameMenuWindow*>(this->parent());
+    LobbyWindow* game_menu = qobject_cast<LobbyWindow*>(this->parent());
     if (game_menu) {
         game_menu->join_game(this->get_selected_game());
     }

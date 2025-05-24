@@ -8,7 +8,7 @@
 #include "common/message.h"
 #include "common/queue.h"
 
-#include "game_menu_window.h"
+#include "lobby_window.h"
 
 class LogInWindow: public QWidget {
     Q_OBJECT
@@ -18,7 +18,7 @@ private:
     QVBoxLayout* main_layout;
     QLineEdit* ip_input;
     QLineEdit* port_input;
-    GameMenuWindow* game_menu;
+    LobbyWindow* game_menu;
 
 public:
     explicit LogInWindow(Queue<Message>& input_queue, Queue<Message>& output_queue,

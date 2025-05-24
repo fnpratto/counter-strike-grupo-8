@@ -1,5 +1,7 @@
 #include "create_game_window.h"
 
+#include <QMessageBox>
+
 CreateGameWindow::CreateGameWindow(Queue<Message>& input_queue, Queue<Message>& output_queue,
                                    const std::string& player_name, QWidget* parent):
         QWidget(parent),
