@@ -93,7 +93,9 @@ void GameMenuWindow::on_join_button_clicked() {
 
 void GameMenuWindow::join_game(QString game_name) {
     qDebug() << "Joining game:" << game_name;
-    output_queue.push(Message(JoinGameCommand(game_name.toStdString())));
+    std::string game_name_str = game_name.toStdString();
+    std::string player_name = this->player_name_input->text().toStdString();
+    output_queue.push(Message(JoinGameCommand(game_name_str, player_name)));
 
     auto res = input_queue.pop();
     while (res.get_type() != MessageType::JOIN_RES) {
