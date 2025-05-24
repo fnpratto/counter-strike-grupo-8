@@ -9,7 +9,7 @@
 
 #include "common/message.h"
 #include "gui/hud_component/hud_display.h"
-#include "gui/window_elements/SdlWindow.h"
+#include "gui/window_elements/sdl_window.h"
 
 #include "display.h"
 const int SCREEN_WIDTH = 800;
@@ -37,9 +37,7 @@ void SDLDisplay::run() {
 
     } catch (std::exception& e) {
         std::cout << e.what() << std::endl;
-        return;
     }
-    return;
 }
 
 void SDLDisplay::stop() { Thread::stop(); }

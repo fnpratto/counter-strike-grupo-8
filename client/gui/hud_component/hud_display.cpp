@@ -57,7 +57,7 @@ void hudDisplay::render() {
     renderRoundText();
     renderBullets();
     renderGunIcons();
-    window.render();  // Swap buffers
+    window.render();
 }
 
 // Render background
@@ -112,14 +112,14 @@ void hudDisplay::renderParal() {
     }*/
 }
 
-// Render pointer
+
 void hudDisplay::renderPointer() {
     const Area sizePointer(0, 0, 50, 50);
     const Area destPointer(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 50, 50);
     pointer.render(sizePointer, destPointer);
 }
 
-// Render money
+
 void hudDisplay::renderMoney() {
     const Area sizeMoney(460, 0, size_height, size_width);
     const Area destMoney(SCREEN_WIDTH - size_width - padding * 2 - SCREEN_WIDTH / 20,
@@ -132,7 +132,7 @@ void hudDisplay::renderMoney() {
     renderDigits(moneyStr, x, y, money_amount);
 }
 
-// Render life
+
 void hudDisplay::renderLife() {
     const Area sizeLife(0, 0, size_height, size_width);
     const Area destLife(10, SCREEN_HEIGHT - size_height + 10, SCREEN_WIDTH / 20, 32);
@@ -144,7 +144,7 @@ void hudDisplay::renderLife() {
     renderDigits(lifeStr, x, y, life_amount);
 }
 
-// Render timer
+
 void hudDisplay::renderTimer() {
     int currentClockTick = 123;
     int minutesIdx = std::floor(currentClockTick / 60);
@@ -168,13 +168,13 @@ void hudDisplay::renderTimer() {
     timer_amount.renderDigit(secondsIdxL, x, y, scale);
 }
 
-// Render round text
+
 void hudDisplay::renderRoundText() {
     roundText.setTextString("Round 10");
     roundText.render(Area(SCREEN_WIDTH / 2 - 50, padding, 100, 20));
 }
 
-// Render bullets
+
 void hudDisplay::renderBullets() {
     const Area sizeBullets(0, 0, 300, 302);
     const Area destBullets(SCREEN_WIDTH - padding * 5, SCREEN_HEIGHT - size_height * 2 + 10,
@@ -187,7 +187,7 @@ void hudDisplay::renderBullets() {
     renderDigits(bulletsStr, x, y, equipedBulletsAmount);
 }
 
-// Render gun icons
+
 void hudDisplay::renderGunIcons() {
     int x = SCREEN_WIDTH - size_width - padding * 6;
     int y = SCREEN_HEIGHT / 2;
@@ -200,7 +200,7 @@ void hudDisplay::renderGunIcons() {
     renderGunIcon("../assets/gfx/guns/elite_k.xcf", "3", x, y);
 }
 
-// Helper to render gun icon
+
 void hudDisplay::renderGunIcon(const std::string& path, const std::string& number, int x, int y) {
     SdlTexture gunTexture(path, window);
     Area destArea(x, y, SCREEN_WIDTH / 10, 34);
@@ -209,7 +209,7 @@ void hudDisplay::renderGunIcon(const std::string& path, const std::string& numbe
     gunNumber.render(Area(SCREEN_WIDTH - padding * 2, y, 10, 20));
 }
 
-// Helper to render digits
+
 void hudDisplay::renderDigits(const std::string& str, int x, int y, BitmapFont& texture) {
     for (char c: str) {
         if (isdigit(c)) {

@@ -1,4 +1,4 @@
-#include "BitmapFontNumber.h"
+#include "bit_map_font_number.h"
 
 #include <stdexcept>
 
