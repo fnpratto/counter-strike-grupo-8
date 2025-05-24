@@ -102,8 +102,10 @@ endif()
 
 # Program section
 # ---------------
+
 if(TALLER_CLIENT)
     # HEY!! TODO XXX: Change the name of the executable to the one you like!
+
     add_executable(taller_client)
 
     # Make them depend on taller_common lib
