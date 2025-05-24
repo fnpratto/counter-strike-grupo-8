@@ -3,15 +3,16 @@
 #include <utility>
 
 #include "common/models.h"
-#include "server/cons.h"
 #include "server/errors.h"
+
+#include "player_config.h"
 
 Player::Player(Team team, Vector2D position):
         team(team),
         position(position),
         ready(false),
-        health(PlayerInitialConfig::full_health),
-        money(PlayerInitialConfig::initial_money),
+        health(PlayerConfig::full_health),
+        money(PlayerConfig::initial_money),
         current_weapon(WeaponSlot::Secondary) {}
 
 bool Player::is_ready() const { return ready; }

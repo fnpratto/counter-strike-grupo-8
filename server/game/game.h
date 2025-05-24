@@ -7,10 +7,10 @@
 #include "common/game_state_update.h"
 #include "common/message.h"
 #include "server/clock/clock.h"
-#include "server/cons.h"
 #include "server/map/map.h"
 #include "server/player/player.h"
 
+#include "game_config.h"
 #include "game_phase.h"
 #include "physics_system.h"
 #include "shop.h"
@@ -40,6 +40,8 @@ private:
     void handle_buy_gun_msg(std::unique_ptr<Player>& player, GunType gun);
     void handle_buy_ammo_msg(std::unique_ptr<Player>& player, GunType gun);
     void handle_move_msg(std::unique_ptr<Player>& player, int dx, int dy);
+
+    // TODO: implement shoot command
     // void handle_shoot_msg(std::unique_ptr<Player>& player, int x, int y);
 
     GameUpdate state_update();

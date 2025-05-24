@@ -3,7 +3,6 @@
 #include <utility>
 #include <vector>
 
-#include "server/cons.h"
 #include "server/errors.h"
 
 Game::Game(const std::string& name, const Clock& clock, const Map& map):
@@ -117,9 +116,8 @@ void Game::handle_buy_ammo_msg(std::unique_ptr<Player>& player, GunType gun) {
     // if (physics_system.player_not_in_spawn(player))
     //     return;
     int num_mags = 1;
-    if (gun == GunType::M3) {
+    if (gun == GunType::M3)
         num_mags = 8;
-    }
     WeaponSlot slot = (gun == GunType::Glock) ? WeaponSlot::Secondary : WeaponSlot::Primary;
     int ammo_price = shop.get_ammo_price(gun, num_mags);
     player->buy_ammo(slot, ammo_price, num_mags);

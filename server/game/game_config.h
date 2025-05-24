@@ -13,8 +13,3 @@ const int buying_phase_secs = 30;
 const int playing_phase_secs = 120;
 const int round_finished_phase_secs = 5;
 };  // namespace PhaseTimes
-
-namespace PlayerInitialConfig {
-const int initial_money = 800;
-const int full_health = 100;
-};  // namespace PlayerInitialConfig

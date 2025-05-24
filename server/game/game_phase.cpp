@@ -1,6 +1,6 @@
 #include "game_phase.h"
 
-#include "server/cons.h"
+#include "game_config.h"
 
 GamePhase::GamePhase(const Clock& clock): clock(clock), phase(PhaseType::WarmUp) {}
 

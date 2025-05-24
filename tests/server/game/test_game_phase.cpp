@@ -2,7 +2,7 @@
 
 #include "common/models.h"
 #include "server/clock/mock_clock.h"
-#include "server/cons.h"
+#include "server/game/game_config.h"
 #include "server/game/game_phase.h"
 
 class TestGamePhase: public ::testing::Test {

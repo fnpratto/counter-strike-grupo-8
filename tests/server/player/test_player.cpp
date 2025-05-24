@@ -2,13 +2,10 @@
 
 #include "common/models.h"
 #include "server/clock/mock_clock.h"
-#include "server/cons.h"
 #include "server/errors.h"
 #include "server/game/shop.h"
 #include "server/player/player.h"
 #include "server/weapons/gun.h"
-
-// using PlayerInitialConfig::money;
 
 // class TestPlayer: public ::testing::Test {
 // protected:

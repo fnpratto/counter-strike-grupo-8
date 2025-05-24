@@ -3,7 +3,6 @@
 #include <map>
 
 #include "common/models.h"
-#include "server/cons.h"
 #include "server/weapons/ak47.h"
 #include "server/weapons/awp.h"
 #include "server/weapons/bomb.h"

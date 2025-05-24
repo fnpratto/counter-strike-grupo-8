@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "server/cons.h"
+#include "game_config.h"
 
 PhysicsSystem::PhysicsSystem(const Map& map,
                              const std::map<std::string, std::unique_ptr<Player>>& players):

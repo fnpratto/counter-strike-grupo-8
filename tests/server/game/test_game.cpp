@@ -2,9 +2,9 @@
 
 #include "common/models.h"
 #include "server/clock/mock_clock.h"
-#include "server/cons.h"
 #include "server/errors.h"
 #include "server/game/game.h"
+#include "server/game/game_config.h"
 #include "server/game/shop.h"
 #include "server/map/map.h"
 #include "server/map/map_builder.h"

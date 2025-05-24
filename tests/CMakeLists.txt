@@ -14,7 +14,7 @@ target_sources(taller_tests
     ../server/player/inventory.cpp
 
     PUBLIC
-    ../server/cons.h
+    ../common/game_state.h
     ../server/errors.h
     # clock
     ../server/clock/mock_clock.h
@@ -23,13 +23,14 @@ target_sources(taller_tests
     ../server/game/game.h
     ../server/game/game_phase.h
     ../server/game/physics_system.h
-    ../common/game_state.h
+    ../server/game/game_config.h
     # map
     ../server/map/map_builder.h
     ../server/map/map.h
     ../server/map/tile.h
     # player
     ../server/player/player.h
+    ../server/player/player_config.h
     ../server/player/inventory.h
     # weapons
     ../server/weapons/weapons_config.h

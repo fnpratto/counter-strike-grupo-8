@@ -20,13 +20,13 @@ target_sources(taller_server
     player/inventory.cpp
 
     PUBLIC
+    ../common/game_state.h
     acceptor.h
     client_handler.h
     game_thread.h
     lobby_monitor.h
     protocol.h
     receiver.h
-    cons.h
     errors.h
     # clock
     clock/clock.h
@@ -37,13 +37,14 @@ target_sources(taller_server
     game/game.h
     game/game_phase.h
     game/physics_system.h
-    ../common/game_state.h
+    game/game_config.h
     # map
     map/map_builder.h
     map/map.h
     map/tile.h
     # player
     player/player.h
+    player/player_config.h
     player/inventory.h
     # weapons
     weapons/weapons_config.h
