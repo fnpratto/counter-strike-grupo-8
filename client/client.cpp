@@ -32,9 +32,9 @@
 
 Client::Client():
 #ifdef UI_TYPE_GUI
-        display(std::make_unique<QtDisplay>(display_queue, input_queue)),
+        display(std::make_unique<QtDisplay>(display_queue, pregame_queue)),
 #elif defined(UI_TYPE_TUI)
-        display(std::make_unique<TextDisplay>(display_queue, input_queue)),
+        display(std::make_unique<TextDisplay>(display_queue, pregame_queue)),
 #endif
         sender(nullptr),
         receiver(nullptr) {
@@ -42,20 +42,17 @@ Client::Client():
 }
 
 void Client::run() {
+    Message msg;
     while (true) {
-        Message msg;
-        input_queue.try_pop(msg);
+        msg = pregame_queue.pop();
 
         if (msg.get_type() != MessageType::CONN_REQ) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
             // fuck this specific race condition
             // if (!display->is_alive()) {
             //     display->stop();
             //     display->join();
             //     return;
             // }
-
             continue;
         }
 
@@ -76,17 +73,26 @@ void Client::run() {
     std::cout << "Connected to server" << std::endl;
 
     // Feed the input queue to the sender
-    sender = std::make_unique<ClientSender>(protocol, input_queue);
+    sender = std::make_unique<ClientSender>(protocol, ingame_queue);
     sender->start();
 
     // Feed the receiver queue to the display
     receiver = std::make_unique<ClientReceiver>(protocol, display_queue);
     receiver->start();
 
+    while (true) {
+        msg = pregame_queue.pop();
+        ingame_queue.push(msg);
+
+        if (msg.get_type() == MessageType::JOIN_GAME_CMD ||
+            msg.get_type() == MessageType::CREATE_GAME_CMD)
+            break;
+    }
+
 #ifdef UI_TYPE_GUI
     display->stop();
     display->join();
-    display = std::make_unique<SDLDisplay>(display_queue, input_queue);
+    display = std::make_unique<SDLDisplay>(display_queue, ingame_queue);
     display->start();
     std::cout << "Switched to SDLDisplay" << std::endl;
 #elif defined(UI_TYPE_TUI)
