@@ -58,7 +58,7 @@ Message ServerProtocol::deserialize_create_game_cmd() {
 
     std::string game_name(name_buffer.data(), name_length);
 
-    return Message(CreateGameCommand(game_name));
+    return Message(CreateGameCommand(game_name, "player_asd"));
 }
 
 Message ServerProtocol::deserialize_join_game_cmd() {
@@ -75,7 +75,7 @@ Message ServerProtocol::deserialize_join_game_cmd() {
 
     std::string game_name(name_buffer.data(), name_length);
 
-    return Message(JoinGameCommand(game_name));
+    return Message(JoinGameCommand(game_name, "player_asd"));
 }
 
 Message ServerProtocol::deserialize_list_games_cmd() { return Message(ListGamesCommand()); }
