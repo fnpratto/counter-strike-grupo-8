@@ -10,6 +10,8 @@ const std::string& MAP_PATH = "../client/gui/map_view/map_aztec.yaml";
 const int tile_width = 32;
 const int tile_height = 32;
 
+const int tile_size = 64;
+
 Map::Map(SdlWindow& window):
         window(window),
         background(BACKGROUND2_PATH, window),
@@ -40,7 +42,7 @@ void Map::build() {
             Area src(id_x * tile_width, tile_height * id_y, tile_width, tile_height);
 
             // Destination position on screen: place tile at x,y grid
-            Area dest(x * tile_width, y * tile_height, tile_width, tile_height);
+            Area dest(x * tile_size, y * tile_size, tile_size, tile_size);
 
             // Render this tile from tiles texture to the screen
             tiles_area.render(src, dest);
@@ -51,8 +53,7 @@ void Map::build() {
 
 void Map::render() {
     Area src(0, 0, 28, 29);
-    Area iconDest(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, 30, 10);
-
-    character.render(src, iconDest);
+    Area iconDest(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, 28, 29);
     load_map(0);  // Load the map with ID 0
+    character.render(src, iconDest);
 }
