@@ -28,8 +28,8 @@ void GameMenuWindow::init_gui() {
 
     this->add_game_title();
     this->add_window_subtitle();
-    this->add_game_list();
     this->add_player_name_input();
+    this->add_game_list();
     this->add_start_buttons();
 }
 
@@ -42,7 +42,8 @@ void GameMenuWindow::add_game_title() {
 }
 
 void GameMenuWindow::add_window_subtitle() {
-    QLabel* window_subtitle_label = new QLabel("Game Menu", this);
+    // change class and file name
+    QLabel* window_subtitle_label = new QLabel("Lobby", this);
     window_subtitle_label->setFixedHeight(SUBTITLE_FONT_SIZE);
     window_subtitle_label->setFont(QFont(CS_FONT_NAME, SUBTITLE_FONT_SIZE, QFont::Bold));
     window_subtitle_label->setAlignment(Qt::AlignCenter);
