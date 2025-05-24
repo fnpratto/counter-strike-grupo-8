@@ -3,12 +3,8 @@
 
 #include "client/client.h"
 
-int main() try {
+int main(int, char**) {
     Client client;
     client.run();
     return 0;
-} catch (std::exception& e) {
-    // If case of error, print it and exit with error
-    std::cerr << e.what() << std::endl;
-    return 1;
 }
