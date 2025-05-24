@@ -30,6 +30,13 @@ private:
     std::unique_ptr<ClientSender> sender;
     std::unique_ptr<ClientReceiver> receiver;
 
+    // New method declarations with snake_case naming
+    bool connect_to_server() noexcept;
+    void setup_communication();
+    void wait_for_game_start();
+    void switch_display();
+    void cleanup();
+
 public:
     Client();
     void run();
