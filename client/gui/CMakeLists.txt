@@ -13,6 +13,7 @@ add_library(elements
   controllers/keyboardhandler.cpp
   controllers/mousehandler.cpp
   pre_game_view/list_teams.cpp
+  map_view/map_view.cpp
 )
 
 target_include_directories(elements PUBLIC
