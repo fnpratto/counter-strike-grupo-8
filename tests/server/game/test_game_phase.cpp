@@ -5,9 +5,6 @@
 #include "server/cons.h"
 #include "server/game/game_phase.h"
 
-using PhaseTimes::buying_duration;
-using PhaseTimes::round_duration;
-
 class TestGamePhase: public ::testing::Test {
 protected:
     MockClock clock;
@@ -27,7 +24,7 @@ TEST_F(TestGamePhase, StartInBuyingPhase) {
 
 TEST_F(TestGamePhase, StartPlayingAfterBuyingDuration) {
     game_phase.start_buying_phase();
-    advance_secs(buying_phase_secs);
+    advance_secs(PhaseTimes::buying_phase_secs);
     game_phase.update();
     EXPECT_TRUE(game_phase.is_started());
     EXPECT_FALSE(game_phase.is_buying_phase());
@@ -37,9 +34,9 @@ TEST_F(TestGamePhase, StartPlayingAfterBuyingDuration) {
 TEST_F(TestGamePhase, FinishOneRoundAfterRoundDuration) {
     game_phase.start_buying_phase();
 
-    advance_secs(buying_phase_secs);
+    advance_secs(PhaseTimes::buying_phase_secs);
     game_phase.update();
-    advance_secs(playing_phase_secs);
+    advance_secs(PhaseTimes::playing_phase_secs);
     game_phase.update();
 
     EXPECT_TRUE(game_phase.is_round_finished());
@@ -48,11 +45,11 @@ TEST_F(TestGamePhase, FinishOneRoundAfterRoundDuration) {
 TEST_F(TestGamePhase, StartAnotherRoundAfterRoundFinishedDuration) {
     game_phase.start_buying_phase();
 
-    advance_secs(buying_phase_secs);
+    advance_secs(PhaseTimes::buying_phase_secs);
     game_phase.update();
-    advance_secs(playing_phase_secs);
+    advance_secs(PhaseTimes::playing_phase_secs);
     game_phase.update();
-    advance_secs(round_finished_phase_secs);
+    advance_secs(PhaseTimes::round_finished_phase_secs);
     game_phase.update();
 
     EXPECT_TRUE(game_phase.is_buying_phase());

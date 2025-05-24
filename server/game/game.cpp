@@ -6,9 +6,6 @@
 #include "server/cons.h"
 #include "server/errors.h"
 
-using GameConfig::tickrate;
-using PlayerInitialConfig::full_health;
-
 Game::Game(const std::string& name, const Clock& clock, const Map& map):
         name(name), phase(clock), physics_system(map, players) {
     std::srand(std::time(nullptr));
@@ -53,7 +50,7 @@ void Game::update() {
     phase.update();
     if (phase.is_round_finished())
         num_rounds++;
-    if (num_rounds == max_rounds / 2)
+    if (num_rounds == GameConfig::max_rounds / 2)
         swap_teams();
 }
 
@@ -183,12 +180,12 @@ bool Game::player_is_in_game(const std::string& player_name) const {
     return players.find(player_name) == players.end();
 }
 
-bool Game::is_full() const { return static_cast<int>(players.size()) == max_players; }
+bool Game::is_full() const { return static_cast<int>(players.size()) == GameConfig::max_players; }
 
 bool Game::team_is_full(const Team& team) const {
     if (team == Team::TT)
-        return num_tts == max_team_players;
-    return num_cts == max_team_players;
+        return num_tts == GameConfig::max_team_players;
+    return num_cts == GameConfig::max_team_players;
 }
 
 bool Game::all_players_ready() const {
@@ -211,7 +208,7 @@ GameUpdate Game::state_update() {
     gs_upd.add_change(GameStateAttr::NUM_ROUNDS, num_rounds);
     gs_upd.add_change(GameStateAttr::NUM_TTS, num_tts);
     gs_upd.add_change(GameStateAttr::NUM_PLAYERS, static_cast<int>(players.size()));
-    gs_upd.add_change(GameStateAttr::PLAYERS, std::map<std::string, PlayerState>{});
+    gs_upd.add_change(GameStateAttr::PLAYERS, players_states);
 
     return gs_upd;
 }

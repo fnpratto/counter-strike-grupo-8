@@ -3,7 +3,7 @@
 #include "common/models.h"
 
 #include "utility.h"
-#include "weapons_cons.h"
+#include "weapons_config.h"
 
 class Knife: public Utility {
 public:

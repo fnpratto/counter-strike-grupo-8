@@ -12,6 +12,9 @@ target_sources(taller_server
     # game
     game/game.cpp
     game/game_phase.cpp
+    game/physics_system.cpp
+    # map
+    map/map.cpp
     # player
     player/player.cpp
     player/inventory.cpp
@@ -22,8 +25,9 @@ target_sources(taller_server
     game_thread.h
     lobby_monitor.h
     protocol.h
-    cons.h
     receiver.h
+    cons.h
+    errors.h
     # clock
     clock/clock.h
     clock/mock_clock.h
@@ -32,12 +36,17 @@ target_sources(taller_server
     game/shop.h
     game/game.h
     game/game_phase.h
+    game/physics_system.h
     ../common/game_state.h
+    # map
+    map/map_builder.h
+    map/map.h
+    map/tile.h
     # player
     player/player.h
     player/inventory.h
     # weapons
-    weapons/weapons_cons.h
+    weapons/weapons_config.h
     weapons/gun.h
     weapons/utility.h
     weapons/m3.h
@@ -46,6 +55,8 @@ target_sources(taller_server
     weapons/bomb.h
     weapons/awp.h
     weapons/ak47.h
+    weapons/bullet.h
     # utils
+    utils/random_float_generator.h
     utils/vector_2d.h
 )

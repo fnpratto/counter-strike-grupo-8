@@ -18,16 +18,3 @@ namespace PlayerInitialConfig {
 const int initial_money = 800;
 const int full_health = 100;
 };  // namespace PlayerInitialConfig
-
-namespace ShopPrices {
-const int price_ak47 = 2700;
-const int price_mag_ak47 = 80;
-
-const int price_m3 = 1700;
-const int price_mag_m3 = 8;
-
-const int price_awp = 4750;
-const int price_mag_awp = 125;
-
-const int price_mag_glock = 20;
-};  // namespace ShopPrices

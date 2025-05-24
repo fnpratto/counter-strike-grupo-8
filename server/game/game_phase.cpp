@@ -2,12 +2,9 @@
 
 #include "server/cons.h"
 
-using PhaseTimes::buying_duration;
-using PhaseTimes::round_duration;
+GamePhase::GamePhase(const Clock& clock): clock(clock), phase(PhaseType::WarmUp) {}
 
-GamePhase::GamePhase(const Clock& clock): clock(clock), phase(PhaseType::NotStarted) {}
-
-bool GamePhase::is_started() const { return phase != PhaseType::NotStarted; }
+bool GamePhase::is_started() const { return phase != PhaseType::WarmUp; }
 
 bool GamePhase::is_round_finished() const { return phase == PhaseType::RoundFinished; }
 
@@ -25,21 +22,21 @@ void GamePhase::update() {
     std::chrono::seconds phase_duration;
     switch (phase) {
         case PhaseType::Buying:
-            phase_duration = std::chrono::seconds(buying_phase_secs);
+            phase_duration = std::chrono::seconds(PhaseTimes::buying_phase_secs);
             if (elapsed >= phase_duration) {
                 phase = PhaseType::Playing;
                 phase_start = now;
             }
             break;
         case PhaseType::Playing:
-            phase_duration = std::chrono::seconds(playing_phase_secs);
+            phase_duration = std::chrono::seconds(PhaseTimes::playing_phase_secs);
             if (elapsed >= phase_duration) {
                 phase = PhaseType::RoundFinished;
                 phase_start = now;
             }
             break;
         case PhaseType::RoundFinished:
-            phase_duration = std::chrono::seconds(round_finished_phase_secs);
+            phase_duration = std::chrono::seconds(PhaseTimes::round_finished_phase_secs);
             if (elapsed >= phase_duration) {
                 phase = PhaseType::Buying;
                 phase_start = now;

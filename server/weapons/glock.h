@@ -6,7 +6,7 @@
 #include "common/models.h"
 
 #include "gun.h"
-#include "weapons_cons.h"
+#include "weapons_config.h"
 
 class Glock: public Gun {
 public:
