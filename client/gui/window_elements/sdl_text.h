@@ -6,8 +6,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
-#include "Area.h"
-#include "SdlWindow.h"
+#include "area.h"
+#include "sdl_window.h"
 
 class SdlText {
 private:
@@ -23,7 +23,7 @@ public:
     ~SdlText();
     void setTextString(const std::string& text);
     int render(const Area& dest) const;
-    SDL_Texture* getText() const { return texture; }  // Added getter for texture
+    SDL_Texture* getText() const { return texture; }
 };
 
 #endif  // SDLTEXT_H

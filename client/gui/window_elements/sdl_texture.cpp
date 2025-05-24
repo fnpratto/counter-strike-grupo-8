@@ -1,11 +1,11 @@
-#include "SdlTexture.h"
+#include "sdl_texture.h"
 
 #include <string>
 
 #include <SDL2/SDL_image.h>
 
-#include "SdlException.h"
-#include "SdlWindow.h"
+#include "sdl_exception.h"
+#include "sdl_window.h"
 
 SdlTexture::SdlTexture(const std::string& filename, const SdlWindow& window):
         renderer(window.getRenderer()) {

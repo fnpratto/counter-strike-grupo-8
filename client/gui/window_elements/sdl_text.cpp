@@ -1,10 +1,10 @@
-#include "SdlText.h"
+#include "sdl_text.h"
 
 #include <stdexcept>
 
 #include <SDL2/SDL_ttf.h>
 
-#include "SdlException.h"
+#include "sdl_exception.h"
 
 SdlText::SdlText(const std::string& fontFile, int fontSize, SDL_Color color,
                  const SdlWindow& window):

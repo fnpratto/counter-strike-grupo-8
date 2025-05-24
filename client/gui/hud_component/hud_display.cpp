@@ -65,15 +65,7 @@ void hudDisplay::update(/*const PlayerDTO& player_info,*/ int currentClockTick) 
     renderRoundText();
     renderBullets();
     renderGunIcons();
-    // timer->set_text(std::to_string(seconds_left), renderer);
-    // score->set_text("Score: " + std::to_string(player_info.points), renderer);
-    // health->update_health(player_info.health);
-    // int i = 0;
-    // for (auto& bullet: bullets) {
-    //     bullet.update_amount(player_info.weapons[i].ammo, renderer);
-    //    i++;
-    //}
-    // selected_weapon = static_cast<bullet_type_t>(player_info.selected_weapon);
+    window.render();
 }
 
 
@@ -153,14 +145,14 @@ void hudDisplay::renderParal() {
     }*/
 }
 
-// Render pointer
+
 void hudDisplay::renderPointer() {
     const Area sizePointer(0, 0, 50, 50);
     const Area destPointer(pointerX - 25, pointerY - 25, 50, 50);
     pointer.render(sizePointer, destPointer);
 }
 
-// Render money
+
 void hudDisplay::renderMoney() {
     int iconHeight = static_cast<int>(32 * scaleRatio);
     const Area sizeMoney(460, 0, 64, 62);
@@ -175,7 +167,7 @@ void hudDisplay::renderMoney() {
     renderDigits(moneyStr, x, y, money_amount);
 }
 
-// Render life
+
 void hudDisplay::renderLife() {
     int iconWidth = static_cast<int>(32 * scaleRatio);
     int iconHeight = static_cast<int>(32 * scaleRatio);
@@ -191,7 +183,7 @@ void hudDisplay::renderLife() {
     renderDigits(lifeStr, x, y, life_amount);
 }
 
-// Render timer
+
 void hudDisplay::renderTimer(int currentClockTick) {
     int minutesIdx = std::floor(currentClockTick / 60);
     int seconds = currentClockTick % 60;
@@ -215,13 +207,13 @@ void hudDisplay::renderTimer(int currentClockTick) {
     timer_amount.renderDigit(secondsIdxL, x, y, layout.scale);
 }
 
-// Render round text
+
 void hudDisplay::renderRoundText() {
     roundText.setTextString("Round 10");
     roundText.render(Area(SCREEN_WIDTH / 2 - 50, layout.padding, 100, 20));
 }
 
-// Render bullets
+
 void hudDisplay::renderBullets() {
     int iconHeight = static_cast<int>(32 * scaleRatio);
     const Area sizeBullets(0, 0, 300, 302);
@@ -235,7 +227,7 @@ void hudDisplay::renderBullets() {
     renderDigits(bulletsStr, x, y, equipedBulletsAmount);
 }
 
-// Render gun icons
+
 void hudDisplay::renderGunIcons() {
     int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 20;
     int y = SCREEN_HEIGHT / 2;
@@ -249,7 +241,7 @@ void hudDisplay::renderGunIcons() {
     renderGunIcon("../assets/gfx/guns/elite_k.xcf", "3", x, y);
 }
 
-// Helper to render gun icon
+
 void hudDisplay::renderGunIcon(const std::string& path, const std::string& number, int x, int y) {
     SdlTexture gunTexture(path, window);
     Area destArea(x, y, SCREEN_WIDTH / 14, 34);
@@ -260,7 +252,7 @@ void hudDisplay::renderGunIcon(const std::string& path, const std::string& numbe
     gunNumber.render(Area(SCREEN_WIDTH - layout.padding * 2, y, 10, 20));
 }
 
-// Helper to render digits
+
 void hudDisplay::renderDigits(const std::string& str, int x, int y, BitmapFont& texture) {
     for (char c: str) {
         if (isdigit(c)) {

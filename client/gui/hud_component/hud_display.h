@@ -4,12 +4,12 @@
 #include <string>
 #include <vector>
 
-#include "../window_elements/Area.h"  // Assuming Area is in this header
-#include "../window_elements/SdlText.h"
-#include "../window_elements/SdlTexture.h"
-#include "../window_elements/SdlWindow.h"
+#include "../window_elements/area.h"  // Assuming Area is in this header
+#include "../window_elements/sdl_text.h"
+#include "../window_elements/sdl_texture.h"
+#include "../window_elements/sdl_window.h"
 
-#include "BitmapFontNumber.h"
+#include "bit_map_font_number.h"
 
 
 struct HudLayout {

@@ -5,9 +5,11 @@
 #include <string>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_events.h>
 
 #include "../client/requests.h"
 #include "../common/message.h"
+#include "common/message.h"
 #include "gui/controllers/keyboardhandler.h"
 #include "gui/controllers/mousehandler.h"
 #include "gui/hud_component/hud_display.h"
@@ -15,11 +17,9 @@
 #include "gui/pre_game_view/list_teams.h"
 #include "gui/shop_view/shop.h"
 #include "gui/window_elements/SdlWindow.h"
+#include "gui/window_elements/sdl_window.h"
 
 #include "display.h"
-
-// TODO: Implement SDLDisplay
-
 
 void update_components() {}
 
@@ -173,6 +173,5 @@ void SDLDisplay::run() {
     }
     return;
 }
-
 
 void SDLDisplay::stop() { Thread::stop(); }
