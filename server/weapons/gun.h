@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "common/game_state.h"
+#include "common/game_state_update.h"
 #include "common/models.h"
 #include "server/clock/clock.h"
 #include "server/map/map.h"
@@ -19,13 +20,17 @@ protected:
     int mag_ammo;
     int reserve_ammo;
     TimePoint time_last_shoot = TimePoint{};
+    GunUpdate updates;
 
 public:
     Gun(GunType gun, int bullets_per_mag, int mag_ammo, int reserve_ammo):
             gun(gun),
             bullets_per_mag(bullets_per_mag),
             mag_ammo(mag_ammo),
-            reserve_ammo(reserve_ammo) {}
+            reserve_ammo(reserve_ammo) {
+        updates.add_change(GunAttr::MAG_AMMO, mag_ammo);
+        updates.add_change(GunAttr::RESERVE_AMMO, reserve_ammo);
+    }
 
     bool can_shoot(const float fire_rate, TimePoint now) {
         if (mag_ammo == 0)
@@ -40,6 +45,7 @@ public:
     int get_bullets_per_mag() const { return bullets_per_mag; }
     int get_mag_ammo() const { return mag_ammo; }
     int get_reserve_ammo() const { return reserve_ammo; }
+    GunUpdate get_updates() const { return updates; }
 
     GunState state() const {
         GunState gun_state;
@@ -50,7 +56,10 @@ public:
         return gun_state;
     }
 
-    void add_mags(int num_mags) { reserve_ammo += bullets_per_mag * num_mags; }
+    void add_mags(int num_mags) {
+        reserve_ammo += bullets_per_mag * num_mags;
+        updates.add_change(GunAttr::RESERVE_AMMO, reserve_ammo);
+    }
 
     int get_random_damage(const int min_dam, const int max_dam) {
         RandomFloatGenerator rfg(min_dam, max_dam);
@@ -69,6 +78,8 @@ public:
         int bullets_to_reload = bullets_per_mag - mag_ammo;
         mag_ammo += bullets_to_reload;
         reserve_ammo -= bullets_to_reload;
+        updates.add_change(GunAttr::MAG_AMMO, mag_ammo);
+        updates.add_change(GunAttr::RESERVE_AMMO, reserve_ammo);
     }
 
     virtual ~Gun() = default;

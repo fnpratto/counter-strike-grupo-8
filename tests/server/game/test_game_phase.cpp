@@ -25,7 +25,7 @@ TEST_F(TestGamePhase, StartInBuyingPhase) {
 TEST_F(TestGamePhase, StartPlayingAfterBuyingDuration) {
     game_phase.start_buying_phase();
     advance_secs(PhaseTimes::buying_phase_secs);
-    game_phase.update();
+    game_phase.advance();
     EXPECT_TRUE(game_phase.is_started());
     EXPECT_FALSE(game_phase.is_buying_phase());
     EXPECT_FALSE(game_phase.is_round_finished());
@@ -35,9 +35,9 @@ TEST_F(TestGamePhase, FinishOneRoundAfterRoundDuration) {
     game_phase.start_buying_phase();
 
     advance_secs(PhaseTimes::buying_phase_secs);
-    game_phase.update();
+    game_phase.advance();
     advance_secs(PhaseTimes::playing_phase_secs);
-    game_phase.update();
+    game_phase.advance();
 
     EXPECT_TRUE(game_phase.is_round_finished());
 }
@@ -46,11 +46,11 @@ TEST_F(TestGamePhase, StartAnotherRoundAfterRoundFinishedDuration) {
     game_phase.start_buying_phase();
 
     advance_secs(PhaseTimes::buying_phase_secs);
-    game_phase.update();
+    game_phase.advance();
     advance_secs(PhaseTimes::playing_phase_secs);
-    game_phase.update();
+    game_phase.advance();
     advance_secs(PhaseTimes::round_finished_phase_secs);
-    game_phase.update();
+    game_phase.advance();
 
     EXPECT_TRUE(game_phase.is_buying_phase());
 }

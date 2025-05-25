@@ -25,6 +25,8 @@ struct PlayerState {
     Team team;
     float pos_x;
     float pos_y;
+    float aim_x;
+    float aim_y;
     bool ready;
     int health;
     int money;

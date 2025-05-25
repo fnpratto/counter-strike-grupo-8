@@ -104,6 +104,19 @@ public:
 };
 
 /**
+ * @class AimCommand
+ * @brief Command to update the aiming direction.
+ */
+class AimCommand: public Command {
+    float x, y;
+
+public:
+    AimCommand(float targetX, float targetY): x(targetX), y(targetY) {}
+    float get_x() const { return x; }
+    float get_y() const { return y; }
+};
+
+/**
  * @class ShootCommand
  * @brief Command to shoot towards the aimed direction.
  */

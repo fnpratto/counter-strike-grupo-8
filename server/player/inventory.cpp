@@ -17,6 +17,8 @@ Inventory::Inventory() {
 
 std::unique_ptr<Gun>& Inventory::get_gun(const WeaponSlot& slot) { return guns.at(slot); }
 
+InventoryUpdate Inventory::get_updates() const { return updates; }
+
 InventoryState Inventory::state() const {
     InventoryState inventory_state;
 
@@ -35,7 +37,13 @@ InventoryState Inventory::state() const {
     return inventory_state;
 }
 
-void Inventory::add_bomb() { utilities[WeaponSlot::Bomb] = std::make_unique<Bomb>(); }
+void Inventory::add_bomb() {
+    utilities[WeaponSlot::Bomb] = std::make_unique<Bomb>();
+
+    std::map<WeaponSlot, UtilityType> utility_update;
+    utility_update.emplace(WeaponSlot::Bomb, utilities[WeaponSlot::Bomb]->get_type());
+    updates.add_change(InventoryAttr::UTILITIES, utility_update);
+}
 
 void Inventory::add_primary_weapon(const GunType& weapon_type) {
     if (weapon_type == GunType::AK47) {
@@ -45,6 +53,10 @@ void Inventory::add_primary_weapon(const GunType& weapon_type) {
     } else if (weapon_type == GunType::AWP) {
         guns[WeaponSlot::Primary] = std::make_unique<Awp>();
     }
+
+    std::map<WeaponSlot, GunUpdate> gun_updates;
+    gun_updates.emplace(WeaponSlot::Primary, guns[WeaponSlot::Primary]->get_updates());
+    updates.add_change(InventoryAttr::GUNS, gun_updates);
 }
 
 Inventory::~Inventory() {}

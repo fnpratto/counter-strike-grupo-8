@@ -10,12 +10,15 @@ bool GamePhase::is_round_finished() const { return phase == PhaseType::RoundFini
 
 bool GamePhase::is_buying_phase() const { return phase == PhaseType::Buying; }
 
+PhaseUpdate GamePhase::get_updates() const { return updates; }
+
 void GamePhase::start_buying_phase() {
     phase = PhaseType::Buying;
+    updates.add_change(PhaseAttr::PHASE, phase);
     phase_start = clock.now();
 }
 
-void GamePhase::update() {
+void GamePhase::advance() {
     auto now = clock.now();
     auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - phase_start);
 
@@ -25,6 +28,7 @@ void GamePhase::update() {
             phase_duration = std::chrono::seconds(PhaseTimes::buying_phase_secs);
             if (elapsed >= phase_duration) {
                 phase = PhaseType::Playing;
+                updates.add_change(PhaseAttr::PHASE, phase);
                 phase_start = now;
             }
             break;
@@ -32,6 +36,7 @@ void GamePhase::update() {
             phase_duration = std::chrono::seconds(PhaseTimes::playing_phase_secs);
             if (elapsed >= phase_duration) {
                 phase = PhaseType::RoundFinished;
+                updates.add_change(PhaseAttr::PHASE, phase);
                 phase_start = now;
             }
             break;
@@ -39,6 +44,7 @@ void GamePhase::update() {
             phase_duration = std::chrono::seconds(PhaseTimes::round_finished_phase_secs);
             if (elapsed >= phase_duration) {
                 phase = PhaseType::Buying;
+                updates.add_change(PhaseAttr::PHASE, phase);
                 phase_start = now;
             }
             break;

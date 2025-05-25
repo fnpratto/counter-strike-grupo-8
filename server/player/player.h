@@ -3,6 +3,7 @@
 #include <utility>
 
 #include "common/game_state.h"
+#include "common/game_state_update.h"
 #include "common/models.h"
 #include "server/clock/clock.h"
 #include "server/utils/vector_2d.h"
@@ -16,11 +17,13 @@ class Player {
 private:
     Team team;
     Vector2D pos;
+    Vector2D aim_dir;
     bool ready;
     int health;
     int money;
     WeaponSlot current_weapon;
     Inventory inventory;
+    PlayerUpdate updates;
 
 public:
     Player(Team team, Vector2D pos);
@@ -30,6 +33,7 @@ public:
     bool is_ct() const;
 
     Vector2D get_pos() const;
+    PlayerUpdate get_updates() const;
 
     PlayerState state() const;
 
@@ -47,6 +51,8 @@ public:
     void buy_ammo(const WeaponSlot& slot, int mag_price, int num_mags);
 
     void move(Vector2D new_pos);
+
+    void aim(Vector2D new_aim_dir);
 
     void equip_weapon(WeaponSlot slot);
 

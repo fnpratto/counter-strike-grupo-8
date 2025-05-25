@@ -31,6 +31,7 @@ public:
 
             mag_ammo -= 1;
         }
+        updates.add_change(GunAttr::MAG_AMMO, mag_ammo);
 
         return bullets;
     }
