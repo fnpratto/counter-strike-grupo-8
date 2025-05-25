@@ -19,7 +19,8 @@ void MouseHandler::handleEvent(const SDL_Event& event, bool shop, bool list_team
                 if (shop) {
                     SDL_GetMouseState(&x, &y);
                     // normalizar
-                    // inputQueue.push(Message(BuyWeaponCommand??));
+                    // inputQueue.push(Message(BuyWeaponCommand??));  F(BuyWeaponCommand,
+                    // BUY_WEAPON_CMD)
                     shopDisplayRef.updatePointerPosition(x, y);
                 }
                 if (list_teams) {
@@ -35,6 +36,7 @@ void MouseHandler::handleEvent(const SDL_Event& event, bool shop, bool list_team
         }
     } else if (event.type == SDL_MOUSEMOTION) {
         SDL_GetMouseState(&x, &y);
+        // F(AimCommand, AIM_CMD)
         hudDisplayRef.updatePointerPosition(x, y);
     }
 }
