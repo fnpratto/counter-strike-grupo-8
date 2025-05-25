@@ -3,10 +3,19 @@
 
 #include <SDL2/SDL.h>
 
+#include "../common/message.h"
+#include "../common/queue.h"
+#include "../common/socket.h"
+#include "../common/thread.h"
+
+
 class KeyboardHandler {
 public:
-    KeyboardHandler();
+    explicit KeyboardHandler(Queue<Message>& inputQueue);
     void handleEvent(const SDL_Event& event, bool& shop);
+
+private:
+    Queue<Message>& inputQueue;
 };
 
 #endif  // KEYBOARDHANDLER_H

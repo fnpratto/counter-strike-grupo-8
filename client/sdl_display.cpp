@@ -111,8 +111,8 @@ void SDLDisplay::run() {
         Map map(window);
         listTeams listTeams(window);
 
-        MouseHandler mouseHandler(hudDisplay, shopDisplay, listTeams);
-        KeyboardHandler keyboardHandler;
+        MouseHandler mouseHandler(hudDisplay, shopDisplay, listTeams, this->input_queue);
+        KeyboardHandler keyboardHandler(this->input_queue);
         SDL_Event e;
 
         bool quit = false;
