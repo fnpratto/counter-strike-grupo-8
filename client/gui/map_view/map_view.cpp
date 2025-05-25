@@ -18,7 +18,10 @@ Map::Map(SdlWindow& window):
         tiles_area(TILES_PATH, window),
         character(CHARACTER_PATH, window),
         DISPLAY_WIDTH(window.getWidth()),
-        DISPLAY_HEIGHT(window.getHeight()) {}
+        DISPLAY_HEIGHT(window.getHeight()) {
+    character_x = 300;
+    character_y = 300;
+}
 
 void Map::load_map(int map_id) {
 
@@ -50,10 +53,16 @@ void Map::build() {
     }
 }
 
+void Map::update_character(int x, int y) {
+    character_x = x;
+    character_y = y;
+}
+
 
 void Map::render() {
     Area src(0, 0, 28, 29);
-    Area iconDest(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, 28, 29);
+    Area iconDest(character_x, character_y, 28, 29);
     load_map(0);  // Load the map with ID 0
+    /*for*/
     character.render(src, iconDest);
 }

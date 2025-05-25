@@ -93,7 +93,6 @@ void SDLDisplay::run() {
     /*int SCREEN_WIDTH = displayMode.w;
     int SCREEN_HEIGHT = displayMode.h - 150;*/
 
-
     const int SCREEN_WIDTH = 800;
     const int SCREEN_HEIGHT = 600;
 
@@ -112,7 +111,7 @@ void SDLDisplay::run() {
         listTeams listTeams(window);
 
         MouseHandler mouseHandler(hudDisplay, shopDisplay, listTeams);
-        KeyboardHandler keyboardHandler;
+        KeyboardHandler keyboardHandler(map);
         SDL_Event e;
 
         bool quit = false;
@@ -154,16 +153,16 @@ void SDLDisplay::run() {
 
             /*update --> pull event from the queue*/
             window.fill();
-            /*if (clock > 20) {
-                hudDisplay.update(clock);
+            if (clock > 2) {
                 map.render();
+                hudDisplay.update(clock);
                 if (shop) {
                     shopDisplay.render();
                 }
             } else {
                 listTeams.update(clock);
-            }*/
-            map.render();
+            }
+
             window.render();
         }
     } catch (std::exception& e) {

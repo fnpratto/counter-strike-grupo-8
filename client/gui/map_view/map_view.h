@@ -23,6 +23,7 @@ public:
     void load_map(int map_id);
 
     void render();
+    void update_character(int x, int y);
 
 private:
     SdlWindow& window;
@@ -32,6 +33,8 @@ private:
     YAML::Node map_data;
     const int DISPLAY_WIDTH;
     const int DISPLAY_HEIGHT;
+    int character_x;
+    int character_y;
     void build();
 };
 

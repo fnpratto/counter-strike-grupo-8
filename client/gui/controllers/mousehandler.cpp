@@ -4,6 +4,7 @@
 
 #include <SDL2/SDL.h>
 
+
 void MouseHandler::handleEvent(const SDL_Event& event, bool shop, bool list_teams) {
     int x, y;
     if (event.type == SDL_MOUSEBUTTONDOWN) {

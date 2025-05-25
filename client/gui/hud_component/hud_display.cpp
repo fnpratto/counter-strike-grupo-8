@@ -65,7 +65,6 @@ void hudDisplay::update(/*const PlayerDTO& player_info,*/ int currentClockTick) 
     renderRoundText();
     renderBullets();
     renderGunIcons();
-    window.render();
 }
 
 
