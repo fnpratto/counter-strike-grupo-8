@@ -54,32 +54,10 @@ uint16_t BaseProtocol::deserialize_message_length() {
     return ntohs(*reinterpret_cast<const uint16_t*>(payload.data()));
 }
 
-payload_t serialize(const uint16_t& i) {
-    payload_t payload(sizeof(i));
-
-    uint16_t data = htons(static_cast<uint16_t>(i));
-    payload.insert(payload.end(), reinterpret_cast<const char*>(&data),
-                   reinterpret_cast<const char*>(&data) + sizeof(data));
-
-    return payload;
-}
-
-payload_t serialize(const std::string& str) {
-    payload_t length = serialize(static_cast<uint16_t>(str.size()));
-
-    payload_t payload;
-    payload.reserve(length.size() + str.size());
-
-    payload.insert(payload.end(), length.begin(), length.end());
-    payload.insert(payload.end(), str.data(), str.data() + str.size());
-
-    return payload;
-}
-
-payload_t serialize(const bool& b) {
-    payload_t payload(1);
-    payload[0] = static_cast<char>(b);
-    return payload;
+payload_t BaseProtocol::pop(payload_t& payload, size_t size) const {
+    payload_t result(payload.begin(), payload.begin() + size);
+    payload.erase(payload.begin(), payload.begin() + size);
+    return result;
 }
 
 void BaseProtocol::close() {

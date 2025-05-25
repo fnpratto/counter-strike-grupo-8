@@ -23,13 +23,13 @@ public:
      */
     explicit ClientProtocol(Socket&& skt): BaseProtocol(std::move(skt)) {}
 
-    payload_t serialize_message(const Message& message) override;
+    payload_t serialize_message(const Message& message) const override;
 
     template <typename T>
-    payload_t serialize(const T& value);
+    payload_t serialize(const T& value) const;
 
-    Message deserialize_message(const MessageType& type, const payload_t& payload) override;
+    Message deserialize_message(const MessageType& type, payload_t& payload) const override;
 
     template <typename T>
-    T deserialize(const payload_t& payload);
+    T deserialize(payload_t& payload) const;
 };

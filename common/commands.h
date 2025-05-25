@@ -115,13 +115,15 @@ public:
  * @brief Command to shoot towards the aimed direction.
  */
 class ShootCommand: public Command {
-    float x, y;
-
 public:
-    ShootCommand(float targetX, float targetY): x(targetX), y(targetY) {}
-    float get_x() const { return x; }
-    float get_y() const { return y; }
+    ShootCommand() {}
 };
+
+/**
+ * @class ReloadCommand
+ * @brief Command to reload the current weapon.
+ */
+class ReloadCommand: public Command {};
 
 /**
  * @class SwitchWeaponCommand
@@ -158,9 +160,3 @@ class PickUpItemCommand: public Command {};
  * @brief Command to leave the current game.
  */
 class LeaveGameCommand: public Command {};
-
-/**
- * @class ReloadCommand
- * @brief Command to reload the current weapon.
- */
-class ReloadCommand: public Command {};

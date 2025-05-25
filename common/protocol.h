@@ -91,12 +91,20 @@ protected:
      * @param message The Message to serialize.
      * @return Vector of bytes representing the serialized message.
      */
-    virtual payload_t serialize_message(const Message& message) = 0;
+    virtual payload_t serialize_message(const Message& message) const = 0;
 
     /**
      * @brief Receives and deserializes the payload into a Message object.
      * @param msg_type The type of message to deserialize.
      * @return The deserialized Message object.
      */
-    virtual Message deserialize_message(const MessageType& type, const payload_t& payload) = 0;
+    virtual Message deserialize_message(const MessageType& type, payload_t& payload) const = 0;
+
+    payload_t pop(payload_t& payload, size_t size) const;
+
+    template <typename T>
+    payload_t serialize(const T& value) const;
+
+    template <typename T>
+    T deserialize(payload_t& payload) const;
 };

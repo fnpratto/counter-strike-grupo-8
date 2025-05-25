@@ -21,8 +21,15 @@
     F(StartGameCommand, START_GAME_CMD)                \
     F(BuyWeaponCommand, BUY_WEAPON_CMD)                \
     F(MoveCommand, MOVE_CMD)                           \
+    F(StopPlayerCommand, STOP_PLAYER_CMD)              \
     F(AimCommand, AIM_CMD)                             \
-    F(ShootCommand, SHOOT_CMD)
+    F(ShootCommand, SHOOT_CMD)                         \
+    F(ReloadCommand, RELOAD_CMD)                       \
+    F(SwitchWeaponCommand, SWITCH_WEAPON_CMD)          \
+    F(PlantBombCommand, PLANT_BOMB_CMD)                \
+    F(DefuseBombCommand, DEFUSE_BOMB_CMD)              \
+    F(PickUpItemCommand, PICK_UP_ITEM_CMD)             \
+    F(LeaveGameCommand, LEAVE_GAME_CMD)
 #define MESSAGE_TYPE_MAP_LAST(F) F(std::nullptr_t, NONE)
 
 
