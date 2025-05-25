@@ -72,3 +72,54 @@ It only contains the header.
 #### Message Type: [StartGameCommand](./../common/commands.h#L65)
 
 It only contains the header.
+
+#### Message Type: [BuyWeaponCommand](./../common/commands.h#L71)
+
+| Field Name | Type | Length (bytes) | Description |
+|-|-|-|-|
+| weapon | enum | 1 | Type of weapon to purchase |
+
+#### Message Type: [MoveCommand](./../common/commands.h#L83)
+
+| Field Name | Type | Length (bytes) | Description |
+|-|-|-|-|
+| direction | enum | 1 | Direction of movement |
+| start | bool | 1 | Whether to start (true) or stop (false) movement |
+
+#### Message Type: [AimCommand](./../common/commands.h#L97)
+
+| Field Name | Type | Length (bytes) | Description |
+|-|-|-|-|
+| x | float | 4 | X-coordinate of aim target |
+| y | float | 4 | Y-coordinate of aim target |
+
+#### Message Type: [ShootCommand](./../common/commands.h#L111)
+
+It only contains the header.
+The shot is fired towards the player's current aim direction.
+
+#### Message Type: [SwitchWeaponCommand](./../common/commands.h#L125)
+
+| Field Name | Type | Length (bytes) | Description |
+|-|-|-|-|
+| slot | enum | 1 | Weapon slot to switch to |
+
+#### Message Type: [PlantBombCommand](./../common/commands.h#L137)
+
+It only contains the header.
+
+#### Message Type: [DefuseBombCommand](./../common/commands.h#L143)
+
+It only contains the header.
+
+#### Message Type: [PickUpItemCommand](./../common/commands.h#L149)
+
+It only contains the header.
+
+#### Message Type: [LeaveGameCommand](./../common/commands.h#L155)
+
+It only contains the header.
+
+#### Message Type: [ReloadCommand](./../common/commands.h#L161)
+
+It only contains the header.
