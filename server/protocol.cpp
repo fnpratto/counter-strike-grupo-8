@@ -22,93 +22,89 @@
 #include "lobby_monitor.h"
 #include "protocol.h"
 
-Message ServerProtocol::recv() {
-    uint8_t command;
-    int bytes_read = socket.recvall(&command, 1);
-    if (bytes_read <= 0)
-        throw ServerDisconnectError();
+// === Serialization ===
 
-    switch (static_cast<CmdType>(command)) {
-        case CmdType::CMD_CREATE:
-            return deserialize_create_game_cmd();
+template <>
+payload_t ServerProtocol::serialize(const CreateGameCommand& value) {
+    payload_t payload;
+    std::string game_name = value.get_game_name();
+    uint16_t name_length = htons(static_cast<uint16_t>(game_name.length()));
+    payload.insert(payload.end(), reinterpret_cast<const char*>(&name_length),
+                   reinterpret_cast<const char*>(&name_length) + sizeof(name_length));
+    payload.insert(payload.end(), game_name.begin(), game_name.end());
+    return payload;
+}
 
-        case CmdType::CMD_JOIN:
-            return deserialize_join_game_cmd();
+template <>
+payload_t ServerProtocol::serialize(const JoinGameCommand& value) {
+    payload_t payload;
+    std::string game_name = value.get_game_name();
+    uint16_t name_length = htons(static_cast<uint16_t>(game_name.length()));
+    payload.insert(payload.end(), reinterpret_cast<const char*>(&name_length),
+                   reinterpret_cast<const char*>(&name_length) + sizeof(name_length));
+    payload.insert(payload.end(), game_name.begin(), game_name.end());
+    return payload;
+}
 
-        case CmdType::CMD_LIST:
-            return deserialize_list_games_cmd();
+template <>
+payload_t ServerProtocol::serialize(const ListGamesCommand& value) {
+    (void)value;
+    return payload_t();
+}
+
+payload_t ServerProtocol::serialize_message(const Message& message) {
+    switch (message.get_type()) {
+        case MessageType::CREATE_GAME_CMD:
+            return serialize(message.get_content<CreateGameCommand>());
+        case MessageType::JOIN_GAME_CMD:
+            return serialize(message.get_content<JoinGameCommand>());
+        case MessageType::LIST_GAMES_CMD:
+            return serialize(message.get_content<ListGamesCommand>());
+        default:
+            throw std::runtime_error("Invalid message type for serialization");
+    }
+}
+
+// === Deserialization ===
+
+template <>
+CreateGameCommand ServerProtocol::deserialize<CreateGameCommand>(const payload_t& payload) {
+    // Read 2 bytes for string length
+    uint16_t name_length = *reinterpret_cast<const uint16_t*>(payload.data());
+    name_length = ntohs(name_length);
+    // Read string
+    std::string game_name(payload.data() + sizeof(name_length), name_length);
+    return CreateGameCommand(game_name);
+}
+
+template <>
+JoinGameCommand ServerProtocol::deserialize<JoinGameCommand>(const payload_t& payload) {
+    // Read 2 bytes for string length
+    uint16_t name_length = *reinterpret_cast<const uint16_t*>(payload.data() + sizeof(uint16_t));
+    name_length = ntohs(name_length);
+    std::string game_name(payload.data() + sizeof(name_length), name_length);
+
+    return JoinGameCommand(game_name);
+}
+
+template <>
+ListGamesCommand ServerProtocol::deserialize<ListGamesCommand>(const payload_t& payload) {
+    (void)payload;
+    return ListGamesCommand();
+}
+
+Message ServerProtocol::deserialize_message(const MessageType& msg_type, const payload_t& payload) {
+    switch (msg_type) {
+        case MessageType::CREATE_GAME_CMD:
+            return Message(deserialize<CreateGameCommand>(payload));
+
+        case MessageType::JOIN_GAME_CMD:
+            return Message(deserialize<JoinGameCommand>(payload));
+
+        case MessageType::LIST_GAMES_CMD:
+            return Message(deserialize<ListGamesCommand>(payload));
 
         default:
             throw std::runtime_error("Invalid command received");
     }
-}
-
-Message ServerProtocol::deserialize_create_game_cmd() {
-    uint16_t name_length_n;
-    if (socket.recvall(&name_length_n, sizeof(name_length_n)) <= 0) {
-        throw std::runtime_error("Connection closed while reading name length");
-    }
-
-    uint16_t name_length = ntohs(name_length_n);
-
-    std::vector<char> name_buffer(name_length + 1, '\0');
-    if (socket.recvall(name_buffer.data(), name_length) <= 0) {
-        throw std::runtime_error("Connection closed while reading game name");
-    }
-
-    std::string game_name(name_buffer.data(), name_length);
-
-    return Message(CreateGameCommand(game_name));
-}
-
-Message ServerProtocol::deserialize_join_game_cmd() {
-    uint16_t name_length_n;
-    if (socket.recvall(&name_length_n, sizeof(name_length_n)) <= 0)
-        throw std::runtime_error("Connection closed while reading name length");
-
-    uint16_t name_length = ntohs(name_length_n);
-
-    // Read game name
-    std::vector<char> name_buffer(name_length + 1, '\0');
-    if (socket.recvall(name_buffer.data(), name_length) <= 0)
-        throw std::runtime_error("Connection closed while reading game name");
-
-    std::string game_name(name_buffer.data(), name_length);
-
-    return Message(JoinGameCommand(game_name));
-}
-
-Message ServerProtocol::deserialize_list_games_cmd() { return Message(ListGamesCommand()); }
-
-
-payload_t ServerProtocol::serialize_message(const Message& message) {
-    if (message.get_type() == MessageType::NONE)
-        throw std::runtime_error("Invalid message type for serialization");
-
-    // payload_t base_payload;
-
-    // switch (message.get_type()) {
-    //     case MessageType::GAME_STATUS:
-    //         base_payload = serialize_game_status(message.get_content<GameStatus>());
-    //         break;
-    //     case MessageType::GAMES_LIST: {
-    //         auto names = message.get_content<std::vector<std::string>>();
-    //         base_payload = serialize_game_names(names);
-    //         break;
-    //     }
-    //     default:
-    //         throw std::runtime_error("Invalid message type for serialization");
-    // }
-
-    payload_t payload;
-
-    // uint16_t length = htons(static_cast<uint16_t>(base_payload.size()));
-    // payload.reserve(sizeof(length) + base_payload.size());
-
-    // payload.insert(payload.end(), reinterpret_cast<const char*>(&length),
-    //                reinterpret_cast<const char*>(&length) + sizeof(length));
-
-    // payload.insert(payload.end(), base_payload.begin(), base_payload.end());
-
-    return payload;
 }

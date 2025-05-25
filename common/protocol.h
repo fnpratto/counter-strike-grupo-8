@@ -65,12 +65,25 @@ public:
      * @brief Receives a Message from the network.
      * @return The deserialized Message object.
      */
-    virtual Message recv() = 0;
+    Message recv();
 
     /**
      * @brief Closes both send and receive streams and the socket.
      */
     void close();
+
+private:
+    /**
+     * @brief Deserializes the payload header to determine the message type.
+     * @return The deserialized MessageType.
+     */
+    MessageType deserialize_message_type();
+
+    /**
+     * @brief Deserializes the payload header to determine the message length.
+     * @return The deserialized length of the message.
+     */
+    uint16_t deserialize_message_length();
 
 protected:
     /**
@@ -79,4 +92,11 @@ protected:
      * @return Vector of bytes representing the serialized message.
      */
     virtual payload_t serialize_message(const Message& message) = 0;
+
+    /**
+     * @brief Receives and deserializes the payload into a Message object.
+     * @param msg_type The type of message to deserialize.
+     * @return The deserialized Message object.
+     */
+    virtual Message deserialize_message(const MessageType& type, const payload_t& payload) = 0;
 };

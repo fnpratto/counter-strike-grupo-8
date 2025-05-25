@@ -24,11 +24,19 @@ class ServerProtocol: public BaseProtocol {
 public:
     explicit ServerProtocol(Socket&& skt): BaseProtocol(std::move(skt)) {}
 
-    Message recv() override;
+private:
     payload_t serialize_message(const Message& message) override;
 
-private:
-    Message deserialize_create_game_cmd();
-    Message deserialize_join_game_cmd();
-    Message deserialize_list_games_cmd();
+    template <typename T>
+    payload_t serialize(const T& value);
+
+    Message deserialize_message(const MessageType& type, const payload_t& payload) override;
+
+    /**
+     * @brief Deserializes the payload into the type T.
+     * @tparam T The type to deserialize into.
+     * @return The deserialized object of type T.
+     */
+    template <typename T>
+    T deserialize(const payload_t& payload);
 };

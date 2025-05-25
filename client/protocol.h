@@ -23,21 +23,13 @@ public:
      */
     explicit ClientProtocol(Socket&& skt): BaseProtocol(std::move(skt)) {}
 
-    /**
-     * @brief Receives a Message from the server.
-     * @return Deserialized Message object.
-     */
-    Message recv() override;
-
-    /**
-     * @brief Serializes a Message for transmission.
-     * @param message The Message to serialize.
-     * @return Payload bytes to send.
-     */
     payload_t serialize_message(const Message& message) override;
 
-private:
-    payload_t serialize_create_game_cmd(const CreateGameCommand& cmd);
-    payload_t serialize_join_game_cmd(const JoinGameCommand& cmd);
-    payload_t serialize_list_games_cmd();
+    template <typename T>
+    payload_t serialize(const T& value);
+
+    Message deserialize_message(const MessageType& type, const payload_t& payload) override;
+
+    template <typename T>
+    T deserialize(const payload_t& payload);
 };

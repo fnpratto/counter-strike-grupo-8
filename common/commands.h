@@ -78,16 +78,23 @@ public:
 
 /**
  * @class MoveCommand
- * @brief Command to start or stop movement in a direction.
+ * @brief Command to start movement in a direction.
  */
 class MoveCommand: public Command {
     MoveDirection direction;
-    bool start;
 
 public:
-    MoveCommand(MoveDirection dir, bool s): direction(dir), start(s) {}
+    explicit MoveCommand(MoveDirection dir): direction(dir) {}
     MoveDirection get_direction() const { return direction; }
-    bool is_start() const { return start; }
+};
+
+/**
+ * @class StopPlayerCommand
+ * @brief Command to stop the player's movement.
+ */
+class StopPlayerCommand: public Command {
+public:
+    StopPlayerCommand(): Command() {}
 };
 
 /**
