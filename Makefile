@@ -1,6 +1,21 @@
-.PHONY: all test clean editor client common server build gui tui default
+.PHONY: all test clean editor client common server build gui tui default install-deps
 
-default: gui
+default: install-deps gui
+
+install-deps:
+	@echo "Checking and installing missing dependencies..."
+	@for pkg in \
+		libopusfile-dev \
+		libxmp-dev \
+		fluidsynth \
+		libfluidsynth-dev \
+		libwavpack-dev \
+		libfreetype-dev \
+		qtbase5-dev \
+		qtbase5-dev-tools \
+		qt5-qmake; do \
+			dpkg -s $$pkg >/dev/null 2>&1 || apt install -y $$pkg; \
+	done
 
 compile-debug:
 	mkdir -p build/

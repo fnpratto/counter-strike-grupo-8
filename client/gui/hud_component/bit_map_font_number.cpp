@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-#include <SDL2/SDL_image.h>
+#include <SDL_image.h>
 
 BitmapFont::BitmapFont(SDL_Renderer* renderer, const std::string& imagePath): renderer(renderer) {
     SDL_Surface* surface = IMG_Load(imagePath.c_str());
