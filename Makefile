@@ -10,7 +10,7 @@ install-deps:
 		fluidsynth \
 		libfluidsynth-dev \
 		libwavpack-dev \
-		libfreetype6-dev \
+		libfreetype-dev \
 		qtbase5-dev \
 		qtbase5-dev-tools \
 		qt5-qmake; do \
