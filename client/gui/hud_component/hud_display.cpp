@@ -37,11 +37,11 @@ hudDisplay::hudDisplay(SdlWindow& window):
         money_amount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
         life(LIFE_PATH, window),
         life_amount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
-        timer_dots("../assets/gfx/fonts/hud_nums.xcf", window),
-        timer_amount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
-        roundText(FONT_PATH, 20, {150, 150, 150, 255}, window),
         equipedBullets(BULLET_PATH, window),
         equipedBulletsAmount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
+        timer_amount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
+        timer_dots("../assets/gfx/fonts/hud_nums.xcf", window),
+        roundText(FONT_PATH, 20, {150, 150, 150, 255}, window),
         gunNumber(FONT_PATH, 20, {150, 150, 150, 255}, window),
         scoreText(FONT_PATH, 20, {255, 255, 255, 255}, window) {}
 

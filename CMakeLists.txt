@@ -133,6 +133,10 @@ if(TALLER_CLIENT)
         Qt5::Core
         Qt5::Widgets
         Qt5::Gui
+        SDL2::SDL2
+        SDL2_image::SDL2_image
+        SDL2_mixer::SDL2_mixer
+        SDL2_ttf::SDL2_ttf
     )
 
     # Add UI_TYPE definition
