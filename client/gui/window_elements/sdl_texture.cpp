@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include <SDL2/SDL_image.h>
+#include <SDL_image.h>
 
 #include "sdl_exception.h"
 #include "sdl_window.h"
