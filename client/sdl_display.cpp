@@ -1,5 +1,6 @@
 #include "sdl_display.h"
 
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -20,6 +21,16 @@ SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue
         Display(input_queue, output_queue) {}
 void SDLDisplay::run() {
     try {
+        char* basePath = SDL_GetBasePath();
+        if (basePath) {
+
+            if (chdir(basePath) != 0) {
+                std::cerr << "chdir failed: " << strerror(errno) << std::endl;
+            }
+            SDL_free(basePath);
+        } else {
+            std::cerr << "SDL_GetBasePath failed: " << SDL_GetError() << std::endl;
+        }
         SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
         hudDisplay hudDisplay(window);
 

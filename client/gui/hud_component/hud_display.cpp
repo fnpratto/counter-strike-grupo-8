@@ -13,7 +13,7 @@ const int SCREEN_HEIGHT = 600;
 const float scale = 0.5f;
 const int digitSpacingSmall = static_cast<int>(42 * scale) + 1;
 
-// Paths
+
 const std::string& BACKGROUND_PATH = "../assets/gfx/backgrounds/water1.jpg";
 const std::string& POINTER_PATH = "../assets/gfx/hud/pointer.xcf";
 const std::string& MONEY_PATH = "../assets/gfx/hud/hud_symbols.xcf";
@@ -26,6 +26,7 @@ const std::string& PARALELO_RED_PATH = "../assets/gfx/hud/parallelogram.xcf";
 const std::string& PARALELO_BLUE_PATH = "../assets/gfx/hud/parallelogram_blue.xcf";
 const std::string& PARALELO_RED_O_PATH = "../assets/gfx/hud/parallelogram_red_op.xcf";
 const std::string& PARALELO_BLUE_O_PATH = "../assets/gfx/hud/parallelogram_blue_op.xcf";
+const std::string& HUD_NUMS_XCF = "../assets/gfx/fonts/hud_nums.xcf";
 
 
 // Constructor
@@ -34,14 +35,14 @@ hudDisplay::hudDisplay(SdlWindow& window):
         back(BACKGROUND_PATH, window),
         pointer(POINTER_PATH, window),
         money(MONEY_PATH, window),
-        money_amount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
+        money_amount(window.getRenderer(), HUD_NUMS_XCF),
         life(LIFE_PATH, window),
-        life_amount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
-        timer_dots("../assets/gfx/fonts/hud_nums.xcf", window),
-        timer_amount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
+        life_amount(window.getRenderer(), HUD_NUMS_XCF),
+        timer_dots(HUD_NUMS_XCF, window),
+        timer_amount(window.getRenderer(), HUD_NUMS_XCF),
         roundText(FONT_PATH, 20, {150, 150, 150, 255}, window),
         equipedBullets(BULLET_PATH, window),
-        equipedBulletsAmount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
+        equipedBulletsAmount(window.getRenderer(), HUD_NUMS_XCF),
         gunNumber(FONT_PATH, 20, {150, 150, 150, 255}, window),
         scoreText(FONT_PATH, 20, {255, 255, 255, 255}, window) {}
 
