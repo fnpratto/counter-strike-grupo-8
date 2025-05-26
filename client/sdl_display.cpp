@@ -155,7 +155,7 @@ void SDLDisplay::run() {
             window.fill();
             if (clock > 20) {
                 map.render();
-                hudDisplay.update(clock);
+                hudDisplay.update(clock - 20);
                 if (shop) {
                     shopDisplay.render();
                 }

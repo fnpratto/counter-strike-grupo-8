@@ -57,7 +57,11 @@ void listTeams::update(int currentClockTick) {
 
     rectangulo_horizontal.render(src1, dest1);
     renderSlots();
-    render_timer(currentClockTick);
+    int time_left = 20 - currentClockTick;
+    if (time_left < 0) {
+        time_left = 0;
+    }
+    render_timer(time_left);
 }
 
 void listTeams::render_timer(int currentClockTick) {
@@ -68,7 +72,7 @@ void listTeams::render_timer(int currentClockTick) {
 
     int totalTimerWidth = size_slots_w;
     int x = DISPLAY_WIDTH - totalTimerWidth;
-    int y = padding * 4;
+    int y = padding * 4.5;
 
     timer_amount.renderDigit(minutesIdx, x, y, scale);
     x += digitSpacing;
@@ -81,6 +85,10 @@ void listTeams::render_timer(int currentClockTick) {
     timer_amount.renderDigit(secondsIdxH, x, y, scale);
     x += digitSpacing;
     timer_amount.renderDigit(secondsIdxL, x, y, scale);
+
+    smaller_text.setTextString("Time left to choose ");
+    Area timeDest(DISPLAY_WIDTH - totalTimerWidth - padding - 250, padding * 4, 250, 40);
+    smaller_text.render(timeDest);
 }
 
 void listTeams::renderSlots() {
