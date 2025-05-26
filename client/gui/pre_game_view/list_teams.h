@@ -23,6 +23,7 @@ private:
     int DISPLAY_HEIGHT;
     int size_slots_w;
     int size_slots_h;
+    int size_image;
     int base_x;
     int base_y;
     SdlText text;

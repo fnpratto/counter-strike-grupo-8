@@ -90,11 +90,11 @@ void SDLDisplay::run() {
         SDL_Quit();
         exit(1);
     }
-    /*int SCREEN_WIDTH = displayMode.w;
-    int SCREEN_HEIGHT = displayMode.h - 150;*/
+    int SCREEN_WIDTH = displayMode.w;
+    int SCREEN_HEIGHT = displayMode.h - 150;
 
-    const int SCREEN_WIDTH = 800;
-    const int SCREEN_HEIGHT = 600;
+    /*const int SCREEN_WIDTH = 800;
+    const int SCREEN_HEIGHT = 600;*/
 
     /*TODO maybe will change*/
     Uint32 RATE = 16;  // Define RATE as the frame duration in milliseconds (e.g., 16ms for ~60 FPS)
@@ -153,7 +153,7 @@ void SDLDisplay::run() {
 
             /*update --> pull event from the queue*/
             window.fill();
-            if (clock > 2) {
+            if (clock > 20) {
                 map.render();
                 hudDisplay.update(clock);
                 if (shop) {

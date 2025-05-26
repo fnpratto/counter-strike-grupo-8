@@ -11,7 +11,7 @@ const std::string& MAP_PATH = "../client/gui/map_view/cod_big_map_20x20.yaml";
 const int tile_width = 32;
 const int tile_height = 32;
 
-const int tile_size = 64;
+const int tile_size = 96;
 
 
 Map::Map(SdlWindow& window):
@@ -114,7 +114,7 @@ void Map::render() {
     }
     // Replace static src with animated clip
     Area iconSrc(currentClip->x, currentClip->y, currentClip->w, currentClip->h);
-    Area iconDest(character_x, character_y, currentClip->w, currentClip->h);
+    Area iconDest(character_x, character_y, currentClip->w * 1.5, currentClip->h * 1.5);
 
     load_map(0);  // Load the map with ID 0
     /*for*/

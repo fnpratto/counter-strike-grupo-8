@@ -29,19 +29,18 @@ listTeams::listTeams(SdlWindow& window):
 
     float BASE_WIDTH = 800.0f;
     float BASE_HEIGHT = 600.0f;
-    float scale_w = DISPLAY_WIDTH / BASE_WIDTH;
-    float scale_h = DISPLAY_HEIGHT / BASE_HEIGHT;
-    size_slots_h = 400 * scale_h;
-    size_slots_w = 200 * scale_w;
-    base_x = DISPLAY_WIDTH / 2 - size_slots_w;
-    base_y = DISPLAY_HEIGHT / 2 - size_slots_h / 2 + 50;
-
     widthRatio = DISPLAY_WIDTH / BASE_WIDTH;
     heightRatio = DISPLAY_HEIGHT / BASE_HEIGHT;
+    size_slots_h = 400 * heightRatio;
+    size_slots_w = 200 * widthRatio;
+    base_x = DISPLAY_WIDTH / 2 - size_slots_w;
+    base_y = DISPLAY_HEIGHT * 0.2;
+
     scaleRatio = std::min(widthRatio, heightRatio);
     digitSpacing = static_cast<int>(22 * scaleRatio);
     size_height = static_cast<int>(64 * scaleRatio);
     scale = 0.5f * scaleRatio;
+    size_image = size_slots_w;
 }
 
 void listTeams::update(int currentClockTick) {
@@ -54,7 +53,7 @@ void listTeams::update(int currentClockTick) {
     Area priceDest(0 + padding * 8, 0 + padding * 4, 150, 50);
     text.render(priceDest);
     Area src1(0, 0, 600, 300);
-    Area dest1(padding, base_y - 50, DISPLAY_WIDTH, size_slots_h + 50);
+    Area dest1(padding, base_y - 50, DISPLAY_WIDTH, DISPLAY_WIDTH * 0.40 + 50);
 
     rectangulo_horizontal.render(src1, dest1);
     renderSlots();
@@ -86,16 +85,16 @@ void listTeams::render_timer(int currentClockTick) {
 
 void listTeams::renderSlots() {
     // Calculate the positions for the terrorist and counter-terrorist images
-    int terrorist_x = base_x - size_slots_w / 2 - padding;
+    int terrorist_x = DISPLAY_WIDTH / 2 - DISPLAY_WIDTH * 0.30 - padding;
     int terrorist_y = base_y;
-    int counter_terrorist_x = base_x + size_slots_w;
+    int counter_terrorist_x = DISPLAY_WIDTH / 2 + padding;
     int counter_terrorist_y = base_y;
 
     Area src(0, 0, 375, 410);
     Area src1(0, 5, 375, 460);
-    Area terrorist_dest(terrorist_x, terrorist_y, size_slots_w * 1.50, size_slots_w * 1.7);
-    Area counter_terrorist_dest(counter_terrorist_x, counter_terrorist_y, size_slots_w * 1.50,
-                                size_slots_w * 1.7);
+    Area terrorist_dest(terrorist_x, terrorist_y, DISPLAY_WIDTH * 0.30, DISPLAY_WIDTH * 0.30);
+    Area counter_terrorist_dest(counter_terrorist_x, counter_terrorist_y, DISPLAY_WIDTH * 0.30,
+                                DISPLAY_WIDTH * 0.30);
 
     // Render the terrorist and counter-terrorist images
     terrorist.render(src, terrorist_dest);
@@ -104,47 +103,48 @@ void listTeams::renderSlots() {
     // Add text below the terrorist image
     text.setTextString("Terrorist");
     Area terrorist_text_dest(terrorist_x + (size_slots_w) / 4,
-                             terrorist_y + size_slots_w * 1.7 + padding, 150, 50);
+                             terrorist_y + DISPLAY_WIDTH * 0.30 - 50, 150, 50);
     text.render(terrorist_text_dest);
 
     // Add text below the counter-terrorist image
     text.setTextString("Counter-Terrorist");
     Area counter_terrorist_text_dest(counter_terrorist_x + (size_slots_w) / 4,
-                                     counter_terrorist_y + size_slots_w * 1.7 + padding, 200, 50);
+                                     counter_terrorist_y + DISPLAY_WIDTH * 0.30 - 50, 200, 50);
     text.render(counter_terrorist_text_dest);
 
+    terrorist_y += DISPLAY_WIDTH * 0.30;
+    counter_terrorist_y += DISPLAY_WIDTH * 0.30;
+    terrorist_x += (size_slots_w) / 4;
+    counter_terrorist_x += (size_slots_w) / 4;
     // Render additional descriptive text for both teams
     if (selected_team == 1) {
         smaller_text.setTextString("Plant the bomb and defend it until ");
-        Area terrorist_text_dest_1(terrorist_x + (size_slots_w) / 4,
-                                   terrorist_y + (size_slots_w * 1.7) / 2, 200, 50);
+        Area terrorist_text_dest_1(terrorist_x + padding, terrorist_y, 400 * scale, 50);
         smaller_text.render(terrorist_text_dest_1);
 
         smaller_text.setTextString("it explodes, or eliminate all ");
-        Area terrorist_text_dest_2(terrorist_x + (size_slots_w) / 4,
-                                   terrorist_y + (size_slots_w * 1.7) / 2 + padding * 3, 200, 50);
+        Area terrorist_text_dest_2(terrorist_x + padding, terrorist_y + padding * 3, 400 * scale,
+                                   50);
         smaller_text.render(terrorist_text_dest_2);
 
         smaller_text.setTextString("Counter-Terrorists to secure victory.");
-        Area terrorist_text_dest_3(terrorist_x + (size_slots_w) / 4,
-                                   terrorist_y + (size_slots_w * 1.7) / 2 + padding * 6, 200, 50);
+        Area terrorist_text_dest_3(terrorist_x + padding, terrorist_y + padding * 6, 400 * scale,
+                                   50);
         smaller_text.render(terrorist_text_dest_3);
     } else {
         smaller_text.setTextString("Prevent the terrorist from ");
-        Area counter_terrorist_text_dest_1(counter_terrorist_x + (size_slots_w) / 4,
-                                           counter_terrorist_y + (size_slots_w * 1.7) / 2, 200, 50);
+        Area counter_terrorist_text_dest_1(counter_terrorist_x + padding, counter_terrorist_y,
+                                           400 * scale, 50);
         smaller_text.render(counter_terrorist_text_dest_1);
 
         smaller_text.setTextString("detonating their bomb or ");
-        Area counter_terrorist_text_dest_2(
-                counter_terrorist_x + (size_slots_w) / 4,
-                counter_terrorist_y + (size_slots_w * 1.7) / 2 + padding * 3, 200, 50);
+        Area counter_terrorist_text_dest_2(counter_terrorist_x + padding,
+                                           counter_terrorist_y + padding * 3, 400 * scale, 50);
         smaller_text.render(counter_terrorist_text_dest_2);
 
         smaller_text.setTextString("eliminate them all to win.");
-        Area counter_terrorist_text_dest_3(
-                counter_terrorist_x + (size_slots_w) / 4,
-                counter_terrorist_y + (size_slots_w * 1.7) / 2 + padding * 6, 200, 50);
+        Area counter_terrorist_text_dest_3(counter_terrorist_x + padding,
+                                           counter_terrorist_y + padding * 6, 400 * scale, 50);
         smaller_text.render(counter_terrorist_text_dest_3);
     }
 }
