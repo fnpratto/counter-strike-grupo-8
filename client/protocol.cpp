@@ -30,6 +30,12 @@ payload_t ClientProtocol::serialize(const JoinGameCommand& cmd) const {
 }
 
 template <>
+payload_t ClientProtocol::serialize(const ListGamesCommand& cmd) const {
+    (void)cmd;
+    return payload_t();
+}
+
+template <>
 payload_t ClientProtocol::serialize(const AimCommand& cmd) const {
     payload_t payload;
     payload.reserve(2 * sizeof(float));
@@ -82,6 +88,8 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
 DESERIALIZERS(ClientProtocol)
 
 Message ClientProtocol::deserialize_message(const MessageType& type, payload_t& payload) const {
+    (void)payload;  // TODO remove me
+
     switch (type) {
         default:
             throw std::runtime_error("Invalid message type for deserialization");
