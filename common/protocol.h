@@ -74,6 +74,18 @@ public:
 
 private:
     /**
+     * @brief Serializes the payload header to determine the message type.
+     * @return The serialized MessageType.
+     */
+    payload_t serialize_message_type(MessageType type) const;
+
+    /**
+     * @brief Serializes the payload header to determine the message type.
+     * @return The serialized MessageType.
+     */
+    payload_t serialize_message_length(const payload_t& msg) const;
+
+    /**
      * @brief Deserializes the payload header to determine the message type.
      * @return The deserialized MessageType.
      */

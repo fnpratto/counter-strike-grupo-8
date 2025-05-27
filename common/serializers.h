@@ -16,10 +16,11 @@
                                                                                        \
     template <>                                                                        \
     payload_t C::serialize(const uint16_t& i) const {                                  \
-        payload_t payload(sizeof(i));                                                  \
+        payload_t payload;                                                             \
                                                                                        \
         uint16_t data = htons(static_cast<uint16_t>(i));                               \
-        payload.insert(payload.end(), reinterpret_cast<const char*>(&data),            \
+        payload.reserve(sizeof(data));                                                 \
+        payload.insert(payload.begin(), reinterpret_cast<const char*>(&data),          \
                        reinterpret_cast<const char*>(&data) + sizeof(data));           \
                                                                                        \
         return payload;                                                                \

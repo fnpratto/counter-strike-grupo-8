@@ -22,12 +22,35 @@ bool BaseProtocol::is_closed() const {
 bool BaseProtocol::is_open() const { return !is_closed(); }
 
 void BaseProtocol::send(const Message& message) {
-    payload_t payload = serialize_message(message);
+    payload_t payload;
+    payload_t header = serialize_message_type(message.get_type());
+    payload_t content = serialize_message(message);
+    payload_t length = serialize_message_length(content);
+
+    payload.reserve(header.size() + length.size() + content.size());
+    payload.insert(payload.end(), header.begin(), header.end());
+    payload.insert(payload.end(), length.begin(), length.end());
+    payload.insert(payload.end(), content.begin(), content.end());
 
     if (payload.size() == 0)
         throw std::runtime_error("BaseProtocol: Empty payload");
 
     socket.sendall(payload.data(), payload.size());
+}
+
+payload_t BaseProtocol::serialize_message_type(MessageType type) const {
+    payload_t header(1);
+    header[0] = static_cast<uint8_t>(type);
+    return header;
+}
+
+payload_t BaseProtocol::serialize_message_length(const payload_t& msg) const {
+    payload_t payload(2);
+    uint16_t length = msg.size();
+    length = htons(length);
+    payload.insert(payload.begin(), reinterpret_cast<const char*>(&length),
+                   reinterpret_cast<const char*>(&length) + sizeof(length));
+    return payload;
 }
 
 Message BaseProtocol::recv() {
