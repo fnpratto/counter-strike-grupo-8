@@ -153,9 +153,9 @@ void SDLDisplay::run() {
 
             /*update --> pull event from the queue*/
             window.fill();
-            if (clock > 20) {
+            if (clock > 10) {
                 map.render();
-                hudDisplay.update(clock - 20);
+                hudDisplay.update(clock - 10);
                 if (shop) {
                     shopDisplay.render();
                 }

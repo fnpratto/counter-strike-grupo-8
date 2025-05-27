@@ -218,7 +218,7 @@ void hudDisplay::renderGunIcons() {
 
     int spacing = 64;
 
-    renderGunIcon("../assets/gfx/guns/ak47_k.xcf", "1", x, y);
+    renderGunIcon("../assets/gfx/guns/knife_k.xcf", "1", x, y);
     y += spacing;
     renderGunIcon("../assets/gfx/guns/aug_k.xcf", "2", x, y);
     y += spacing;
