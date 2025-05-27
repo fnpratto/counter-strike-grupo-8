@@ -56,7 +56,7 @@ Map::Map(SdlWindow& window):
     walkLeftClips[5] = {96, 160, 32, 32};
 }
 
-void Map::load_map(int map_id) {
+void Map::load_map(/*int map_id*/) {
 
     map_data = YAML::LoadFile(MAP_PATH);
     build();
@@ -116,7 +116,7 @@ void Map::render() {
     Area iconSrc(currentClip->x, currentClip->y, currentClip->w, currentClip->h);
     Area iconDest(character_x, character_y, currentClip->w * 1.5, currentClip->h * 1.5);
 
-    load_map(0);  // Load the map with ID 0
+    load_map();  // Load the map with ID 0
     /*for*/
     character.render(iconSrc, iconDest);
 }

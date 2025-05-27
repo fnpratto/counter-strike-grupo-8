@@ -1,6 +1,7 @@
 #ifndef LIST_TEAMS_H
 #define LIST_TEAMS_H
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -9,13 +10,16 @@
 #include "../window_elements/sdl_text.h"
 #include "../window_elements/sdl_texture.h"
 #include "../window_elements/sdl_window.h"
+#include "common/commands.h"
+#include "common/message.h"
+#include "common/models.h"
 
 
 class listTeams {
 public:
     explicit listTeams(SdlWindow& window);
     void update(int currentClockTick);
-    void updatePointerPosition(int x, int y);
+    std::optional<Team> updatePointerPosition(int x, int y);
 
 private:
     SdlWindow& window;

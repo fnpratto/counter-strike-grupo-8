@@ -81,12 +81,13 @@ public:
  * @brief Command to start or stop movement in a direction.
  */
 class MoveCommand: public Command {
-    MoveDirection direction;
+    int dx;
+    int dy;
     bool start;
 
 public:
-    MoveCommand(MoveDirection dir, bool s): direction(dir), start(s) {}
-    MoveDirection get_direction() const { return direction; }
+    MoveCommand(int dx, int dy, bool start): dx(dx), dy(dy), start(start) {}
+    // MoveDirection get_direction() const { return direction; }
     bool is_start() const { return start; }
 };
 

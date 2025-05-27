@@ -17,16 +17,15 @@ listTeams::listTeams(SdlWindow& window):
         window(window),
         DISPLAY_WIDTH(window.getWidth()),
         DISPLAY_HEIGHT(window.getHeight()),
-        rectangulo_horizontal(RECTANGULE_HORIZONTAL, window),
-        background(BACKGROUND_PATH_1, window),
         text(TEXT_PATH, 100, {255, 255, 255, 255}, window),
         smaller_text(SMALLER_TEXT_PATH, 100, {255, 255, 255, 255}, window),
+        rectangulo_horizontal(RECTANGULE_HORIZONTAL, window),
+        background(BACKGROUND_PATH_1, window),
         terrorist(TERRORIST_PATH, window),
         counter_terrorist(COUNTER_TERRORIST_PATH, window),
         timer_amount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
-        timer_dots("../assets/gfx/fonts/hud_nums.xcf", window) {
-    selected_team = 0;
-
+        timer_dots("../assets/gfx/fonts/hud_nums.xcf", window),
+        selected_team(0) {
     float BASE_WIDTH = 800.0f;
     float BASE_HEIGHT = 600.0f;
     widthRatio = DISPLAY_WIDTH / BASE_WIDTH;
@@ -156,7 +155,9 @@ void listTeams::renderSlots() {
         smaller_text.render(counter_terrorist_text_dest_3);
     }
 }
-void listTeams::updatePointerPosition(int x, int y) {
+
+
+std::optional<Team> listTeams::updatePointerPosition(int x, int y) {
     int terrorist_x = base_x - size_slots_w / 2 - padding;
     int terrorist_y = base_y;
     int counter_terrorist_x = base_x + size_slots_w;
@@ -170,14 +171,14 @@ void listTeams::updatePointerPosition(int x, int y) {
         y <= terrorist_y + slot_height) {
         std::cerr << "Mouse is over Terrorist slot." << std::endl;
         selected_team = 1;  // terrorist
-        return;
+        return Team::Terrorist;
     }
 
     // Check if the pointer is over the counter-terrorist slot
     if (x >= counter_terrorist_x && x <= counter_terrorist_x + slot_width &&
         y >= counter_terrorist_y && y <= counter_terrorist_y + slot_height) {
-        std::cerr << "Mouse is over Counter-Terrorist slot." << std::endl;
         selected_team = 0;  // counter
-        return;
+        return Team::CounterTerrorist;
     }
+    return std::nullopt;
 }

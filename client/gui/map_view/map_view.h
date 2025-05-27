@@ -22,7 +22,7 @@ class Map {
 public:
     explicit Map(SdlWindow& window);
 
-    void load_map(int map_id);
+    void load_map(/*int map_id*/);
 
     void render();
     void update_character(int x, int y, Direction dir);

@@ -4,8 +4,8 @@
 #include <memory>
 #include <string>
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_events.h>
+#include <SDL.h>
+#include <SDL_events.h>
 
 #include "../client/requests.h"
 #include "../common/message.h"
@@ -109,8 +109,8 @@ void SDLDisplay::run() {
         Map map(window);
         listTeams listTeams(window);
 
-        MouseHandler mouseHandler(hudDisplay, shopDisplay, listTeams);
-        KeyboardHandler keyboardHandler(map);
+        MouseHandler mouseHandler(hudDisplay, shopDisplay, listTeams, this->input_queue);
+        KeyboardHandler keyboardHandler(this->input_queue, map);
         SDL_Event e;
 
         bool quit = false;
@@ -149,7 +149,9 @@ void SDLDisplay::run() {
                 if (shop) {
                     shopDisplay.render();
                 }
+                list_teams = false;
             } else {
+
                 listTeams.update(clock);
             }
 

@@ -1,7 +1,5 @@
 # Adding sources
 add_subdirectory(gui)
-find_package(yaml-cpp REQUIRED)
-
 target_sources(taller_client
     PRIVATE
     # .cpp files
@@ -23,20 +21,4 @@ target_sources(taller_client
     text_display.h
     qt_display.h
     sdl_display.h
-    )
-
-    target_link_libraries(taller_client
-    PRIVATE
-    elements
-    SDL2
-    SDL2_image
-    SDL2_ttf
-    yaml-cpp
-)
-
-
-target_include_directories(taller_client
-   PRIVATE
-        gui/window_elements
-        gui/hud_component
 )
