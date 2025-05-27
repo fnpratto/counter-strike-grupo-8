@@ -12,11 +12,6 @@
 #include "bit_map_font_number.h"
 
 class hudDisplay {
-public:
-    explicit hudDisplay(SdlWindow& window);
-    void render();
-
-private:
     SdlWindow& window;
     SdlTexture back;
     SdlTexture pointer;
@@ -31,6 +26,12 @@ private:
     SdlText roundText;
     SdlText gunNumber;
     SdlText scoreText;
+
+public:
+    explicit hudDisplay(SdlWindow& window);
+    void render();
+
+private:
     void renderBackground();
     void renderParal();
     void renderPointer();
