@@ -17,6 +17,7 @@ public:
 
 private:
     Queue<Message>& inputQueue;
+    void update_direction();
 };
 
 #endif  // KEYBOARDHANDLER_H

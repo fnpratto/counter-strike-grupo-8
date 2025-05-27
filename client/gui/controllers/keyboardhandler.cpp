@@ -12,30 +12,41 @@ KeyboardHandler::KeyboardHandler(Queue<Message>& inputQueue): inputQueue(inputQu
 void KeyboardHandler::handleEvent(const SDL_Event& event, bool& shop) {
     if (event.type == SDL_KEYDOWN) {
         switch (event.key.keysym.sym) {
-            case SDLK_DOWN:
-                std::cout << "KEY_PRESS_DOWN" << std::endl;
-                inputQueue.push(Message(MoveCommand(MoveDirection::Down, true)));
-                break;
-            case SDLK_UP:
-                std::cout << "KEY_PRESS_UP" << std::endl;
-                inputQueue.push(Message(MoveCommand(MoveDirection::Up, true)));
-                break;
-            case SDLK_LEFT:
-                std::cout << "KEY_PRESS_LEFT" << std::endl;
-                inputQueue.push(Message(MoveCommand(MoveDirection::Left, true)));
-                break;
-            case SDLK_RIGHT:
-                std::cout << "KEY_PRESS_RIGHT" << std::endl;
-                inputQueue.push(Message(MoveCommand(MoveDirection::Right, true)));
-                break;
             case SDLK_SPACE:
                 std::cout << "KEY_PRESS_SPACE" << std::endl;
                 shop = false;
                 break;
             case SDLK_b:
                 std::cout << "KEY_PRESS_B" << std::endl;
+                // inputQueue.push(Message(Request Store);
                 shop = true;
                 break;
         }
+    }
+    update_direction();
+}
+
+void KeyboardHandler::update_direction() {
+    const Uint8* keystate = SDL_GetKeyboardState(NULL);
+
+    int dx = 0;
+    int dy = 0;
+
+    if (keystate[SDL_SCANCODE_UP]) {
+        dy = -1;
+    }
+    if (keystate[SDL_SCANCODE_DOWN]) {
+        dy = 1;
+    }
+    if (keystate[SDL_SCANCODE_LEFT]) {
+        dx = -1;
+    }
+    if (keystate[SDL_SCANCODE_RIGHT]) {
+        dx = 1;
+    }
+
+    if (dx != 0 || dy != 0) {
+        inputQueue.push(Message(MoveCommand(dx, dy, true)));
+        std::cout << "KEY_PRESS_MOVE: dx=" << dx << ", dy=" << dy << std::endl;
     }
 }

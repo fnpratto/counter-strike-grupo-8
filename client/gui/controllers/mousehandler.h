@@ -1,6 +1,8 @@
 #ifndef MOUSEHANDLER_H
 #define MOUSEHANDLER_H
 
+#include <algorithm>
+
 #include <SDL2/SDL.h>
 
 #include "client/gui/hud_component/hud_display.h"
@@ -10,7 +12,6 @@
 #include "common/queue.h"
 #include "common/socket.h"
 #include "common/thread.h"
-
 
 class MouseHandler {
 public:
@@ -28,6 +29,8 @@ private:
     shopDisplay& shopDisplayRef;
     listTeams& listTeamsRef;
     Queue<Message>& inputQueue;
+
+    void sendNormalizedCoordinates(int x, int y);
 };
 
 #endif  // MOUSEHANDLER_H

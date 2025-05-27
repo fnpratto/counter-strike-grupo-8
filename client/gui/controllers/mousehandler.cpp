@@ -4,11 +4,18 @@
 
 #include <SDL2/SDL.h>
 
-// void getNormalizedCoordinates(/*int& x, int& y*/) {
-//  Normalize the coordinates to the range [0, 1]
-//  x = static_cast<int>(x / static_cast<float>(SCREEN_WIDTH));
-//  y = static_cast<int>(y / static_cast<float>(SCREEN_HEIGHT));
-//}
+constexpr int SCREEN_WIDTH = 800;
+constexpr int SCREEN_HEIGHT = 600;
+
+void MouseHandler::sendNormalizedCoordinates(int x, int y) {
+    float norm_x = static_cast<float>(x) / SCREEN_WIDTH;
+    float norm_y = static_cast<float>(y) / SCREEN_HEIGHT;
+
+    // Optional: Clamp values between 0 and 1 just in case
+    norm_x = std::max(0.0f, std::min(1.0f, norm_x));
+    norm_y = std::max(0.0f, std::min(1.0f, norm_y));
+    inputQueue.push(Message(AimCommand(norm_x, norm_y)));
+}
 
 void MouseHandler::handleEvent(const SDL_Event& event, bool shop, bool list_teams) {
     int x, y;
@@ -19,14 +26,17 @@ void MouseHandler::handleEvent(const SDL_Event& event, bool shop, bool list_team
                 if (shop) {
                     SDL_GetMouseState(&x, &y);
                     // normalizar
-                    // inputQueue.push(Message(BuyWeaponCommand??));  F(BuyWeaponCommand,
-                    // BUY_WEAPON_CMD)
+                    // inputQueue.push(Message(BuyWeaponCommand??));
+                    // F(BuyWeaponCommand, BUY_WEAPON_CMD)
                     shopDisplayRef.updatePointerPosition(x, y);
                 }
                 if (list_teams) {
                     SDL_GetMouseState(&x, &y);
-                    listTeamsRef.updatePointerPosition(x, y);
-                    // inputQueue.push(Message(SelectTeamCommand);
+                    std::optional<Team> team_choosen = listTeamsRef.updatePointerPosition(x, y);
+                    if (team_choosen.has_value()) {
+                        inputQueue.push(Message(SelectTeamCommand(team_choosen.value())));
+                        std::cout << "Selected team" << std::endl;
+                    }
                 }
                 // inputQueue.push(Message(ShootCommand));
                 break;
@@ -36,7 +46,7 @@ void MouseHandler::handleEvent(const SDL_Event& event, bool shop, bool list_team
         }
     } else if (event.type == SDL_MOUSEMOTION) {
         SDL_GetMouseState(&x, &y);
-        // F(AimCommand, AIM_CMD)
+        sendNormalizedCoordinates(x, y);
         hudDisplayRef.updatePointerPosition(x, y);
     }
 }

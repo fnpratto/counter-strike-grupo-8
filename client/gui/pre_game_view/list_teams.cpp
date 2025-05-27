@@ -141,7 +141,9 @@ void listTeams::renderSlots() {
         smaller_text.render(counter_terrorist_text_dest_3);
     }
 }
-void listTeams::updatePointerPosition(int x, int y) {
+
+
+std::optional<Team> listTeams::updatePointerPosition(int x, int y) {
     int terrorist_x = base_x - size_slots_w / 2 - padding;
     int terrorist_y = base_y;
     int counter_terrorist_x = base_x + size_slots_w;
@@ -155,14 +157,14 @@ void listTeams::updatePointerPosition(int x, int y) {
         y <= terrorist_y + slot_height) {
         std::cerr << "Mouse is over Terrorist slot." << std::endl;
         selected_team = 1;  // terrorist
-        return;
+        return Team::Terrorist;
     }
 
     // Check if the pointer is over the counter-terrorist slot
     if (x >= counter_terrorist_x && x <= counter_terrorist_x + slot_width &&
         y >= counter_terrorist_y && y <= counter_terrorist_y + slot_height) {
-        std::cerr << "Mouse is over Counter-Terrorist slot." << std::endl;
         selected_team = 0;  // counter
-        return;
+        return Team::CounterTerrorist;
     }
+    return std::nullopt;
 }
