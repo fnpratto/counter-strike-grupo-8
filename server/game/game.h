@@ -28,6 +28,8 @@ private:
     int num_tts = 0;
     int num_cts = 0;
 
+    void clear_updates();
+
     bool player_is_in_game(const std::string& player_name) const;
     bool team_is_full(const Team& team) const;
     bool all_players_ready() const;
@@ -42,7 +44,8 @@ private:
     void handle_buy_gun_msg(const std::string& player_name, GunType gun);
     void handle_buy_ammo_msg(const std::string& player_name, GunType gun);
     void handle_move_msg(const std::string& player_name, int dx, int dy);
-    void handle_aim_msg(const std::string& player_name, float dx, float dy);
+    void handle_stop_msg(const std::string& player_name);
+    void handle_aim_msg(const std::string& player_name, float x, float y);
 
     // TODO: implement shoot command
     // void handle_shoot_msg(const std::string& player_name, int x, int y);
@@ -52,6 +55,7 @@ private:
 
     GameState full_state();
 
+    void advance_players_movement();
     void advance_round_logic();
 
 public:

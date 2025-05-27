@@ -7,6 +7,7 @@
 #include <variant>
 
 #include "common/game_state.h"
+#include "server/utils/vector_2d.h"
 
 // Type traits for attribute-value mapping
 template <typename Attr, Attr A, typename ExpectedType>
@@ -176,9 +177,11 @@ enum class PlayerAttr {
     POS_Y,
     AIM_X,
     AIM_Y,
-    CURRENT_WEAPON
+    CURRENT_WEAPON,
+    IS_MOVING,
+    MOVE_DIR
 };
-typedef std::variant<bool, Team, InventoryUpdate, int, float, WeaponSlot> PlayerValue;
+typedef std::variant<bool, Team, InventoryUpdate, int, float, WeaponSlot, Vector2D> PlayerValue;
 
 class PlayerUpdate: public StateUpdate<PlayerAttr, PlayerValue> {
 public:
@@ -220,6 +223,7 @@ protected:
 
         switch (attr) {
             case PlayerAttr::READY:
+            case PlayerAttr::IS_MOVING:
                 return std::is_same_v<T, bool>;
             case PlayerAttr::HEALTH:
                 return std::is_same_v<T, int>;
@@ -234,6 +238,8 @@ protected:
                 return std::is_same_v<T, float>;
             case PlayerAttr::CURRENT_WEAPON:
                 return std::is_same_v<T, WeaponSlot>;
+            case PlayerAttr::MOVE_DIR:
+                return std::is_same_v<T, Vector2D>;
             default:
                 return false;
         }
@@ -357,6 +363,8 @@ public:
         player_update.add_change(PlayerAttr::POS_Y, 75.0f);
         player_update.add_change(PlayerAttr::AIM_X, 0.1f);
         player_update.add_change(PlayerAttr::AIM_Y, 0.5f);
+        player_update.add_change(PlayerAttr::IS_MOVING, true);
+        player_update.add_change(PlayerAttr::MOVE_DIR, Vector2D(1, 1));
 
         PhaseUpdate phase_update;
         phase_update.add_change(PhaseAttr::PHASE, PhaseType::WarmUp);

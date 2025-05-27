@@ -90,7 +90,7 @@ public:
 
 /**
  * @class MoveCommand
- * @brief Command move in a direction.
+ * @brief Command to start moving in a direction.
  */
 class MoveCommand: public Command {
     int dx;
@@ -101,6 +101,15 @@ public:
 
     bool get_dx() const { return dx; }
     bool get_dy() const { return dy; }
+};
+
+/**
+ * @class StopPlayerCommand
+ * @brief Command to stop the player's movement.
+ */
+class StopPlayerCommand: public Command {
+public:
+    StopPlayerCommand(): Command() {}
 };
 
 /**
@@ -120,14 +129,7 @@ public:
  * @class ShootCommand
  * @brief Command to shoot towards the aimed direction.
  */
-class ShootCommand: public Command {
-    float x, y;
-
-public:
-    ShootCommand(float targetX, float targetY): x(targetX), y(targetY) {}
-    float get_x() const { return x; }
-    float get_y() const { return y; }
-};
+class ShootCommand: public Command {};
 
 /**
  * @class SwitchWeaponCommand

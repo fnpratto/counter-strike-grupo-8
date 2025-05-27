@@ -19,6 +19,13 @@ std::unique_ptr<Gun>& Inventory::get_gun(const WeaponSlot& slot) { return guns.a
 
 InventoryUpdate Inventory::get_updates() const { return updates; }
 
+void Inventory::clear_updates() {
+    updates.clear();
+    for (auto& [_, g]: guns) {
+        g->clear_updates();
+    }
+}
+
 InventoryState Inventory::state() const {
     InventoryState inventory_state;
 

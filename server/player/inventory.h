@@ -19,8 +19,9 @@ public:
     Inventory();
 
     std::unique_ptr<Gun>& get_gun(const WeaponSlot& slot);
-
     InventoryUpdate get_updates() const;
+
+    void clear_updates();
 
     InventoryState state() const;
 

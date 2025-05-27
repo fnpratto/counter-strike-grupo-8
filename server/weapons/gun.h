@@ -47,6 +47,8 @@ public:
     int get_reserve_ammo() const { return reserve_ammo; }
     GunUpdate get_updates() const { return updates; }
 
+    void clear_updates() { updates.clear(); }
+
     GunState state() const {
         GunState gun_state;
         gun_state.gun = gun;

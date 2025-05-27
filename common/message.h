@@ -22,6 +22,7 @@
     F(BuyGunCommand, BUY_GUN_CMD)                      \
     F(BuyAmmoCommand, BUY_AMMO_CMD)                    \
     F(MoveCommand, MOVE_CMD)                           \
+    F(StopPlayerCommand, STOP_CMD)                     \
     F(AimCommand, AIM_CMD)                             \
     F(ShootCommand, SHOOT_CMD)                         \
     F(SwitchWeaponCommand, SWITCH_WEAPON_CMD)          \

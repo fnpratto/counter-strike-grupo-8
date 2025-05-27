@@ -10,10 +10,11 @@ Game::Game(const std::string& name, const Clock& clock, const Map& map):
 }
 
 GameUpdate Game::tick(const std::vector<Message>& msgs, const std::string& player_name) {
-    updates.clear();
+    clear_updates();
     for (const Message& msg: msgs) {
         handle_msg(msg, player_name);
     }
+    advance_players_movement();
     advance_round_logic();
     return updates;
 }
@@ -35,10 +36,12 @@ void Game::handle_msg(const Message& msg, const std::string& player_name) {
         int dx = msg.get_content<MoveCommand>().get_dx();
         int dy = msg.get_content<MoveCommand>().get_dy();
         handle_move_msg(player_name, dx, dy);
+    } else if (msg_type == MessageType::STOP_CMD) {
+        handle_stop_msg(player_name);
     } else if (msg_type == MessageType::AIM_CMD) {
-        float dx = msg.get_content<AimCommand>().get_x();
-        float dy = msg.get_content<AimCommand>().get_y();
-        handle_aim_msg(player_name, dx, dy);
+        float x = msg.get_content<AimCommand>().get_x();
+        float y = msg.get_content<AimCommand>().get_y();
+        handle_aim_msg(player_name, x, y);
         // } else if (msg_type == MessageType::SHOOT_CMD) {
         //     int x = msg.get_content<ShootCommand>().get_x();
         //     int y = msg.get_content<ShootCommand>().get_y();
@@ -60,6 +63,17 @@ void Game::advance_round_logic() {
     }
     if (num_rounds == GameConfig::max_rounds / 2)
         swap_teams();
+}
+
+void Game::advance_players_movement() {
+    for (const auto& [_, p]: players) {
+        if (p->is_moving()) {
+            Vector2D old_pos = p->get_pos();
+            Vector2D new_pos = old_pos + physics_system.calculate_step(p->get_move_dir());
+            // TODO: Check collisions with physics_system (with tiles and entities)
+            p->move_to_pos(new_pos);
+        }
+    }
 }
 
 GameState Game::join_player(const std::string& player_name) {
@@ -161,23 +175,27 @@ void Game::handle_move_msg(const std::string& player_name, int dx, int dy) {
 
     std::unique_ptr<Player>& player = players.at(player_name);
 
-    Vector2D old_pos = player->get_pos();
-    Vector2D new_pos = old_pos + physics_system.calculate_step(Vector2D(dx, dy));
-
-    // TODO: Check collisions with physics_system (with tiles and entities)
-
-    player->move(new_pos);
+    player->start_moving(dx, dy);
 
     std::map<std::string, PlayerUpdate> game_players_update;
     game_players_update.emplace(player_name, player->get_updates());
     updates.add_change(GameStateAttr::PLAYERS, game_players_update);
 }
 
-void Game::handle_aim_msg(const std::string& player_name, float dx, float dy) {
+void Game::handle_stop_msg(const std::string& player_name) {
     std::unique_ptr<Player>& player = players.at(player_name);
 
-    Vector2D aim_dir = Vector2D(dx, dy);
-    player->aim(aim_dir);
+    player->stop_moving();
+
+    std::map<std::string, PlayerUpdate> game_players_update;
+    game_players_update.emplace(player_name, player->get_updates());
+    updates.add_change(GameStateAttr::PLAYERS, game_players_update);
+}
+
+void Game::handle_aim_msg(const std::string& player_name, float x, float y) {
+    std::unique_ptr<Player>& player = players.at(player_name);
+
+    player->aim(x, y);
 
     std::map<std::string, PlayerUpdate> game_players_update;
     game_players_update.emplace(player_name, player->get_updates());
@@ -252,6 +270,13 @@ void Game::swap_teams() {
 }
 
 Game::~Game() {}
+
+void Game::clear_updates() {
+    updates.clear();
+    for (auto& [_, p]: players) {
+        p->clear_updates();
+    }
+}
 
 bool Game::player_is_in_game(const std::string& player_name) const {
     return players.find(player_name) == players.end();

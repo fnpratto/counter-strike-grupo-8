@@ -10,7 +10,6 @@ private:
     float y;
 
 public:
-    Vector2D(): x(0), y(0) {}
     Vector2D(float x, float y): x(x), y(y) {}
     Vector2D(const Vector2D& v1, const Vector2D& v2):
             x(v2.get_x() - v1.get_x()), y(v2.get_y() - v1.get_y()) {}
@@ -23,6 +22,8 @@ public:
     Vector2D operator*(float n) const { return Vector2D(x * n, y * n); }
 
     bool operator==(const Vector2D& other) const { return x == other.x && y == other.y; }
+
+    bool operator!=(const Vector2D& other) const { return x != other.x || y != other.y; }
 
     Vector2D normalized() const {
         float norm = std::sqrt(x * x + y * y);
