@@ -118,13 +118,14 @@ void SDLDisplay::run() {
         bool shop = false;
         bool list_teams = true;
         int clock = 0;  // por ahora
+        bool isMuted = false;
 
         while (!quit) {
             while (SDL_PollEvent(&e)) {
                 if (e.type == SDL_QUIT) {
                     quit = true;
                 }
-                keyboardHandler.handleEvent(e, shop);
+                keyboardHandler.handleEvent(e, shop, isMuted);
                 mouseHandler.handleEvent(e, shop, list_teams);
             }
             /* update clock */
@@ -153,9 +154,9 @@ void SDLDisplay::run() {
 
             /*update --> pull event from the queue*/
             window.fill();
-            if (clock > 10) {
+            if (clock > 1) {
                 map.render();
-                hudDisplay.update(clock - 10);
+                hudDisplay.update(clock - 10, isMuted);
                 if (shop) {
                     shopDisplay.render();
                 }

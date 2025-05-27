@@ -16,6 +16,7 @@ const std::string& PARALELO_RED_PATH = "../assets/gfx/hud/parallelogram.xcf";
 const std::string& PARALELO_BLUE_PATH = "../assets/gfx/hud/parallelogram_blue.xcf";
 const std::string& PARALELO_RED_O_PATH = "../assets/gfx/hud/parallelogram_red_op.xcf";
 const std::string& PARALELO_BLUE_O_PATH = "../assets/gfx/hud/parallelogram_blue_op.xcf";
+const std::string& MUTE_ICON_PATH = "../assets/gfx/hud/hud_voice.xcf";
 
 hudDisplay::hudDisplay(SdlWindow& window):
         window(window),
@@ -33,7 +34,8 @@ hudDisplay::hudDisplay(SdlWindow& window):
         equipedBullets(BULLET_PATH, window),
         equipedBulletsAmount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
         gunNumber(FONT_PATH, 20, {150, 150, 150, 255}, window),
-        scoreText(FONT_PATH, 20, {255, 255, 255, 255}, window) {
+        scoreText(FONT_PATH, 20, {255, 255, 255, 255}, window),
+        muteIcon(MUTE_ICON_PATH, window) {
 
     float BASE_WIDTH = 800.0f;
     float BASE_HEIGHT = 600.0f;
@@ -54,7 +56,7 @@ hudDisplay::hudDisplay(SdlWindow& window):
 }
 
 
-void hudDisplay::update(/*const PlayerDTO& player_info,*/ int currentClockTick) {
+void hudDisplay::update(/*const PlayerDTO& player_info,*/ int currentClockTick, bool isMuted) {
 
     renderBackground();
     renderParal();
@@ -65,6 +67,7 @@ void hudDisplay::update(/*const PlayerDTO& player_info,*/ int currentClockTick) 
     renderRoundText();
     renderBullets();
     renderGunIcons();
+    renderMuteIcon(isMuted);
 }
 
 
@@ -78,6 +81,26 @@ void hudDisplay::render() {
     renderRoundText();
     renderBullets();
     renderGunIcons();
+    renderMuteIcon(false);
+}
+
+void hudDisplay::renderMuteIcon(bool isMuted) {
+    int iconWidth = static_cast<int>(32 * scaleRatio);
+    int iconHeight = static_cast<int>(32 * scaleRatio);
+
+    if (isMuted) {
+
+        const Area sizeMuteIcon(0, 0, 64, 64);
+        const Area destMuteIcon(SCREEN_WIDTH - iconWidth - layout.padding * 4, iconHeight,
+                                iconWidth, iconHeight);
+        muteIcon.render(sizeMuteIcon, destMuteIcon);
+
+    } else {
+        const Area sizeMuteIcon(256, 0, 64, 64);
+        const Area destMuteIcon(SCREEN_WIDTH - iconWidth - layout.padding * 4, iconHeight,
+                                iconWidth, iconHeight);
+        muteIcon.render(sizeMuteIcon, destMuteIcon);
+    }
 }
 
 

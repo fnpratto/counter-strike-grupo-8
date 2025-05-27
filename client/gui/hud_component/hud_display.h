@@ -27,7 +27,7 @@ public:
     explicit hudDisplay(SdlWindow& window);
     void render();
     void updatePointerPosition(int x, int y);
-    void update(int currentClockTick);
+    void update(int currentClockTick, bool isMuted);
 
 private:
     SdlWindow& window;
@@ -46,6 +46,7 @@ private:
     SdlText roundText;
     SdlText gunNumber;
     SdlText scoreText;
+    SdlTexture muteIcon;
     int pointerX = SCREEN_WIDTH / 2;
     int pointerY = SCREEN_HEIGHT / 2;
 
@@ -64,6 +65,7 @@ private:
     void renderRoundText();
     void renderBullets();
     void renderGunIcons();
+    void renderMuteIcon(bool isMuted);
 
     void show_timer();
 

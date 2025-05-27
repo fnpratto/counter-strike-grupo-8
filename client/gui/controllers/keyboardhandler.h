@@ -8,7 +8,7 @@
 class KeyboardHandler {
 public:
     explicit KeyboardHandler(Map& map_ref);
-    void handleEvent(const SDL_Event& event, bool& shop);
+    void handleEvent(const SDL_Event& event, bool& shop, bool& isMuted);
 
 private:
     Map& map_ref;

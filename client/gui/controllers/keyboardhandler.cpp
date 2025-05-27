@@ -9,7 +9,7 @@ KeyboardHandler::KeyboardHandler(Map& map_ref): map_ref(map_ref) {
     y = 300;
 }
 
-void KeyboardHandler::handleEvent(const SDL_Event& event, bool& shop) {
+void KeyboardHandler::handleEvent(const SDL_Event& event, bool& shop, bool& isMuted) {
     if (event.type == SDL_KEYDOWN) {
         switch (event.key.keysym.sym) {
             case SDLK_DOWN:
@@ -39,6 +39,9 @@ void KeyboardHandler::handleEvent(const SDL_Event& event, bool& shop) {
             case SDLK_b:
                 shop = true;
                 std::cout << "KEY_PRESS_B" << std::endl;
+                break;
+            case SDLK_m:
+                isMuted = !isMuted;
                 break;
         }
     }
