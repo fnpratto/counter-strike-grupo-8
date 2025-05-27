@@ -9,12 +9,12 @@ const std::string& CHARACTER_PATH = "../assets/gfx/player/ct2.xcf";
 Map::Map(SdlWindow& window):
         window(window),
         background(BACKGROUND2_PATH, window),
-        tiles(TILES_PATH, window),
         character(CHARACTER_PATH, window),
+        tiles(TILES_PATH, window),
         DISPLAY_WIDTH(window.getWidth()),
         DISPLAY_HEIGHT(window.getHeight()) {}
 
-void Map::load_map(int map_id) {
+void Map::load_map(/*int map_id*/) {
 
 
     /*YAML::Node maps_yaml = YAML::LoadFile(MAPS_FILE);

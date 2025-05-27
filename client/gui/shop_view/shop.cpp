@@ -36,24 +36,22 @@ shopDisplay::shopDisplay(SdlWindow& window):
         window(window),
         DISPLAY_WIDTH(window.getWidth()),
         DISPLAY_HEIGHT(window.getHeight()),
+        cost_money(FONT_PAT, 20, {255, 255, 255, 255}, window),
         back(HUD_SLOT_PATH, window),
         back_chosen(HUD_SLOT_CLICKED_PATH, window),
         gunNumber(FONT_PAT, 20, {255, 255, 255, 255}, window),
-        cost_money(FONT_PAT, 20, {255, 255, 255, 255}, window) {
+        gun_buy(-1) {
 
     float BASE_WIDTH = 800.0f;
     float BASE_HEIGHT = 600.0f;
     float scale_w = DISPLAY_WIDTH / BASE_WIDTH;
     float scale_h = DISPLAY_HEIGHT / BASE_HEIGHT;
 
-
     size_guns_w = 150 * scale_w;
     size_guns_h = 40 * scale_h;
     size_slots_w = (scale_w == 1) ? size_guns_w * scale_w : size_guns_w * scale_w / 2;
     size_slots_h = size_guns_h * scale_h;
 
-
-    gun_buy = -1;
     for (const auto& gun: guns) {
         try {
             gun_icons.emplace_back(gun.path, window);
@@ -69,12 +67,12 @@ void shopDisplay::render() {
 void shopDisplay::renderSlots() {
     int base_x = DISPLAY_WIDTH / 2 - size_slots_w * 2;
     int base_y = DISPLAY_HEIGHT / 2 - size_slots_h * 2;
-    for (int i = 0; i < guns.size() / 2; ++i) {
+    for (size_t i = 0; i < guns.size() / 2; ++i) {
         for (int j = 0; j < 2; ++j) {
             Area src(0, 0, size_guns_w, size_guns_h);
             Area dest(base_x + j * (size_guns_w * 2), base_y + i * (size_guns_h * 2),
                       size_guns_w * 2, size_guns_h * 2);
-            if (gun_buy == i * 2 + j) {
+            if (static_cast<size_t>(gun_buy) == i * 2 + j) {
                 back_chosen.render(src, dest);
             } else {
                 back.render(src, dest);
@@ -116,7 +114,7 @@ void shopDisplay::renderItem() {
 
 void shopDisplay::updatePointerPosition(int x, int y) {
 
-    for (int i = 0; i < guns.size() / 2; ++i) {
+    for (size_t i = 0; i < guns.size() / 2; ++i) {
         if (x >= DISPLAY_WIDTH / 2 - size_slots_w * 2 &&
             x <= DISPLAY_WIDTH / 2 + size_slots_w * 2 &&
             y >= DISPLAY_HEIGHT / 2 - size_slots_h * 2 &&
@@ -136,7 +134,7 @@ void shopDisplay::updatePointerPosition(int x, int y) {
         int row = (y - base_y) / slot_height;
 
         if (x >= base_x && x < base_x + slot_width * 2 && y >= base_y &&
-            y < base_y + slot_height * (guns.size() / 2)) {
+            y < base_y + slot_height * static_cast<int>(guns.size() / 2)) {
             int slot_index = row * 2 + column;
             if (slot_index >= 0 && slot_index < VALID_SLOTS) {
                 std::cerr << "Mouse is over slot: " << slot_index + 1

@@ -17,10 +17,10 @@ listTeams::listTeams(SdlWindow& window):
         window(window),
         DISPLAY_WIDTH(window.getWidth()),
         DISPLAY_HEIGHT(window.getHeight()),
-        rectangulo_horizontal(RECTANGULE_HORIZONTAL, window),
-        background(BACKGROUND_PATH_1, window),
         text(TEXT_PATH, 100, {255, 255, 255, 255}, window),
         smaller_text(SMALLER_TEXT_PATH, 100, {255, 255, 255, 255}, window),
+        rectangulo_horizontal(RECTANGULE_HORIZONTAL, window),  // 3                   // 4
+        background(BACKGROUND_PATH_1, window),
         terrorist(TERRORIST_PATH, window),
         counter_terrorist(COUNTER_TERRORIST_PATH, window),
         timer_amount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
