@@ -38,11 +38,11 @@ hudDisplay::hudDisplay(SdlWindow& window):
         money_amount(window.getRenderer(), HUD_NUMS_XCF),
         life(LIFE_PATH, window),
         life_amount(window.getRenderer(), HUD_NUMS_XCF),
-        timer_dots(HUD_NUMS_XCF, window),
-        timer_amount(window.getRenderer(), HUD_NUMS_XCF),
-        roundText(FONT_PATH, 20, {150, 150, 150, 255}, window),
         equipedBullets(BULLET_PATH, window),
         equipedBulletsAmount(window.getRenderer(), HUD_NUMS_XCF),
+        timer_amount(window.getRenderer(), HUD_NUMS_XCF),
+        timer_dots(HUD_NUMS_XCF, window),
+        roundText(FONT_PATH, 20, {150, 150, 150, 255}, window),
         gunNumber(FONT_PATH, 20, {150, 150, 150, 255}, window),
         scoreText(FONT_PATH, 20, {255, 255, 255, 255}, window) {}
 
