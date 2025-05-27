@@ -17,32 +17,25 @@ listTeams::listTeams(SdlWindow& window):
         window(window),
         DISPLAY_WIDTH(window.getWidth()),
         DISPLAY_HEIGHT(window.getHeight()),
-        rectangulo_horizontal(RECTANGULE_HORIZONTAL, window),
-        background(BACKGROUND_PATH_1, window),
+        size_slots_w(static_cast<int>(200 * (window.getWidth() / 800.0f))),
+        size_slots_h(static_cast<int>(400 * (window.getHeight() / 600.0f))),
+        base_x(window.getWidth() / 2 - size_slots_w),
+        base_y(window.getHeight() / 2 - size_slots_h / 2 + 50),
         text(TEXT_PATH, 100, {255, 255, 255, 255}, window),
         smaller_text(SMALLER_TEXT_PATH, 100, {255, 255, 255, 255}, window),
+        rectangulo_horizontal(RECTANGULE_HORIZONTAL, window),
+        background(BACKGROUND_PATH_1, window),
         terrorist(TERRORIST_PATH, window),
         counter_terrorist(COUNTER_TERRORIST_PATH, window),
         timer_amount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
-        timer_dots("../assets/gfx/fonts/hud_nums.xcf", window) {
-    selected_team = 0;
-
-    float BASE_WIDTH = 800.0f;
-    float BASE_HEIGHT = 600.0f;
-    float scale_w = DISPLAY_WIDTH / BASE_WIDTH;
-    float scale_h = DISPLAY_HEIGHT / BASE_HEIGHT;
-    size_slots_h = 400 * scale_h;
-    size_slots_w = 200 * scale_w;
-    base_x = DISPLAY_WIDTH / 2 - size_slots_w;
-    base_y = DISPLAY_HEIGHT / 2 - size_slots_h / 2 + 50;
-
-    widthRatio = DISPLAY_WIDTH / BASE_WIDTH;
-    heightRatio = DISPLAY_HEIGHT / BASE_HEIGHT;
-    scaleRatio = std::min(widthRatio, heightRatio);
-    digitSpacing = static_cast<int>(22 * scaleRatio);
-    size_height = static_cast<int>(64 * scaleRatio);
-    scale = 0.5f * scaleRatio;
-}
+        timer_dots("../assets/gfx/fonts/hud_nums.xcf", window),
+        selected_team(0),
+        heightRatio(window.getHeight() / 600.0f),
+        size_height(static_cast<int>(64 * scaleRatio)),
+        widthRatio(window.getWidth() / 800.0f),
+        scaleRatio(std::min(widthRatio, heightRatio)),
+        digitSpacing(static_cast<int>(22 * scaleRatio)),
+        scale(0.5f * scaleRatio) {}
 
 void listTeams::update(int currentClockTick) {
     Area src(0, 0, 250, 250);

@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-#include <SDL2/SDL_ttf.h>
+#include <SDL_ttf.h>
 
 #include "sdl_exception.h"
 

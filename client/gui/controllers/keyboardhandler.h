@@ -3,10 +3,11 @@
 
 #include <SDL2/SDL.h>
 
-#include "../common/message.h"
-#include "../common/queue.h"
-#include "../common/socket.h"
-#include "../common/thread.h"
+#include "common/commands.h"
+#include "common/message.h"
+#include "common/queue.h"
+#include "common/socket.h"
+#include "common/thread.h"
 
 
 class KeyboardHandler {

@@ -4,11 +4,11 @@
 
 #include <SDL2/SDL.h>
 
-void getNormalizedCoordinates(int& x, int& y) {
-    // Normalize the coordinates to the range [0, 1]
-    // x = static_cast<int>(x / static_cast<float>(SCREEN_WIDTH));
-    // y = static_cast<int>(y / static_cast<float>(SCREEN_HEIGHT));
-}
+// void getNormalizedCoordinates(/*int& x, int& y*/) {
+//  Normalize the coordinates to the range [0, 1]
+//  x = static_cast<int>(x / static_cast<float>(SCREEN_WIDTH));
+//  y = static_cast<int>(y / static_cast<float>(SCREEN_HEIGHT));
+//}
 
 void MouseHandler::handleEvent(const SDL_Event& event, bool shop, bool list_teams) {
     int x, y;

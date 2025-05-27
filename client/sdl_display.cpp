@@ -4,8 +4,8 @@
 #include <memory>
 #include <string>
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_events.h>
+#include <SDL.h>
+#include <SDL_events.h>
 
 #include "../client/requests.h"
 #include "../common/message.h"
