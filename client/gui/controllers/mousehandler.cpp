@@ -23,22 +23,27 @@ void MouseHandler::handleEvent(const SDL_Event& event, bool shop, bool list_team
         switch (event.button.button) {
             case SDL_BUTTON_LEFT:
                 std::cout << "MOUSE_PRESS_LEFT" << std::endl;
+                SDL_GetMouseState(&x, &y);
                 if (shop) {
-                    SDL_GetMouseState(&x, &y);
-                    // normalizar
-                    // inputQueue.push(Message(BuyWeaponCommand??));
-                    // F(BuyWeaponCommand, BUY_WEAPON_CMD)
-                    shopDisplayRef.updatePointerPosition(x, y);
+                    std::optional<Message> maybe_message =
+                            shopDisplayRef.updatePointerPosition(x, y);
+                    if (maybe_message.has_value()) {
+                        inputQueue.push(maybe_message.value());
+                        std::cout << "Sent shop-related command." << std::endl;
+                    }
+                    return;
                 }
                 if (list_teams) {
-                    SDL_GetMouseState(&x, &y);
                     std::optional<Team> team_choosen = listTeamsRef.updatePointerPosition(x, y);
                     if (team_choosen.has_value()) {
                         inputQueue.push(Message(SelectTeamCommand(team_choosen.value())));
                         std::cout << "Selected team" << std::endl;
                     }
+                    return;
                 }
-                // inputQueue.push(Message(ShootCommand));
+                inputQueue.push(Message(ShootCommand(x, y)));
+                std::cout << "ShootCommand sent with coordinates: (" << x << ", " << y << ")"
+                          << std::endl;
                 break;
             case SDL_BUTTON_RIGHT:
                 std::cout << "MOUSE_PRESS_RIGHT" << std::endl;

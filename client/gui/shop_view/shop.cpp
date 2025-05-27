@@ -1,6 +1,11 @@
 #include "shop.h"
 
 #include <iostream>
+#include <optional>
+
+#include "common/commands.h"
+#include "common/message.h"
+#include "common/models.h"
 
 const int VALID_SLOTS = 3;
 
@@ -114,22 +119,8 @@ void shopDisplay::renderItem() {
         cost_money.render(priceDest);
     }
 }
-/*TODO:  F(BuyWeaponCommand, BUY_WEAPON_CMD)    */
-/*void shopDisplay::makeCorrespondingMessage(int gun_buy) {
-    if (gun_buy >= 0 && gun_buy < guns.size()) {
-        std::string gun_name = guns[gun_buy].name;
-        std::string gun_path = guns[gun_buy].path;
-        std::string price = guns[gun_buy].price;
 
-        // Create the message with the selected gun information
-        // Message message = Message(BuyWeaponCommand{gun_name, gun_path, price});
-        // inputQueue.push(message);
-    } else {
-        std::cerr << "Invalid gun selection." << std::endl;
-    }
-}*/
-
-void shopDisplay::updatePointerPosition(int x, int y) {
+std::optional<Message> shopDisplay::updatePointerPosition(int x, int y) {
 
     for (size_t i = 0; i < guns.size() / 2; ++i) {
         if (x >= DISPLAY_WIDTH / 2 - size_slots_w * 2 &&
@@ -157,12 +148,16 @@ void shopDisplay::updatePointerPosition(int x, int y) {
                 std::cerr << "Mouse is over slot: " << slot_index + 1
                           << " (Gun: " << guns[slot_index].name << ")" << std::endl;
                 gun_buy = slot_index;
-                // makeCorrespondingMessage();
+
+                return Message(BuyWeaponCommand(static_cast<WeaponType>(slot_index)));
             } else {
                 std::cerr << "Mouse is over an invalid slot." << std::endl;
+                return std::nullopt;
             }
         } else {
             std::cerr << "Mouse is outside the shop display area." << std::endl;
+            return std::nullopt;
         }
     }
+    return std::nullopt;
 }

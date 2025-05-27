@@ -160,7 +160,9 @@ void SDLDisplay::run() {
                 if (shop) {
                     shopDisplay.render();
                 }
+                list_teams = false;
             } else {
+
                 listTeams.update(clock);
             }
             window.render();

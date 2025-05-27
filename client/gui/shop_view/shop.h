@@ -1,6 +1,7 @@
 #ifndef SHOP_DISPLAY_H
 #define SHOP_DISPLAY_H
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -8,13 +9,13 @@
 #include "../window_elements/sdl_text.h"
 #include "../window_elements/sdl_texture.h"
 #include "../window_elements/sdl_window.h"
-
+#include "common/message.h"
 
 class shopDisplay {
 public:
     explicit shopDisplay(SdlWindow& window);
     void render();
-    void updatePointerPosition(int x, int y);
+    std::optional<Message> updatePointerPosition(int x, int y);
 
 private:
     SdlWindow& window;
