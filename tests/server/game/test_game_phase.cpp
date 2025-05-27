@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include "common/game_state_update.h"
 #include "common/models.h"
 #include "server/clock/mock_clock.h"
 #include "server/game/game_config.h"
@@ -19,16 +20,17 @@ TEST_F(TestGamePhase, NotStartedWhenInitialized) { EXPECT_FALSE(game_phase.is_st
 
 TEST_F(TestGamePhase, StartInBuyingPhase) {
     game_phase.start_buying_phase();
-    EXPECT_TRUE(game_phase.is_buying_phase());
+    PhaseUpdate updates = game_phase.get_updates();
+    EXPECT_EQ(updates.get_change<PhaseType>(PhaseAttr::PHASE), PhaseType::Buying);
 }
 
 TEST_F(TestGamePhase, StartPlayingAfterBuyingDuration) {
     game_phase.start_buying_phase();
     advance_secs(PhaseTimes::buying_phase_secs);
     game_phase.advance();
-    EXPECT_TRUE(game_phase.is_started());
-    EXPECT_FALSE(game_phase.is_buying_phase());
-    EXPECT_FALSE(game_phase.is_round_finished());
+
+    PhaseUpdate updates = game_phase.get_updates();
+    EXPECT_EQ(updates.get_change<PhaseType>(PhaseAttr::PHASE), PhaseType::Playing);
 }
 
 TEST_F(TestGamePhase, FinishOneRoundAfterRoundDuration) {
@@ -39,7 +41,8 @@ TEST_F(TestGamePhase, FinishOneRoundAfterRoundDuration) {
     advance_secs(PhaseTimes::playing_phase_secs);
     game_phase.advance();
 
-    EXPECT_TRUE(game_phase.is_round_finished());
+    PhaseUpdate updates = game_phase.get_updates();
+    EXPECT_EQ(updates.get_change<PhaseType>(PhaseAttr::PHASE), PhaseType::RoundFinished);
 }
 
 TEST_F(TestGamePhase, StartAnotherRoundAfterRoundFinishedDuration) {
@@ -52,5 +55,6 @@ TEST_F(TestGamePhase, StartAnotherRoundAfterRoundFinishedDuration) {
     advance_secs(PhaseTimes::round_finished_phase_secs);
     game_phase.advance();
 
-    EXPECT_TRUE(game_phase.is_buying_phase());
+    PhaseUpdate updates = game_phase.get_updates();
+    EXPECT_EQ(updates.get_change<PhaseType>(PhaseAttr::PHASE), PhaseType::Buying);
 }

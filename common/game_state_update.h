@@ -26,6 +26,16 @@ protected:
 public:
     const std::map<A, V>& get_changes() const { return changes; }
 
+    template <typename T>
+    T get_change(A attr) const {
+        const auto& value = changes.at(attr);
+        const T* ptr = std::get_if<T>(&value);
+        if (!ptr) {
+            throw std::bad_variant_access();
+        }
+        return *ptr;
+    }
+
     void clear() { changes.clear(); }
 };
 
