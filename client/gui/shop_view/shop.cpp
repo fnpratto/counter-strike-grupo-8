@@ -2,35 +2,31 @@
 
 #include <iostream>
 
-const int VALID_SLOTS = 3;
+const int VALID_SLOTS = 6;
 
-const std::string& GUNS = "../assets/gfx/guns/guns.xcf";
+const std::string& GUNS_PATH = "../assets/gfx/guns/guns.xcf";
 const std::string& HUD_SLOT_PATH = "../assets/gfx/shop/hud_slot.xcf";
 const std::string& HUD_SLOT_CLICKED_PATH = "../assets/gfx/shop/hud_slot_clicked.xcf";
 const std::string& HUD_SLOT_BLOCKED_PATH = "../assets/gfx/shop/hud_slot_blocked.xcf";
 const std::string& FONT_PAT = "../assets/gfx/fonts/joystix_monospace.otf";
-const std::string& GUNS_PATH = "../assets/gfx/guns/";
-const std::string& GUNS_PATH_AK = "../assets/gfx/guns/ak47_m.xcf";
-const std::string& GUNS_PATH_AUG = "../assets/gfx/guns/aug_m.xcf";
-const std::string& GUNS_PATH_M3 = "../assets/gfx/guns/m3_m.xcf";
-const std::string& GUNS_PATH_AWP = "../assets/gfx/guns/awp_m.xcf";
-const std::string& GUNS_PATH_DEAGLE = "../assets/gfx/guns/deagle_m.xcf";
-const std::string& GUNS_PATH_FAMAS = "../assets/gfx/guns/famas_m.xcf";
-const std::string& GUNS_PATH_FIVESEVEN = "../assets/gfx/guns/fiveseven_m.xcf";
-const std::string& GUNS_PATH_G3SG1 = "../assets/gfx/guns/g3sg1_m.xcf";
+const std::string& AMMO_PATH = "../assets/gfx/guns/AMMO.xcf";
+const std::string& GUNS_PATH_AMMO1 = "../assets/gfx/guns/ammo.xcf";
+const std::string& GUNS_PATH_AMMO2 = "../assets/gfx/guns/ammo1.xcf";
 
 struct GunInfo {
     std::string name;
-    std::string path;
+    std::string name_2;
     std::string price;
 };
 
 
-std::vector<GunInfo> guns = {{"1", GUNS_PATH_DEAGLE, "1000"}, {"2", GUNS_PATH_G3SG1, "2000"},
-                             {"3", GUNS_PATH_FAMAS, "1500"},  {"4", GUNS_PATH_AUG, ""},
-                             {"5", GUNS_PATH_M3, ""},         {"6", GUNS_PATH_AK, ""},
-                             {"7", GUNS_PATH_FIVESEVEN, ""},  {"8", GUNS_PATH_AWP, ""}};
+// std::vector<int> render_order = {0, 2, 1, 5, 4, 6, 3, 7};
 
+std::vector<GunInfo> guns = {{"1", "", "1000"},  // gun at (0,0)
+                             {"2", "", "1500"},  // gun at (64,0)
+                             {"3", "", "20"},    // gun at (128,0)
+                             {"4", "", ""},     {"5", "", "2000"}, {"6", "", "10"},
+                             {"7", "", "30"},   {"8", "", ""}};
 
 shopDisplay::shopDisplay(SdlWindow& window):
         window(window),
@@ -39,7 +35,9 @@ shopDisplay::shopDisplay(SdlWindow& window):
         back(HUD_SLOT_PATH, window),
         back_chosen(HUD_SLOT_CLICKED_PATH, window),
         gunNumber(FONT_PAT, 20, {255, 255, 255, 255}, window),
-        cost_money(FONT_PAT, 20, {255, 255, 255, 255}, window) {
+        cost_money(FONT_PAT, 20, {255, 255, 255, 255}, window),
+        gun_icons(GUNS_PATH, window),
+        ammo_icons(AMMO_PATH, window) {
 
     float BASE_WIDTH = 800.0f;
     float BASE_HEIGHT = 600.0f;
@@ -54,11 +52,6 @@ shopDisplay::shopDisplay(SdlWindow& window):
 
 
     gun_buy = -1;
-    for (const auto& gun: guns) {
-        try {
-            gun_icons.emplace_back(gun.path, window);
-        } catch (const std::exception& e) {}
-    }
 }
 
 void shopDisplay::render() {
@@ -84,21 +77,25 @@ void shopDisplay::renderSlots() {
 }
 
 void shopDisplay::renderItem() {
+    // Custom render order (flat)
+    std::vector<int> render_order = {0, 2, 1, 5, 4, 6, 3, 7};
 
-    for (size_t i = 0; i < guns.size(); ++i) {
-        int row = i / 2;
-        int col = i % 2;
+    for (size_t idx = 0; idx < render_order.size(); ++idx) {
+        int i = render_order[idx];
+
+        int row = idx / 2;
+        int col = idx % 2;
 
         int x = DISPLAY_WIDTH / 2 - size_slots_w * 2 + 10 + col * (size_guns_w * 2 + 10);
         int y = DISPLAY_HEIGHT / 2 - size_slots_h * 2 + 20 + row * (size_guns_h * 2);
 
-        Area src(0, 0, 67, 17);
+        // Get correct sprite from 4x2 grid
+        int sprite_col = i % 4;
+        int sprite_row = i / 4;
+        Area src(sprite_col * 66, sprite_row * 17, 66, 17);
+
         Area iconDest(x + 30, y, size_guns_w - 30, size_guns_h + 10);
-        int image = i;
-        if (image < 4) {
-            image = i + 4;
-        }
-        gun_icons[image].render(src, iconDest);
+        gun_icons.render(src, iconDest);
 
         gunNumber.setTextString(guns[i].name);
         Area numDest(x, y - 10, 15, 15);
@@ -142,11 +139,14 @@ void shopDisplay::updatePointerPosition(int x, int y) {
                 std::cerr << "Mouse is over slot: " << slot_index + 1
                           << " (Gun: " << guns[slot_index].name << ")" << std::endl;
                 gun_buy = slot_index;
+                return;
             } else {
                 std::cerr << "Mouse is over an invalid slot." << std::endl;
+                return;
             }
         } else {
             std::cerr << "Mouse is outside the shop display area." << std::endl;
+            return;
         }
     }
 }

@@ -97,11 +97,10 @@ void SDLDisplay::run() {
     const int SCREEN_HEIGHT = 600;*/
 
     /*TODO maybe will change*/
-    Uint32 RATE = 16;  // Define RATE as the frame duration in milliseconds (e.g., 16ms for ~60 FPS)
-    Uint32 frame_start = SDL_GetTicks();
-    Uint32 frame_end;
-    Uint32 behind;
-    Uint32 lost;
+    // Uint32 RATE = 16;  // Define RATE as the frame duration in milliseconds (e.g., 16ms for ~60
+    // FPS) Uint32 frame_start = SDL_GetTicks(); Uint32 frame_end;
+    /// Uint32 behind;
+    // Uint32 lost;
 
     try {
         SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -128,35 +127,25 @@ void SDLDisplay::run() {
                 keyboardHandler.handleEvent(e, shop, isMuted);
                 mouseHandler.handleEvent(e, shop, list_teams);
             }
-            /* update clock */
-            frame_end = SDL_GetTicks();
-            int elapsed_time = frame_end - frame_start;
-            int rest_time = RATE - elapsed_time;
-
-            if (rest_time < 0) {
-                behind = -rest_time;
-                rest_time = RATE - (behind % RATE);
-                lost = behind / RATE;
-                frame_start += lost * RATE;
-                // clock += lost;  // Increment clock for lost frames
-            }
-
-            SDL_Delay(rest_time);
-            frame_start += RATE;
-
-            // Increment clock if a second has passed
+            // At the start of your main loop
+            Uint32 current_time = SDL_GetTicks();
+            static Uint32 previous_time = current_time;
             static Uint32 accumulated_time = 0;
-            accumulated_time += RATE;
+
+            // Compute delta and accumulate time
+            Uint32 delta_time = current_time - previous_time;
+            previous_time = current_time;
+
+            accumulated_time += delta_time;
             if (accumulated_time >= 1000) {  // 1000 ms = 1 second
                 clock++;
                 accumulated_time -= 1000;
             }
-
             /*update --> pull event from the queue*/
             window.fill();
-            if (clock > 1) {
+            if (clock > 5) {
                 map.render();
-                hudDisplay.update(clock - 10, isMuted);
+                hudDisplay.update(clock - 5, isMuted);
                 if (shop) {
                     shopDisplay.render();
                 }

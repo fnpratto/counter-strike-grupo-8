@@ -57,7 +57,7 @@ void listTeams::update(int currentClockTick) {
 
     rectangulo_horizontal.render(src1, dest1);
     renderSlots();
-    int time_left = 20 - currentClockTick;
+    int time_left = 5 - currentClockTick;
     if (time_left < 0) {
         time_left = 0;
     }

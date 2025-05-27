@@ -20,7 +20,8 @@ private:
     SdlWindow& window;
     int DISPLAY_WIDTH;
     int DISPLAY_HEIGHT;
-    std::vector<SdlTexture> gun_icons;
+    SdlTexture gun_icons;
+    SdlTexture ammo_icons;
     SdlText cost_money;
     SdlTexture back;
     SdlTexture back_chosen;
