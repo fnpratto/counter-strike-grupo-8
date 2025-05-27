@@ -3,6 +3,8 @@
 #include <map>
 #include <string>
 
+#include "server/clock/clock.h"
+
 #include "models.h"
 
 struct GunState {
@@ -34,8 +36,13 @@ struct PlayerState {
     InventoryState inventory;
 };
 
-struct GameState {
+struct PhaseState {
     PhaseType phase;
+    TimePoint time;
+};
+
+struct GameState {
+    PhaseState phase;
     int num_rounds;
     int num_tts;
     int num_cts;

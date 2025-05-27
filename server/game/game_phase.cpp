@@ -12,6 +12,15 @@ bool GamePhase::is_buying_phase() const { return phase == PhaseType::Buying; }
 
 PhaseUpdate GamePhase::get_updates() const { return updates; }
 
+void GamePhase::clear_updates() { updates.clear(); }
+
+PhaseState GamePhase::full_state() const {
+    PhaseState phase_state;
+    phase_state.phase = phase;
+    phase_state.time = clock.now();
+    return phase_state;
+}
+
 void GamePhase::start_buying_phase() {
     phase = PhaseType::Buying;
     updates.add_change(PhaseAttr::PHASE, phase);
@@ -20,6 +29,7 @@ void GamePhase::start_buying_phase() {
 
 void GamePhase::advance() {
     auto now = clock.now();
+    updates.add_change(PhaseAttr::TIME, now);
     auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - phase_start);
 
     std::chrono::seconds phase_duration;

@@ -37,7 +37,7 @@ void Player::clear_updates() {
     inventory.clear_updates();
 }
 
-PlayerState Player::state() const {
+PlayerState Player::full_state() const {
     PlayerState player_state;
     player_state.team = team;
     player_state.pos_x = pos.get_x();
@@ -48,7 +48,7 @@ PlayerState Player::state() const {
     player_state.health = health;
     player_state.money = money;
     player_state.current_weapon = current_weapon;
-    player_state.inventory = inventory.state();
+    player_state.inventory = inventory.full_state();
     return player_state;
 }
 

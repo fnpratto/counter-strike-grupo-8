@@ -2,6 +2,7 @@
 
 #include <chrono>
 
+#include "common/game_state.h"
 #include "common/game_state_update.h"
 #include "common/models.h"
 #include "server/clock/clock.h"
@@ -21,6 +22,10 @@ public:
     bool is_buying_phase() const;
 
     PhaseUpdate get_updates() const;
+
+    void clear_updates();
+
+    PhaseState full_state() const;
 
     void start_buying_phase();
 

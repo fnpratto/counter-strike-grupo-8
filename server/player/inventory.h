@@ -23,7 +23,7 @@ public:
 
     void clear_updates();
 
-    InventoryState state() const;
+    InventoryState full_state() const;
 
     void add_bomb();
     void add_primary_weapon(const GunType& weapon_type);

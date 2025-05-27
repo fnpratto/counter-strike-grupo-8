@@ -42,7 +42,7 @@ public:
 
     void clear_updates();
 
-    PlayerState state() const;
+    PlayerState full_state() const;
 
     void set_ready();
 

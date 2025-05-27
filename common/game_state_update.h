@@ -7,6 +7,7 @@
 #include <variant>
 
 #include "common/game_state.h"
+#include "server/clock/clock.h"
 #include "server/utils/vector_2d.h"
 
 // Type traits for attribute-value mapping
@@ -248,8 +249,8 @@ protected:
 
 
 // PhaseUpdate type checking
-enum class PhaseAttr { PHASE };
-typedef std::variant<PhaseType> PhaseValue;
+enum class PhaseAttr { PHASE, TIME };
+typedef std::variant<PhaseType, TimePoint> PhaseValue;
 
 
 class PhaseUpdate: public StateUpdate<PhaseAttr, PhaseValue> {
@@ -273,6 +274,8 @@ protected:
         switch (attr) {
             case PhaseAttr::PHASE:
                 return std::is_same_v<T, PhaseType>;
+            case PhaseAttr::TIME:
+                return std::is_same_v<T, TimePoint>;
             default:
                 return false;
         }
@@ -281,7 +284,7 @@ protected:
 
 
 // GameUpdate type checking
-enum class GameStateAttr { PHASE_TYPE, NUM_ROUNDS, NUM_TTS, NUM_PLAYERS, PLAYERS };
+enum class GameStateAttr { PHASE, NUM_ROUNDS, NUM_TTS, NUM_PLAYERS, PLAYERS };
 typedef std::variant<PhaseUpdate, int, std::map<std::string, PlayerUpdate>> GameStateValue;
 
 
@@ -328,7 +331,7 @@ protected:
         (void)value;
 
         switch (attr) {
-            case GameStateAttr::PHASE_TYPE:
+            case GameStateAttr::PHASE:
                 return std::is_same_v<T, PhaseUpdate>;
             case GameStateAttr::NUM_ROUNDS:
             case GameStateAttr::NUM_TTS:
@@ -368,9 +371,10 @@ public:
 
         PhaseUpdate phase_update;
         phase_update.add_change(PhaseAttr::PHASE, PhaseType::WarmUp);
+        phase_update.add_change(PhaseAttr::TIME, TimePoint{});
 
         GameUpdate game_state_update;
-        game_state_update.add_change(GameStateAttr::PHASE_TYPE, phase_update);
+        game_state_update.add_change(GameStateAttr::PHASE, phase_update);
         game_state_update.add_change(GameStateAttr::NUM_ROUNDS, 5);
         game_state_update.add_change(GameStateAttr::NUM_TTS, 3);
         game_state_update.add_change(GameStateAttr::NUM_PLAYERS, 10);

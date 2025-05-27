@@ -49,7 +49,7 @@ public:
 
     void clear_updates() { updates.clear(); }
 
-    GunState state() const {
+    GunState full_state() const {
         GunState gun_state;
         gun_state.gun = gun;
         gun_state.bullets_per_mag = bullets_per_mag;

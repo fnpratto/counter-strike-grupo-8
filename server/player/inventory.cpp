@@ -26,18 +26,18 @@ void Inventory::clear_updates() {
     }
 }
 
-InventoryState Inventory::state() const {
+InventoryState Inventory::full_state() const {
     InventoryState inventory_state;
 
     std::map<WeaponSlot, GunState> guns_states;
     for (auto& [slot, gun]: guns) {
-        guns_states[slot] = gun->state();
+        guns_states[slot] = gun->full_state();
     }
     inventory_state.guns = guns_states;
 
     std::map<WeaponSlot, UtilityState> utilities_states;
     for (auto& [slot, util]: utilities) {
-        utilities_states[slot] = util->state();
+        utilities_states[slot] = util->full_state();
     }
     inventory_state.utilities = utilities_states;
 

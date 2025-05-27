@@ -15,7 +15,7 @@ public:
 
     UtilityType get_type() const { return utility; }
 
-    UtilityState state() const {
+    UtilityState full_state() const {
         UtilityState utility_state;
         utility_state.utility = utility;
         return utility_state;

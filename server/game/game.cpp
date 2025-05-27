@@ -56,7 +56,7 @@ void Game::handle_msg(const Message& msg, const std::string& player_name) {
 
 void Game::advance_round_logic() {
     phase.advance();
-    updates.add_change(GameStateAttr::PHASE_TYPE, phase.get_updates());
+    updates.add_change(GameStateAttr::PHASE, phase.get_updates());
     if (phase.is_round_finished()) {
         num_rounds++;
         updates.add_change(GameStateAttr::NUM_ROUNDS, num_rounds);
@@ -129,7 +129,7 @@ void Game::handle_start_game_msg(const std::string& player_name) {
     if (all_players_ready()) {
         give_bomb_to_random_tt();
         phase.start_buying_phase();
-        updates.add_change(GameStateAttr::PHASE_TYPE, phase.get_updates());
+        updates.add_change(GameStateAttr::PHASE, phase.get_updates());
     }
 
     std::map<std::string, PlayerUpdate> game_players_update;
@@ -273,6 +273,7 @@ Game::~Game() {}
 
 void Game::clear_updates() {
     updates.clear();
+    phase.clear_updates();
     for (auto& [_, p]: players) {
         p->clear_updates();
     }
@@ -303,9 +304,10 @@ GameState Game::full_state() {
 
     std::map<std::string, PlayerState> players_states;
     for (auto& [player_name, player]: players) {
-        players_states[player_name] = player->state();
+        players_states[player_name] = player->full_state();
     }
 
+    game_state.phase = phase.full_state();
     game_state.num_rounds = num_rounds;
     game_state.num_tts = num_tts;
     game_state.num_cts = num_cts;
