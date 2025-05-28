@@ -29,7 +29,7 @@ private:
     payload_t serialize_message(const Message& message) const override;
 
     template <typename T>
-    payload_t serialize(const T& value) const;
+    payload_t serialize_msg(const T& value) const;
 
     Message deserialize_message(const MessageType& type, payload_t& payload) const override;
 

@@ -8,12 +8,14 @@
 #include <vector>
 
 #include "client/requests.h"
+#include "common/responses.h"
 
 #include "commands.h"
 
 
 #define MESSAGE_TYPE_MAP(F)                            \
     F(ConnectionRequest, CONN_REQ)                     \
+    F(ListGamesResponse, LIST_GAMES_RESP)              \
     F(CreateGameCommand, CREATE_GAME_CMD) /*Commands*/ \
     F(JoinGameCommand, JOIN_GAME_CMD)                  \
     F(ListGamesCommand, LIST_GAMES_CMD)                \

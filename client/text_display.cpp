@@ -48,12 +48,19 @@ void TextDisplay::draw(const Message& message) {
     if (message.get_type() == MessageType::NONE)
         return;
 
-    throw std::runtime_error("Invalid message type for TextDisplay");
-    // TODO: Implement the display logic for different message types
-    // if (message.get_type() == MessageType::RAW_TEXT) {
-    //     std::cout << message.get_content<std::string>() << std::flush;
-    // } else {
-    // }
+    switch (message.get_type()) {
+        case MessageType::LIST_GAMES_RESP: {
+            auto names = message.get_content<ListGamesResponse>().get_game_names();
+            std::cout << "Available games:" << std::endl;
+            for (const auto& name: names) {
+                std::cout << " - " << name << std::endl;
+            }
+            break;
+        }
+        default:
+            throw std::runtime_error("Invalid message type for TextDisplay");
+            break;
+    }
 }
 
 

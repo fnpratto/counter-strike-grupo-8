@@ -15,7 +15,6 @@
 #include "common/deserializers.h"
 #include "common/message.h"
 #include "common/queue.h"
-#include "common/serializers.h"
 #include "common/socket.h"
 #include "common/thread.h"
 
@@ -25,10 +24,18 @@
 
 // === Serialization ===
 
-SERIALIZERS(ServerProtocol)
+template <>
+payload_t ServerProtocol::serialize_msg(const ListGamesResponse& response) const {
+    auto game_names = response.get_game_names();
+    return serialize(game_names);
+}
 
 payload_t ServerProtocol::serialize_message(const Message& message) const {
     switch (message.get_type()) {
+        case MessageType::LIST_GAMES_RESP: {
+            const auto& response = message.get_content<ListGamesResponse>();
+            return serialize_msg(response);
+        }
         default:
             throw std::runtime_error("Invalid message type for serialization");
     }
@@ -89,13 +96,10 @@ Message ServerProtocol::deserialize_message(const MessageType& msg_type, payload
     switch (msg_type) {
         case MessageType::CREATE_GAME_CMD:
             return Message(deserialize<CreateGameCommand>(payload));
-
         case MessageType::LIST_GAMES_CMD:
             return Message(deserialize<ListGamesCommand>(payload));
-
         case MessageType::JOIN_GAME_CMD:
             return Message(deserialize<JoinGameCommand>(payload));
-
         case MessageType::AIM_CMD:
             return Message(deserialize<AimCommand>(payload));
         case MessageType::SELECT_TEAM_CMD:

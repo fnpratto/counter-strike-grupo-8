@@ -6,6 +6,8 @@
 #include <utility>
 #include <vector>
 
+#include <arpa/inet.h>
+
 #include "common/socket.h"
 
 #include "message.h"
@@ -77,13 +79,7 @@ private:
      * @brief Serializes the payload header to determine the message type.
      * @return The serialized MessageType.
      */
-    payload_t serialize_message_type(MessageType type) const;
-
-    /**
-     * @brief Serializes the payload header to determine the message type.
-     * @return The serialized MessageType.
-     */
-    payload_t serialize_message_length(const payload_t& msg) const;
+    payload_t serialize(MessageType type) const;
 
     /**
      * @brief Deserializes the payload header to determine the message type.
@@ -114,8 +110,67 @@ protected:
 
     payload_t pop(payload_t& payload, size_t size) const;
 
+    payload_t serialize(const uint8_t& i) const {
+        payload_t payload(sizeof(i));
+
+        uint8_t data = htons(static_cast<uint8_t>(i));
+        payload.insert(payload.end(), reinterpret_cast<const char*>(&data),
+                       reinterpret_cast<const char*>(&data) + sizeof(data));
+
+        return payload;
+    }
+
+    payload_t serialize(const std::string& str) const {
+        payload_t length = serialize(static_cast<uint16_t>(str.size()));
+
+        payload_t payload;
+        payload.reserve(length.size() + str.size());
+
+        payload.insert(payload.end(), length.begin(), length.end());
+        payload.insert(payload.end(), str.data(), str.data() + str.size());
+
+        return payload;
+    }
+
+    payload_t serialize(const float& f) const {
+        payload_t payload(sizeof(f));
+
+        float network_f = htonl(f);
+        payload.insert(payload.end(), reinterpret_cast<const char*>(&network_f),
+                       reinterpret_cast<const char*>(&network_f) + sizeof(network_f));
+
+        return payload;
+    }
+
+    payload_t serialize(const bool& b) const {
+        payload_t payload(1);
+        payload[0] = static_cast<char>(b);
+        return payload;
+    }
+
+    payload_t serialize(const uint16_t& i) const {
+        payload_t payload;
+
+        uint16_t data = htons(static_cast<uint16_t>(i));
+        payload.insert(payload.begin(), reinterpret_cast<const char*>(&data),
+                       reinterpret_cast<const char*>(&data) + sizeof(data));
+
+        return payload;
+    }
+
     template <typename T>
-    payload_t serialize(const T& value) const;
+    payload_t serialize(const std::vector<T>& v) const {
+        payload_t payload;
+
+        payload_t length = serialize(static_cast<uint16_t>(v.size()));
+        payload.reserve(length.size() + sizeof(T) * v.size());
+        payload.insert(payload.end(), length.begin(), length.end());
+        for (const auto& item: v) {
+            auto serialized_item = serialize(item);
+            payload.insert(payload.end(), serialized_item.begin(), serialized_item.end());
+        }
+        return payload;
+    }
 
     template <typename T>
     T deserialize(payload_t& payload) const;
