@@ -47,7 +47,7 @@ public:
     void set_ready();
 
     // TODO: Player gain money after round finished
-    // void gain_money(int amount);
+    void gain_money(int amount);
 
     void pick_bomb();
 
@@ -55,7 +55,7 @@ public:
 
     void buy_gun(const GunType& gun, int gun_price);
 
-    void buy_ammo(const WeaponSlot& slot, int mag_price, int num_mags);
+    void buy_ammo(const WeaponSlot& slot, int ammo_price, int num_mags);
 
     void start_moving(int dx, int dy);
 

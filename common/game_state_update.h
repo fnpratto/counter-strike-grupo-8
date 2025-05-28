@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <string>
 #include <type_traits>
+#include <utility>
 #include <variant>
 
 #include "common/game_state.h"
@@ -26,6 +27,8 @@ protected:
 public:
     const std::map<A, V>& get_changes() const { return changes; }
 
+    bool has_change(A attr) const { return changes.find(attr) != changes.end(); }
+
     template <typename T>
     T get_change(A attr) const {
         const auto& value = changes.at(attr);
@@ -41,8 +44,8 @@ public:
 
 
 // GunUpdate type checking
-enum class GunAttr { MAG_AMMO, RESERVE_AMMO };
-typedef std::variant<int> GunValue;
+enum class GunAttr { TYPE, MAG_AMMO, RESERVE_AMMO };
+typedef std::variant<GunType, int> GunValue;
 
 
 class GunUpdate: public StateUpdate<GunAttr, GunValue> {
@@ -85,6 +88,8 @@ protected:
         (void)value;
 
         switch (attr) {
+            case GunAttr::TYPE:
+                return std::is_same_v<T, GunType>;
             case GunAttr::MAG_AMMO:
             case GunAttr::RESERVE_AMMO:
                 return std::is_same_v<T, int>;
@@ -237,6 +242,7 @@ protected:
             case PlayerAttr::IS_MOVING:
                 return std::is_same_v<T, bool>;
             case PlayerAttr::HEALTH:
+            case PlayerAttr::MONEY:
                 return std::is_same_v<T, int>;
             case PlayerAttr::TEAM:
                 return std::is_same_v<T, Team>;
@@ -294,7 +300,7 @@ protected:
 
 
 // GameUpdate type checking
-enum class GameStateAttr { PHASE, NUM_ROUNDS, NUM_TTS, NUM_PLAYERS, PLAYERS };
+enum class GameStateAttr { PHASE, NUM_ROUNDS, NUM_TTS, PLAYERS };
 typedef std::variant<PhaseUpdate, int, std::map<std::string, PlayerUpdate>> GameStateValue;
 
 
@@ -319,20 +325,26 @@ public:
         }
 
         std::map<std::string, PlayerUpdate> merged;
-        const auto& old_updates = std::get<std::map<std::string, PlayerUpdate>>(changes[attr]);
-        for (const auto& [p_name, update]: old_updates) {
-            if (value.find(p_name) != value.end()) {
-                merged[p_name] = update.merged(value[p_name]);
-            } else {
-                merged[p_name] = update;
-            }
-        }
-        for (auto& [p_name, update]: value) {
-            if (old_updates.find(p_name) == old_updates.end())
-                merged[p_name] = update;
 
-            changes[attr] = merged;
+        if (has_change(attr)) {
+            const auto& old_updates = std::get<std::map<std::string, PlayerUpdate>>(changes[attr]);
+
+            for (const auto& [p_name, update]: old_updates) {
+                if (value.find(p_name) != value.end()) {
+                    merged[p_name] = update.merged(value[p_name]);
+                } else {
+                    merged[p_name] = update;
+                }
+            }
+            for (auto& [p_name, update]: value) {
+                if (old_updates.find(p_name) == old_updates.end())
+                    merged[p_name] = update;
+            }
+        } else {
+            merged = std::move(value);
         }
+
+        changes[attr] = std::move(merged);
     }
 
 protected:
@@ -345,7 +357,6 @@ protected:
                 return std::is_same_v<T, PhaseUpdate>;
             case GameStateAttr::NUM_ROUNDS:
             case GameStateAttr::NUM_TTS:
-            case GameStateAttr::NUM_PLAYERS:
                 return std::is_same_v<T, int>;
             case GameStateAttr::PLAYERS:
                 return std::is_same_v<T, std::map<std::string, PlayerUpdate>>;
@@ -361,6 +372,7 @@ class Demo {
 public:
     void example() {
         GunUpdate gun_update;
+        gun_update.add_change(GunAttr::TYPE, GunType::AK47);
         gun_update.add_change(GunAttr::MAG_AMMO, 10);
         gun_update.add_change(GunAttr::RESERVE_AMMO, 90);
 
@@ -387,7 +399,6 @@ public:
         game_state_update.add_change(GameStateAttr::PHASE, phase_update);
         game_state_update.add_change(GameStateAttr::NUM_ROUNDS, 5);
         game_state_update.add_change(GameStateAttr::NUM_TTS, 3);
-        game_state_update.add_change(GameStateAttr::NUM_PLAYERS, 10);
         game_state_update.add_change(GameStateAttr::PLAYERS, std::map<std::string, PlayerUpdate>{});
     }
 };

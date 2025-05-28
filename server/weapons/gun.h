@@ -28,6 +28,7 @@ public:
             bullets_per_mag(bullets_per_mag),
             mag_ammo(mag_ammo),
             reserve_ammo(reserve_ammo) {
+        updates.add_change(GunAttr::TYPE, gun);
         updates.add_change(GunAttr::MAG_AMMO, mag_ammo);
         updates.add_change(GunAttr::RESERVE_AMMO, reserve_ammo);
     }

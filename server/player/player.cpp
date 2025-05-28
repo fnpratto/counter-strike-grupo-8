@@ -54,12 +54,13 @@ PlayerState Player::full_state() const {
 
 void Player::set_ready() {
     ready = true;
-    updates.add_change(PlayerAttr::READY, true);
+    updates.add_change(PlayerAttr::READY, ready);
 }
 
-// void Player::gain_money(int amount) {
-//     inventory.add_money(amount);
-// }
+void Player::gain_money(int amount) {
+    money += amount;
+    updates.add_change(PlayerAttr::MONEY, money);
+}
 
 void Player::pick_bomb() {
     inventory.add_bomb();
@@ -76,7 +77,7 @@ void Player::buy_gun(const GunType& gun, int gun_price) {
         throw BuyGunError();
     inventory.add_primary_weapon(gun);
     updates.add_change(PlayerAttr::INVENTORY, inventory.get_updates());
-    money += gun_price;
+    money -= gun_price;
     updates.add_change(PlayerAttr::MONEY, money);
 }
 

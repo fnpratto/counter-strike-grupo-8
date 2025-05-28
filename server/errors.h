@@ -32,7 +32,7 @@ public:
 
 class JoinGameError: public GameError {
 public:
-    JoinGameError(): GameError("game not found") {}
+    JoinGameError(): GameError("could not join game") {}
 };
 
 class StartGameError: public GameError {

@@ -1,5 +1,6 @@
 target_sources(taller_tests
     PRIVATE
+    server/map/test_map.cpp
     server/game/test_game.cpp
     server/game/test_game_phase.cpp
     server/player/test_player.cpp
@@ -14,6 +15,7 @@ target_sources(taller_tests
     ../server/player/inventory.cpp
 
     PUBLIC
+    ../common/game_state_update.h
     ../common/game_state.h
     ../server/errors.h
     # clock

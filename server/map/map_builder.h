@@ -17,7 +17,7 @@
 
 class MapBuilder {
 private:
-    const std::string& filename;
+    std::string filename;
 
 public:
     explicit MapBuilder(const std::string& filename): filename(filename) {}
@@ -49,7 +49,7 @@ public:
         }
 
         if (tiles["boxes"]) {
-            for (const auto& tile_data: tiles["walls"]) {
+            for (const auto& tile_data: tiles["boxes"]) {
                 int x = tile_data["x"].as<int>();
                 int y = tile_data["y"].as<int>();
                 Vector2D tile_pos(x, y);
@@ -58,22 +58,22 @@ public:
         }
 
         for (const auto& spawn_tt_data: map_data["spawns_tts"]) {
-            float x = spawn_tt_data["x"].as<float>();
-            float y = spawn_tt_data["y"].as<float>();
+            int x = spawn_tt_data["x"].as<int>();
+            int y = spawn_tt_data["y"].as<int>();
             Vector2D spawn_tt_pos(x, y);
             map.add_spawn_tt(std::move(spawn_tt_pos));
         }
 
         for (const auto& spawn_ct_data: map_data["spawns_cts"]) {
-            float x = spawn_ct_data["x"].as<float>();
-            float y = spawn_ct_data["y"].as<float>();
+            int x = spawn_ct_data["x"].as<int>();
+            int y = spawn_ct_data["y"].as<int>();
             Vector2D spawn_ct_pos(x, y);
             map.add_spawn_ct(std::move(spawn_ct_pos));
         }
 
         for (const auto& bomb_site_data: map_data["bomb_sites"]) {
-            float x = bomb_site_data["x"].as<float>();
-            float y = bomb_site_data["y"].as<float>();
+            int x = bomb_site_data["x"].as<int>();
+            int y = bomb_site_data["y"].as<int>();
             Vector2D bomb_site_pos(x, y);
             map.add_bomb_site(std::move(bomb_site_pos));
         }

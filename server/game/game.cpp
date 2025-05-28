@@ -77,6 +77,8 @@ void Game::advance_players_movement() {
 }
 
 GameState Game::join_player(const std::string& player_name) {
+    if (player_name.empty())
+        throw InvalidPlayerNameError();
     if (player_is_in_game(player_name) || is_full() || phase.is_started())
         throw JoinGameError();
 
@@ -124,6 +126,9 @@ void Game::handle_select_team_msg(const std::string& player_name, Team team) {
 }
 
 void Game::handle_start_game_msg(const std::string& player_name) {
+    if (phase.is_started())
+        throw StartGameError();
+
     std::unique_ptr<Player>& player = players.at(player_name);
     player->set_ready();
     if (all_players_ready()) {
@@ -280,7 +285,7 @@ void Game::clear_updates() {
 }
 
 bool Game::player_is_in_game(const std::string& player_name) const {
-    return players.find(player_name) == players.end();
+    return players.find(player_name) != players.end();
 }
 
 bool Game::is_full() const { return static_cast<int>(players.size()) == GameConfig::max_players; }

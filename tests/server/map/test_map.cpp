@@ -3,9 +3,11 @@
 #include "server/map/map.h"
 #include "server/map/map_builder.h"
 
-class TestMap: public ::testing::Test {
-protected:
-    Map map;
+TEST(YamlTest, LoadMap) {
+    YAML::Node data = YAML::LoadFile("../tests/server/map/map.yaml");
 
-    TestMap(): map(MapBuilder("map.yaml").build()) {}
-};
+    ASSERT_TRUE(data["name"]);
+    ASSERT_TRUE(data["tile_size"]);
+    EXPECT_NO_THROW(data["name"].as<std::string>());
+    EXPECT_NO_THROW(data["tile_size"].as<int>());
+}

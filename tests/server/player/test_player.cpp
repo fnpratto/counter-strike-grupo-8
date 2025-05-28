@@ -5,76 +5,93 @@
 #include "server/errors.h"
 #include "server/game/shop.h"
 #include "server/player/player.h"
+#include "server/player/player_config.h"
 #include "server/weapons/gun.h"
 
-// class TestPlayer: public ::testing::Test {
-// protected:
-//     Player player;
+class TestPlayer: public ::testing::Test {
+protected:
+    Player player;
 
-//     TestPlayer(): player(Team::Terrorist, Inventory(), full_health, Vector2D()) {}
-// };
+    TestPlayer(): player(Team::TT, Vector2D(0, 0)) {}
+};
 
-// TEST_F(TestPlayer, PlayerStartWithFullHealth) { EXPECT_EQ(full_health, player.get_health()); }
+TEST_F(TestPlayer, PlayerStartWithFullHealth) {
+    EXPECT_EQ(PlayerConfig::full_health, player.full_state().health);
+}
 
-// TEST_F(TestPlayer, PlayerStartWithDefaultInventory) {
-//     Inventory i_inv;
-//     Inventory p_inv = player.get_inventory();
+TEST_F(TestPlayer, PlayerStartWithInitialMoney) {
+    EXPECT_EQ(PlayerConfig::initial_money, player.full_state().money);
+}
 
-//     EXPECT_EQ(i_inv.get_money(), p_inv.get_money());
-//     EXPECT_EQ(i_inv.get_sec_weapon()->get_type(), p_inv.get_sec_weapon()->get_type());
-//     EXPECT_EQ(i_inv.get_sec_weapon()->get_mag_ammo(), p_inv.get_sec_weapon()->get_mag_ammo());
-//     EXPECT_EQ(i_inv.get_sec_weapon()->get_reserve_ammo(),
-//               p_inv.get_sec_weapon()->get_reserve_ammo());
-//     EXPECT_EQ(i_inv.get_melee_weapon()->get_type(), p_inv.get_melee_weapon()->get_type());
-//     EXPECT_THROW({ p_inv.get_prim_weapon(); }, std::out_of_range);
-//     EXPECT_THROW({ p_inv.get_bomb(); }, std::out_of_range);
-// }
+TEST_F(TestPlayer, PlayerStartWithDefaultInventory) {
+    InventoryState i_inv = Inventory().full_state();
+    InventoryState p_inv = player.full_state().inventory;
 
-// TEST_F(TestPlayer, CanBuyAnyPrimaryWeapon) {
-//     Shop shop;
-//     player.gain_money(10000);
+    GunState i_sec_weapon = i_inv.guns.at(WeaponSlot::Secondary);
+    GunState p_sec_weapon = p_inv.guns.at(WeaponSlot::Secondary);
+    EXPECT_EQ(i_sec_weapon.gun, p_sec_weapon.gun);
+    EXPECT_EQ(i_sec_weapon.bullets_per_mag, p_sec_weapon.bullets_per_mag);
+    EXPECT_EQ(i_sec_weapon.mag_ammo, p_sec_weapon.mag_ammo);
+    EXPECT_EQ(i_sec_weapon.reserve_ammo, p_sec_weapon.reserve_ammo);
 
-//     std::vector<GunType> guns = {GunType::AK47, GunType::M3, GunType::AWP};
-//     for (GunType g: guns) {
-//         int initial_money = player.get_inventory().get_money();
-//         int gun_price = shop.get_gun_price(g);
-//         player.buy_gun(g, gun_price);
-//         EXPECT_EQ(player.get_inventory().get_money(), initial_money - gun_price);
-//         EXPECT_EQ(player.get_inventory().get_prim_weapon()->get_type(), g);
-//     }
-// }
+    UtilityState i_melee = i_inv.utilities.at(WeaponSlot::Melee);
+    UtilityState p_melee = p_inv.utilities.at(WeaponSlot::Melee);
+    EXPECT_EQ(i_melee.utility, p_melee.utility);
 
-// TEST_F(TestPlayer, CannotBuyWeaponIfNotEnoughMoney) {
-//     Shop shop;
-//     GunType gun = GunType::AK47;
-//     int initial_money = player.get_inventory().get_money();
-//     int gun_price = shop.get_gun_price(gun);
+    EXPECT_THROW({ p_inv.guns.at(WeaponSlot::Primary); }, std::out_of_range);
+    EXPECT_THROW({ p_inv.guns.at(WeaponSlot::Bomb); }, std::out_of_range);
+}
 
-//     while (gun_price <= initial_money) {
-//         player.buy_gun(gun, gun_price);
-//         initial_money = player.get_inventory().get_money();
-//     }
+TEST_F(TestPlayer, CanBuyAnyPrimaryWeapon) {
+    Shop shop;
+    player.gain_money(10000);
+    int initial_money = player.full_state().money;
 
-//     EXPECT_THROW({ player.buy_gun(gun, gun_price); }, BuyGunError);
+    std::vector<GunType> guns = {GunType::AK47, GunType::M3, GunType::AWP};
+    for (GunType g: guns) {
+        player.clear_updates();
+        int gun_price = shop.get_gun_price(g);
+        player.buy_gun(g, gun_price);
 
-//     EXPECT_EQ(player.get_inventory().get_money(), initial_money);
+        int actual_money = player.get_updates().get_change<int>(PlayerAttr::MONEY);
+        EXPECT_EQ(actual_money, initial_money - gun_price);
+        initial_money = actual_money;
 
-//     EXPECT_THROW({ player.get_inventory().get_prim_weapon(); }, std::out_of_range);
-// }
+        auto inv_updates = player.get_updates().get_change<InventoryUpdate>(PlayerAttr::INVENTORY);
+        auto guns_updates =
+                inv_updates.get_change<std::map<WeaponSlot, GunUpdate>>(InventoryAttr::GUNS);
+        EXPECT_EQ(guns_updates.at(WeaponSlot::Primary).get_change<GunType>(GunAttr::TYPE), g);
+    }
+}
 
-// TEST_F(TestPlayer, BuyAmmo) {
-//     Shop shop;
-//     player.gain_money(10000);
+TEST_F(TestPlayer, CannotBuyWeaponIfNotEnoughMoney) {
+    Shop shop;
+    GunType gun = GunType::AK47;
+    int initial_money = player.full_state().money;
+    int gun_price = shop.get_gun_price(gun);
 
-//     Inventory old_inv = player.get_inventory();
-//     player.buy_ammo(WeaponSlot::Secondary, shop.get_ammo_price(GunType::Glock, 1), 1);
-//     Inventory new_inv = player.get_inventory();
+    while (gun_price <= initial_money) {
+        player.buy_gun(gun, gun_price);
+        initial_money = player.get_updates().get_change<int>(PlayerAttr::MONEY);
+    }
 
-//     EXPECT_EQ(new_inv.get_money(), old_inv.get_money() - ShopPrices::price_mag_glock);
+    EXPECT_THROW({ player.buy_gun(gun, gun_price); }, BuyGunError);
+    EXPECT_EQ(player.full_state().money, initial_money);
+}
 
-//     std::unique_ptr<Gun> old_glock = old_inv.get_sec_weapon();
-//     std::unique_ptr<Gun> new_glock = new_inv.get_sec_weapon();
-//     EXPECT_EQ(new_glock->get_mag_ammo(), old_glock->get_mag_ammo());
-//     EXPECT_EQ(new_glock->get_reserve_ammo(),
-//               old_glock->get_reserve_ammo() + new_glock->get_bullets_per_mag());
-// }
+TEST_F(TestPlayer, BuyAmmo) {
+    Shop shop;
+    player.gain_money(10000);
+
+    PlayerState old_state = player.full_state();
+    int ammo_price = shop.get_ammo_price(GunType::Glock, 1);
+    player.buy_ammo(WeaponSlot::Secondary, ammo_price, 1);
+    PlayerState new_state = player.full_state();
+
+    EXPECT_EQ(new_state.money, old_state.money - ammo_price);
+
+    GunState old_glock = old_state.inventory.guns.at(WeaponSlot::Secondary);
+    GunState new_glock = new_state.inventory.guns.at(WeaponSlot::Secondary);
+    EXPECT_EQ(new_glock.mag_ammo, old_glock.mag_ammo);
+    EXPECT_EQ(new_glock.reserve_ammo, old_glock.reserve_ammo + new_glock.bullets_per_mag);
+}
