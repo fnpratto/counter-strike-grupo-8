@@ -7,6 +7,7 @@
 #include "common/message.h"
 
 #include "display.h"
+#include "sdl_input.h"
 
 class SDLDisplay: public Display {
 public:
@@ -14,4 +15,8 @@ public:
 
     void run() override;
     void stop() override;
+
+private:
+    std::atomic<bool> quit_flag;
+    std::unique_ptr<SDLInput> input_handler;
 };

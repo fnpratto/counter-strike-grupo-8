@@ -20,63 +20,14 @@
 
 #include "display.h"
 
-void update_components() {}
-
-void keyboard_update(const SDL_Event& event, bool& shop) {
-    if (event.type == SDL_KEYDOWN) {
-        switch (event.key.keysym.sym) {
-            case SDLK_DOWN:
-                std::cout << "KEY_PRESS_DOWN" << std::endl;
-                break;
-            case SDLK_UP:
-                std::cout << "KEY_PRESS_UP" << std::endl;
-                break;
-            case SDLK_LEFT:
-
-                std::cout << "KEY_PRESS_LEFT" << std::endl;
-                break;
-            case SDLK_RIGHT:
-                std::cout << "KEY_PRESS_RIGHT" << std::endl;
-                break;
-            case SDLK_SPACE:
-                std::cout << "KEY_PRESS_SPACE" << std::endl;
-                shop = false;
-                break;
-            case SDLK_b:
-                shop = true;
-                std::cout << "KEY_PRESS_B" << std::endl;
-
-                break;
-        }
-    }
-}
-
-
-void mouse_update(const SDL_Event& event, hudDisplay& hudDisplay, shopDisplay& shopDisplay,
-                  bool shop) {
-    int x, y;
-    if (event.type == SDL_MOUSEBUTTONDOWN) {
-        switch (event.button.button) {
-            case SDL_BUTTON_LEFT:
-                std::cout << "MOUSE_PRESS_LEFT" << std::endl;
-                if (shop) {
-                    shopDisplay.updatePointerPosition(x, y);
-                }
-                break;
-            case SDL_BUTTON_RIGHT:
-                std::cout << "MOUSE_PRESS_RIGHT" << std::endl;
-                break;
-        }
-    } else if (event.type == SDL_MOUSEMOTION) {
-        SDL_GetMouseState(&x, &y);
-        hudDisplay.updatePointerPosition(x, y);
-    }
-}
 
 SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue):
-        Display(input_queue, output_queue) {}
+        Display(input_queue, output_queue),
+        quit_flag(false),
+        input_handler(std::make_unique<SDLInput>(input_queue, quit_flag)) {}
 
 void SDLDisplay::run() {
+    input_handler->start();
 
     // FOR FULL SIZE
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -111,23 +62,14 @@ void SDLDisplay::run() {
         Map map(window);
         listTeams listTeams(window);
 
-        MouseHandler mouseHandler(hudDisplay, shopDisplay, listTeams, this->input_queue);
+        MouseHandler mouseHandler(this->input_queue);
         KeyboardHandler keyboardHandler(this->input_queue);
-        SDL_Event e;
 
-        bool quit = false;
         bool shop = false;
-        bool list_teams = true;
+        // bool list_teams = true;
         int clock = 0;  // por ahora
 
-        while (!quit) {
-            while (SDL_PollEvent(&e)) {
-                if (e.type == SDL_QUIT) {
-                    quit = true;
-                }
-                keyboardHandler.handleEvent(e, shop);
-                mouseHandler.handleEvent(e, shop, list_teams);
-            }
+        while (!quit_flag) {
             /* update clock */
             frame_end = SDL_GetTicks();
             int elapsed_time = frame_end - frame_start;
@@ -160,7 +102,7 @@ void SDLDisplay::run() {
                 if (shop) {
                     shopDisplay.render();
                 }
-                list_teams = false;
+                // list_teams = false;
             } else {
 
                 listTeams.update(clock);
@@ -172,4 +114,13 @@ void SDLDisplay::run() {
     }
 }
 
-void SDLDisplay::stop() { Thread::stop(); }
+void SDLDisplay::stop() {
+    std::cout << "Stopping SDLDisplay...\n";
+    if (input_handler) {
+        std::cout << "Stopping input handler...\n";
+        input_handler->stop();
+        input_handler->join();
+    }
+    std::cout << "Client::run done\n";
+    Thread::stop();
+}

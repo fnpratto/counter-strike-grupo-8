@@ -15,19 +15,13 @@
 
 class MouseHandler {
 public:
-    explicit MouseHandler(hudDisplay& hudDisplayRef, shopDisplay& shopDisplayRef,
-                          listTeams& listTeamsRef, Queue<Message>& inputQueue):
-            hudDisplayRef(hudDisplayRef),
-            shopDisplayRef(shopDisplayRef),
-            listTeamsRef(listTeamsRef),
+    explicit MouseHandler(Queue<Message>& inputQueue):
+
             inputQueue(inputQueue) {}
-    void handleEvent(const SDL_Event& event, bool shop, bool list_teams);
+    void handleEvent(const SDL_Event& event /*, bool shop, bool list_teams*/);
 
 
 private:
-    hudDisplay& hudDisplayRef;
-    shopDisplay& shopDisplayRef;
-    listTeams& listTeamsRef;
     Queue<Message>& inputQueue;
 
     void sendNormalizedCoordinates(int x, int y);

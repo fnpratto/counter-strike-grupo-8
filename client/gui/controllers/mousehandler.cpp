@@ -17,14 +17,14 @@ void MouseHandler::sendNormalizedCoordinates(int x, int y) {
     inputQueue.push(Message(AimCommand(norm_x, norm_y)));
 }
 
-void MouseHandler::handleEvent(const SDL_Event& event, bool shop, bool list_teams) {
+void MouseHandler::handleEvent(const SDL_Event& event /*, bool shop, bool list_teams*/) {
     int x, y;
     if (event.type == SDL_MOUSEBUTTONDOWN) {
         switch (event.button.button) {
             case SDL_BUTTON_LEFT:
                 std::cout << "MOUSE_PRESS_LEFT" << std::endl;
                 SDL_GetMouseState(&x, &y);
-                if (shop) {
+                /*if (shop) {
                     std::optional<Message> maybe_message =
                             shopDisplayRef.updatePointerPosition(x, y);
                     if (maybe_message.has_value()) {
@@ -40,7 +40,7 @@ void MouseHandler::handleEvent(const SDL_Event& event, bool shop, bool list_team
                         std::cout << "Selected team" << std::endl;
                     }
                     return;
-                }
+                }*/
                 inputQueue.push(Message(ShootCommand(x, y)));
                 std::cout << "ShootCommand sent with coordinates: (" << x << ", " << y << ")"
                           << std::endl;
@@ -52,6 +52,6 @@ void MouseHandler::handleEvent(const SDL_Event& event, bool shop, bool list_team
     } else if (event.type == SDL_MOUSEMOTION) {
         SDL_GetMouseState(&x, &y);
         sendNormalizedCoordinates(x, y);
-        hudDisplayRef.updatePointerPosition(x, y);
+        // hudDisplayRef.updatePointerPosition(x, y);
     }
 }

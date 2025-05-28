@@ -13,7 +13,7 @@
 class KeyboardHandler {
 public:
     explicit KeyboardHandler(Queue<Message>& inputQueue);
-    void handleEvent(const SDL_Event& event, bool& shop);
+    void handleEvent(const SDL_Event& event /*, bool& shop*/);
 
 private:
     Queue<Message>& inputQueue;

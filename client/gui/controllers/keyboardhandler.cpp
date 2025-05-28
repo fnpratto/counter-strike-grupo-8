@@ -9,17 +9,17 @@ KeyboardHandler::KeyboardHandler(Queue<Message>& inputQueue): inputQueue(inputQu
     // Constructor implementation can be empty or contain initialization logic if needed
 }
 
-void KeyboardHandler::handleEvent(const SDL_Event& event, bool& shop) {
+void KeyboardHandler::handleEvent(const SDL_Event& event /*, bool& shop*/) {
     if (event.type == SDL_KEYDOWN) {
         switch (event.key.keysym.sym) {
             case SDLK_SPACE:
                 std::cout << "KEY_PRESS_SPACE" << std::endl;
-                shop = false;
+                // shop = false;
                 break;
             case SDLK_b:
                 std::cout << "KEY_PRESS_B" << std::endl;
                 // inputQueue.push(Message(Request Store);
-                shop = true;
+                // shop = true;
                 break;
         }
     }

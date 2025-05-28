@@ -12,6 +12,7 @@ target_sources(taller_client
     text_display.cpp
     qt_display.cpp
     sdl_display.cpp
+    sdl_input.cpp
     PUBLIC
     # .h files
     client.h
@@ -22,4 +23,5 @@ target_sources(taller_client
     text_display.h
     qt_display.h
     sdl_display.h
+    sdl_input.h
 )
