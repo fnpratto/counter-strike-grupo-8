@@ -7,7 +7,6 @@
 
 #include <arpa/inet.h>
 
-#include "common/deserializers.h"
 #include "common/message.h"
 #include "common/responses.h"
 #include "common/socket.h"
@@ -83,18 +82,15 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
 
 // === Deserialization ===
 
-DESERIALIZERS(ClientProtocol)
-
 template <>
-ListGamesResponse ClientProtocol::deserialize<ListGamesResponse>(payload_t& payload) const {
-    payload.clear();  // TODO remove me
-    return ListGamesResponse(deserialize<std::vector<std::string>>(payload));
+ListGamesResponse ClientProtocol::deserialize_msg<ListGamesResponse>(payload_t& payload) const {
+    return ListGamesResponse(deserialize_vector<std::string>(payload));
 }
 
 Message ClientProtocol::deserialize_message(const MessageType& type, payload_t& payload) const {
     switch (type) {
         case MessageType::LIST_GAMES_RESP: {
-            return Message(deserialize<ListGamesResponse>(payload));
+            return Message(deserialize_msg<ListGamesResponse>(payload));
         }
         default:
             throw std::runtime_error("Invalid message type for deserialization");

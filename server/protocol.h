@@ -11,7 +11,6 @@
 
 #include <arpa/inet.h>
 
-#include "common/deserializers.h"
 #include "common/message.h"
 #include "common/protocol.h"
 #include "common/queue.h"
@@ -39,5 +38,20 @@ private:
      * @return The deserialized object of type T.
      */
     template <typename T>
-    T deserialize(payload_t& payload) const;
+    T deserialize_msg(payload_t& payload) const;
+
+    template <typename T>
+    std::vector<T> deserialize_vector(payload_t& payload) const {
+        uint16_t length = deserialize<uint16_t>(payload);
+
+        payload_t data = pop(payload, length);
+
+        std::vector<T> result;
+        for (size_t i = 0; i < length; i++) {
+            T item = deserialize<T>(data);
+            result.push_back(item);
+        }
+
+        return result;
+    }
 };

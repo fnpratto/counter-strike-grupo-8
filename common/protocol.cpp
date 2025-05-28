@@ -44,34 +44,57 @@ payload_t BaseProtocol::serialize(MessageType type) const {
     return header;
 }
 
+payload_t BaseProtocol::pop(payload_t& payload, size_t size) const {
+    payload_t result(payload.begin(), payload.begin() + size);
+    payload.erase(payload.begin(), payload.begin() + size);
+    return result;
+}
+
+template <>
+uint8_t BaseProtocol::deserialize<uint8_t>(payload_t& payload) const {
+    payload_t data = pop(payload, sizeof(uint8_t));
+    return static_cast<uint8_t>(data[0]);
+}
+
+template <>
+uint16_t BaseProtocol::deserialize<uint16_t>(payload_t& payload) const {
+    payload_t data = pop(payload, sizeof(uint16_t));
+    return ntohs(*reinterpret_cast<const uint16_t*>(data.data()));
+}
+
+template <>
+float BaseProtocol::deserialize<float>(payload_t& payload) const {
+    payload_t data = pop(payload, sizeof(float));
+    uint32_t network_f = *reinterpret_cast<const uint32_t*>(data.data());
+    return ntohl(network_f);
+}
+
+template <>
+std::string BaseProtocol::deserialize<std::string>(payload_t& payload) const {
+    uint16_t length = deserialize<uint16_t>(payload);
+
+    payload_t data = pop(payload, length);
+
+    return std::string(data.data(), data.size());
+}
+
+template <>
+MessageType BaseProtocol::deserialize<MessageType>(payload_t& payload) const {
+    payload_t data = pop(payload, sizeof(uint8_t));
+    return static_cast<MessageType>(data[0]);
+}
+
 Message BaseProtocol::recv() {
-    MessageType msg_type = deserialize_message_type();
-    uint16_t length = deserialize_message_length();
+    payload_t header(sizeof(uint8_t) + sizeof(uint16_t));
+    socket.recvall(header.data(), sizeof(uint8_t) + sizeof(uint16_t));
+
+    MessageType msg_type = deserialize<MessageType>(header);
+    uint16_t length = deserialize<uint16_t>(header);
 
     payload_t content(length);
     socket.recvall(content.data(), length);
 
     return deserialize_message(msg_type, content);
-}
-
-MessageType BaseProtocol::deserialize_message_type() {
-    payload_t header(1);
-    socket.recvall(header.data(), 1);
-
-    return static_cast<MessageType>(header[0]);
-}
-
-uint16_t BaseProtocol::deserialize_message_length() {
-    payload_t payload(2);
-    socket.recvall(payload.data(), 2);
-
-    return ntohs(*reinterpret_cast<const uint16_t*>(payload.data()));
-}
-
-payload_t BaseProtocol::pop(payload_t& payload, size_t size) const {
-    payload_t result(payload.begin(), payload.begin() + size);
-    payload.erase(payload.begin(), payload.begin() + size);
-    return result;
 }
 
 void BaseProtocol::close() {

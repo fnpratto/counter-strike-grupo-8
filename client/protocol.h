@@ -31,5 +31,18 @@ public:
     Message deserialize_message(const MessageType& type, payload_t& payload) const override;
 
     template <typename T>
-    T deserialize(payload_t& payload) const;
+    T deserialize_msg(payload_t& payload) const;
+
+    template <typename T>
+    std::vector<T> deserialize_vector(payload_t& payload) const {
+        uint16_t length = deserialize<uint16_t>(payload);
+
+        std::vector<T> result;
+        for (size_t i = 0; i < length; i++) {
+            T item = deserialize<T>(payload);
+            result.push_back(item);
+        }
+
+        return result;
+    }
 };
