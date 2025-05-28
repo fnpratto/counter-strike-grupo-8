@@ -111,12 +111,8 @@ protected:
     payload_t pop(payload_t& payload, size_t size) const;
 
     payload_t serialize(const uint8_t& i) const {
-        payload_t payload(sizeof(i));
-
-        uint8_t data = htons(static_cast<uint8_t>(i));
-        payload.insert(payload.end(), reinterpret_cast<const char*>(&data),
-                       reinterpret_cast<const char*>(&data) + sizeof(data));
-
+        payload_t payload(1);
+        payload[0] = static_cast<char>(i);
         return payload;
     }
 
@@ -133,7 +129,7 @@ protected:
     }
 
     payload_t serialize(const float& f) const {
-        payload_t payload(sizeof(f));
+        payload_t payload;
 
         float network_f = htonl(f);
         payload.insert(payload.end(), reinterpret_cast<const char*>(&network_f),
