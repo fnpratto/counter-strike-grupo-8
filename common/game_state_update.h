@@ -67,16 +67,28 @@ public:
         const auto& new_changes = other.get_changes();
 
         for (const auto& [a, v]: changes) {
-            if (new_changes.find(a) != new_changes.end()) {
-                merged.add_change(a, new_changes.at(a));
-            } else {
-                merged.add_change(a, v);
+            bool has_new = new_changes.find(a) != new_changes.end();
+            const auto& val = has_new ? new_changes.at(a) : v;
+
+            if (a == GunAttr::TYPE) {
+                const auto& new_updates = std::get<GunType>(val);
+                merged.add_change(a, new_updates);
+            } else if (a == GunAttr::MAG_AMMO || a == GunAttr::RESERVE_AMMO) {
+                const auto& new_updates = std::get<int>(val);
+                merged.add_change(a, new_updates);
             }
         }
 
         for (const auto& [a, v]: new_changes) {
-            if (changes.find(a) == changes.end())
-                merged.add_change(a, v);
+            if (changes.find(a) == changes.end()) {
+                if (a == GunAttr::TYPE) {
+                    const auto& new_updates = std::get<GunType>(v);
+                    merged.add_change(a, new_updates);
+                } else if (a == GunAttr::MAG_AMMO || a == GunAttr::RESERVE_AMMO) {
+                    const auto& new_updates = std::get<int>(v);
+                    merged.add_change(a, new_updates);
+                }
+            }
         }
 
         return merged;
@@ -126,20 +138,23 @@ public:
         }
 
         std::map<WeaponSlot, UtilityType> merged;
-        const auto& old_updates = std::get<std::map<WeaponSlot, UtilityType>>(changes[attr]);
-        for (const auto& [slot, utility_type]: old_updates) {
-            if (value.find(slot) != value.end()) {
-                merged[slot] = value[slot];
-            } else {
-                merged[slot] = utility_type;
+
+        if (has_change(attr)) {
+            const auto& old_updates = std::get<std::map<WeaponSlot, UtilityType>>(changes[attr]);
+            for (const auto& [slot, utility_type]: old_updates) {
+                bool has_new = value.find(slot) != value.end();
+                const auto& val = has_new ? value.at(slot) : utility_type;
+                merged[slot] = val;
             }
-        }
-        for (auto& [slot, utility_type]: value) {
-            if (old_updates.find(slot) == old_updates.end())
-                merged[slot] = utility_type;
+            for (auto& [slot, utility_type]: value) {
+                if (old_updates.find(slot) == old_updates.end())
+                    merged[slot] = utility_type;
+            }
+        } else {
+            merged = std::move(value);
         }
 
-        changes[attr] = merged;
+        changes[attr] = std::move(merged);
     }
 
     void add_change(InventoryAttr attr, std::map<WeaponSlot, GunUpdate> value) {
@@ -164,6 +179,63 @@ public:
         }
 
         changes[attr] = merged;
+    }
+
+    InventoryUpdate merged(const InventoryUpdate& other) const {
+        InventoryUpdate merged;
+
+        const auto& new_changes = other.get_changes();
+
+        for (const auto& [a, v]: changes) {
+            bool has_new = new_changes.find(a) != new_changes.end();
+            const auto& val = has_new ? new_changes.at(a) : v;
+
+            if (a == InventoryAttr::GUNS) {
+                const auto& new_updates = std::get<std::map<WeaponSlot, GunUpdate>>(val);
+                const auto& old_updates = std::get<std::map<WeaponSlot, GunUpdate>>(v);
+                // Merge maps
+                std::map<WeaponSlot, GunUpdate> guns_merged;
+                for (const auto& [slot, gun]: old_updates) {
+                    bool has_new = new_updates.find(slot) != new_updates.end();
+                    const auto& val = has_new ? new_updates.at(slot) : gun;
+                    guns_merged[slot] = gun.merged(val);
+                }
+                for (auto& [slot, gun]: new_updates) {
+                    if (old_updates.find(slot) == old_updates.end())
+                        guns_merged[slot] = gun;
+                }
+                merged.add_change(a, guns_merged);
+            } else if (a == InventoryAttr::UTILITIES) {
+                const auto& new_updates = std::get<std::map<WeaponSlot, UtilityType>>(val);
+                const auto& old_updates = std::get<std::map<WeaponSlot, UtilityType>>(v);
+                // Merge maps
+                std::map<WeaponSlot, UtilityType> utilities_merged;
+                for (const auto& [slot, util]: old_updates) {
+                    bool has_new = new_updates.find(slot) != new_updates.end();
+                    const auto& val = has_new ? new_updates.at(slot) : util;
+                    utilities_merged[slot] = val;
+                }
+                for (auto& [slot, util]: new_updates) {
+                    if (old_updates.find(slot) == old_updates.end())
+                        utilities_merged[slot] = util;
+                }
+                merged.add_change(a, utilities_merged);
+            }
+        }
+
+        for (const auto& [a, v]: new_changes) {
+            if (changes.find(a) == changes.end()) {
+                if (a == InventoryAttr::GUNS) {
+                    const auto& new_updates = std::get<std::map<WeaponSlot, GunUpdate>>(v);
+                    merged.add_change(a, new_updates);
+                } else if (a == InventoryAttr::UTILITIES) {
+                    const auto& new_updates = std::get<std::map<WeaponSlot, UtilityType>>(v);
+                    merged.add_change(a, new_updates);
+                }
+            }
+        }
+
+        return merged;
     }
 
 protected:
@@ -211,22 +283,78 @@ public:
         changes[attr] = value;
     }
 
+    void add_change(PlayerAttr attr, InventoryUpdate value) {
+        // Validate attribute-specific type at runtime
+        if (attr != PlayerAttr::INVENTORY) {
+            throw std::invalid_argument(
+                    "Type mismatch: The provided value type is not valid for this attribute");
+        }
+
+        const auto& old_updates = std::get<InventoryUpdate>(changes[attr]);
+        changes[attr] = old_updates.merged(value);
+    }
+
     PlayerUpdate merged(const PlayerUpdate& other) const {
         PlayerUpdate merged;
 
         const auto& new_changes = other.get_changes();
 
         for (const auto& [a, v]: changes) {
-            if (new_changes.find(a) != new_changes.end()) {
-                merged.add_change(a, new_changes.at(a));
-            } else {
-                merged.add_change(a, v);
+            bool has_new = new_changes.find(a) != new_changes.end();
+            const auto& val = has_new ? new_changes.at(a) : v;
+
+            if (a == PlayerAttr::INVENTORY) {
+                const auto& new_updates = std::get<InventoryUpdate>(val);
+                const auto& old_updates = std::get<InventoryUpdate>(v);
+                merged.add_change(a, old_updates.merged(new_updates));
+            } else if (a == PlayerAttr::READY || a == PlayerAttr::IS_MOVING) {
+                const auto& new_updates = std::get<bool>(val);
+                merged.add_change(a, new_updates);
+            } else if (a == PlayerAttr::HEALTH || a == PlayerAttr::MONEY) {
+                const auto& new_updates = std::get<int>(val);
+                merged.add_change(a, new_updates);
+            } else if (a == PlayerAttr::TEAM) {
+                const auto& new_updates = std::get<Team>(val);
+                merged.add_change(a, new_updates);
+            } else if (a == PlayerAttr::POS_X || a == PlayerAttr::POS_Y || a == PlayerAttr::AIM_X ||
+                       a == PlayerAttr::AIM_Y) {
+                const auto& new_updates = std::get<float>(val);
+                merged.add_change(a, new_updates);
+            } else if (a == PlayerAttr::CURRENT_WEAPON) {
+                const auto& new_updates = std::get<WeaponSlot>(val);
+                merged.add_change(a, new_updates);
+            } else if (a == PlayerAttr::MOVE_DIR) {
+                const auto& new_updates = std::get<Vector2D>(val);
+                merged.add_change(a, new_updates);
             }
         }
 
         for (const auto& [a, v]: new_changes) {
-            if (changes.find(a) == changes.end())
-                merged.add_change(a, v);
+            if (changes.find(a) == changes.end()) {
+                if (a == PlayerAttr::INVENTORY) {
+                    const auto& new_updates = std::get<InventoryUpdate>(v);
+                    merged.add_change(a, new_updates);
+                } else if (a == PlayerAttr::READY || a == PlayerAttr::IS_MOVING) {
+                    const auto& new_updates = std::get<bool>(v);
+                    merged.add_change(a, new_updates);
+                } else if (a == PlayerAttr::HEALTH || a == PlayerAttr::MONEY) {
+                    const auto& new_updates = std::get<int>(v);
+                    merged.add_change(a, new_updates);
+                } else if (a == PlayerAttr::TEAM) {
+                    const auto& new_updates = std::get<Team>(v);
+                    merged.add_change(a, new_updates);
+                } else if (a == PlayerAttr::POS_X || a == PlayerAttr::POS_Y ||
+                           a == PlayerAttr::AIM_X || a == PlayerAttr::AIM_Y) {
+                    const auto& new_updates = std::get<float>(v);
+                    merged.add_change(a, new_updates);
+                } else if (a == PlayerAttr::CURRENT_WEAPON) {
+                    const auto& new_updates = std::get<WeaponSlot>(v);
+                    merged.add_change(a, new_updates);
+                } else if (a == PlayerAttr::MOVE_DIR) {
+                    const auto& new_updates = std::get<Vector2D>(v);
+                    merged.add_change(a, new_updates);
+                }
+            }
         }
 
         return merged;
@@ -282,6 +410,39 @@ public:
         changes[attr] = value;
     }
 
+    PhaseUpdate merged(const PhaseUpdate& other) const {
+        PhaseUpdate merged;
+
+        const auto& new_changes = other.get_changes();
+
+        for (const auto& [a, v]: changes) {
+            bool has_new = new_changes.find(a) != new_changes.end();
+            const auto& val = has_new ? new_changes.at(a) : v;
+
+            if (a == PhaseAttr::PHASE) {
+                const auto& new_updates = std::get<PhaseType>(val);
+                merged.add_change(a, new_updates);
+            } else if (a == PhaseAttr::TIME) {
+                const auto& new_updates = std::get<TimePoint>(val);
+                merged.add_change(a, new_updates);
+            }
+        }
+
+        for (const auto& [a, v]: new_changes) {
+            if (changes.find(a) == changes.end()) {
+                if (a == PhaseAttr::PHASE) {
+                    const auto& new_updates = std::get<PhaseType>(v);
+                    merged.add_change(a, new_updates);
+                } else if (a == PhaseAttr::TIME) {
+                    const auto& new_updates = std::get<TimePoint>(v);
+                    merged.add_change(a, new_updates);
+                }
+            }
+        }
+
+        return merged;
+    }
+
 protected:
     template <typename T>
     constexpr bool is_valid_type_for_attr(PhaseAttr attr, const T& value) const {
@@ -317,6 +478,17 @@ public:
         changes[attr] = value;
     }
 
+    void add_change(GameStateAttr attr, PhaseUpdate value) {
+        // Validate attribute-specific type at runtime
+        if (attr != GameStateAttr::PHASE) {
+            throw std::invalid_argument(
+                    "Type mismatch: The provided value type is not valid for this attribute");
+        }
+
+        const auto& old_updates = std::get<PhaseUpdate>(changes[attr]);
+        changes[attr] = old_updates.merged(value);
+    }
+
     void add_change(GameStateAttr attr, std::map<std::string, PlayerUpdate> value) {
         // Validate attribute-specific type at runtime
         if (attr != GameStateAttr::PLAYERS) {
@@ -324,11 +496,10 @@ public:
                     "Type mismatch: The provided value type is not valid for this attribute");
         }
 
+        // Merge maps
         std::map<std::string, PlayerUpdate> merged;
-
         if (has_change(attr)) {
             const auto& old_updates = std::get<std::map<std::string, PlayerUpdate>>(changes[attr]);
-
             for (const auto& [p_name, update]: old_updates) {
                 if (value.find(p_name) != value.end()) {
                     merged[p_name] = update.merged(value[p_name]);
