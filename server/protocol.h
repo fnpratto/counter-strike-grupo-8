@@ -44,11 +44,9 @@ private:
     std::vector<T> deserialize_vector(payload_t& payload) const {
         uint16_t length = deserialize<uint16_t>(payload);
 
-        payload_t data = pop(payload, length);
-
         std::vector<T> result;
         for (size_t i = 0; i < length; i++) {
-            T item = deserialize<T>(data);
+            T item = deserialize<T>(payload);
             result.push_back(item);
         }
 
