@@ -140,3 +140,6 @@ taller_client
 taller_server
 taller_test
 taller_editor
+
+# Tiburoncin dump files
+*.dump

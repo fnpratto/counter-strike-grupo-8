@@ -46,15 +46,16 @@ private:
     SdlText roundText;
     SdlText gunNumber;
     SdlText scoreText;
+
     int pointerX = SCREEN_WIDTH / 2;
     int pointerY = SCREEN_HEIGHT / 2;
-
     float widthRatio;
     float heightRatio;
     float scaleRatio;
     HudLayout layout;
 
 
+private:
     void renderBackground();
     void renderParal();
     void renderPointer();

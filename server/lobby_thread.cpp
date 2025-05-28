@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "common/responses.h"
+
 LobbyThread::LobbyThread(ServerProtocol& proto, LobbyMonitor& lobby_monitor,
                          std::function<void(pipe_t)> join_callback):
         protocol(proto), lobby_monitor(lobby_monitor), join_callback(std::move(join_callback)) {}
@@ -61,6 +63,6 @@ void LobbyThread::handle_join_game_cmd(const JoinGameCommand& cmd) {
 }
 
 void LobbyThread::handle_list_games_cmd() {
-    // auto games = lobby_monitor.get_games_names();
-    // TODO: send the list of games to the client
+    auto games = lobby_monitor.get_games_names();
+    protocol.send(Message(ListGamesResponse(games)));
 }

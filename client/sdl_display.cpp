@@ -1,11 +1,13 @@
 #include "sdl_display.h"
 
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <string>
 
 #include <SDL.h>
 #include <SDL_events.h>
+#include <unistd.h>
 
 #include "../client/requests.h"
 #include "../common/message.h"
@@ -27,6 +29,17 @@ SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue
         input_handler(std::make_unique<SDLInput>(input_queue, quit_flag)) {}
 
 void SDLDisplay::run() {
+    char* basePath = SDL_GetBasePath();
+    if (basePath) {
+
+        if (chdir(basePath) != 0) {
+            std::cerr << "chdir failed: " << strerror(errno) << std::endl;
+        }
+        SDL_free(basePath);
+    } else {
+        std::cerr << "SDL_GetBasePath failed: " << SDL_GetError() << std::endl;
+    }
+
     input_handler->start();
 
     // FOR FULL SIZE

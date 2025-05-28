@@ -78,17 +78,25 @@ public:
 
 /**
  * @class MoveCommand
- * @brief Command to start or stop movement in a direction.
+ * @brief Command to start movement in a direction.
  */
 class MoveCommand: public Command {
     int dx;
     int dy;
-    bool start;
 
 public:
-    MoveCommand(int dx, int dy, bool start): dx(dx), dy(dy), start(start) {}
-    // MoveDirection get_direction() const { return direction; }
-    bool is_start() const { return start; }
+    MoveCommand(int dx, int dy): dx(dx), dy(dy) {}
+    int get_direction_x() const { return dx; }
+    int get_direction_y() const { return dy; }
+};
+
+/**
+ * @class StopPlayerCommand
+ * @brief Command to stop the player's movement.
+ */
+class StopPlayerCommand: public Command {
+public:
+    StopPlayerCommand(): Command() {}
 };
 
 /**
@@ -109,13 +117,15 @@ public:
  * @brief Command to shoot towards the aimed direction.
  */
 class ShootCommand: public Command {
-    float x, y;
-
 public:
-    ShootCommand(float targetX, float targetY): x(targetX), y(targetY) {}
-    float get_x() const { return x; }
-    float get_y() const { return y; }
+    ShootCommand() {}
 };
+
+/**
+ * @class ReloadCommand
+ * @brief Command to reload the current weapon.
+ */
+class ReloadCommand: public Command {};
 
 /**
  * @class SwitchWeaponCommand
@@ -152,9 +162,3 @@ class PickUpItemCommand: public Command {};
  * @brief Command to leave the current game.
  */
 class LeaveGameCommand: public Command {};
-
-/**
- * @class ReloadCommand
- * @brief Command to reload the current weapon.
- */
-class ReloadCommand: public Command {};

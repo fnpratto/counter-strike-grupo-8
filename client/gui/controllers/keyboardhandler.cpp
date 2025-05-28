@@ -46,7 +46,7 @@ void KeyboardHandler::update_direction() {
     }
 
     if (dx != 0 || dy != 0) {
-        inputQueue.push(Message(MoveCommand(dx, dy, true)));
+        inputQueue.push(Message(MoveCommand(dx, dy)));
         std::cout << "KEY_PRESS_MOVE: dx=" << dx << ", dy=" << dy << std::endl;
     }
 }
