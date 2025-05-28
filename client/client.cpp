@@ -17,7 +17,9 @@
 // Default to GUI if not defined
 // Actually not necessary just better for IntelliSense
 #ifndef UI_TYPE_GUI
+#ifndef UI_TYPE_TUI
 #define UI_TYPE_GUI
+#endif  // !UI_TYPE_TUI
 #endif  // !UI_TYPE_GUI
 
 #ifdef UI_TYPE_GUI
