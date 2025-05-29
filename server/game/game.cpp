@@ -56,24 +56,27 @@ void Game::handle_msg(const Message& msg, const std::string& player_name) {
 
 void Game::advance_round_logic() {
     phase.advance();
-    updates.add_change(GameStateAttr::PHASE, phase.get_updates());
+    updates.set_phase(phase.get_updates());
     if (phase.is_round_finished()) {
         num_rounds++;
-        updates.add_change(GameStateAttr::NUM_ROUNDS, num_rounds);
+        updates.set_num_rounds(num_rounds);
     }
     if (num_rounds == GameConfig::max_rounds / 2)
         swap_teams();
 }
 
 void Game::advance_players_movement() {
-    for (const auto& [_, p]: players) {
-        if (p->is_moving()) {
-            Vector2D old_pos = p->get_pos();
-            Vector2D new_pos = old_pos + physics_system.calculate_step(p->get_move_dir());
+    std::map<std::string, PlayerUpdate> game_players_update;
+    for (const auto& [player_name, player]: players) {
+        if (player->is_moving()) {
+            Vector2D old_pos = player->get_pos();
+            Vector2D new_pos = old_pos + physics_system.calculate_step(player->get_move_dir());
             // TODO: Check collisions with physics_system (with tiles and entities)
-            p->move_to_pos(new_pos);
+            player->move_to_pos(new_pos);
+            game_players_update.emplace(player_name, player->get_updates());
         }
     }
+    updates.set_players(game_players_update);
 }
 
 GameState Game::join_player(const std::string& player_name) {
@@ -118,11 +121,12 @@ void Game::handle_select_team_msg(const std::string& player_name, Team team) {
         num_tts--;
         num_cts++;
     }
-    updates.add_change(GameStateAttr::NUM_TTS, num_tts);
+    updates.set_num_tts(num_tts);
+    updates.set_num_cts(num_cts);
 
     std::map<std::string, PlayerUpdate> game_players_update;
     game_players_update.emplace(player_name, player->get_updates());
-    updates.add_change(GameStateAttr::PLAYERS, game_players_update);
+    updates.set_players(game_players_update);
 }
 
 void Game::handle_start_game_msg(const std::string& player_name) {
@@ -134,12 +138,12 @@ void Game::handle_start_game_msg(const std::string& player_name) {
     if (all_players_ready()) {
         give_bomb_to_random_tt();
         phase.start_buying_phase();
-        updates.add_change(GameStateAttr::PHASE, phase.get_updates());
+        updates.set_phase(phase.get_updates());
     }
 
     std::map<std::string, PlayerUpdate> game_players_update;
     game_players_update.emplace(player_name, player->get_updates());
-    updates.add_change(GameStateAttr::PLAYERS, game_players_update);
+    updates.set_players(game_players_update);
 }
 
 void Game::handle_buy_gun_msg(const std::string& player_name, GunType gun) {
@@ -153,7 +157,7 @@ void Game::handle_buy_gun_msg(const std::string& player_name, GunType gun) {
 
     std::map<std::string, PlayerUpdate> game_players_update;
     game_players_update.emplace(player_name, player->get_updates());
-    updates.add_change(GameStateAttr::PLAYERS, game_players_update);
+    updates.set_players(game_players_update);
 }
 
 void Game::handle_buy_ammo_msg(const std::string& player_name, GunType gun) {
@@ -171,7 +175,7 @@ void Game::handle_buy_ammo_msg(const std::string& player_name, GunType gun) {
 
     std::map<std::string, PlayerUpdate> game_players_update;
     game_players_update.emplace(player_name, player->get_updates());
-    updates.add_change(GameStateAttr::PLAYERS, game_players_update);
+    updates.set_players(game_players_update);
 }
 
 void Game::handle_move_msg(const std::string& player_name, int dx, int dy) {
@@ -184,7 +188,7 @@ void Game::handle_move_msg(const std::string& player_name, int dx, int dy) {
 
     std::map<std::string, PlayerUpdate> game_players_update;
     game_players_update.emplace(player_name, player->get_updates());
-    updates.add_change(GameStateAttr::PLAYERS, game_players_update);
+    updates.set_players(game_players_update);
 }
 
 void Game::handle_stop_msg(const std::string& player_name) {
@@ -194,7 +198,7 @@ void Game::handle_stop_msg(const std::string& player_name) {
 
     std::map<std::string, PlayerUpdate> game_players_update;
     game_players_update.emplace(player_name, player->get_updates());
-    updates.add_change(GameStateAttr::PLAYERS, game_players_update);
+    updates.set_players(game_players_update);
 }
 
 void Game::handle_aim_msg(const std::string& player_name, float x, float y) {
@@ -204,7 +208,7 @@ void Game::handle_aim_msg(const std::string& player_name, float x, float y) {
 
     std::map<std::string, PlayerUpdate> game_players_update;
     game_players_update.emplace(player_name, player->get_updates());
-    updates.add_change(GameStateAttr::PLAYERS, game_players_update);
+    updates.set_players(game_players_update);
 }
 
 // void Game::handle_shoot_msg(const std::string& player_name, int x, int y) {
@@ -225,7 +229,7 @@ void Game::handle_switch_weapon_msg(const std::string& player_name, WeaponSlot s
 
     std::map<std::string, PlayerUpdate> game_players_update;
     game_players_update.emplace(player_name, player->get_updates());
-    updates.add_change(GameStateAttr::PLAYERS, game_players_update);
+    updates.set_players(game_players_update);
 }
 
 void Game::handle_reload_msg(const std::string& player_name) {
@@ -234,7 +238,7 @@ void Game::handle_reload_msg(const std::string& player_name) {
 
     std::map<std::string, PlayerUpdate> game_players_update;
     game_players_update.emplace(player_name, player->get_updates());
-    updates.add_change(GameStateAttr::PLAYERS, game_players_update);
+    updates.set_players(game_players_update);
 }
 
 void Game::give_bomb_to_random_tt() {
@@ -256,7 +260,7 @@ void Game::give_bomb_to_random_tt() {
 
     std::map<std::string, PlayerUpdate> game_players_update;
     game_players_update.emplace(player_name, player->get_updates());
-    updates.add_change(GameStateAttr::PLAYERS, game_players_update);
+    updates.set_players(game_players_update);
 }
 
 void Game::swap_teams() {
@@ -271,7 +275,7 @@ void Game::swap_teams() {
         game_players_update.emplace(player_name, player->get_updates());
     }
 
-    updates.add_change(GameStateAttr::PLAYERS, game_players_update);
+    updates.set_players(game_players_update);
 }
 
 Game::~Game() {}

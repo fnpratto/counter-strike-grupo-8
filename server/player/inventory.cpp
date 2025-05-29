@@ -47,9 +47,9 @@ InventoryState Inventory::full_state() const {
 void Inventory::add_bomb() {
     utilities[WeaponSlot::Bomb] = std::make_unique<Bomb>();
 
-    std::map<WeaponSlot, UtilityType> utility_update;
-    utility_update.emplace(WeaponSlot::Bomb, utilities[WeaponSlot::Bomb]->get_type());
-    updates.add_change(InventoryAttr::UTILITIES, utility_update);
+    std::map<WeaponSlot, UtilityUpdate> utility_updates;
+    utility_updates.emplace(WeaponSlot::Bomb, utilities[WeaponSlot::Bomb]->get_updates());
+    updates.set_utilities(utility_updates);
 }
 
 void Inventory::add_primary_weapon(const GunType& weapon_type) {
@@ -63,7 +63,7 @@ void Inventory::add_primary_weapon(const GunType& weapon_type) {
 
     std::map<WeaponSlot, GunUpdate> gun_updates;
     gun_updates.emplace(WeaponSlot::Primary, guns[WeaponSlot::Primary]->get_updates());
-    updates.add_change(InventoryAttr::GUNS, gun_updates);
+    updates.set_guns(gun_updates);
 }
 
 Inventory::~Inventory() {}

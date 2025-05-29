@@ -49,88 +49,88 @@ PlayerState Player::full_state() const {
     player_state.money = money;
     player_state.current_weapon = current_weapon;
     player_state.inventory = inventory.full_state();
+    player_state.is_moving = state_is_moving;
     return player_state;
 }
 
 void Player::set_ready() {
     ready = true;
-    updates.add_change(PlayerAttr::READY, ready);
+    updates.set_ready(ready);
 }
 
 void Player::gain_money(int amount) {
     money += amount;
-    updates.add_change(PlayerAttr::MONEY, money);
+    updates.set_money(money);
 }
 
 void Player::pick_bomb() {
     inventory.add_bomb();
-    updates.add_change(PlayerAttr::INVENTORY, inventory.get_updates());
+    updates.set_inventory(inventory.get_updates());
 }
 
 void Player::select_team(Team team) {
     this->team = team;
-    updates.add_change(PlayerAttr::TEAM, team);
+    updates.set_team(team);
 }
 
 void Player::buy_gun(const GunType& gun, int gun_price) {
     if (gun_price > money)
         throw BuyGunError();
     inventory.add_primary_weapon(gun);
-    updates.add_change(PlayerAttr::INVENTORY, inventory.get_updates());
+    updates.set_inventory(inventory.get_updates());
     money -= gun_price;
-    updates.add_change(PlayerAttr::MONEY, money);
+    updates.set_money(money);
 }
 
 void Player::buy_ammo(const WeaponSlot& slot, int ammo_price, int num_mags) {
     if (ammo_price > money)
         throw BuyAmmoError();
     inventory.get_gun(slot)->add_mags(num_mags);
-    updates.add_change(PlayerAttr::INVENTORY, inventory.get_updates());
+    updates.set_inventory(inventory.get_updates());
     money -= ammo_price;
-    updates.add_change(PlayerAttr::MONEY, money);
+    updates.set_money(money);
 }
 
 void Player::start_moving(int dx, int dy) {
     if (!state_is_moving) {
         state_is_moving = true;
-        updates.add_change(PlayerAttr::IS_MOVING, true);
+        updates.set_is_moving(state_is_moving);
     }
     Vector2D new_move_dir(dx, dy);
-    if (new_move_dir != move_dir) {
-        move_dir = new_move_dir;
-        updates.add_change(PlayerAttr::MOVE_DIR, move_dir);
-    }
+    move_dir = new_move_dir;
+    updates.set_move_dx(static_cast<int>(move_dir.get_x()));
+    updates.set_move_dy(static_cast<int>(move_dir.get_y()));
 }
 
 void Player::stop_moving() {
     if (state_is_moving) {
         state_is_moving = false;
-        updates.add_change(PlayerAttr::IS_MOVING, false);
+        updates.set_is_moving(state_is_moving);
     }
 }
 
 void Player::move_to_pos(Vector2D new_pos) {
     pos = new_pos;
-    updates.add_change(PlayerAttr::POS_X, pos.get_x());
-    updates.add_change(PlayerAttr::POS_Y, pos.get_y());
+    updates.set_pos_x(pos.get_x());
+    updates.set_pos_y(pos.get_y());
 }
 
 void Player::aim(float x, float y) {
     aim_dir = Vector2D(x, y).normalized();
-    updates.add_change(PlayerAttr::AIM_X, aim_dir.get_x());
-    updates.add_change(PlayerAttr::AIM_Y, aim_dir.get_y());
+    updates.set_aim_x(aim_dir.get_x());
+    updates.set_aim_y(aim_dir.get_y());
 }
 
 void Player::equip_weapon(WeaponSlot slot) {
     current_weapon = slot;
-    updates.add_change(PlayerAttr::CURRENT_WEAPON, current_weapon);
+    updates.set_current_weapon(current_weapon);
 }
 
 void Player::reload() {
     if (current_weapon == WeaponSlot::Melee || current_weapon == WeaponSlot::Bomb)
         return;
     inventory.get_gun(current_weapon)->reload();
-    updates.add_change(PlayerAttr::INVENTORY, inventory.get_updates());
+    updates.set_inventory(inventory.get_updates());
 }
 
 Player::~Player() {}

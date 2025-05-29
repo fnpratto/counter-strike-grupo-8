@@ -53,14 +53,13 @@ TEST_F(TestPlayer, CanBuyAnyPrimaryWeapon) {
         int gun_price = shop.get_gun_price(g);
         player.buy_gun(g, gun_price);
 
-        int actual_money = player.get_updates().get_change<int>(PlayerAttr::MONEY);
+        int actual_money = player.get_updates().get_money();
         EXPECT_EQ(actual_money, initial_money - gun_price);
         initial_money = actual_money;
 
-        auto inv_updates = player.get_updates().get_change<InventoryUpdate>(PlayerAttr::INVENTORY);
-        auto guns_updates =
-                inv_updates.get_change<std::map<WeaponSlot, GunUpdate>>(InventoryAttr::GUNS);
-        EXPECT_EQ(guns_updates.at(WeaponSlot::Primary).get_change<GunType>(GunAttr::TYPE), g);
+        InventoryUpdate inv_updates = player.get_updates().get_inventory();
+        std::map<WeaponSlot, GunUpdate> guns_updates = inv_updates.get_guns();
+        EXPECT_EQ(guns_updates.at(WeaponSlot::Primary).get_gun(), g);
     }
 }
 
@@ -72,7 +71,7 @@ TEST_F(TestPlayer, CannotBuyWeaponIfNotEnoughMoney) {
 
     while (gun_price <= initial_money) {
         player.buy_gun(gun, gun_price);
-        initial_money = player.get_updates().get_change<int>(PlayerAttr::MONEY);
+        initial_money = player.get_updates().get_money();
     }
 
     EXPECT_THROW({ player.buy_gun(gun, gun_price); }, BuyGunError);

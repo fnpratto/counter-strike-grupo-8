@@ -4,13 +4,9 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
-#include <type_traits>
-#include <utility>
-#include <variant>
 
 #include "common/game_state.h"
 #include "server/clock/clock.h"
-#include "server/utils/vector_2d.h"
 
 #define ATTR(...) __VA_ARGS__
 
@@ -73,21 +69,29 @@ protected:
 #define U_DEFINE_MEMBER(type, attr) type attr;
 
 
-#define X_ETTER(type, attr)                              \
-    void set_##attr(const type& value) { attr = value; } \
-    const std::optional<type>& get_##attr() const { return attr; }
-#define M_ETTER(type, attr)                              \
-    void set_##attr(const type& value) { attr = value; } \
+#define X_SETTER(type, attr)                                                \
+    void set_##attr(const type& value) { attr = value; }                    \
+    const std::optional<type>& get_optional_##attr() const { return attr; } \
+    const type& get_##attr() const {                                        \
+        if (!attr.has_value())                                              \
+            throw std::runtime_error("Error: " #attr " not set");           \
+        return attr.value();                                                \
+    }
+#define M_SETTER(type, attr)               \
+    void set_##attr(const type& value) {   \
+        if (!value.empty())                \
+            attr = merge_map(attr, value); \
+    }                                      \
     const type& get_##attr() const { return attr; }
-#define U_ETTER(type, attr)                              \
-    void set_##attr(const type& value) { attr = value; } \
+#define U_SETTER(type, attr)                                          \
+    void set_##attr(const type& value) { attr = attr.merged(value); } \
     const type& get_##attr() const { return attr; }
 
 
-#define X_MERGER(type, attr)                                               \
-    auto merged_##attr = merge_optional(get_##attr(), other.get_##attr()); \
-    if (merged_##attr.has_value()) {                                       \
-        merged.set_##attr(merged_##attr.value());                          \
+#define X_MERGER(type, attr)                                                                 \
+    auto merged_##attr = merge_optional(get_optional_##attr(), other.get_optional_##attr()); \
+    if (merged_##attr.has_value()) {                                                         \
+        merged.set_##attr(merged_##attr.value());                                            \
     }
 #define M_MERGER(type, attr) merged.set_##attr(merge_map(attr, other.get_##attr()));
 #define U_MERGER(type, attr) merged.set_##attr(attr.merged(other.get_##attr()));
@@ -119,7 +123,7 @@ protected:
         ATTRS(X_DEFINE_MEMBER, M_DEFINE_MEMBER, U_DEFINE_MEMBER)   \
                                                                    \
     public:                                                        \
-        ATTRS(X_ETTER, M_ETTER, U_ETTER)                           \
+        ATTRS(X_SETTER, M_SETTER, U_SETTER)                        \
                                                                    \
         CLASS merged(const CLASS& other) const {                   \
             CLASS merged;                                          \
@@ -169,7 +173,10 @@ DEFINE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)
     X(int, health)                \
     X(int, money)                 \
     X(WeaponSlot, current_weapon) \
-    U(InventoryUpdate, inventory)
+    U(InventoryUpdate, inventory) \
+    X(bool, is_moving)            \
+    X(int, move_dx)               \
+    X(int, move_dy)
 
 DEFINE_UPDATE(PlayerUpdate, PLAYER_ATTRS)
 

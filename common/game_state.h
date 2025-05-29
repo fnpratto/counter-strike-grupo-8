@@ -34,6 +34,7 @@ struct PlayerState {
     int money;
     WeaponSlot current_weapon;
     InventoryState inventory;
+    bool is_moving;
 };
 
 struct PhaseState {

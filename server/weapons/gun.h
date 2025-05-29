@@ -28,9 +28,9 @@ public:
             bullets_per_mag(bullets_per_mag),
             mag_ammo(mag_ammo),
             reserve_ammo(reserve_ammo) {
-        updates.add_change(GunAttr::TYPE, gun);
-        updates.add_change(GunAttr::MAG_AMMO, mag_ammo);
-        updates.add_change(GunAttr::RESERVE_AMMO, reserve_ammo);
+        updates.set_gun(gun);
+        updates.set_mag_ammo(mag_ammo);
+        updates.set_reserve_ammo(reserve_ammo);
     }
 
     bool can_shoot(const float fire_rate, TimePoint now) {
@@ -61,7 +61,7 @@ public:
 
     void add_mags(int num_mags) {
         reserve_ammo += bullets_per_mag * num_mags;
-        updates.add_change(GunAttr::RESERVE_AMMO, reserve_ammo);
+        updates.set_reserve_ammo(reserve_ammo);
     }
 
     int get_random_damage(const int min_dam, const int max_dam) {
@@ -81,8 +81,8 @@ public:
         int bullets_to_reload = bullets_per_mag - mag_ammo;
         mag_ammo += bullets_to_reload;
         reserve_ammo -= bullets_to_reload;
-        updates.add_change(GunAttr::MAG_AMMO, mag_ammo);
-        updates.add_change(GunAttr::RESERVE_AMMO, reserve_ammo);
+        updates.set_mag_ammo(mag_ammo);
+        updates.set_reserve_ammo(reserve_ammo);
     }
 
     virtual ~Gun() = default;

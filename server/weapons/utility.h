@@ -3,17 +3,22 @@
 #include <memory>
 
 #include "common/game_state.h"
+#include "common/game_state_update.h"
 #include "common/models.h"
 
 class Utility {
 protected:
     UtilityType utility;
     int damage;
+    UtilityUpdate updates;
 
 public:
-    Utility(UtilityType utility, int damage): utility(utility), damage(damage) {}
+    Utility(UtilityType utility, int damage): utility(utility), damage(damage) {
+        updates.set_utility(utility);
+    }
 
     UtilityType get_type() const { return utility; }
+    UtilityUpdate get_updates() const { return updates; }
 
     UtilityState full_state() const {
         UtilityState utility_state;

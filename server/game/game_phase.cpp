@@ -23,13 +23,13 @@ PhaseState GamePhase::full_state() const {
 
 void GamePhase::start_buying_phase() {
     phase = PhaseType::Buying;
-    updates.add_change(PhaseAttr::PHASE, phase);
+    updates.set_phase(phase);
     phase_start = clock.now();
 }
 
 void GamePhase::advance() {
     auto now = clock.now();
-    updates.add_change(PhaseAttr::TIME, now);
+    updates.set_time(now);
     auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - phase_start);
 
     std::chrono::seconds phase_duration;
@@ -38,7 +38,7 @@ void GamePhase::advance() {
             phase_duration = std::chrono::seconds(PhaseTimes::buying_phase_secs);
             if (elapsed >= phase_duration) {
                 phase = PhaseType::Playing;
-                updates.add_change(PhaseAttr::PHASE, phase);
+                updates.set_phase(phase);
                 phase_start = now;
             }
             break;
@@ -46,7 +46,7 @@ void GamePhase::advance() {
             phase_duration = std::chrono::seconds(PhaseTimes::playing_phase_secs);
             if (elapsed >= phase_duration) {
                 phase = PhaseType::RoundFinished;
-                updates.add_change(PhaseAttr::PHASE, phase);
+                updates.set_phase(phase);
                 phase_start = now;
             }
             break;
@@ -54,7 +54,7 @@ void GamePhase::advance() {
             phase_duration = std::chrono::seconds(PhaseTimes::round_finished_phase_secs);
             if (elapsed >= phase_duration) {
                 phase = PhaseType::Buying;
-                updates.add_change(PhaseAttr::PHASE, phase);
+                updates.set_phase(phase);
                 phase_start = now;
             }
             break;

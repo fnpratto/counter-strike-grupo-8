@@ -28,7 +28,7 @@ public:
         bullets.push_back(std::move(bullet));
 
         mag_ammo -= 1;
-        updates.add_change(GunAttr::MAG_AMMO, mag_ammo);
+        updates.set_mag_ammo(mag_ammo);
 
         return bullets;
     }
