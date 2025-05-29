@@ -19,12 +19,7 @@ public:
 
 protected:
     template <typename T>
-    T merge([[maybe_unused]] const T& a, const T& b) const {
-        return b;
-    }
-
-    template <typename T>
-    std::optional<T> merge_optional(const std::optional<T>& a, const std::optional<T>& b) const {
+    std::optional<T> merge(const std::optional<T>& a, const std::optional<T>& b) const {
         if (b.has_value()) {
             return b;
         }
@@ -32,30 +27,18 @@ protected:
     }
 
     template <typename K, typename V>
-    std::map<K, V> merge_map(const std::map<K, V>& a, const std::map<K, V>& b) const {
+    std::map<K, V> merge(const std::map<K, V>& a, const std::map<K, V>& b) const {
         std::map<K, V> merged = a;
 
         for (const auto& [key, value]: b) {
             if (merged.find(key) == merged.end()) {
                 merged[key] = value;
             } else {
-                merged[key] = merge(merged[key], value);
-            }
-        }
-
-        return merged;
-    }
-
-    template <typename K, typename V>
-    std::map<K, std::optional<V>> merge_optional_map(const std::map<K, std::optional<V>>& a,
-                                                     const std::map<K, std::optional<V>>& b) const {
-        std::map<K, std::optional<V>> merged = a;
-
-        for (const auto& [key, value]: b) {
-            if (merged.find(key) == merged.end()) {
-                merged[key] = value;
-            } else {
-                merged[key] = merge_optional(merged[key], value);
+                if constexpr (std::is_base_of_v<StateUpdate, V>) {
+                    merged[key] = merged[key].merged(value);
+                } else {
+                    merged[key] = value;  // For simple types, just overwrite
+                }
             }
         }
 
@@ -77,23 +60,23 @@ protected:
             throw std::runtime_error("Error: " #attr " not set");           \
         return attr.value();                                                \
     }
-#define M_SETTER(type, attr)               \
-    void set_##attr(const type& value) {   \
-        if (!value.empty())                \
-            attr = merge_map(attr, value); \
-    }                                      \
+#define M_SETTER(type, attr)             \
+    void set_##attr(const type& value) { \
+        if (!value.empty())              \
+            attr = merge(attr, value);   \
+    }                                    \
     const type& get_##attr() const { return attr; }
 #define U_SETTER(type, attr)                                          \
     void set_##attr(const type& value) { attr = attr.merged(value); } \
     const type& get_##attr() const { return attr; }
 
 
-#define X_MERGER(type, attr)                                                                 \
-    auto merged_##attr = merge_optional(get_optional_##attr(), other.get_optional_##attr()); \
-    if (merged_##attr.has_value()) {                                                         \
-        merged.set_##attr(merged_##attr.value());                                            \
+#define X_MERGER(type, attr)                                                        \
+    auto merged_##attr = merge(get_optional_##attr(), other.get_optional_##attr()); \
+    if (merged_##attr.has_value()) {                                                \
+        merged.set_##attr(merged_##attr.value());                                   \
     }
-#define M_MERGER(type, attr) merged.set_##attr(merge_map(attr, other.get_##attr()));
+#define M_MERGER(type, attr) merged.set_##attr(merge(attr, other.get_##attr()));
 #define U_MERGER(type, attr) merged.set_##attr(attr.merged(other.get_##attr()));
 
 #define X_CHANGED(type, attr) \
