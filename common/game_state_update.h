@@ -19,9 +19,16 @@ public:
     virtual bool has_change() const = 0;
     virtual void clear() = 0;
 
+    virtual ~StateUpdate() = default;
+
 protected:
     template <typename T>
-    std::optional<T> merge(const std::optional<T>& a, const std::optional<T>& b) const {
+    T merge([[maybe_unused]] const T& a, const T& b) const {
+        return b;
+    }
+
+    template <typename T>
+    std::optional<T> merge_optional(const std::optional<T>& a, const std::optional<T>& b) const {
         if (b.has_value()) {
             return b;
         }
@@ -37,6 +44,22 @@ protected:
                 merged[key] = value;
             } else {
                 merged[key] = merge(merged[key], value);
+            }
+        }
+
+        return merged;
+    }
+
+    template <typename K, typename V>
+    std::map<K, std::optional<V>> merge_optional_map(const std::map<K, std::optional<V>>& a,
+                                                     const std::map<K, std::optional<V>>& b) const {
+        std::map<K, std::optional<V>> merged = a;
+
+        for (const auto& [key, value]: b) {
+            if (merged.find(key) == merged.end()) {
+                merged[key] = value;
+            } else {
+                merged[key] = merge_optional(merged[key], value);
             }
         }
 
@@ -61,21 +84,20 @@ protected:
     const type& get_##attr() const { return attr; }
 
 
-#define X_MERGER(type, attr)                                      \
-    auto merged_##attr = merge(get_##attr(), other.get_##attr()); \
-    if (merged_##attr.has_value()) {                              \
-        merged.set_##attr(merged_##attr.value());                 \
+#define X_MERGER(type, attr)                                               \
+    auto merged_##attr = merge_optional(get_##attr(), other.get_##attr()); \
+    if (merged_##attr.has_value()) {                                       \
+        merged.set_##attr(merged_##attr.value());                          \
     }
 #define M_MERGER(type, attr) merged.set_##attr(merge_map(attr, other.get_##attr()));
 #define U_MERGER(type, attr) merged.set_##attr(attr.merged(other.get_##attr()));
 
 #define X_CHANGED(type, attr) \
-    bool attr_changed() const { return attr.has_value(); }
+    bool has_##attr##_changed() const { return attr.has_value(); }
 #define M_CHANGED(type, attr) \
-    bool attr_changed() const { return !attr.empty(); }
+    bool has_##attr##_changed() const { return !attr.empty(); }
 #define U_CHANGED(type, attr) \
-    bool attr_changed() const { return attr.has_change(); }
-
+    bool has_##attr##_changed() const { return attr.has_change(); }
 
 #define X_HAS_CHANGE(type, attr) \
     if (attr.has_value())        \
