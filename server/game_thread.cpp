@@ -9,10 +9,16 @@ GameThread::GameThread(const std::string& name):
 
 // TODO: Tick rate
 void GameThread::run() {
-    Message msg;
     while (should_keep_running()) {
-        input_queue->try_pop(msg);
-        game.tick(msg);
+        std::vector<Message> msgs;
+        for (int i = 0; i < MSG_BATCH_SIZE; ++i) {
+            Message msg;
+            if (!input_queue->try_pop(msg)) {
+                break;  // No more messages to process
+            }
+            msgs.push_back(msg);
+        }
+        game.tick(msgs, "player_name");  // TODO Replace "player_name" with actual player name
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
