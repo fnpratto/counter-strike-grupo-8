@@ -4,8 +4,8 @@
 
 #include "server/errors.h"
 
-Game::Game(const std::string& name, const Clock& clock, const Map& map):
-        name(name), phase(clock), physics_system(map, players) {
+Game::Game(const std::string& name, std::unique_ptr<Clock>&& game_clock, Map&& map):
+        name(name), phase(std::move(game_clock)), physics_system(std::move(map), players) {
     std::srand(std::time(nullptr));
 }
 
@@ -283,7 +283,7 @@ Game::~Game() {}
 void Game::clear_updates() {
     updates.clear();
     phase.clear_updates();
-    for (auto& [_, p]: players) {
+    for (auto& [_, p]: players) {  // cppcheck-suppress[unusedVariable]
         p->clear_updates();
     }
 }
@@ -301,7 +301,7 @@ bool Game::team_is_full(const Team& team) const {
 }
 
 bool Game::all_players_ready() const {
-    for (auto& [_, player]: players) {
+    for (auto& [_, player]: players) {  // cppcheck-suppress[unusedVariable]
         if (!player->is_ready())
             return false;
     }
@@ -312,7 +312,7 @@ GameState Game::full_state() {
     GameState game_state;
 
     std::map<std::string, PlayerState> players_states;
-    for (auto& [player_name, player]: players) {
+    for (auto& [player_name, player]: players) {  // cppcheck-suppress unassignedVariable
         players_states[player_name] = player->full_state();
     }
 

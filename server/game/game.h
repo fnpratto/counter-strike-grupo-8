@@ -28,6 +28,18 @@ private:
     int num_tts = 0;
     int num_cts = 0;
 
+public:
+    Game(const std::string& name, std::unique_ptr<Clock>&& game_clock, Map&& map);
+
+    bool is_full() const;
+
+    GameState join_player(const std::string& player_name);
+
+    GameUpdate tick(const std::vector<Message>& msgs, const std::string& player_name);
+
+    ~Game();
+
+private:
     void clear_updates();
 
     bool player_is_in_game(const std::string& player_name) const;
@@ -57,15 +69,4 @@ private:
 
     void advance_players_movement();
     void advance_round_logic();
-
-public:
-    Game(const std::string& name, const Clock& clock, const Map& map);
-
-    bool is_full() const;
-
-    GameState join_player(const std::string& player_name);
-
-    GameUpdate tick(const std::vector<Message>& msgs, const std::string& player_name);
-
-    ~Game();
 };

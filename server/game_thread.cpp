@@ -1,7 +1,11 @@
 #include "game_thread.h"
 
+#include "clock/real_clock.h"
+#include "map/map.h"
+
 GameThread::GameThread(const std::string& name):
-        game(name), input_queue(std::make_shared<Queue<Message>>()) {}
+        game(name, std::make_unique<RealClock>(), Map("map_name", 16)),
+        input_queue(std::make_shared<Queue<Message>>()) {}
 
 // TODO: Tick rate
 void GameThread::run() {

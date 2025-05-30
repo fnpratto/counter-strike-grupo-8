@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <memory>
 
 #include "common/game_state.h"
 #include "common/game_state_update.h"
@@ -9,13 +10,13 @@
 
 class GamePhase {
 private:
-    const Clock& clock;
+    std::unique_ptr<Clock> game_clock;
     PhaseType phase;
     TimePoint phase_start;
     PhaseUpdate updates;
 
 public:
-    explicit GamePhase(const Clock& clock);
+    explicit GamePhase(std::unique_ptr<Clock>&& game_clock);
 
     bool is_started() const;
     bool is_round_finished() const;

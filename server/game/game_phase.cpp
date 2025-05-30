@@ -1,8 +1,12 @@
 #include "game_phase.h"
 
+#include <memory>
+#include <utility>
+
 #include "game_config.h"
 
-GamePhase::GamePhase(const Clock& clock): clock(clock), phase(PhaseType::WarmUp) {}
+GamePhase::GamePhase(std::unique_ptr<Clock>&& gc):
+        game_clock(std::move(gc)), phase(PhaseType::WarmUp) {}
 
 bool GamePhase::is_started() const { return phase != PhaseType::WarmUp; }
 
@@ -17,18 +21,18 @@ void GamePhase::clear_updates() { updates.clear(); }
 PhaseState GamePhase::full_state() const {
     PhaseState phase_state;
     phase_state.phase = phase;
-    phase_state.time = clock.now();
+    phase_state.time = game_clock->now();
     return phase_state;
 }
 
 void GamePhase::start_buying_phase() {
     phase = PhaseType::Buying;
     updates.set_phase(phase);
-    phase_start = clock.now();
+    phase_start = game_clock->now();
 }
 
 void GamePhase::advance() {
-    auto now = clock.now();
+    auto now = game_clock->now();
     updates.set_time(now);
     auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - phase_start);
 
