@@ -5,10 +5,11 @@
 #include <utility>
 
 #include "common/models.h"
-#include "common/state.h"
 #include "common/updates/inventory_update.h"
 #include "server/weapons/gun.h"
 #include "server/weapons/utility.h"
+
+#include "state.h"
 
 class InventoryState: public State<InventoryUpdate> {
     int money;

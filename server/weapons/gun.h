@@ -3,11 +3,11 @@
 #include <memory>
 #include <vector>
 
-#include "common/gun_state.h"
 #include "common/models.h"
 #include "server/clock/clock.h"
 #include "server/logic.h"
 #include "server/map/map.h"
+#include "server/states/gun_state.h"
 #include "server/utils/random_float_generator.h"
 #include "server/utils/vector_2d.h"
 

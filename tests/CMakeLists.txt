@@ -22,7 +22,7 @@ target_sources(taller_tests
     ../common/updates/inventory_update.h
     ../common/updates/utility_update.h
     ../common/updates/gun_update.h
-    ../common/game_state.h
+    ../server/states/game_state.h
     ../server/errors.h
     # clock
     ../server/clock/mock_clock.h

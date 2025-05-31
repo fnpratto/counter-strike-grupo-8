@@ -5,13 +5,13 @@
 #include <string>
 #include <vector>
 
-#include "common/game_state.h"
 #include "common/message.h"
 #include "common/updates/game_update.h"
 #include "server/clock/clock.h"
 #include "server/logic.h"
 #include "server/map/map.h"
 #include "server/player/player.h"
+#include "server/states/game_state.h"
 
 #include "game_config.h"
 #include "game_phase.h"

@@ -1,9 +1,10 @@
 #pragma once
 
 #include "common/models.h"
-#include "common/state.h"
 #include "common/updates/phase_update.h"
 #include "server/clock/clock.h"
+
+#include "state.h"
 
 class PhaseState: public State<PhaseUpdate> {
     PhaseType phase;

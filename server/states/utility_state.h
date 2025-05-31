@@ -1,8 +1,9 @@
 #pragma once
 
 #include "common/models.h"
-#include "common/state.h"
 #include "common/updates/utility_update.h"
+
+#include "state.h"
 
 class UtilityState: public State<UtilityUpdate> {
     UtilityType type;

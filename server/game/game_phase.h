@@ -2,10 +2,10 @@
 
 #include <memory>
 
-#include "common/phase_state.h"
 #include "common/updates/phase_update.h"
 #include "server/clock/clock.h"
 #include "server/logic.h"
+#include "server/states/phase_state.h"
 
 class GamePhase: public Logic<PhaseState, PhaseUpdate> {
 private:

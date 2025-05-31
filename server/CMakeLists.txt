@@ -20,7 +20,11 @@ target_sources(taller_server
     player/inventory.cpp
 
     PUBLIC
-    ../common/game_state.h
+    states/game_state.h
+    states/phase_state.h
+    states/player_state.h
+    states/inventory_state.h
+    states/utility_state.h
     acceptor.h
     client_handler.h
     game_thread.h

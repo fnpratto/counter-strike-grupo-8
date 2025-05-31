@@ -3,10 +3,10 @@
 #include <utility>
 
 #include "common/models.h"
-#include "common/player_state.h"
 #include "common/updates/player_update.h"
 #include "server/clock/clock.h"
 #include "server/logic.h"
+#include "server/states/player_state.h"
 #include "server/utils/vector_2d.h"
 #include "server/weapons/bomb.h"
 #include "server/weapons/bullet.h"

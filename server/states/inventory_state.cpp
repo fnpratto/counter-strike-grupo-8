@@ -1,9 +1,9 @@
-#include "common/inventory_state.h"
+#include "inventory_state.h"
 
 #include "server/weapons/glock.h"
 #include "server/weapons/knife.h"
 
-InventoryState::InventoryState() {
+InventoryState::InventoryState(): money(0) {
     guns[WeaponSlot::Secondary] = std::make_unique<Glock>();
     utilities[WeaponSlot::Melee] = std::make_unique<Knife>();
 }

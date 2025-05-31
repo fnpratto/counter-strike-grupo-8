@@ -5,11 +5,12 @@
 #include <string>
 #include <utility>
 
-#include "common/state.h"
 #include "common/updates/game_update.h"
 #include "server/clock/clock.h"
 #include "server/game/game_phase.h"
 #include "server/player/player.h"
+
+#include "state.h"
 
 class GameState: public State<GameUpdate> {
     GamePhase phase;

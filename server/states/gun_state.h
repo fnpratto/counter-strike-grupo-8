@@ -1,8 +1,9 @@
 #pragma once
 
 #include "common/models.h"
-#include "common/state.h"
 #include "common/updates/gun_update.h"
+
+#include "state.h"
 
 class GunState: public State<GunUpdate> {
     GunType gun;

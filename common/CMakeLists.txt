@@ -1,8 +1,8 @@
 target_sources(taller_common
     PRIVATE
     # .cpp files
-    game_state.cpp
-    inventory_state.cpp
+    ../server/states/game_state.cpp
+    ../server/states/inventory_state.cpp
     liberror.cpp
     protocol.cpp
     resolver.cpp
@@ -18,20 +18,20 @@ target_sources(taller_common
     updates/inventory_update.h
     updates/utility_update.h
     updates/gun_update.h
-    game_state.h
-    gun_state.h
-    inventory_state.h
+    ../server/states/state.h
+    ../server/states/game_state.h
+    ../server/states/gun_state.h
+    ../server/states/inventory_state.h
+    ../server/states/utility_state.h
+    ../server/states/phase_state.h
+    ../server/states/player_state.h
     liberror.h
     message.h
     models.h
-    phase_state.h
-    player_state.h
     protocol.h
     queue.h
     resolver.h
     resolvererror.h
     socket.h
-    state.h
     thread.h
-    utility_state.h
     )

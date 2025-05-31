@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "common/state.h"
+#include "states/state.h"
 
 template <typename State, typename Update>
 class Logic {

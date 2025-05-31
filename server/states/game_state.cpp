@@ -1,4 +1,4 @@
-#include "common/game_state.h"
+#include "game_state.h"
 
 #include <utility>
 

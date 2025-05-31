@@ -1,10 +1,11 @@
 #pragma once
 
 #include "common/models.h"
-#include "common/state.h"
 #include "common/updates/player_update.h"
 #include "server/player/inventory.h"
 #include "server/utils/vector_2d.h"
+
+#include "state.h"
 
 // Forward declaration
 class Inventory;

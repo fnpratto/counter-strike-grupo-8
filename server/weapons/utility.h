@@ -4,7 +4,8 @@
 
 #include "common/models.h"
 #include "common/updates/utility_update.h"
-#include "common/utility_state.h"
+#include "server/logic.h"
+#include "server/states/utility_state.h"
 
 class Utility: public Logic<UtilityState, UtilityUpdate> {
 public:
