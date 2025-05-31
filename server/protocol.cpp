@@ -16,9 +16,9 @@
 #include "common/queue.h"
 #include "common/socket.h"
 #include "common/thread.h"
+#include "game/game.h"
 
 #include "errors.h"
-#include "game.h"
 #include "lobby_monitor.h"
 #include "protocol.h"
 

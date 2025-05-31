@@ -1,51 +1,58 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <string>
 
+#include "common/state.h"
+#include "common/updates/game_update.h"
 #include "server/clock/clock.h"
+#include "server/game/game_phase.h"
+#include "server/player/player.h"
 
-#include "models.h"
+class GameState: public State<GameUpdate> {
+    GamePhase phase;
+    int num_rounds = 0;
+    std::map<std::string, std::unique_ptr<Player>> players;
 
-struct GunState {
-    GunType gun;
-    int bullets_per_mag;
-    int mag_ammo;
-    int reserve_ammo;
-};
+public:
+    GameState(std::unique_ptr<Clock>&& clock);
 
-struct UtilityState {
-    UtilityType utility;
-};
+    void advance_round() { set_num_rounds(num_rounds + 1); }
+    void set_num_rounds(int rounds) {
+        if (num_rounds == rounds)
+            return;
+        num_rounds = rounds;
+        updates.set_num_rounds(rounds);
+    }
 
-struct InventoryState {
-    std::map<WeaponSlot, GunState> guns;
-    std::map<WeaponSlot, UtilityState> utilities;
-};
+    int get_num_rounds() const { return num_rounds; }
 
-struct PlayerState {
-    Team team;
-    float pos_x;
-    float pos_y;
-    float aim_x;
-    float aim_y;
-    bool ready;
-    int health;
-    int money;
-    WeaponSlot current_weapon;
-    InventoryState inventory;
-    bool is_moving;
-};
+    int get_num_tts() const {
+        int num_tts = 0;
+        for (const auto& [name, player]: players) {
+            if (player->is_tt())
+                num_tts++;
+        }
+        return num_tts;
+    }
 
-struct PhaseState {
-    PhaseType phase;
-    TimePoint time;
-};
+    int get_num_cts() const {
+        int num_cts = 0;
+        for (const auto& [name, player]: players) {
+            if (player->is_ct())
+                num_cts++;
+        }
+        return num_cts;
+    }
 
-struct GameState {
-    PhaseState phase;
-    int num_rounds;
-    int num_tts;
-    int num_cts;
-    std::map<std::string, PlayerState> players;
+    GamePhase& get_phase() { return phase; }
+
+    void add_player(const std::string& player_name, std::unique_ptr<Player> player) {
+        if (players.find(player_name) != players.end())
+            throw std::runtime_error("Player already exists");
+        players[player_name] = std::move(player);
+        updates.add_players_change(player_name, players.at(player_name)->get_updates());
+    }
+    const std::map<std::string, std::unique_ptr<Player>>& get_players() const { return players; }
 };

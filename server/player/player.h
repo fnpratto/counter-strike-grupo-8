@@ -2,9 +2,9 @@
 
 #include <utility>
 
-#include "common/game_state.h"
-#include "common/game_state_update.h"
 #include "common/models.h"
+#include "common/player_state.h"
+#include "common/updates/player_update.h"
 #include "server/clock/clock.h"
 #include "server/utils/vector_2d.h"
 #include "server/weapons/bomb.h"
@@ -15,18 +15,7 @@
 
 class Player {
 private:
-    Team team;
-    Vector2D pos;
-    Vector2D aim_dir;
-    bool ready;
-    int health;
-    int money;
-    WeaponSlot current_weapon;
-    Inventory inventory;
-    PlayerUpdate updates;
-
-    bool state_is_moving;
-    Vector2D move_dir;
+    PlayerState state;
 
 public:
     Player(Team team, Vector2D pos);
@@ -42,7 +31,7 @@ public:
 
     void clear_updates();
 
-    PlayerState full_state() const;
+    PlayerState get_state() const;
 
     void set_ready();
 
@@ -57,7 +46,7 @@ public:
 
     void buy_ammo(const WeaponSlot& slot, int ammo_price, int num_mags);
 
-    void start_moving(int dx, int dy);
+    void start_moving(Vector2D velocity);
 
     void stop_moving();
 

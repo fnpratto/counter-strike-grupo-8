@@ -10,60 +10,26 @@
 #include "server/weapons/knife.h"
 #include "server/weapons/m3.h"
 
-Inventory::Inventory() {
-    guns[WeaponSlot::Secondary] = std::make_unique<Glock>();
-    utilities[WeaponSlot::Melee] = std::make_unique<Knife>();
+const std::unique_ptr<Gun>& Inventory::get_gun(const WeaponSlot& slot) const {
+    return state.get_guns().at(slot);
 }
 
-std::unique_ptr<Gun>& Inventory::get_gun(const WeaponSlot& slot) { return guns.at(slot); }
+InventoryUpdate Inventory::get_updates() const { return state.get_updates(); }
 
-InventoryUpdate Inventory::get_updates() const { return updates; }
+void Inventory::clear_updates() { state.clear_updates(); }
 
-void Inventory::clear_updates() {
-    updates.clear();
-    for (auto& [_, g]: guns) {
-        g->clear_updates();
-    }
-}
+InventoryState Inventory::get_state() const { return state; }
 
-InventoryState Inventory::full_state() const {
-    InventoryState inventory_state;
-
-    std::map<WeaponSlot, GunState> guns_states;
-    for (auto& [slot, gun]: guns) {
-        guns_states[slot] = gun->full_state();
-    }
-    inventory_state.guns = guns_states;
-
-    std::map<WeaponSlot, UtilityState> utilities_states;
-    for (auto& [slot, util]: utilities) {
-        utilities_states[slot] = util->full_state();
-    }
-    inventory_state.utilities = utilities_states;
-
-    return inventory_state;
-}
-
-void Inventory::add_bomb() {
-    utilities[WeaponSlot::Bomb] = std::make_unique<Bomb>();
-
-    std::map<WeaponSlot, UtilityUpdate> utility_updates;
-    utility_updates.emplace(WeaponSlot::Bomb, utilities[WeaponSlot::Bomb]->get_updates());
-    updates.set_utilities(utility_updates);
-}
+void Inventory::add_bomb() { state.set_utility(WeaponSlot::Bomb, std::make_unique<Bomb>()); }
 
 void Inventory::add_primary_weapon(const GunType& weapon_type) {
     if (weapon_type == GunType::AK47) {
-        guns[WeaponSlot::Primary] = std::make_unique<Ak47>();
+        state.set_gun(WeaponSlot::Primary, std::make_unique<Ak47>());
     } else if (weapon_type == GunType::M3) {
-        guns[WeaponSlot::Primary] = std::make_unique<M3>();
+        state.set_gun(WeaponSlot::Primary, std::make_unique<M3>());
     } else if (weapon_type == GunType::AWP) {
-        guns[WeaponSlot::Primary] = std::make_unique<Awp>();
+        state.set_gun(WeaponSlot::Primary, std::make_unique<Awp>());
     }
-
-    std::map<WeaponSlot, GunUpdate> gun_updates;
-    gun_updates.emplace(WeaponSlot::Primary, guns[WeaponSlot::Primary]->get_updates());
-    updates.set_guns(gun_updates);
 }
 
 Inventory::~Inventory() {}

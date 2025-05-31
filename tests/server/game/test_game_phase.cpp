@@ -1,7 +1,12 @@
 #include <gtest/gtest.h>
 
-#include "common/game_state_update.h"
 #include "common/models.h"
+#include "common/updates/game_update.h"
+#include "common/updates/gun_update.h"
+#include "common/updates/inventory_update.h"
+#include "common/updates/phase_update.h"
+#include "common/updates/player_update.h"
+#include "common/updates/utility_update.h"
 #include "server/clock/mock_clock.h"
 #include "server/game/game_config.h"
 #include "server/game/game_phase.h"
@@ -11,7 +16,9 @@ protected:
     MockClock clock;
     GamePhase game_phase;
 
-    TestGamePhase(): clock(std::chrono::steady_clock::now()), game_phase(clock) {}
+    TestGamePhase():
+            clock(std::chrono::steady_clock::now()),
+            game_phase(std::make_unique<MockClock>(clock)) {}
 
     void advance_secs(int secs) { clock.advance(std::chrono::seconds(secs)); }
 };

@@ -7,8 +7,9 @@
 #include <string>
 #include <vector>
 
+#include "game/game.h"
+
 #include "errors.h"
-#include "game.h"
 #include "game_thread.h"
 
 

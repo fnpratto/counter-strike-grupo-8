@@ -1,19 +1,17 @@
 #pragma once
 
-#include <chrono>
 #include <memory>
 
-#include "common/game_state.h"
-#include "common/game_state_update.h"
-#include "common/models.h"
+#include "common/phase_state.h"
+#include "common/updates/phase_update.h"
 #include "server/clock/clock.h"
 
 class GamePhase {
 private:
+    PhaseState state;
+
     std::unique_ptr<Clock> game_clock;
-    PhaseType phase;
     TimePoint phase_start;
-    PhaseUpdate updates;
 
 public:
     explicit GamePhase(std::unique_ptr<Clock>&& game_clock);
@@ -22,11 +20,9 @@ public:
     bool is_round_finished() const;
     bool is_buying_phase() const;
 
-    PhaseUpdate get_updates() const;
-
     void clear_updates();
 
-    PhaseState full_state() const;
+    PhaseState get_state() const;
 
     void start_buying_phase();
 

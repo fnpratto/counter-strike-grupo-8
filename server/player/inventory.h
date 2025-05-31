@@ -3,30 +3,25 @@
 #include <map>
 #include <memory>
 
-#include "common/game_state.h"
-#include "common/game_state_update.h"
+#include "common/inventory_state.h"
 #include "common/models.h"
+#include "common/updates/inventory_update.h"
 #include "server/weapons/gun.h"
 #include "server/weapons/utility.h"
 
 class Inventory {
 private:
-    std::map<WeaponSlot, std::unique_ptr<Gun>> guns;
-    std::map<WeaponSlot, std::unique_ptr<Utility>> utilities;
-    InventoryUpdate updates;
+    InventoryState state;
 
 public:
-    Inventory();
+    void add_bomb();
+    void add_primary_weapon(const GunType& weapon_type);
 
-    std::unique_ptr<Gun>& get_gun(const WeaponSlot& slot);
+    InventoryState get_state() const;
+    const std::unique_ptr<Gun>& get_gun(const WeaponSlot& slot) const;
     InventoryUpdate get_updates() const;
 
     void clear_updates();
-
-    InventoryState full_state() const;
-
-    void add_bomb();
-    void add_primary_weapon(const GunType& weapon_type);
 
     ~Inventory();
 };

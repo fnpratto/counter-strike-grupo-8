@@ -8,8 +8,7 @@
 #include <vector>
 
 #include "client/requests.h"
-#include "common/game_state.h"
-#include "common/game_state_update.h"
+#include "common/updates/game_update.h"
 
 #include "commands.h"
 
@@ -33,7 +32,6 @@
     F(PickUpItemCommand, PICK_UP_ITEM_CMD)             \
     F(LeaveGameCommand, LEAVE_GAME_CMD)                \
     F(ReloadCommand, RELOAD_CMD)                       \
-    F(GameState, GAME_STATE)                           \
     F(GameUpdate, GAME_UPDATE)
 #define MESSAGE_TYPE_MAP_LAST(F) F(std::nullptr_t, NONE)
 

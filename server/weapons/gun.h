@@ -3,8 +3,7 @@
 #include <memory>
 #include <vector>
 
-#include "common/game_state.h"
-#include "common/game_state_update.h"
+#include "common/gun_state.h"
 #include "common/models.h"
 #include "server/clock/clock.h"
 #include "server/map/map.h"
@@ -15,26 +14,19 @@
 
 class Gun {
 protected:
-    GunType gun;
-    int bullets_per_mag;
-    int mag_ammo;
-    int reserve_ammo;
+    GunState state;
     TimePoint time_last_shoot = TimePoint{};
-    GunUpdate updates;
 
 public:
     Gun(GunType gun, int bullets_per_mag, int mag_ammo, int reserve_ammo):
-            gun(gun),
-            bullets_per_mag(bullets_per_mag),
-            mag_ammo(mag_ammo),
-            reserve_ammo(reserve_ammo) {
-        updates.set_gun(gun);
-        updates.set_mag_ammo(mag_ammo);
-        updates.set_reserve_ammo(reserve_ammo);
+            state(gun, bullets_per_mag, mag_ammo, reserve_ammo) {
+        state.set_gun(gun);
+        state.set_mag_ammo(mag_ammo);
+        state.set_reserve_ammo(reserve_ammo);
     }
 
     bool can_shoot(const float fire_rate, TimePoint now) {
-        if (mag_ammo == 0)
+        if (state.get_mag_ammo() == 0)
             return false;
         std::chrono::duration<float> secs_btw_shoots = now - time_last_shoot;
         if (secs_btw_shoots.count() < (1.0f / fire_rate))
@@ -42,26 +34,23 @@ public:
         return true;
     }
 
-    GunType get_type() const { return gun; }
-    int get_bullets_per_mag() const { return bullets_per_mag; }
-    int get_mag_ammo() const { return mag_ammo; }
-    int get_reserve_ammo() const { return reserve_ammo; }
-    GunUpdate get_updates() const { return updates; }
+    GunType get_type() const { return state.get_gun(); }
+    int get_bullets_per_mag() const { return state.get_bullets_per_mag(); }
+    int get_mag_ammo() const { return state.get_mag_ammo(); }
+    int get_reserve_ammo() const { return state.get_reserve_ammo(); }
+    GunUpdate get_updates() const { return state.get_updates(); }
 
-    void clear_updates() { updates.clear(); }
+    void clear_updates() { state.clear_updates(); }
 
-    GunState full_state() const {
-        GunState gun_state;
-        gun_state.gun = gun;
-        gun_state.bullets_per_mag = bullets_per_mag;
-        gun_state.mag_ammo = mag_ammo;
-        gun_state.reserve_ammo = reserve_ammo;
-        return gun_state;
+    GunState get_state() const { return state; }
+
+    void add_mag() {
+        state.set_reserve_ammo(state.get_reserve_ammo() + state.get_bullets_per_mag());
     }
 
-    void add_mags(int num_mags) {
-        reserve_ammo += bullets_per_mag * num_mags;
-        updates.set_reserve_ammo(reserve_ammo);
+    void decrease_mag_ammo() {
+        if (state.get_mag_ammo() > 0)
+            state.set_mag_ammo(state.get_mag_ammo() - 1);
     }
 
     int get_random_damage(const int min_dam, const int max_dam) {
@@ -78,11 +67,9 @@ public:
                                       TimePoint now) = 0;
 
     void reload() {
-        int bullets_to_reload = bullets_per_mag - mag_ammo;
-        mag_ammo += bullets_to_reload;
-        reserve_ammo -= bullets_to_reload;
-        updates.set_mag_ammo(mag_ammo);
-        updates.set_reserve_ammo(reserve_ammo);
+        int bullets_to_reload = state.get_bullets_per_mag() - state.get_mag_ammo();
+        state.set_mag_ammo(state.get_mag_ammo() + bullets_to_reload);
+        state.set_reserve_ammo(state.get_reserve_ammo() - bullets_to_reload);
     }
 
     virtual ~Gun() = default;

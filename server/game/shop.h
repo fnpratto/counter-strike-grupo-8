@@ -30,10 +30,26 @@ public:
         mag_prices[GunType::Glock] = PRICE_MAG_GLOCK;
     }
 
-    int get_gun_price(const GunType& gun) const { return gun_prices.at(gun); }
+    // TODO this should take an Inventory
+    void buy_gun(const Player& player, const GunType& gun_type) const {
+        int price = gun_prices.at(gun_type);
+        if (player.get_state().get_money() < price)
+            throw BuyGunError();
 
-    int get_ammo_price(const GunType& gun, int num_mags) const {
-        return mag_prices.at(gun) * num_mags;
+        player.get_state().get_inventory().add_primary_weapon(gun_type);
+        player.get_state().set_money(player.get_state().get_money() - price);
+    }
+
+    // TODO this should take an Inventory
+    void buy_ammo(const Player& player, const WeaponSlot& slot) const {
+        GunType gun_type = player.get_state().get_inventory().get_gun(slot)->get_type();
+        int price = mag_prices.at(gun_type);
+
+        if (player.get_state().get_money() < price)
+            throw BuyAmmoError();
+
+        player.get_state().get_inventory().get_gun(slot)->add_mag();
+        player.get_state().set_money(player.get_state().get_money() - price);
     }
 
     ~Shop() {}

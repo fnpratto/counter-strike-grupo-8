@@ -15,7 +15,13 @@ target_sources(taller_tests
     ../server/player/inventory.cpp
 
     PUBLIC
-    ../common/game_state_update.h
+    ../common/updates/state_update.h
+    ../common/updates/game_update.h
+    ../common/updates/phase_update.h
+    ../common/updates/player_update.h
+    ../common/updates/inventory_update.h
+    ../common/updates/utility_update.h
+    ../common/updates/gun_update.h
     ../common/game_state.h
     ../server/errors.h
     # clock

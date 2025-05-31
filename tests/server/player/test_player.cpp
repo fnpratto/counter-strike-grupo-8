@@ -16,16 +16,16 @@ protected:
 };
 
 TEST_F(TestPlayer, PlayerStartWithFullHealth) {
-    EXPECT_EQ(PlayerConfig::full_health, player.full_state().health);
+    EXPECT_EQ(PlayerConfig::full_health, player.get_state().health);
 }
 
 TEST_F(TestPlayer, PlayerStartWithInitialMoney) {
-    EXPECT_EQ(PlayerConfig::initial_money, player.full_state().money);
+    EXPECT_EQ(PlayerConfig::initial_money, player.get_state().money);
 }
 
 TEST_F(TestPlayer, PlayerStartWithDefaultInventory) {
     InventoryState i_inv = Inventory().full_state();
-    InventoryState p_inv = player.full_state().inventory;
+    InventoryState p_inv = player.get_state().inventory;
 
     GunState i_sec_weapon = i_inv.guns.at(WeaponSlot::Secondary);
     GunState p_sec_weapon = p_inv.guns.at(WeaponSlot::Secondary);
@@ -36,7 +36,7 @@ TEST_F(TestPlayer, PlayerStartWithDefaultInventory) {
 
     UtilityState i_melee = i_inv.utilities.at(WeaponSlot::Melee);
     UtilityState p_melee = p_inv.utilities.at(WeaponSlot::Melee);
-    EXPECT_EQ(i_melee.utility, p_melee.utility);
+    EXPECT_EQ(i_melee.type, p_melee.type);
 
     EXPECT_THROW({ p_inv.guns.at(WeaponSlot::Primary); }, std::out_of_range);
     EXPECT_THROW({ p_inv.guns.at(WeaponSlot::Bomb); }, std::out_of_range);
@@ -45,7 +45,7 @@ TEST_F(TestPlayer, PlayerStartWithDefaultInventory) {
 TEST_F(TestPlayer, CanBuyAnyPrimaryWeapon) {
     Shop shop;
     player.gain_money(10000);
-    int initial_money = player.full_state().money;
+    int initial_money = player.get_state().money;
 
     std::vector<GunType> guns = {GunType::AK47, GunType::M3, GunType::AWP};
     for (GunType g: guns) {
@@ -66,7 +66,7 @@ TEST_F(TestPlayer, CanBuyAnyPrimaryWeapon) {
 TEST_F(TestPlayer, CannotBuyWeaponIfNotEnoughMoney) {
     Shop shop;
     GunType gun = GunType::AK47;
-    int initial_money = player.full_state().money;
+    int initial_money = player.get_state().money;
     int gun_price = shop.get_gun_price(gun);
 
     while (gun_price <= initial_money) {
@@ -75,17 +75,17 @@ TEST_F(TestPlayer, CannotBuyWeaponIfNotEnoughMoney) {
     }
 
     EXPECT_THROW({ player.buy_gun(gun, gun_price); }, BuyGunError);
-    EXPECT_EQ(player.full_state().money, initial_money);
+    EXPECT_EQ(player.get_state().money, initial_money);
 }
 
 TEST_F(TestPlayer, BuyAmmo) {
     Shop shop;
     player.gain_money(10000);
 
-    PlayerState old_state = player.full_state();
+    PlayerState old_state = player.get_state();
     int ammo_price = shop.get_ammo_price(GunType::Glock, 1);
     player.buy_ammo(WeaponSlot::Secondary, ammo_price, 1);
-    PlayerState new_state = player.full_state();
+    PlayerState new_state = player.get_state();
 
     EXPECT_EQ(new_state.money, old_state.money - ammo_price);
 

@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "common/game_state_update.h"
+#include "common/updates/game_update.h"
+#include "common/updates/gun_update.h"
+#include "common/updates/player_update.h"
 
 class TestGameUpdate: public ::testing::Test {
 protected:

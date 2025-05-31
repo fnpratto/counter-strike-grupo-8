@@ -5,8 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "common/game_state_update.h"
+#include "common/game_state.h"
 #include "common/message.h"
+#include "common/updates/game_update.h"
 #include "server/clock/clock.h"
 #include "server/map/map.h"
 #include "server/player/player.h"
@@ -19,23 +20,20 @@
 class Game {
 private:
     std::string name;
+    GameState state;
+
     Shop shop;
-    GamePhase phase;
-    std::map<std::string, std::unique_ptr<Player>> players;
     PhysicsSystem physics_system;
-    GameUpdate updates;
-    int num_rounds = 0;
-    int num_tts = 0;
-    int num_cts = 0;
 
 public:
     Game(const std::string& name, std::unique_ptr<Clock>&& game_clock, Map&& map);
 
     bool is_full() const;
 
-    GameState join_player(const std::string& player_name);
+    const GameState& join_player(const std::string& player_name);
 
     GameUpdate tick(const std::vector<Message>& msgs, const std::string& player_name);
+    const GameState& get_state() const;
 
     ~Game();
 
@@ -65,7 +63,6 @@ private:
     void handle_switch_weapon_msg(const std::string& player_name, WeaponSlot slot);
     void handle_reload_msg(const std::string& player_name);
 
-    GameState full_state();
 
     void advance_players_movement();
     void advance_round_logic();

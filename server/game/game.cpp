@@ -5,18 +5,20 @@
 #include "server/errors.h"
 
 Game::Game(const std::string& name, std::unique_ptr<Clock>&& game_clock, Map&& map):
-        name(name), phase(std::move(game_clock)), physics_system(std::move(map), players) {
+        name(name),
+        state(std::move(game_clock)),
+        physics_system(std::move(map), state.get_players()) {
     std::srand(std::time(nullptr));
 }
 
 GameUpdate Game::tick(const std::vector<Message>& msgs, const std::string& player_name) {
-    clear_updates();
+    state.clear_updates();
     for (const Message& msg: msgs) {
         handle_msg(msg, player_name);
     }
     advance_players_movement();
     advance_round_logic();
-    return updates;
+    return state.get_updates();
 }
 
 void Game::handle_msg(const Message& msg, const std::string& player_name) {
@@ -55,19 +57,20 @@ void Game::handle_msg(const Message& msg, const std::string& player_name) {
 }
 
 void Game::advance_round_logic() {
+    auto& phase = state.get_phase();
+
     phase.advance();
-    updates.set_phase(phase.get_updates());
-    if (phase.is_round_finished()) {
-        num_rounds++;
-        updates.set_num_rounds(num_rounds);
-    }
-    if (num_rounds == GameConfig::max_rounds / 2)
+
+    if (phase.is_round_finished())
+        state.advance_round();
+
+    if (state.get_num_rounds() == GameConfig::max_rounds / 2)
         swap_teams();
 }
 
 void Game::advance_players_movement() {
     std::map<std::string, PlayerUpdate> game_players_update;
-    for (const auto& [player_name, player]: players) {
+    for (const auto& [player_name, player]: state.get_players()) {
         if (player->is_moving()) {
             Vector2D old_pos = player->get_pos();
             Vector2D new_pos = old_pos + physics_system.calculate_step(player->get_move_dir());
@@ -76,32 +79,29 @@ void Game::advance_players_movement() {
             game_players_update.emplace(player_name, player->get_updates());
         }
     }
-    updates.set_players(game_players_update);
 }
 
-GameState Game::join_player(const std::string& player_name) {
+const GameState& Game::join_player(const std::string& player_name) {
     if (player_name.empty())
         throw InvalidPlayerNameError();
-    if (player_is_in_game(player_name) || is_full() || phase.is_started())
+    if (player_is_in_game(player_name) || is_full() || state.get_phase().is_started())
         throw JoinGameError();
 
-    Team team = (num_tts > num_cts) ? Team::CT : Team::TT;
-    if (team == Team::TT) {
+    Team default_team = (state.get_num_tts() > state.get_num_cts()) ? Team::CT : Team::TT;
+    if (default_team == Team::TT) {
         Vector2D pos = physics_system.random_spawn_tt_pos();
-        players[player_name] = std::make_unique<Player>(team, pos);
-        num_tts++;
+        state.add_player(player_name, std::make_unique<Player>(default_team, pos));
     } else {
         Vector2D pos = physics_system.random_spawn_ct_pos();
-        players[player_name] = std::make_unique<Player>(team, pos);
-        num_cts++;
+        state.add_player(player_name, std::make_unique<Player>(default_team, pos));
     }
 
-    return full_state();
+    return state;
 }
 
 void Game::handle_select_team_msg(const std::string& player_name, Team team) {
-    std::unique_ptr<Player>& player = players.at(player_name);
-    if (phase.is_started())
+    const std::unique_ptr<Player>& player = state.get_players().at(player_name);
+    if (state.get_phase().is_started())
         throw SelectTeamError();
     if (team_is_full(team))
         // TODO: Return error response
@@ -113,56 +113,33 @@ void Game::handle_select_team_msg(const std::string& player_name, Team team) {
         return;
 
     player->select_team(team);
-
-    if (team == Team::TT) {
-        num_cts--;
-        num_tts++;
-    } else {
-        num_tts--;
-        num_cts++;
-    }
-    updates.set_num_tts(num_tts);
-    updates.set_num_cts(num_cts);
-
-    std::map<std::string, PlayerUpdate> game_players_update;
-    game_players_update.emplace(player_name, player->get_updates());
-    updates.set_players(game_players_update);
 }
 
 void Game::handle_start_game_msg(const std::string& player_name) {
-    if (phase.is_started())
+    if (state.get_phase().is_started())
         throw StartGameError();
 
-    std::unique_ptr<Player>& player = players.at(player_name);
+    auto& player = state.get_players().at(player_name);
     player->set_ready();
     if (all_players_ready()) {
         give_bomb_to_random_tt();
-        phase.start_buying_phase();
-        updates.set_phase(phase.get_updates());
+        state.get_phase().start_buying_phase();
     }
-
-    std::map<std::string, PlayerUpdate> game_players_update;
-    game_players_update.emplace(player_name, player->get_updates());
-    updates.set_players(game_players_update);
 }
 
 void Game::handle_buy_gun_msg(const std::string& player_name, GunType gun) {
-    std::unique_ptr<Player>& player = players.at(player_name);
-    if (!phase.is_buying_phase())
+    auto& player = state.get_players().at(player_name);
+    if (!state.get_phase().is_buying_phase())
         throw BuyGunError();
     // if (physics_system.player_not_in_spawn(player))
     //     return;
     int gun_price = shop.get_gun_price(gun);
     player->buy_gun(gun, gun_price);
-
-    std::map<std::string, PlayerUpdate> game_players_update;
-    game_players_update.emplace(player_name, player->get_updates());
-    updates.set_players(game_players_update);
 }
 
 void Game::handle_buy_ammo_msg(const std::string& player_name, GunType gun) {
-    std::unique_ptr<Player>& player = players.at(player_name);
-    if (!phase.is_buying_phase())
+    auto& player = state.get_players().at(player_name);
+    if (!state.get_phase().is_buying_phase())
         throw BuyAmmoError();
     // if (physics_system.player_not_in_spawn(player))
     //     return;
@@ -172,43 +149,27 @@ void Game::handle_buy_ammo_msg(const std::string& player_name, GunType gun) {
     WeaponSlot slot = (gun == GunType::Glock) ? WeaponSlot::Secondary : WeaponSlot::Primary;
     int ammo_price = shop.get_ammo_price(gun, num_mags);
     player->buy_ammo(slot, ammo_price, num_mags);
-
-    std::map<std::string, PlayerUpdate> game_players_update;
-    game_players_update.emplace(player_name, player->get_updates());
-    updates.set_players(game_players_update);
 }
 
 void Game::handle_move_msg(const std::string& player_name, int dx, int dy) {
-    if (phase.is_buying_phase())
+    if (state.get_phase().is_buying_phase())
         return;
 
-    std::unique_ptr<Player>& player = players.at(player_name);
+    auto& player = state.get_players().at(player_name);
 
     player->start_moving(dx, dy);
-
-    std::map<std::string, PlayerUpdate> game_players_update;
-    game_players_update.emplace(player_name, player->get_updates());
-    updates.set_players(game_players_update);
 }
 
 void Game::handle_stop_msg(const std::string& player_name) {
-    std::unique_ptr<Player>& player = players.at(player_name);
+    auto& player = state.get_players().at(player_name);
 
     player->stop_moving();
-
-    std::map<std::string, PlayerUpdate> game_players_update;
-    game_players_update.emplace(player_name, player->get_updates());
-    updates.set_players(game_players_update);
 }
 
 void Game::handle_aim_msg(const std::string& player_name, float x, float y) {
-    std::unique_ptr<Player>& player = players.at(player_name);
+    auto& player = state.get_players().at(player_name);
 
     player->aim(x, y);
-
-    std::map<std::string, PlayerUpdate> game_players_update;
-    game_players_update.emplace(player_name, player->get_updates());
-    updates.set_players(game_players_update);
 }
 
 // void Game::handle_shoot_msg(const std::string& player_name, int x, int y) {
@@ -224,103 +185,65 @@ void Game::handle_aim_msg(const std::string& player_name, float x, float y) {
 // }
 
 void Game::handle_switch_weapon_msg(const std::string& player_name, WeaponSlot slot) {
-    std::unique_ptr<Player>& player = players.at(player_name);
+    auto& player = state.get_players().at(player_name);
     player->equip_weapon(slot);
-
-    std::map<std::string, PlayerUpdate> game_players_update;
-    game_players_update.emplace(player_name, player->get_updates());
-    updates.set_players(game_players_update);
 }
 
 void Game::handle_reload_msg(const std::string& player_name) {
-    std::unique_ptr<Player>& player = players.at(player_name);
+    auto& player = state.get_players().at(player_name);
     player->reload();
-
-    std::map<std::string, PlayerUpdate> game_players_update;
-    game_players_update.emplace(player_name, player->get_updates());
-    updates.set_players(game_players_update);
 }
 
 void Game::give_bomb_to_random_tt() {
-    if (num_tts == 0)
+    if (state.get_num_tts() == 0)
         return;
 
     std::vector<std::string> tt_names;
 
-    for (auto& [player_name, player]: players) {
+    for (auto& [player_name, player]: state.get_players()) {
         if (player->is_tt())
             tt_names.push_back(player_name);
     }
 
-    int random_index = rand() % num_tts;
+    int random_index = rand() % state.get_num_tts();
 
     std::string player_name = tt_names[random_index];
-    std::unique_ptr<Player>& player = players.at(player_name);
+    auto& player = state.get_players().at(player_name);
     player->pick_bomb();
-
-    std::map<std::string, PlayerUpdate> game_players_update;
-    game_players_update.emplace(player_name, player->get_updates());
-    updates.set_players(game_players_update);
 }
 
 void Game::swap_teams() {
-    std::map<std::string, PlayerUpdate> game_players_update;
-
-    for (auto& [player_name, player]: players) {
+    for (auto& [player_name, player]: state.get_players()) {
         if (player->is_tt()) {
             player->select_team(Team::CT);
         } else if (player->is_ct()) {
             player->select_team(Team::TT);
         }
-        game_players_update.emplace(player_name, player->get_updates());
     }
-
-    updates.set_players(game_players_update);
 }
 
 Game::~Game() {}
 
-void Game::clear_updates() {
-    updates.clear();
-    phase.clear_updates();
-    for (auto& [_, p]: players) {  // cppcheck-suppress[unusedVariable]
-        p->clear_updates();
-    }
-}
-
 bool Game::player_is_in_game(const std::string& player_name) const {
-    return players.find(player_name) != players.end();
+    return state.get_players().find(player_name) != state.get_players().end();
 }
 
-bool Game::is_full() const { return static_cast<int>(players.size()) == GameConfig::max_players; }
+bool Game::is_full() const {
+    return static_cast<int>(state.get_players().size()) == GameConfig::max_players;
+}
 
 bool Game::team_is_full(const Team& team) const {
     if (team == Team::TT)
-        return num_tts == GameConfig::max_team_players;
-    return num_cts == GameConfig::max_team_players;
+        return state.get_num_tts() == GameConfig::max_team_players;
+    return state.get_num_cts() == GameConfig::max_team_players;
 }
 
 bool Game::all_players_ready() const {
-    for (auto& [_, player]: players) {  // cppcheck-suppress[unusedVariable]
+    for (auto& [_, player]: state.get_players()) {  // cppcheck-suppress[unusedVariable]
         if (!player->is_ready())
             return false;
     }
     return true;
 }
 
-GameState Game::full_state() {
-    GameState game_state;
-
-    std::map<std::string, PlayerState> players_states;
-    for (auto& [player_name, player]: players) {  // cppcheck-suppress unassignedVariable
-        players_states[player_name] = player->full_state();
-    }
-
-    game_state.phase = phase.full_state();
-    game_state.num_rounds = num_rounds;
-    game_state.num_tts = num_tts;
-    game_state.num_cts = num_cts;
-    game_state.players = players_states;
-
-    return game_state;
-}
+const GameState& Game::get_state() const { return state; }

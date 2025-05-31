@@ -5,8 +5,9 @@
 #include <stdexcept>
 #include <string>
 
-#include "common/game_state.h"
+#include "common/models.h"
 #include "server/clock/clock.h"
+#include "server/utils/vector_2d.h"
 
 #define ATTR(...) __VA_ARGS__
 
@@ -46,11 +47,9 @@ protected:
     }
 };
 
-
 #define X_DEFINE_MEMBER(type, attr) std::optional<type> attr;
-#define M_DEFINE_MEMBER(type, attr) type attr;
+#define M_DEFINE_MEMBER(key_type, value_type, attr) std::map<key_type, value_type> attr;
 #define U_DEFINE_MEMBER(type, attr) type attr;
-
 
 #define X_SETTER(type, attr)                                                \
     void set_##attr(const type& value) { attr = value; }                    \
@@ -60,12 +59,13 @@ protected:
             throw std::runtime_error("Error: " #attr " not set");           \
         return attr.value();                                                \
     }
-#define M_SETTER(type, attr)             \
-    void set_##attr(const type& value) { \
-        if (!value.empty())              \
-            attr = merge(attr, value);   \
-    }                                    \
-    const type& get_##attr() const { return attr; }
+#define M_SETTER(key_type, value_type, attr)                                                      \
+    void set_##attr(const std::map<key_type, value_type>& value) {                                \
+        if (!value.empty())                                                                       \
+            attr = merge(attr, value);                                                            \
+    }                                                                                             \
+    void add_##attr##_change(const key_type& key, const value_type& value) { attr[key] = value; } \
+    const std::map<key_type, value_type>& get_##attr() const { return attr; }
 #define U_SETTER(type, attr)                                          \
     void set_##attr(const type& value) { attr = attr.merged(value); } \
     const type& get_##attr() const { return attr; }
@@ -76,12 +76,12 @@ protected:
     if (merged_##attr.has_value()) {                                                \
         merged.set_##attr(merged_##attr.value());                                   \
     }
-#define M_MERGER(type, attr) merged.set_##attr(merge(attr, other.get_##attr()));
+#define M_MERGER(key_type, value_type, attr) merged.set_##attr(merge(attr, other.get_##attr()));
 #define U_MERGER(type, attr) merged.set_##attr(attr.merged(other.get_##attr()));
 
 #define X_CHANGED(type, attr) \
     bool has_##attr##_changed() const { return attr.has_value(); }
-#define M_CHANGED(type, attr) \
+#define M_CHANGED(key_type, value_type, attr) \
     bool has_##attr##_changed() const { return !attr.empty(); }
 #define U_CHANGED(type, attr) \
     bool has_##attr##_changed() const { return attr.has_change(); }
@@ -89,8 +89,8 @@ protected:
 #define X_HAS_CHANGE(type, attr) \
     if (attr.has_value())        \
         return true;
-#define M_HAS_CHANGE(type, attr) \
-    if (!attr.empty())           \
+#define M_HAS_CHANGE(key_type, value_type, attr) \
+    if (!attr.empty())                           \
         return true;
 #define U_HAS_CHANGE(type, attr) \
     if (attr.has_change())       \
@@ -98,7 +98,7 @@ protected:
 
 
 #define X_CLEAR(type, attr) attr.reset();
-#define M_CLEAR(type, attr) attr.clear();
+#define M_CLEAR(key_type, value_type, attr) attr.clear();
 #define U_CLEAR(type, attr) attr.clear();
 
 #define DEFINE_UPDATE(CLASS, ATTRS)                                \
@@ -126,53 +126,3 @@ protected:
                                                                    \
         void clear() override { ATTRS(X_CLEAR, M_CLEAR, U_CLEAR) } \
     };
-
-
-#define GUN_ATTRS(X, M, U)  \
-    X(GunType, gun)         \
-    X(int, bullets_per_mag) \
-    X(int, mag_ammo)        \
-    X(int, reserve_ammo)
-
-DEFINE_UPDATE(GunUpdate, GUN_ATTRS)
-
-#define UTILITY_ATTRS(X, M, U) X(UtilityType, utility)
-
-DEFINE_UPDATE(UtilityUpdate, UTILITY_ATTRS)
-
-#define INVENTORY_ATTRS(X, M, U)                   \
-    M(ATTR(std::map<WeaponSlot, GunUpdate>), guns) \
-    M(ATTR(std::map<WeaponSlot, UtilityUpdate>), utilities)
-
-DEFINE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)
-
-#define PLAYER_ATTRS(X, M, U)     \
-    X(Team, team)                 \
-    X(float, pos_x)               \
-    X(float, pos_y)               \
-    X(float, aim_x)               \
-    X(float, aim_y)               \
-    X(bool, ready)                \
-    X(int, health)                \
-    X(int, money)                 \
-    X(WeaponSlot, current_weapon) \
-    U(InventoryUpdate, inventory) \
-    X(bool, is_moving)            \
-    X(int, move_dx)               \
-    X(int, move_dy)
-
-DEFINE_UPDATE(PlayerUpdate, PLAYER_ATTRS)
-
-#define PHASE_ATTRS(X, M, U) \
-    X(PhaseType, phase)      \
-    X(TimePoint, time)
-
-DEFINE_UPDATE(PhaseUpdate, PHASE_ATTRS)
-
-#define GAME_ATTRS(X, M, U) \
-    U(PhaseUpdate, phase)   \
-    X(int, num_rounds)      \
-    X(int, num_tts)         \
-    X(int, num_cts)         \
-    M(ATTR(std::map<std::string, PlayerUpdate>), players)
-DEFINE_UPDATE(GameUpdate, GAME_ATTRS)

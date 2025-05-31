@@ -1,6 +1,8 @@
 target_sources(taller_common
     PRIVATE
     # .cpp files
+    game_state.cpp
+    inventory_state.cpp
     liberror.cpp
     protocol.cpp
     resolver.cpp
@@ -9,15 +11,27 @@ target_sources(taller_common
     PUBLIC
     # .h files
     commands.h
-    game_state_update.h
+    updates/state_update.h
+    updates/game_update.h
+    updates/phase_update.h
+    updates/player_update.h
+    updates/inventory_update.h
+    updates/utility_update.h
+    updates/gun_update.h
     game_state.h
+    gun_state.h
+    inventory_state.h
     liberror.h
     message.h
     models.h
+    phase_state.h
+    player_state.h
     protocol.h
     queue.h
     resolver.h
     resolvererror.h
     socket.h
+    state.h
     thread.h
+    utility_state.h
     )
