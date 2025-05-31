@@ -46,7 +46,9 @@ payload_t ServerProtocol::serialize_message(const Message& message) const {
 
 template <>
 CreateGameCommand ServerProtocol::deserialize_msg<CreateGameCommand>(payload_t& payload) const {
-    return CreateGameCommand(deserialize<std::string>(payload));
+    std::string game_name = deserialize<std::string>(payload);
+    std::string player_name = deserialize<std::string>(payload);
+    return CreateGameCommand(game_name, player_name);
 }
 
 template <>
@@ -57,7 +59,9 @@ ListGamesCommand ServerProtocol::deserialize_msg<ListGamesCommand>(payload_t& pa
 
 template <>
 JoinGameCommand ServerProtocol::deserialize_msg<JoinGameCommand>(payload_t& payload) const {
-    return JoinGameCommand(deserialize<std::string>(payload));
+    std::string game_name = deserialize<std::string>(payload);
+    std::string player_name = deserialize<std::string>(payload);
+    return JoinGameCommand(game_name, player_name);
 }
 
 template <>

@@ -3,17 +3,17 @@
 #include <utility>
 
 #include "server/errors.h"
+#include "server/player_message.h"
 
 Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map):
         Logic<GameState, GameUpdate>(GameState(std::move(game_clock))),
         name(name),
         physics_system(std::move(map), state.get_players()) {}
 
-GameUpdate Game::tick(const std::vector<Message>& msgs, const std::string& player_name) {
+GameUpdate Game::tick(const std::vector<PlayerMessage>& msgs) {
     state.clear_updates();
-    for (const Message& msg: msgs) {
-        handle_msg(msg, player_name);
-    }
+    for (const PlayerMessage& msg: msgs) handle_msg(msg.get_message(), msg.get_player_name());
+
     advance_players_movement();
     advance_round_logic();
     return state.get_updates();

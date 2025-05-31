@@ -11,6 +11,7 @@
 #include "server/logic.h"
 #include "server/map/map.h"
 #include "server/player/player.h"
+#include "server/player_message.h"
 #include "server/states/game_state.h"
 
 #include "game_config.h"
@@ -32,7 +33,7 @@ public:
 
     GameUpdate join_player(const std::string& player_name);
 
-    GameUpdate tick(const std::vector<Message>& msgs, const std::string& player_name);
+    GameUpdate tick(const std::vector<PlayerMessage>& msgs);
 
     ~Game();
 

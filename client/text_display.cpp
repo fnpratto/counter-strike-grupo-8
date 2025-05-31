@@ -110,16 +110,18 @@ Message TextDisplay::build_message<ConnectionRequest>(std::istringstream& iss) {
 
 template <>
 Message TextDisplay::build_message<CreateGameCommand>(std::istringstream& iss) {
-    std::string name;
-    iss >> name;
-    return Message(CreateGameCommand(name));
+    std::string game_name;
+    std::string player_name;
+    iss >> game_name >> player_name;
+    return Message(CreateGameCommand(game_name, player_name));
 }
 
 template <>
 Message TextDisplay::build_message<JoinGameCommand>(std::istringstream& iss) {
-    std::string name;
-    iss >> name;
-    return Message(JoinGameCommand(name));
+    std::string game_name;
+    std::string player_name;
+    iss >> game_name >> player_name;
+    return Message(JoinGameCommand(game_name, player_name));
 }
 
 template <>
