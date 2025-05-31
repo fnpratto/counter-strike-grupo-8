@@ -1,8 +1,6 @@
 target_sources(taller_common
     PRIVATE
     # .cpp files
-    ../server/states/game_state.cpp
-    ../server/states/inventory_state.cpp
     liberror.cpp
     protocol.cpp
     resolver.cpp

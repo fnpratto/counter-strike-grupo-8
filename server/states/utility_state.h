@@ -10,7 +10,9 @@ class UtilityState: public State<UtilityUpdate> {
     int damage;
 
 public:
-    UtilityState(UtilityType type, int damage): type(type), damage(damage) {}
+    UtilityState(UtilityType type, int damage): type(type), damage(damage) {
+        updates = get_full_update();
+    }
 
     UtilityType get_type() const { return type; }
     int get_damage() const { return damage; }

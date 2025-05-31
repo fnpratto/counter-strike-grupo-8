@@ -17,15 +17,7 @@ class InventoryState: public State<InventoryUpdate> {
     std::map<WeaponSlot, std::unique_ptr<Utility>> utilities;
 
 public:
-    InventoryState();
-
-    // Delete copy constructor and copy assignment operator
-    InventoryState(const InventoryState&) = delete;
-    InventoryState& operator=(const InventoryState&) = delete;
-
-    // Enable move constructor and move assignment operator
-    InventoryState(InventoryState&&) = default;
-    InventoryState& operator=(InventoryState&&) = default;
+    explicit InventoryState(int money): money(money) { updates = get_full_update(); }
 
     void set_money(int new_money) {
         if (money == new_money)
@@ -40,13 +32,21 @@ public:
         return utilities;
     }
 
-    void set_gun(WeaponSlot slot, std::unique_ptr<Gun>&& gun) {
-        guns[slot] = std::move(gun);
-        updates.add_guns_change(slot, guns.at(slot)->get_updates());
-    }
+    void set_gun(WeaponSlot slot, std::unique_ptr<Gun>&& gun) { guns[slot] = std::move(gun); }
 
     void set_utility(WeaponSlot slot, std::unique_ptr<Utility>&& utility) {
         utilities[slot] = std::move(utility);
+    }
+
+    InventoryUpdate get_updates() const override {
+        InventoryUpdate update = updates;
+
+        for (const auto& [slot, gun]: guns) update.add_guns_change(slot, gun->get_updates());
+
+        for (const auto& [slot, utility]: utilities)
+            update.add_utilities_change(slot, utility->get_updates());
+
+        return update;
     }
 
     InventoryUpdate get_full_update() const override {

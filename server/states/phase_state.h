@@ -11,7 +11,9 @@ class PhaseState: public State<PhaseUpdate> {
     TimePoint time;
 
 public:
-    PhaseState(PhaseType phase_type, TimePoint time_point): phase(phase_type), time(time_point) {}
+    PhaseState(PhaseType phase_type, TimePoint time_point): phase(phase_type), time(time_point) {
+        updates = get_full_update();
+    }
 
     PhaseType get_phase() const { return phase; }
     TimePoint get_time() const { return time; }

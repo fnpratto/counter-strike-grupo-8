@@ -17,7 +17,9 @@ public:
             gun(gun_type),
             bullets_per_mag(bullets_per_mag),
             mag_ammo(mag_ammo),
-            reserve_ammo(reserve_ammo) {}
+            reserve_ammo(reserve_ammo) {
+        updates = get_full_update();
+    }
 
     GunType get_gun() const { return gun; }
     int get_bullets_per_mag() const { return bullets_per_mag; }

@@ -59,12 +59,15 @@ protected:
             throw std::runtime_error("Error: " #attr " not set");           \
         return attr.value();                                                \
     }
-#define M_SETTER(key_type, value_type, attr)                                                      \
-    void set_##attr(const std::map<key_type, value_type>& value) {                                \
-        if (!value.empty())                                                                       \
-            attr = merge(attr, value);                                                            \
-    }                                                                                             \
-    void add_##attr##_change(const key_type& key, const value_type& value) { attr[key] = value; } \
+#define M_SETTER(key_type, value_type, attr)                                 \
+    void set_##attr(const std::map<key_type, value_type>& value) {           \
+        if (!value.empty())                                                  \
+            attr = merge(attr, value);                                       \
+    }                                                                        \
+    void add_##attr##_change(const key_type& key, const value_type& value) { \
+        if (value.has_change())                                              \
+            attr[key] = value;                                               \
+    }                                                                        \
     const std::map<key_type, value_type>& get_##attr() const { return attr; }
 #define U_SETTER(type, attr)                                          \
     void set_##attr(const type& value) { attr = attr.merged(value); } \

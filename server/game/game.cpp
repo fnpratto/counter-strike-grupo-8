@@ -97,7 +97,7 @@ GameUpdate Game::join_player(const std::string& player_name) {
 }
 
 void Game::handle_select_team_msg(const std::string& player_name, Team team) {
-    const std::unique_ptr<Player>& player = state.get_players().at(player_name);
+    const std::unique_ptr<Player>& player = state.get_player(player_name);
     if (state.get_phase().is_started())
         throw SelectTeamError();
     if (team_is_full(team))
@@ -116,7 +116,7 @@ void Game::handle_start_game_msg(const std::string& player_name) {
     if (state.get_phase().is_started())
         throw StartGameError();
 
-    auto& player = state.get_players().at(player_name);
+    auto& player = state.get_player(player_name);
     player->set_ready();
     if (all_players_ready()) {
         give_bomb_to_random_tt();
@@ -125,7 +125,7 @@ void Game::handle_start_game_msg(const std::string& player_name) {
 }
 
 void Game::handle_buy_gun_msg(const std::string& player_name, GunType gun) {
-    auto& player = state.get_players().at(player_name);
+    auto& player = state.get_player(player_name);
     if (!state.get_phase().is_buying_phase())
         throw BuyGunError();
     // if (physics_system.player_not_in_spawn(player))
@@ -136,7 +136,7 @@ void Game::handle_buy_gun_msg(const std::string& player_name, GunType gun) {
 
 // TODO this could take a WeaponSlot instead of GunType
 void Game::handle_buy_ammo_msg(const std::string& player_name, GunType gun) {
-    auto& player = state.get_players().at(player_name);
+    auto& player = state.get_player(player_name);
     if (!state.get_phase().is_buying_phase())
         throw BuyAmmoError();
     // if (physics_system.player_not_in_spawn(player))
@@ -149,19 +149,19 @@ void Game::handle_move_msg(const std::string& player_name, const Vector2D& direc
     if (state.get_phase().is_buying_phase())
         return;
 
-    auto& player = state.get_players().at(player_name);
+    auto& player = state.get_player(player_name);
 
     player->start_moving(direction);
 }
 
 void Game::handle_stop_msg(const std::string& player_name) {
-    auto& player = state.get_players().at(player_name);
+    auto& player = state.get_player(player_name);
 
     player->stop_moving();
 }
 
 void Game::handle_aim_msg(const std::string& player_name, float x, float y) {
-    auto& player = state.get_players().at(player_name);
+    auto& player = state.get_player(player_name);
 
     player->aim(x, y);
 }
@@ -179,12 +179,12 @@ void Game::handle_aim_msg(const std::string& player_name, float x, float y) {
 // }
 
 void Game::handle_switch_weapon_msg(const std::string& player_name, WeaponSlot slot) {
-    auto& player = state.get_players().at(player_name);
+    auto& player = state.get_player(player_name);
     player->equip_weapon(slot);
 }
 
 void Game::handle_reload_msg(const std::string& player_name) {
-    auto& player = state.get_players().at(player_name);
+    auto& player = state.get_player(player_name);
     player->reload();
 }
 
@@ -202,7 +202,7 @@ void Game::give_bomb_to_random_tt() {
     int random_index = rand() % state.get_num_tts();
 
     std::string player_name = tt_names[random_index];
-    auto& player = state.get_players().at(player_name);
+    auto& player = state.get_player(player_name);
     player->pick_bomb();
 }
 

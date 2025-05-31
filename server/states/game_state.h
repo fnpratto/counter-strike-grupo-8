@@ -18,15 +18,9 @@ class GameState: public State<GameUpdate> {
     std::map<std::string, std::unique_ptr<Player>> players;
 
 public:
-    explicit GameState(std::unique_ptr<Clock>&& game_clock);
-
-    // Delete copy constructor and copy assignment operator
-    GameState(const GameState&) = delete;
-    GameState& operator=(const GameState&) = delete;
-
-    // Enable move constructor and move assignment operator
-    GameState(GameState&&) = default;
-    GameState& operator=(GameState&&) = default;
+    explicit GameState(std::unique_ptr<Clock>&& clock): phase(std::move(clock)) {
+        updates = get_full_update();
+    }
 
     void advance_round() { set_num_rounds(num_rounds + 1); }
     void set_num_rounds(int rounds) {
@@ -62,9 +56,24 @@ public:
         if (players.find(player_name) != players.end())
             throw std::runtime_error("Player already exists");
         players[player_name] = std::move(player);
-        updates.add_players_change(player_name, players.at(player_name)->get_updates());
     }
     const std::map<std::string, std::unique_ptr<Player>>& get_players() const { return players; }
+    const std::unique_ptr<Player>& get_player(const std::string& player_name) const {
+        auto it = players.find(player_name);
+        if (it == players.end())
+            throw std::runtime_error("Player not found");
+        return it->second;
+    }
+
+    GameUpdate get_updates() const override {
+        GameUpdate update = updates;
+
+        update.set_phase(phase.get_updates());
+        for (const auto& [name, player]: players)
+            update.add_players_change(name, player->get_updates());
+
+        return update;
+    }
 
     GameUpdate get_full_update() const override {
         GameUpdate update;

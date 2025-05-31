@@ -7,13 +7,18 @@
 #include "common/updates/inventory_update.h"
 #include "server/logic.h"
 #include "server/states/inventory_state.h"
+#include "server/weapons/glock.h"
 #include "server/weapons/gun.h"
+#include "server/weapons/knife.h"
 #include "server/weapons/utility.h"
 
 
 class Inventory: public Logic<InventoryState, InventoryUpdate> {
 public:
-    Inventory(): Logic<InventoryState, InventoryUpdate>(InventoryState()) {}
+    Inventory(): Logic<InventoryState, InventoryUpdate>(InventoryState(800)) {
+        state.set_gun(WeaponSlot::Secondary, std::make_unique<Glock>());
+        state.set_utility(WeaponSlot::Melee, std::make_unique<Knife>());
+    }
 
     // TODO is this needed?
     // Delete copy constructor and copy assignment operator
