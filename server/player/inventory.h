@@ -6,16 +6,17 @@
 #include "common/models.h"
 #include "common/updates/inventory_update.h"
 #include "server/logic.h"
+#include "server/player/player_config.h"
 #include "server/states/inventory_state.h"
 #include "server/weapons/glock.h"
 #include "server/weapons/gun.h"
 #include "server/weapons/knife.h"
 #include "server/weapons/utility.h"
 
-
 class Inventory: public Logic<InventoryState, InventoryUpdate> {
 public:
-    Inventory(): Logic<InventoryState, InventoryUpdate>(InventoryState(800)) {
+    Inventory():
+            Logic<InventoryState, InventoryUpdate>(InventoryState(PlayerConfig::initial_money)) {
         state.set_gun(WeaponSlot::Secondary, std::make_unique<Glock>());
         state.set_utility(WeaponSlot::Melee, std::make_unique<Knife>());
     }

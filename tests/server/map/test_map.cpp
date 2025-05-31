@@ -4,7 +4,7 @@
 #include "server/map/map_builder.h"
 
 TEST(YamlTest, LoadMap) {
-    YAML::Node data = YAML::LoadFile("../tests/server/map/map.yaml");
+    YAML::Node data = YAML::LoadFile("./tests/server/map/map.yaml");
 
     ASSERT_TRUE(data["name"]);
     ASSERT_TRUE(data["tile_size"]);

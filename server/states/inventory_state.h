@@ -60,4 +60,11 @@ public:
         }
         return full_update;
     }
+
+    void clear_updates() override {
+        State<InventoryUpdate>::clear_updates();
+        for (auto& [_, gun]: guns) gun->clear_updates();  // cppcheck-suppress[unusedVariable]
+        for (auto& [_, utility]: utilities)               // cppcheck-suppress[unusedVariable]
+            utility->clear_updates();
+    }
 };

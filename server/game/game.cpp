@@ -4,7 +4,7 @@
 
 #include "server/errors.h"
 
-Game::Game(const std::string& name, std::unique_ptr<Clock>&& game_clock, Map&& map):
+Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map):
         Logic<GameState, GameUpdate>(GameState(std::move(game_clock))),
         name(name),
         physics_system(std::move(map), state.get_players()) {}
@@ -59,11 +59,13 @@ void Game::advance_round_logic() {
     phase.advance();
 
     if (phase.is_round_finished())
-        state.advance_round();
+        advance_round();
 
     if (state.get_num_rounds() == GameConfig::max_rounds / 2)
         swap_teams();
 }
+
+void Game::advance_round() { state.set_num_rounds(state.get_num_rounds() + 1); }
 
 void Game::advance_players_movement() {
     std::map<std::string, PlayerUpdate> game_players_update;

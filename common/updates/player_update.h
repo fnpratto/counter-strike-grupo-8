@@ -18,7 +18,6 @@
     X(Vector2D, velocity)         \
     X(bool, ready)                \
     X(int, health)                \
-    X(int, money)                 \
     X(WeaponSlot, current_weapon) \
     U(InventoryUpdate, inventory) \
     X(bool, is_moving)            \

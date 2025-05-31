@@ -18,7 +18,7 @@ class GameState: public State<GameUpdate> {
     std::map<std::string, std::unique_ptr<Player>> players;
 
 public:
-    explicit GameState(std::unique_ptr<Clock>&& clock): phase(std::move(clock)) {
+    explicit GameState(std::shared_ptr<Clock>&& game_clock): phase(std::move(game_clock)) {
         updates = get_full_update();
     }
 
@@ -83,5 +83,12 @@ public:
             update.add_players_change(name, player->get_full_update());
         }
         return update;
+    }
+
+    void clear_updates() override {
+        State<GameUpdate>::clear_updates();
+        phase.clear_updates();
+        for (auto& [_, player]: players)  // cppcheck-suppress[unusedVariable]
+            player->clear_updates();
     }
 };

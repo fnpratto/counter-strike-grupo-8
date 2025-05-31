@@ -98,7 +98,7 @@ class MoveCommand: public Command {
     Vector2D direction;
 
 public:
-    explicit MoveCommand(Vector2D direction): direction(direction) {}
+    explicit MoveCommand(Vector2D direction): direction(direction.normalized()) {}
 
     Vector2D get_direction() const { return direction; }
 };

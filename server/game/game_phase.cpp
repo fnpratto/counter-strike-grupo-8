@@ -5,9 +5,11 @@
 
 #include "game_config.h"
 
-GamePhase::GamePhase(std::unique_ptr<Clock>&& gc):
-        Logic<PhaseState, PhaseUpdate>(PhaseState(PhaseType::WarmUp, game_clock->now())),
-        game_clock(std::move(gc)) {}
+GamePhase::GamePhase(std::shared_ptr<Clock>&& game_clock):
+        Logic<PhaseState, PhaseUpdate>(PhaseState(PhaseType::WarmUp, TimePoint::min())),
+        game_clock(std::move(game_clock)) {
+    phase_start = this->game_clock->now();
+}
 
 bool GamePhase::is_started() const { return state.get_phase() != PhaseType::WarmUp; }
 
@@ -25,25 +27,21 @@ void GamePhase::advance() {
     state.set_time(now);
     auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - phase_start);
 
-    std::chrono::seconds phase_duration;
     switch (state.get_phase()) {
         case PhaseType::Buying:
-            phase_duration = std::chrono::seconds(PhaseTimes::buying_phase_secs);
-            if (elapsed >= phase_duration) {
+            if (elapsed >= std::chrono::seconds(PhaseTimes::buying_phase_secs)) {
                 state.set_phase(PhaseType::Playing);
                 phase_start = now;
             }
             break;
         case PhaseType::Playing:
-            phase_duration = std::chrono::seconds(PhaseTimes::playing_phase_secs);
-            if (elapsed >= phase_duration) {
+            if (elapsed >= std::chrono::seconds(PhaseTimes::playing_phase_secs)) {
                 state.set_phase(PhaseType::RoundFinished);
                 phase_start = now;
             }
             break;
         case PhaseType::RoundFinished:
-            phase_duration = std::chrono::seconds(PhaseTimes::round_finished_phase_secs);
-            if (elapsed >= phase_duration) {
+            if (elapsed >= std::chrono::seconds(PhaseTimes::round_finished_phase_secs)) {
                 state.set_phase(PhaseType::Buying);
                 phase_start = now;
             }

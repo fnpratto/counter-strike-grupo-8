@@ -1,6 +1,7 @@
+#include <chrono>
+
 #include <gtest/gtest.h>
 
-#include "common/game_state.h"
 #include "common/models.h"
 #include "common/updates/game_update.h"
 #include "common/updates/inventory_update.h"
@@ -17,27 +18,28 @@
 
 class TestGame: public ::testing::Test {
 protected:
-    MockClock clock;
+    std::shared_ptr<MockClock> clock;
     Map map;
     Game game;
 
     TestGame():
-            clock(std::chrono::steady_clock::now()),
-            map(MapBuilder("../tests/server/map/map.yaml").build()),
-            game("test_game", std::make_unique<MockClock>(clock), std::move(map)) {}
+            clock(std::make_shared<MockClock>(std::chrono::steady_clock::now())),
+            map(MapBuilder("./tests/server/map/map.yaml").build()),
+            game("test_game", clock, std::move(map)) {}
 
-    void advance_secs(int secs) { clock.advance(std::chrono::seconds(secs)); }
+    void advance_secs(int secs) { clock->advance(std::chrono::seconds(secs)); }
 };
 
 TEST_F(TestGame, PlayerCanJoinGame) {
-    auto& state = game.join_player("test_player");
-    EXPECT_EQ(static_cast<int>(state.get_players().size()), 1);
+    GameUpdate update = game.join_player("test_player");
+    EXPECT_EQ(static_cast<int>(update.get_players().size()), 1);
 }
 
 TEST_F(TestGame, PlayerCannotJoinGameTwice) {
-    auto& state = game.join_player("test_player");
+    game.join_player("test_player");
     EXPECT_THROW({ game.join_player("test_player"); }, JoinGameError);
-    EXPECT_EQ(static_cast<int>(state.get_players().size()), 1);
+    GameUpdate update = game.get_full_update();
+    EXPECT_EQ(static_cast<int>(update.get_players().size()), 1);
 }
 
 TEST_F(TestGame, PlayerCannotJoinGameWithInvalidName) {
@@ -49,12 +51,14 @@ TEST_F(TestGame, PlayersCanJoinGameUntilItIsFull) {
         game.join_player("test_player_" + std::to_string(i));
     }
     EXPECT_THROW({ game.join_player("extra_player"); }, JoinGameError);
-    EXPECT_EQ(static_cast<int>(game.get_state().get_players().size()), GameConfig::max_players);
+
+    GameUpdate update = game.get_full_update();
+    EXPECT_EQ(static_cast<int>(update.get_players().size()), GameConfig::max_players);
 }
 
 TEST_F(TestGame, PlayerCanSelectTeam) {
-    const GameState& state = game.join_player("test_player");
-    Team old_team = state.get_players().at("test_player")->get_state().get_team();
+    GameUpdate initial_update = game.join_player("test_player");
+    Team old_team = initial_update.get_players().at("test_player").get_team();
 
     Team new_team = Team::CT;
     if (old_team == Team::CT)
@@ -73,8 +77,8 @@ TEST_F(TestGame, PlayerJoinFullTeam) {
         game.join_player("test_player_" + std::to_string(i));
         game.tick({msg_select_team}, "test_player_" + std::to_string(i));
     }
-    auto& state = game.join_player("extra_player");
-    EXPECT_EQ(static_cast<int>(state.get_players().size()), GameConfig::max_team_players + 1);
+    GameUpdate update = game.join_player("extra_player");
+    EXPECT_EQ(static_cast<int>(update.get_players().size()), GameConfig::max_team_players + 1);
 
     GameUpdate updates = game.tick({msg_select_team}, "extra_player");
     EXPECT_FALSE(updates.has_players_changed());
@@ -101,30 +105,26 @@ TEST_F(TestGame, PlayerCannotJoinStartedGame) {
 }
 
 TEST_F(TestGame, PlayerCannotSelectTeamWhenStartedGame) {
-    auto& state = game.join_player("test_player");
-    Team old_team = state.get_players().at("test_player")->get_state().get_team();
+    GameUpdate update = game.join_player("test_player");
+    Team old_team = update.get_players().at("test_player").get_team();
 
-    Team new_team = Team::CT;
-    if (old_team == Team::CT)
+    Team new_team;
+    if (old_team == Team::CT) {
         new_team = Team::TT;
+    } else {
+        new_team = Team::CT;
+    }
+
+    Message msg_start = Message(StartGameCommand());
+    GameUpdate updates = game.tick({msg_start}, "test_player");
 
     Message msg_select_team = Message(SelectTeamCommand(new_team));
-    Message msg_start = Message(StartGameCommand());
-    GameUpdate updates = game.tick({msg_select_team, msg_start}, "test_player");
-
-    msg_select_team = Message(SelectTeamCommand(old_team));
     EXPECT_THROW({ game.tick({msg_select_team}, "test_player"); }, SelectTeamError);
-
-    if (new_team == Team::TT) {
-        EXPECT_EQ(updates.get_num_tts(), 1);
-    } else {
-        EXPECT_EQ(updates.get_num_cts(), 1);
-    }
 }
 
 TEST_F(TestGame, IncrementRoundsPlayedAfterRoundDuration) {
-    auto& state = game.join_player("test_player");
-    EXPECT_EQ(state.get_num_rounds(), 0);
+    GameUpdate update = game.join_player("test_player");
+    EXPECT_EQ(update.get_num_rounds(), 0);
 
     Message msg_start = Message(StartGameCommand());
     game.tick({msg_start}, "test_player");
@@ -154,11 +154,11 @@ TEST_F(TestGame, OneTerroristHasBombWhenGameStarted) {
     if (player_updates.find("test_player") != player_updates.end()) {
         InventoryUpdate inv_updates = player_updates.at("test_player").get_inventory();
         std::map<WeaponSlot, UtilityUpdate> util_updates = inv_updates.get_utilities();
-        EXPECT_EQ(util_updates.at(WeaponSlot::Bomb).get_utility(), UtilityType::C4);
+        EXPECT_EQ(util_updates.at(WeaponSlot::Bomb).get_type(), UtilityType::C4);
     } else if (player_updates.find("another_player") != player_updates.end()) {
         InventoryUpdate inv_updates = player_updates.at("another_player").get_inventory();
         std::map<WeaponSlot, UtilityUpdate> util_updates = inv_updates.get_utilities();
-        EXPECT_EQ(util_updates.at(WeaponSlot::Bomb).get_utility(), UtilityType::C4);
+        EXPECT_EQ(util_updates.at(WeaponSlot::Bomb).get_type(), UtilityType::C4);
     } else {
         FAIL();
     }
@@ -207,42 +207,51 @@ TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
 }
 
 TEST_F(TestGame, PlayerCanMove) {
-    auto& state = game.join_player("test_player");
-    Vector2D old_pos = state.get_players().at("test_player")->get_pos();
+    GameUpdate updates;
+    std::map<std::string, PlayerUpdate> player_updates;
+    updates = game.join_player("test_player");
+    Vector2D old_pos = updates.get_players().at("test_player").get_pos();
 
     advance_secs(PhaseTimes::buying_phase_secs);
     game.tick({}, "test_player");
 
-    Message msg_move = Message(MoveCommand(0, 1));
-    GameUpdate updates = game.tick({msg_move}, "test_player");
+    // Check velocity
+    Vector2D expected_vel = Vector2D(0, 1).normalized();
+    Message msg_move = Message(MoveCommand(expected_vel));
+    updates = game.tick({msg_move}, "test_player");
+    player_updates = updates.get_players();
+    Vector2D move_vel = player_updates.at("test_player").get_velocity();
+    EXPECT_EQ(move_vel, expected_vel);
 
-    std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
-    EXPECT_TRUE(player_updates.at("test_player").get_is_moving());
-    EXPECT_EQ(player_updates.at("test_player").get_move_dx(), 0);
-    EXPECT_EQ(player_updates.at("test_player").get_move_dy(), 1);
+    // Check updated position
+    updates = game.tick({}, "test_player");
+    player_updates = updates.get_players();
     Vector2D new_pos = player_updates.at("test_player").get_pos();
-    EXPECT_EQ(new_pos.get_x(), old_pos.get_x());
-    EXPECT_EQ(new_pos.get_y(), old_pos.get_y() + 1.0f * static_cast<float>(map.get_tile_size()) *
-                                                         GameConfig::player_speed *
-                                                         (1.0f / GameConfig::tickrate));
+    Vector2D step = expected_vel * static_cast<float>(map.get_tile_size()) *
+                    GameConfig::player_speed * (1.0f / GameConfig::tickrate);
+
+    EXPECT_EQ(new_pos.get_x(), old_pos.get_x() + step.get_x());
+    EXPECT_EQ(new_pos.get_y(), old_pos.get_y() + step.get_y());
 }
 
 TEST_F(TestGame, PlayerCanMoveInDiagonal) {
-    auto& state = game.join_player("test_player");
-    Vector2D old_pos = state.get_players().at("test_player")->get_pos();
+    GameUpdate updates;
+    updates = game.join_player("test_player");
+    Vector2D old_pos = updates.get_players().at("test_player").get_pos();
 
     advance_secs(PhaseTimes::buying_phase_secs);
     game.tick({}, "test_player");
 
-    Vector2D dir(1, 1);
-    Message msg_move = Message(MoveCommand(1, 1));
-    GameUpdate updates = game.tick({msg_move}, "test_player");
+    Vector2D dir = Vector2D(1, 1).normalized();
+    Message msg_move = Message(MoveCommand(dir));
+    game.tick({msg_move}, "test_player");
+    updates = game.tick({}, "test_player");
 
     std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
     Vector2D new_pos = player_updates.at("test_player").get_pos();
 
-    Vector2D step = dir.normalized() * static_cast<float>(map.get_tile_size()) *
-                    GameConfig::player_speed * (1.0f / GameConfig::tickrate);
+    Vector2D step = dir * static_cast<float>(map.get_tile_size()) * GameConfig::player_speed *
+                    (1.0f / GameConfig::tickrate);
     EXPECT_EQ(new_pos.get_x(), old_pos.get_x() + step.get_x());
     EXPECT_EQ(new_pos.get_y(), old_pos.get_y() + step.get_y());
 }

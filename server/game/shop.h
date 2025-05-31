@@ -4,6 +4,7 @@
 
 #include "common/models.h"
 #include "server/errors.h"
+#include "server/player/inventory.h"
 
 #define PRICE_AK47 2700
 #define PRICE_M3 1700
@@ -30,6 +31,9 @@ public:
         mag_prices[GunType::AWP] = PRICE_MAG_AWP;
         mag_prices[GunType::Glock] = PRICE_MAG_GLOCK;
     }
+
+    std::map<GunType, int> get_gun_prices() const { return gun_prices; }
+    std::map<GunType, int> get_mag_prices() const { return mag_prices; }
 
     // TODO this should take an Inventory
     void buy_gun(Inventory& inventory, const GunType& gun_type) const {

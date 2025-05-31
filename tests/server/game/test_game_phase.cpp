@@ -13,14 +13,14 @@
 
 class TestGamePhase: public ::testing::Test {
 protected:
-    MockClock clock;
+    std::shared_ptr<MockClock> clock;
     GamePhase game_phase;
 
     TestGamePhase():
-            clock(std::chrono::steady_clock::now()),
-            game_phase(std::make_unique<MockClock>(clock)) {}
+            clock(std::make_shared<MockClock>(std::chrono::steady_clock::now())),
+            game_phase(clock) {}
 
-    void advance_secs(int secs) { clock.advance(std::chrono::seconds(secs)); }
+    void advance_secs(int secs) { clock->advance(std::chrono::seconds(secs)); }
 };
 
 TEST_F(TestGamePhase, NotStartedWhenInitialized) { EXPECT_FALSE(game_phase.is_started()); }

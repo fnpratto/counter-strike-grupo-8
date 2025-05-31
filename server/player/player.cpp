@@ -10,8 +10,7 @@
 Player::Player(Team team, Vector2D pos):
         Logic<PlayerState, PlayerUpdate>(
                 PlayerState(team, pos, Vector2D(0.0f, 0.0f), Vector2D(0.0f, 0.0f), false,
-                            PlayerConfig::full_health, PlayerConfig::initial_money,
-                            WeaponSlot::Secondary, false)) {}
+                            PlayerConfig::full_health, WeaponSlot::Secondary)) {}
 
 bool Player::is_ready() const { return state.get_ready(); }
 
@@ -19,16 +18,13 @@ bool Player::is_tt() const { return state.get_team() == Team::TT; }
 
 bool Player::is_ct() const { return state.get_team() == Team::CT; }
 
-bool Player::is_moving() const { return state.get_is_moving(); }
+bool Player::is_moving() const { return state.get_velocity() != Vector2D(0.0f, 0.0f); }
 
 Vector2D Player::get_pos() const { return state.get_pos(); }
 
 Vector2D Player::get_move_dir() const { return state.get_velocity(); }
 
-
 void Player::set_ready() { state.set_ready(true); }
-
-void Player::gain_money(int amount) { state.set_money(state.get_money() + amount); }
 
 void Player::pick_bomb() { state.add_bomb(); }
 
@@ -36,11 +32,7 @@ void Player::select_team(Team team) { state.set_team(team); }
 
 void Player::start_moving(Vector2D velocity) { state.set_velocity(velocity); }
 
-void Player::stop_moving() {
-    if (state.get_is_moving()) {
-        state.set_is_moving(false);
-    }
-}
+void Player::stop_moving() { state.set_velocity(Vector2D(0.0f, 0.0f)); }
 
 Inventory& Player::get_inventory() { return state.get_inventory(); }
 

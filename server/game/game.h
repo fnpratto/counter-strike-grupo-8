@@ -26,7 +26,7 @@ private:
     PhysicsSystem physics_system;
 
 public:
-    Game(const std::string& name, std::unique_ptr<Clock>&& game_clock, Map&& map);
+    Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map);
 
     bool is_full() const;
 
@@ -63,4 +63,5 @@ private:
 
     void advance_players_movement();
     void advance_round_logic();
+    void advance_round();
 };
