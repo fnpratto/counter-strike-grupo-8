@@ -224,7 +224,6 @@ TEST_F(TestGame, PlayerCanMove) {
     EXPECT_EQ(move_vel, expected_vel);
 
     // Check updated position
-    updates = game.tick({}, "test_player");
     player_updates = updates.get_players();
     Vector2D new_pos = player_updates.at("test_player").get_pos();
     Vector2D step = expected_vel * static_cast<float>(map.get_tile_size()) *
@@ -244,8 +243,7 @@ TEST_F(TestGame, PlayerCanMoveInDiagonal) {
 
     Vector2D dir = Vector2D(1, 1).normalized();
     Message msg_move = Message(MoveCommand(dir));
-    game.tick({msg_move}, "test_player");
-    updates = game.tick({}, "test_player");
+    updates = game.tick({msg_move}, "test_player");
 
     std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
     Vector2D new_pos = player_updates.at("test_player").get_pos();
