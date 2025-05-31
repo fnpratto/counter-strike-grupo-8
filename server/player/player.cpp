@@ -8,9 +8,10 @@
 #include "player_config.h"
 
 Player::Player(Team team, Vector2D pos):
-        state(team, pos, Vector2D(0.0f, 0.0f), Vector2D(0.0f, 0.0f), false,
-              PlayerConfig::full_health, PlayerConfig::initial_money, WeaponSlot::Secondary,
-              false) {}
+        Logic<PlayerState, PlayerUpdate>(
+                PlayerState(team, pos, Vector2D(0.0f, 0.0f), Vector2D(0.0f, 0.0f), false,
+                            PlayerConfig::full_health, PlayerConfig::initial_money,
+                            WeaponSlot::Secondary, false)) {}
 
 bool Player::is_ready() const { return state.get_ready(); }
 
@@ -24,17 +25,10 @@ Vector2D Player::get_pos() const { return state.get_pos(); }
 
 Vector2D Player::get_move_dir() const { return state.get_velocity(); }
 
-PlayerUpdate Player::get_updates() const { return state.get_updates(); }
-
-void Player::clear_updates() { state.clear_updates(); }
-
-PlayerState Player::get_state() const { return state; }
 
 void Player::set_ready() { state.set_ready(true); }
 
 void Player::gain_money(int amount) { state.set_money(state.get_money() + amount); }
-
-// Logic -> State -> Update
 
 void Player::pick_bomb() { state.add_bomb(); }
 
@@ -47,6 +41,8 @@ void Player::stop_moving() {
         state.set_is_moving(false);
     }
 }
+
+Inventory& Player::get_inventory() { return state.get_inventory(); }
 
 void Player::move_to_pos(Vector2D new_pos) { state.set_pos(new_pos); }
 
@@ -64,5 +60,3 @@ void Player::reload() {
 
     state.get_inventory().get_gun(state.get_current_weapon())->reload();
 }
-
-Player::~Player() {}

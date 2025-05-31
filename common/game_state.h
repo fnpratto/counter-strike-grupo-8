@@ -3,6 +3,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "common/state.h"
 #include "common/updates/game_update.h"
@@ -16,7 +17,15 @@ class GameState: public State<GameUpdate> {
     std::map<std::string, std::unique_ptr<Player>> players;
 
 public:
-    GameState(std::unique_ptr<Clock>&& clock);
+    explicit GameState(std::unique_ptr<Clock>&& game_clock);
+
+    // Delete copy constructor and copy assignment operator
+    GameState(const GameState&) = delete;
+    GameState& operator=(const GameState&) = delete;
+
+    // Enable move constructor and move assignment operator
+    GameState(GameState&&) = default;
+    GameState& operator=(GameState&&) = default;
 
     void advance_round() { set_num_rounds(num_rounds + 1); }
     void set_num_rounds(int rounds) {
@@ -30,19 +39,19 @@ public:
 
     int get_num_tts() const {
         int num_tts = 0;
-        for (const auto& [name, player]: players) {
+        for (const auto& [_, player]: players)  // cppcheck-suppress[unusedVariable]
             if (player->is_tt())
                 num_tts++;
-        }
+
         return num_tts;
     }
 
     int get_num_cts() const {
         int num_cts = 0;
-        for (const auto& [name, player]: players) {
+        for (const auto& [_, player]: players)  // cppcheck-suppress[unusedVariable]
             if (player->is_ct())
                 num_cts++;
-        }
+
         return num_cts;
     }
 
@@ -55,4 +64,14 @@ public:
         updates.add_players_change(player_name, players.at(player_name)->get_updates());
     }
     const std::map<std::string, std::unique_ptr<Player>>& get_players() const { return players; }
+
+    GameUpdate get_full_update() const override {
+        GameUpdate update;
+        update.set_phase(phase.get_full_update());
+        update.set_num_rounds(num_rounds);
+        for (const auto& [name, player]: players) {
+            update.add_players_change(name, player->get_full_update());
+        }
+        return update;
+    }
 };

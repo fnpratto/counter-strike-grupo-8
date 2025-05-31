@@ -2,6 +2,7 @@
 
 #include <map>
 #include <memory>
+#include <utility>
 
 #include "common/models.h"
 #include "common/state.h"
@@ -10,11 +11,28 @@
 #include "server/weapons/utility.h"
 
 class InventoryState: public State<InventoryUpdate> {
+    int money;
     std::map<WeaponSlot, std::unique_ptr<Gun>> guns;
     std::map<WeaponSlot, std::unique_ptr<Utility>> utilities;
 
 public:
     InventoryState();
+
+    // Delete copy constructor and copy assignment operator
+    InventoryState(const InventoryState&) = delete;
+    InventoryState& operator=(const InventoryState&) = delete;
+
+    // Enable move constructor and move assignment operator
+    InventoryState(InventoryState&&) = default;
+    InventoryState& operator=(InventoryState&&) = default;
+
+    void set_money(int new_money) {
+        if (money == new_money)
+            return;
+        money = new_money;
+        updates.set_money(new_money);
+    }
+    int get_money() const { return money; }
 
     const std::map<WeaponSlot, std::unique_ptr<Gun>>& get_guns() const { return guns; }
     const std::map<WeaponSlot, std::unique_ptr<Utility>>& get_utilities() const {
@@ -30,5 +48,15 @@ public:
         utilities[slot] = std::move(utility);
     }
 
-    friend class Inventory;  // Allow Inventory to access private members
+    InventoryUpdate get_full_update() const override {
+        InventoryUpdate full_update;
+        full_update.set_money(money);
+        for (const auto& [slot, gun]: guns) {
+            full_update.add_guns_change(slot, gun->get_full_update());
+        }
+        for (const auto& [slot, utility]: utilities) {
+            full_update.add_utilities_change(slot, utility->get_full_update());
+        }
+        return full_update;
+    }
 };

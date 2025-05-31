@@ -6,24 +6,20 @@
 #include "common/gun_state.h"
 #include "common/models.h"
 #include "server/clock/clock.h"
+#include "server/logic.h"
 #include "server/map/map.h"
 #include "server/utils/random_float_generator.h"
 #include "server/utils/vector_2d.h"
 
 #include "bullet.h"
 
-class Gun {
+class Gun: public Logic<GunState, GunUpdate> {
 protected:
-    GunState state;
     TimePoint time_last_shoot = TimePoint{};
 
 public:
     Gun(GunType gun, int bullets_per_mag, int mag_ammo, int reserve_ammo):
-            state(gun, bullets_per_mag, mag_ammo, reserve_ammo) {
-        state.set_gun(gun);
-        state.set_mag_ammo(mag_ammo);
-        state.set_reserve_ammo(reserve_ammo);
-    }
+            Logic<GunState, GunUpdate>(GunState(gun, bullets_per_mag, mag_ammo, reserve_ammo)) {}
 
     bool can_shoot(const float fire_rate, TimePoint now) {
         if (state.get_mag_ammo() == 0)
@@ -38,11 +34,6 @@ public:
     int get_bullets_per_mag() const { return state.get_bullets_per_mag(); }
     int get_mag_ammo() const { return state.get_mag_ammo(); }
     int get_reserve_ammo() const { return state.get_reserve_ammo(); }
-    GunUpdate get_updates() const { return state.get_updates(); }
-
-    void clear_updates() { state.clear_updates(); }
-
-    GunState get_state() const { return state; }
 
     void add_mag() {
         state.set_reserve_ammo(state.get_reserve_ammo() + state.get_bullets_per_mag());

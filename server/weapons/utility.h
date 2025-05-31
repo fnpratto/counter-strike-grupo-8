@@ -6,18 +6,12 @@
 #include "common/updates/utility_update.h"
 #include "common/utility_state.h"
 
-class Utility {
-protected:
-    UtilityState state;
-
+class Utility: public Logic<UtilityState, UtilityUpdate> {
 public:
-    Utility(UtilityType type, int damage): state(type, damage) {}
+    Utility(UtilityType type, int damage):
+            Logic<UtilityState, UtilityUpdate>(UtilityState(type, damage)) {}
 
     UtilityType get_type() const { return state.get_type(); }
-    UtilityUpdate get_updates() const { return state.get_updates(); }
-    void clear_updates() { state.clear_updates(); }
-
-    UtilityState get_state() const { return state; }
 
     virtual ~Utility() = default;
 };

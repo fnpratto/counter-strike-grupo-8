@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "server/utils/vector_2d.h"
+
 #include "models.h"
 
 /**
@@ -93,14 +95,12 @@ public:
  * @brief Command to start moving in a direction.
  */
 class MoveCommand: public Command {
-    int dx;
-    int dy;
+    Vector2D direction;
 
 public:
-    MoveCommand(int dx, int dy): dx(dx), dy(dy) {}
+    explicit MoveCommand(Vector2D direction): direction(direction) {}
 
-    bool get_dx() const { return dx; }
-    bool get_dy() const { return dy; }
+    Vector2D get_direction() const { return direction; }
 };
 
 /**

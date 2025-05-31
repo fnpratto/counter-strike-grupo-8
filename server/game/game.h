@@ -9,6 +9,7 @@
 #include "common/message.h"
 #include "common/updates/game_update.h"
 #include "server/clock/clock.h"
+#include "server/logic.h"
 #include "server/map/map.h"
 #include "server/player/player.h"
 
@@ -17,10 +18,9 @@
 #include "physics_system.h"
 #include "shop.h"
 
-class Game {
+class Game: public Logic<GameState, GameUpdate> {
 private:
     std::string name;
-    GameState state;
 
     Shop shop;
     PhysicsSystem physics_system;
@@ -30,16 +30,13 @@ public:
 
     bool is_full() const;
 
-    const GameState& join_player(const std::string& player_name);
+    GameUpdate join_player(const std::string& player_name);
 
     GameUpdate tick(const std::vector<Message>& msgs, const std::string& player_name);
-    const GameState& get_state() const;
 
     ~Game();
 
 private:
-    void clear_updates();
-
     bool player_is_in_game(const std::string& player_name) const;
     bool team_is_full(const Team& team) const;
     bool all_players_ready() const;
@@ -53,7 +50,7 @@ private:
     void handle_start_game_msg(const std::string& player_name);
     void handle_buy_gun_msg(const std::string& player_name, GunType gun);
     void handle_buy_ammo_msg(const std::string& player_name, GunType gun);
-    void handle_move_msg(const std::string& player_name, int dx, int dy);
+    void handle_move_msg(const std::string& player_name, const Vector2D& direction);
     void handle_stop_msg(const std::string& player_name);
     void handle_aim_msg(const std::string& player_name, float x, float y);
 

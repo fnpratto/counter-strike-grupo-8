@@ -10,6 +10,7 @@
 #include "utility_update.h"
 
 #define INVENTORY_ATTRS(X, M, U)   \
+    X(int, money)                  \
     M(WeaponSlot, GunUpdate, guns) \
     M(WeaponSlot, UtilityUpdate, utilities)
 

@@ -5,11 +5,9 @@
 #include "server/errors.h"
 
 Game::Game(const std::string& name, std::unique_ptr<Clock>&& game_clock, Map&& map):
+        Logic<GameState, GameUpdate>(GameState(std::move(game_clock))),
         name(name),
-        state(std::move(game_clock)),
-        physics_system(std::move(map), state.get_players()) {
-    std::srand(std::time(nullptr));
-}
+        physics_system(std::move(map), state.get_players()) {}
 
 GameUpdate Game::tick(const std::vector<Message>& msgs, const std::string& player_name) {
     state.clear_updates();
@@ -35,9 +33,8 @@ void Game::handle_msg(const Message& msg, const std::string& player_name) {
         GunType gun = msg.get_content<BuyAmmoCommand>().get_gun();
         handle_buy_ammo_msg(player_name, gun);
     } else if (msg_type == MessageType::MOVE_CMD) {
-        int dx = msg.get_content<MoveCommand>().get_dx();
-        int dy = msg.get_content<MoveCommand>().get_dy();
-        handle_move_msg(player_name, dx, dy);
+        Vector2D direction = msg.get_content<MoveCommand>().get_direction();
+        handle_move_msg(player_name, direction);
     } else if (msg_type == MessageType::STOP_CMD) {
         handle_stop_msg(player_name);
     } else if (msg_type == MessageType::AIM_CMD) {
@@ -81,7 +78,7 @@ void Game::advance_players_movement() {
     }
 }
 
-const GameState& Game::join_player(const std::string& player_name) {
+GameUpdate Game::join_player(const std::string& player_name) {
     if (player_name.empty())
         throw InvalidPlayerNameError();
     if (player_is_in_game(player_name) || is_full() || state.get_phase().is_started())
@@ -96,7 +93,7 @@ const GameState& Game::join_player(const std::string& player_name) {
         state.add_player(player_name, std::make_unique<Player>(default_team, pos));
     }
 
-    return state;
+    return state.get_full_update();
 }
 
 void Game::handle_select_team_msg(const std::string& player_name, Team team) {
@@ -133,31 +130,28 @@ void Game::handle_buy_gun_msg(const std::string& player_name, GunType gun) {
         throw BuyGunError();
     // if (physics_system.player_not_in_spawn(player))
     //     return;
-    int gun_price = shop.get_gun_price(gun);
-    player->buy_gun(gun, gun_price);
+
+    shop.buy_gun(player->get_inventory(), gun);
 }
 
+// TODO this could take a WeaponSlot instead of GunType
 void Game::handle_buy_ammo_msg(const std::string& player_name, GunType gun) {
     auto& player = state.get_players().at(player_name);
     if (!state.get_phase().is_buying_phase())
         throw BuyAmmoError();
     // if (physics_system.player_not_in_spawn(player))
     //     return;
-    int num_mags = 1;
-    if (gun == GunType::M3)
-        num_mags = 8;
     WeaponSlot slot = (gun == GunType::Glock) ? WeaponSlot::Secondary : WeaponSlot::Primary;
-    int ammo_price = shop.get_ammo_price(gun, num_mags);
-    player->buy_ammo(slot, ammo_price, num_mags);
+    shop.buy_ammo(player->get_inventory(), slot);
 }
 
-void Game::handle_move_msg(const std::string& player_name, int dx, int dy) {
+void Game::handle_move_msg(const std::string& player_name, const Vector2D& direction) {
     if (state.get_phase().is_buying_phase())
         return;
 
     auto& player = state.get_players().at(player_name);
 
-    player->start_moving(dx, dy);
+    player->start_moving(direction);
 }
 
 void Game::handle_stop_msg(const std::string& player_name) {
@@ -213,7 +207,7 @@ void Game::give_bomb_to_random_tt() {
 }
 
 void Game::swap_teams() {
-    for (auto& [player_name, player]: state.get_players()) {
+    for (auto& [_, player]: state.get_players()) {  // cppcheck-suppress[unusedVariable]
         if (player->is_tt()) {
             player->select_team(Team::CT);
         } else if (player->is_ct()) {
@@ -245,5 +239,3 @@ bool Game::all_players_ready() const {
     }
     return true;
 }
-
-const GameState& Game::get_state() const { return state; }

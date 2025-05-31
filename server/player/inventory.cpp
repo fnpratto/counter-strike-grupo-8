@@ -14,12 +14,6 @@ const std::unique_ptr<Gun>& Inventory::get_gun(const WeaponSlot& slot) const {
     return state.get_guns().at(slot);
 }
 
-InventoryUpdate Inventory::get_updates() const { return state.get_updates(); }
-
-void Inventory::clear_updates() { state.clear_updates(); }
-
-InventoryState Inventory::get_state() const { return state; }
-
 void Inventory::add_bomb() { state.set_utility(WeaponSlot::Bomb, std::make_unique<Bomb>()); }
 
 void Inventory::add_primary_weapon(const GunType& weapon_type) {
@@ -31,5 +25,3 @@ void Inventory::add_primary_weapon(const GunType& weapon_type) {
         state.set_gun(WeaponSlot::Primary, std::make_unique<Awp>());
     }
 }
-
-Inventory::~Inventory() {}

@@ -9,6 +9,8 @@
 
 #include "state_update.h"
 
-#define UTILITY_ATTRS(X, M, U) X(UtilityType, utility)
+#define UTILITY_ATTRS(X, M, U) \
+    X(UtilityType, type)       \
+    X(int, damage)
 
 DEFINE_UPDATE(UtilityUpdate, UTILITY_ATTRS)

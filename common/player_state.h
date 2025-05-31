@@ -23,6 +23,15 @@ class PlayerState: public State<PlayerUpdate> {
 
 public:
     PlayerState() = default;
+
+    // Delete copy constructor and copy assignment operator
+    PlayerState(const PlayerState&) = delete;
+    PlayerState& operator=(const PlayerState&) = delete;
+
+    // Enable move constructor and move assignment operator
+    PlayerState(PlayerState&&) = default;
+    PlayerState& operator=(PlayerState&&) = default;
+
     PlayerState(Team team, Vector2D pos, Vector2D aim_direction, Vector2D velocity, bool ready,
                 int health, int money, WeaponSlot current_weapon, bool is_moving):
             team(team),
@@ -78,14 +87,25 @@ public:
         current_weapon = new_current_weapon;
         updates.set_current_weapon(new_current_weapon);
     }
-    void set_inventory(const Inventory& new_inventory) {
-        inventory = new_inventory;
-        updates.set_inventory(inventory.get_updates());
-    }
     void set_is_moving(bool new_is_moving) {
         is_moving = new_is_moving;
         updates.set_is_moving(new_is_moving);
     }
 
     void add_bomb() { inventory.add_bomb(); }
+
+    PlayerUpdate get_full_update() const override {
+        PlayerUpdate full_update;
+        full_update.set_team(team);
+        full_update.set_pos(pos);
+        full_update.set_aim_direction(aim_direction);
+        full_update.set_velocity(velocity);
+        full_update.set_ready(ready);
+        full_update.set_health(health);
+        full_update.set_money(money);
+        full_update.set_current_weapon(current_weapon);
+        full_update.set_is_moving(is_moving);
+        full_update.set_inventory(inventory.get_full_update());
+        return full_update;
+    }
 };

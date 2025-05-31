@@ -24,7 +24,7 @@ void GameThread::run() {
 }
 
 pipe_t GameThread::join_game(const std::string& player_name) {
-    GameState initial_state = game.join_player(player_name);
+    GameUpdate initial_state = game.join_player(player_name);
 
     auto output_queue = std::make_shared<Queue<Message>>();
     output_queues.push_back(output_queue);

@@ -39,4 +39,13 @@ public:
         reserve_ammo = new_reserve_ammo;
         updates.set_reserve_ammo(new_reserve_ammo);
     }
+
+    GunUpdate get_full_update() const override {
+        GunUpdate full_update;
+        full_update.set_gun(gun);
+        full_update.set_bullets_per_mag(bullets_per_mag);
+        full_update.set_mag_ammo(mag_ammo);
+        full_update.set_reserve_ammo(reserve_ammo);
+        return full_update;
+    }
 };

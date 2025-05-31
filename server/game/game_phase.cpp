@@ -6,17 +6,14 @@
 #include "game_config.h"
 
 GamePhase::GamePhase(std::unique_ptr<Clock>&& gc):
-        game_clock(std::move(gc)), state(PhaseType::WarmUp, game_clock->now()) {}
+        Logic<PhaseState, PhaseUpdate>(PhaseState(PhaseType::WarmUp, game_clock->now())),
+        game_clock(std::move(gc)) {}
 
 bool GamePhase::is_started() const { return state.get_phase() != PhaseType::WarmUp; }
 
 bool GamePhase::is_round_finished() const { return state.get_phase() == PhaseType::RoundFinished; }
 
 bool GamePhase::is_buying_phase() const { return state.get_phase() == PhaseType::Buying; }
-
-void GamePhase::clear_updates() { state.clear_updates(); }
-
-PhaseState GamePhase::get_state() const { return state; }
 
 void GamePhase::start_buying_phase() {
     state.set_phase(PhaseType::Buying);

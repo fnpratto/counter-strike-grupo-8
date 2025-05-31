@@ -3,6 +3,7 @@
 #include <map>
 
 #include "common/models.h"
+#include "server/errors.h"
 
 #define PRICE_AK47 2700
 #define PRICE_M3 1700
@@ -31,25 +32,25 @@ public:
     }
 
     // TODO this should take an Inventory
-    void buy_gun(const Player& player, const GunType& gun_type) const {
+    void buy_gun(Inventory& inventory, const GunType& gun_type) const {
         int price = gun_prices.at(gun_type);
-        if (player.get_state().get_money() < price)
+        if (inventory.get_money() < price)
             throw BuyGunError();
 
-        player.get_state().get_inventory().add_primary_weapon(gun_type);
-        player.get_state().set_money(player.get_state().get_money() - price);
+        inventory.add_primary_weapon(gun_type);
+        inventory.set_money(inventory.get_money() - price);
     }
 
     // TODO this should take an Inventory
-    void buy_ammo(const Player& player, const WeaponSlot& slot) const {
-        GunType gun_type = player.get_state().get_inventory().get_gun(slot)->get_type();
+    void buy_ammo(Inventory& inventory, const WeaponSlot& slot) const {
+        GunType gun_type = inventory.get_gun(slot)->get_type();
         int price = mag_prices.at(gun_type);
 
-        if (player.get_state().get_money() < price)
+        if (inventory.get_money() < price)
             throw BuyAmmoError();
 
-        player.get_state().get_inventory().get_gun(slot)->add_mag();
-        player.get_state().set_money(player.get_state().get_money() - price);
+        inventory.get_gun(slot)->add_mag();
+        inventory.set_money(inventory.get_money() - price);
     }
 
     ~Shop() {}

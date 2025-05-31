@@ -9,14 +9,24 @@ class UtilityState: public State<UtilityUpdate> {
     int damage;
 
 public:
-    UtilityState() = default;
-    UtilityState(UtilityType utility_type, int damage): type(utility_type), damage(damage) {}
+    UtilityState(UtilityType type, int damage): type(type), damage(damage) {}
 
     UtilityType get_type() const { return type; }
     int get_damage() const { return damage; }
 
-    void set_utility(UtilityType new_utility) {
-        type = new_utility;
-        updates.set_utility(new_utility);
+    void set_type(UtilityType new_type) {
+        type = new_type;
+        updates.set_type(new_type);
+    }
+    void set_damage(int new_damage) {
+        damage = new_damage;
+        updates.set_damage(new_damage);
+    }
+
+    UtilityUpdate get_full_update() const override {
+        UtilityUpdate full_update;
+        full_update.set_type(type);
+        full_update.set_damage(damage);
+        return full_update;
     }
 };

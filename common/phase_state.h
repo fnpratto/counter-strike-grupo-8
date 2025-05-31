@@ -25,4 +25,11 @@ public:
         time = new_time;
         updates.set_time(new_time);
     }
+
+    PhaseUpdate get_full_update() const override {
+        PhaseUpdate full_update;
+        full_update.set_phase(phase);
+        full_update.set_time(time);
+        return full_update;
+    }
 };
