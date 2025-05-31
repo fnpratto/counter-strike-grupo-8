@@ -1,16 +1,54 @@
 #include "sdl_display.h"
 
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <string>
 
+#include <SDL.h>
+#include <SDL_events.h>
+
 #include "common/message.h"
+#include "gui/hud_component/hud_display.h"
+#include "gui/window_elements/sdl_window.h"
 
 #include "display.h"
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
 
-// TODO: Implement SDLDisplay
 
 SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue):
         Display(input_queue, output_queue) {}
-void SDLDisplay::run() {}
+void SDLDisplay::run() {
+    try {
+        char* basePath = SDL_GetBasePath();
+        if (basePath) {
+
+            if (chdir(basePath) != 0) {
+                std::cerr << "chdir failed: " << strerror(errno) << std::endl;
+            }
+            SDL_free(basePath);
+        } else {
+            std::cerr << "SDL_GetBasePath failed: " << SDL_GetError() << std::endl;
+        }
+        SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
+        hudDisplay hudDisplay(window);
+
+        SDL_Event e;
+        bool quit = false;
+        while (!quit) {
+            while (SDL_PollEvent(&e) != 0) {
+                if (e.type == SDL_QUIT) {
+                    quit = true;
+                }
+            }
+
+            hudDisplay.render();
+        }
+
+    } catch (std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
+}
+
 void SDLDisplay::stop() { Thread::stop(); }

@@ -1,3 +1,6 @@
+# Adding sources
+add_subdirectory(gui)
+
 target_sources(taller_client
     PRIVATE
     # .cpp files
@@ -11,6 +14,7 @@ target_sources(taller_client
     sdl_display.cpp
     PUBLIC
     # .h files
+    ../common/utils/vector_2d.h
     client.h
     display.h
     protocol.h
@@ -19,4 +23,4 @@ target_sources(taller_client
     text_display.h
     qt_display.h
     sdl_display.h
-    )
+)

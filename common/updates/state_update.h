@@ -6,8 +6,8 @@
 #include <string>
 
 #include "common/models.h"
+#include "common/utils/vector_2d.h"
 #include "server/clock/clock.h"
-#include "server/utils/vector_2d.h"
 
 #define ATTR(...) __VA_ARGS__
 

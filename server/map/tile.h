@@ -3,7 +3,7 @@
 #include <utility>
 
 #include "common/models.h"
-#include "server/utils/vector_2d.h"
+#include "common/utils/vector_2d.h"
 
 class Tile {
 private:

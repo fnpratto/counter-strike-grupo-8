@@ -6,7 +6,7 @@
 #include <string>
 
 #include "common/models.h"
-#include "server/utils/vector_2d.h"
+#include "common/utils/vector_2d.h"
 
 #include "inventory_update.h"
 #include "state_update.h"

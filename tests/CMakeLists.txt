@@ -52,6 +52,6 @@ target_sources(taller_tests
     ../server/weapons/awp.h
     ../server/weapons/ak47.h
     # utils
-    ../server/utils/vector_2d.h
-    ../server/utils/random_float_generator.h
+    ../common/utils/vector_2d.h
+    ../common/utils/random_float_generator.h
     )

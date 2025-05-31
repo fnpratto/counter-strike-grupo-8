@@ -4,10 +4,10 @@
 
 #include "common/models.h"
 #include "common/updates/player_update.h"
+#include "common/utils/vector_2d.h"
 #include "server/clock/clock.h"
 #include "server/logic.h"
 #include "server/states/player_state.h"
-#include "server/utils/vector_2d.h"
 #include "server/weapons/bomb.h"
 #include "server/weapons/bullet.h"
 #include "server/weapons/knife.h"

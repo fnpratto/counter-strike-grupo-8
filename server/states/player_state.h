@@ -2,8 +2,8 @@
 
 #include "common/models.h"
 #include "common/updates/player_update.h"
+#include "common/utils/vector_2d.h"
 #include "server/player/inventory.h"
-#include "server/utils/vector_2d.h"
 
 #include "state.h"
 

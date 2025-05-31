@@ -35,8 +35,8 @@ void Game::handle_msg(const Message& msg, const std::string& player_name) {
     } else if (msg_type == MessageType::MOVE_CMD) {
         Vector2D direction = msg.get_content<MoveCommand>().get_direction();
         handle_move_msg(player_name, direction);
-    } else if (msg_type == MessageType::STOP_CMD) {
-        handle_stop_msg(player_name);
+    } else if (msg_type == MessageType::STOP_PLAYER_CMD) {
+        handle_stop_player_msg(player_name);
     } else if (msg_type == MessageType::AIM_CMD) {
         float x = msg.get_content<AimCommand>().get_x();
         float y = msg.get_content<AimCommand>().get_y();
@@ -156,7 +156,7 @@ void Game::handle_move_msg(const std::string& player_name, const Vector2D& direc
     player->start_moving(direction);
 }
 
-void Game::handle_stop_msg(const std::string& player_name) {
+void Game::handle_stop_player_msg(const std::string& player_name) {
     auto& player = state.get_player(player_name);
 
     player->stop_moving();

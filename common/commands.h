@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "server/utils/vector_2d.h"
+#include "common/utils/vector_2d.h"
 
 #include "models.h"
 
@@ -129,7 +129,16 @@ public:
  * @class ShootCommand
  * @brief Command to shoot towards the aimed direction.
  */
-class ShootCommand: public Command {};
+class ShootCommand: public Command {
+public:
+    ShootCommand() {}
+};
+
+/**
+ * @class ReloadCommand
+ * @brief Command to reload the current weapon.
+ */
+class ReloadCommand: public Command {};
 
 /**
  * @class SwitchWeaponCommand
@@ -166,9 +175,3 @@ class PickUpItemCommand: public Command {};
  * @brief Command to leave the current game.
  */
 class LeaveGameCommand: public Command {};
-
-/**
- * @class ReloadCommand
- * @brief Command to reload the current weapon.
- */
-class ReloadCommand: public Command {};

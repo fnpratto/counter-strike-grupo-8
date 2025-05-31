@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "server/utils/vector_2d.h"
+#include "common/utils/vector_2d.h"
 
 #include "tile.h"
 

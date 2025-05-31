@@ -4,9 +4,9 @@
 #include <memory>
 #include <string>
 
+#include "common/utils/vector_2d.h"
 #include "server/map/map.h"
 #include "server/player/player.h"
-#include "server/utils/vector_2d.h"
 
 class PhysicsSystem {
 private:

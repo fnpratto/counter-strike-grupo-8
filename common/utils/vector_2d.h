@@ -1,5 +1,5 @@
 #pragma once
-// TODO move to common/utils/vector_2d.h
+
 #include <cmath>
 
 #include "random_float_generator.h"
@@ -32,6 +32,7 @@ public:
         return Vector2D(x / norm, y / norm);
     }
 
+    // TODO esto no va acá
     void vary_dir_in_cone(float cone_max_angle_deg) {
         float base_angle = std::atan2(y, x);
 

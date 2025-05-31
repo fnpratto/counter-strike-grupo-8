@@ -8,6 +8,7 @@ target_sources(taller_common
     socket.cpp
     PUBLIC
     # .h files
+    utils/vector_2d.h
     commands.h
     updates/state_update.h
     updates/game_update.h

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "server/utils/vector_2d.h"
+#include "common/utils/vector_2d.h"
 
 class Bullet {
 private:

@@ -21,13 +21,20 @@ class Client {
 private:
     std::shared_ptr<ClientProtocol> protocol;
 
-    Queue<Message> input_queue;
+    Queue<Message> pregame_queue;
+    Queue<Message> ingame_queue;
     Queue<Message> display_queue;
 
     std::unique_ptr<Display> display;
 
     std::unique_ptr<ClientSender> sender;
     std::unique_ptr<ClientReceiver> receiver;
+
+    bool connect_to_server() noexcept;
+    void setup_communication();
+    void wait_for_game_start();
+    void switch_display();
+    void cleanup();
 
 public:
     Client();

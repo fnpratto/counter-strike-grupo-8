@@ -61,7 +61,4 @@ target_sources(taller_server
     weapons/awp.h
     weapons/ak47.h
     weapons/bullet.h
-    # utils
-    utils/random_float_generator.h
-    utils/vector_2d.h
 )

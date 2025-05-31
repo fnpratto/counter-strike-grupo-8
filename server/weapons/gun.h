@@ -4,12 +4,12 @@
 #include <vector>
 
 #include "common/models.h"
+#include "common/utils/random_float_generator.h"
+#include "common/utils/vector_2d.h"
 #include "server/clock/clock.h"
 #include "server/logic.h"
 #include "server/map/map.h"
 #include "server/states/gun_state.h"
-#include "server/utils/random_float_generator.h"
-#include "server/utils/vector_2d.h"
 
 #include "bullet.h"
 
@@ -36,6 +36,7 @@ public:
     int get_reserve_ammo() const { return state.get_reserve_ammo(); }
 
     void add_mag() {
+        // TODO bullets per mag could be a constant per gun type
         state.set_reserve_ammo(state.get_reserve_ammo() + state.get_bullets_per_mag());
     }
 

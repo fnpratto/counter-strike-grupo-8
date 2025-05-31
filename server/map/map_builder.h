@@ -7,7 +7,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "common/models.h"
-#include "server/utils/vector_2d.h"
+#include "common/utils/vector_2d.h"
 
 #include "map.h"
 

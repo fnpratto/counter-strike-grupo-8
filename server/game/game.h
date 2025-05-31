@@ -51,7 +51,7 @@ private:
     void handle_buy_gun_msg(const std::string& player_name, GunType gun);
     void handle_buy_ammo_msg(const std::string& player_name, GunType gun);
     void handle_move_msg(const std::string& player_name, const Vector2D& direction);
-    void handle_stop_msg(const std::string& player_name);
+    void handle_stop_player_msg(const std::string& player_name);
     void handle_aim_msg(const std::string& player_name, float x, float y);
 
     // TODO: implement shoot command
