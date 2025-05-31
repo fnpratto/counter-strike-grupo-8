@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 
 #include "common/game_state.h"
+#include "common/models.h"
 #include "common/updates/game_update.h"
 #include "common/updates/inventory_update.h"
-#include "common/updates/player_update.h"
 #include "common/updates/phase_update.h"
+#include "common/updates/player_update.h"
 #include "common/updates/utility_update.h"
-#include "common/models.h"
 #include "server/clock/mock_clock.h"
 #include "server/errors.h"
 #include "server/game/game.h"
