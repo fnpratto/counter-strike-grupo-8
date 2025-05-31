@@ -15,6 +15,7 @@
 #include "server/game/shop.h"
 #include "server/map/map.h"
 #include "server/map/map_builder.h"
+#include "server/player_message.h"
 
 class TestGame: public ::testing::Test {
 protected:
@@ -65,7 +66,7 @@ TEST_F(TestGame, PlayerCanSelectTeam) {
         new_team = Team::TT;
 
     Message msg_select_team = Message(SelectTeamCommand(new_team));
-    GameUpdate updates = game.tick({msg_select_team}, "test_player");
+    GameUpdate updates = game.tick({PlayerMessage("test_player", msg_select_team)});
 
     std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
     EXPECT_EQ(player_updates.at("test_player").get_team(), new_team);
@@ -75,31 +76,32 @@ TEST_F(TestGame, PlayerJoinFullTeam) {
     Message msg_select_team = Message(SelectTeamCommand(Team::TT));
     for (int i = 1; i <= GameConfig::max_team_players; i++) {
         game.join_player("test_player_" + std::to_string(i));
-        game.tick({msg_select_team}, "test_player_" + std::to_string(i));
+        game.tick({PlayerMessage("test_player_" + std::to_string(i), msg_select_team)});
     }
     GameUpdate update = game.join_player("extra_player");
     EXPECT_EQ(static_cast<int>(update.get_players().size()), GameConfig::max_team_players + 1);
 
-    GameUpdate updates = game.tick({msg_select_team}, "extra_player");
+    GameUpdate updates = game.tick({PlayerMessage("extra_player", msg_select_team)});
     EXPECT_FALSE(updates.has_players_changed());
 }
 
 TEST_F(TestGame, CannotStartAnAlreadyStartedGame) {
     game.join_player("test_player");
 
-    GameUpdate updates = game.tick({Message(StartGameCommand())}, "test_player");
+    GameUpdate updates = game.tick({PlayerMessage("test_player", Message(StartGameCommand()))});
     std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
     EXPECT_EQ(player_updates.at("test_player").get_ready(), true);
     PhaseUpdate phase_updates = updates.get_phase();
     EXPECT_EQ(phase_updates.get_phase(), PhaseType::Buying);
 
-    EXPECT_THROW({ game.tick({Message(StartGameCommand())}, "test_player"); }, StartGameError);
+    EXPECT_THROW({ game.tick({PlayerMessage("test_player", Message(StartGameCommand()))}); },
+                 StartGameError);
 }
 
 TEST_F(TestGame, PlayerCannotJoinStartedGame) {
     game.join_player("test_player");
     Message msg_start = Message(StartGameCommand());
-    game.tick({msg_start}, "test_player");
+    game.tick({PlayerMessage("test_player", msg_start)});
 
     EXPECT_THROW({ game.join_player("another_player"); }, JoinGameError);
 }
@@ -116,10 +118,10 @@ TEST_F(TestGame, PlayerCannotSelectTeamWhenStartedGame) {
     }
 
     Message msg_start = Message(StartGameCommand());
-    GameUpdate updates = game.tick({msg_start}, "test_player");
+    GameUpdate updates = game.tick({PlayerMessage("test_player", msg_start)});
 
     Message msg_select_team = Message(SelectTeamCommand(new_team));
-    EXPECT_THROW({ game.tick({msg_select_team}, "test_player"); }, SelectTeamError);
+    EXPECT_THROW({ game.tick({PlayerMessage("test_player", msg_select_team)}); }, SelectTeamError);
 }
 
 TEST_F(TestGame, IncrementRoundsPlayedAfterRoundDuration) {
@@ -127,12 +129,12 @@ TEST_F(TestGame, IncrementRoundsPlayedAfterRoundDuration) {
     EXPECT_EQ(update.get_num_rounds(), 0);
 
     Message msg_start = Message(StartGameCommand());
-    game.tick({msg_start}, "test_player");
+    game.tick({PlayerMessage("test_player", msg_start)});
 
     advance_secs(PhaseTimes::buying_phase_secs);
-    game.tick({}, "test_player");
+    game.tick({});
     advance_secs(PhaseTimes::playing_phase_secs);
-    GameUpdate updates = game.tick({}, "test_player");
+    GameUpdate updates = game.tick({});
 
     EXPECT_EQ(updates.get_num_rounds(), 1);
 }
@@ -142,12 +144,12 @@ TEST_F(TestGame, OneTerroristHasBombWhenGameStarted) {
     game.join_player("another_player");
 
     Message msg_select_team = Message(SelectTeamCommand(Team::TT));
-    game.tick({msg_select_team}, "test_player");
-    game.tick({msg_select_team}, "another_player");
+    game.tick({PlayerMessage("test_player", msg_select_team)});
+    game.tick({PlayerMessage("another_player", msg_select_team)});
 
     Message msg_start = Message(StartGameCommand());
-    game.tick({msg_start}, "test_player");
-    GameUpdate updates = game.tick({msg_start}, "another_player");
+    game.tick({PlayerMessage("test_player", msg_start)});
+    GameUpdate updates = game.tick({PlayerMessage("another_player", msg_start)});
 
     std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
 
@@ -169,7 +171,8 @@ TEST_F(TestGame, CounterTerroristDoesNotHaveBombWhenGameStarted) {
     Message msg_select_team = Message(SelectTeamCommand(Team::CT));
     Message msg_start = Message(StartGameCommand());
 
-    GameUpdate updates = game.tick({msg_select_team, msg_start}, "test_player");
+    GameUpdate updates = game.tick({PlayerMessage("test_player", msg_select_team),
+                                    PlayerMessage("test_player", msg_start)});
     std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
 
     EXPECT_FALSE(player_updates.at("test_player").has_inventory_changed());
@@ -180,25 +183,25 @@ TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
     game.join_player("test_player2");
 
     Message msg_select_team = Message(SelectTeamCommand(Team::TT));
-    game.tick({msg_select_team}, "test_player1");
+    game.tick({PlayerMessage("test_player1", msg_select_team)});
 
     msg_select_team = Message(SelectTeamCommand(Team::CT));
-    game.tick({msg_select_team}, "test_player2");
+    game.tick({PlayerMessage("test_player2", msg_select_team)});
 
     Message msg_start = Message(StartGameCommand());
-    game.tick({msg_start}, "test_player1");
-    game.tick({msg_start}, "test_player2");
+    game.tick({PlayerMessage("test_player1", msg_start)});
+    game.tick({PlayerMessage("test_player2", msg_start)});
 
     GameUpdate updates;
     for (int i = 0; i < GameConfig::max_rounds / 2; i++) {
         advance_secs(PhaseTimes::buying_phase_secs);
-        game.tick({}, "test_player1");
+        game.tick({});
         advance_secs(PhaseTimes::playing_phase_secs);
-        updates = game.tick({}, "test_player1");
+        updates = game.tick({});
         EXPECT_EQ(updates.get_phase().get_phase(), PhaseType::RoundFinished);
         EXPECT_EQ(updates.get_num_rounds(), i + 1);
         advance_secs(PhaseTimes::round_finished_phase_secs);
-        game.tick({}, "test_player");
+        game.tick({});
     }
 
     std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
@@ -213,12 +216,12 @@ TEST_F(TestGame, PlayerCanMove) {
     Vector2D old_pos = updates.get_players().at("test_player").get_pos();
 
     advance_secs(PhaseTimes::buying_phase_secs);
-    game.tick({}, "test_player");
+    game.tick({});
 
     // Check velocity
     Vector2D expected_vel = Vector2D(0, 1).normalized();
     Message msg_move = Message(MoveCommand(expected_vel));
-    updates = game.tick({msg_move}, "test_player");
+    updates = game.tick({PlayerMessage("test_player", msg_move)});
     player_updates = updates.get_players();
     Vector2D move_vel = player_updates.at("test_player").get_velocity();
     EXPECT_EQ(move_vel, expected_vel);
@@ -239,11 +242,11 @@ TEST_F(TestGame, PlayerCanMoveInDiagonal) {
     Vector2D old_pos = updates.get_players().at("test_player").get_pos();
 
     advance_secs(PhaseTimes::buying_phase_secs);
-    game.tick({}, "test_player");
+    game.tick({});
 
     Vector2D dir = Vector2D(1, 1).normalized();
     Message msg_move = Message(MoveCommand(dir));
-    updates = game.tick({msg_move}, "test_player");
+    updates = game.tick({PlayerMessage("test_player", msg_move)});
 
     std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
     Vector2D new_pos = player_updates.at("test_player").get_pos();
