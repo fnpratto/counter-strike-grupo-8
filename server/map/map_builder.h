@@ -78,6 +78,8 @@ public:
             map.add_bomb_site(std::move(bomb_site_pos));
         }
 
+        map.validate();
+
         return map;
     }
 };

@@ -18,12 +18,28 @@
 
 template <>
 payload_t ClientProtocol::serialize_msg(const CreateGameCommand& cmd) const {
-    return serialize(cmd.get_game_name());
+    payload_t payload;
+    payload_t game_name = serialize(cmd.get_game_name());
+    payload_t player_name = serialize(cmd.get_player_name());
+
+    payload.reserve(game_name.size() + player_name.size());
+    payload.insert(payload.end(), game_name.begin(), game_name.end());
+    payload.insert(payload.end(), player_name.begin(), player_name.end());
+
+    return payload;
 }
 
 template <>
 payload_t ClientProtocol::serialize_msg(const JoinGameCommand& cmd) const {
-    return serialize(cmd.get_game_name());
+    payload_t payload;
+    payload_t game_name = serialize(cmd.get_game_name());
+    payload_t player_name = serialize(cmd.get_player_name());
+
+    payload.reserve(game_name.size() + player_name.size());
+    payload.insert(payload.end(), game_name.begin(), game_name.end());
+    payload.insert(payload.end(), player_name.begin(), player_name.end());
+
+    return payload;
 }
 
 template <>

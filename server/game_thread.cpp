@@ -1,11 +1,15 @@
 #include "game_thread.h"
 
+#include <utility>
+
 #include "clock/real_clock.h"
 #include "map/map.h"
+#include "map/map_builder.h"
 #include "server/player_message.h"
 
 GameThread::GameThread(const std::string& name):
-        game(name, std::make_unique<RealClock>(), Map("map_name", 16)),
+        game(name, std::make_unique<RealClock>(),
+             std::move(MapBuilder("./tests/server/map/map.yaml").build())),
         input_queue(std::make_shared<Queue<PlayerMessage>>()) {}
 
 // TODO: Tick rate

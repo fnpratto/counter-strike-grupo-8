@@ -21,6 +21,8 @@ private:
 public:
     Map(const std::string& name, int tile_size);
 
+    void validate() const;
+
     int get_tile_size() const;
 
     void add_tile(MapTileType type, Vector2D&& grid_pos);

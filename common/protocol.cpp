@@ -45,6 +45,10 @@ payload_t BaseProtocol::serialize(MessageType type) const {
 }
 
 payload_t BaseProtocol::pop(payload_t& payload, size_t size) const {
+    if (size > payload.size()) {
+        throw std::runtime_error("BaseProtocol::pop: Requested size (" + std::to_string(size) +
+                                 ") exceeds payload size (" + std::to_string(payload.size()) + ")");
+    }
     payload_t result(payload.begin(), payload.begin() + size);
     payload.erase(payload.begin(), payload.begin() + size);
     return result;
