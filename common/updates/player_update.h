@@ -19,9 +19,6 @@
     X(bool, ready)                \
     X(int, health)                \
     X(WeaponSlot, current_weapon) \
-    U(InventoryUpdate, inventory) \
-    X(bool, is_moving)            \
-    X(int, move_dx)               \
-    X(int, move_dy)
+    U(InventoryUpdate, inventory)
 
 DEFINE_UPDATE(PlayerUpdate, PLAYER_ATTRS)

@@ -154,6 +154,8 @@ protected:
         return payload;
     }
 
+    payload_t serialize(const int& i) const { return serialize(static_cast<uint16_t>(i)); }
+
     payload_t serialize(const Vector2D& vec) const {
         payload_t payload;
         payload.reserve(2 * sizeof(float));
@@ -162,6 +164,21 @@ protected:
         payload.insert(payload.end(), x_payload.begin(), x_payload.end());
         payload.insert(payload.end(), y_payload.begin(), y_payload.end());
         return payload;
+    }
+
+    payload_t serialize(const TimePoint& time_point) const {
+        payload_t payload;
+        payload.reserve(sizeof(uint64_t));
+        uint64_t time_ns = htonl(time_point.time_since_epoch().count());
+        payload.insert(payload.end(), reinterpret_cast<const char*>(&time_ns),
+                       reinterpret_cast<const char*>(&time_ns) + sizeof(time_ns));
+        return payload;
+    }
+
+    template <typename T>
+    typename std::enable_if<std::is_enum<T>::value, payload_t>::type serialize(
+            const T& enum_value) const {
+        return serialize(static_cast<std::underlying_type_t<T>>(enum_value));
     }
 
     template <typename T>
@@ -179,5 +196,11 @@ protected:
     }
 
     template <typename T>
-    T deserialize(payload_t& payload) const;
+    typename std::enable_if<!std::is_enum<T>::value, T>::type deserialize(payload_t& payload) const;
+
+    template <typename T>
+    typename std::enable_if<std::is_enum<T>::value, T>::type deserialize(payload_t& payload) const {
+        auto underlying_value = deserialize<std::underlying_type_t<T>>(payload);
+        return static_cast<T>(underlying_value);
+    }
 };

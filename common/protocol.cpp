@@ -10,6 +10,7 @@
 #include <sys/socket.h>
 
 #include "common/socket.h"
+#include "server/clock/clock.h"
 
 #include "message.h"
 
@@ -90,10 +91,28 @@ Vector2D BaseProtocol::deserialize<Vector2D>(payload_t& payload) const {
 }
 
 template <>
-MessageType BaseProtocol::deserialize<MessageType>(payload_t& payload) const {
-    payload_t data = pop(payload, sizeof(uint8_t));
-    return static_cast<MessageType>(data[0]);
+int BaseProtocol::deserialize<int>(payload_t& payload) const {
+    return static_cast<int>(deserialize<uint16_t>(payload));
 }
+
+template <>
+bool BaseProtocol::deserialize<bool>(payload_t& payload) const {
+    payload_t data = pop(payload, sizeof(uint8_t));
+    return static_cast<bool>(data[0]);
+}
+
+template <>
+TimePoint BaseProtocol::deserialize<TimePoint>(payload_t& payload) const {
+    payload_t data = pop(payload, sizeof(uint64_t));
+    uint64_t time_ns = ntohl(*reinterpret_cast<const uint64_t*>(data.data()));
+    return TimePoint(std::chrono::nanoseconds(time_ns));
+}
+
+// template <>
+// MessageType BaseProtocol::deserialize<MessageType>(payload_t& payload) const {
+//     payload_t data = pop(payload, sizeof(uint8_t));
+//     return static_cast<MessageType>(data[0]);
+// }
 
 Message BaseProtocol::recv() {
     payload_t header(sizeof(uint8_t) + sizeof(uint16_t));

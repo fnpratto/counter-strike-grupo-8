@@ -17,6 +17,7 @@
 #include "common/queue.h"
 #include "common/socket.h"
 #include "common/thread.h"
+#include "common/updates/game_update.h"
 #include "game/game.h"
 
 #include "errors.h"
@@ -30,11 +31,51 @@ payload_t ServerProtocol::serialize_msg(const ListGamesResponse& response) const
     return serialize(game_names);
 }
 
+#define X_SERIALIZE_UPDATE(type, attr) payload_t attr##_payload = serialize(update.get_##attr());
+#define M_SERIALIZE_UPDATE(key_type, value_type, attr) \
+    payload_t attr##_payload = serialize_map(update.get_##attr());
+#define U_SERIALIZE_UPDATE(type, attr) \
+    payload_t attr##_payload = serialize_update(update.get_##attr());
+
+#define X_RESERVE(type, attr) attr##_payload.size() +
+#define M_RESERVE(key_type, value_type, attr) attr##_payload.size() +
+#define U_RESERVE(type, attr) attr##_payload.size() +
+
+#define X_APPEND_UPDATE(type, attr) \
+    payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end());
+#define M_APPEND_UPDATE(key_type, value_type, attr) \
+    payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end());
+#define U_APPEND_UPDATE(type, attr) \
+    payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end());
+
+#define SERIALIZE_UPDATE(CLASS, ATTRS)                                      \
+    template <>                                                             \
+    payload_t ServerProtocol::serialize_update(const CLASS& update) const { \
+        payload_t payload;                                                  \
+                                                                            \
+        ATTRS(X_SERIALIZE_UPDATE, M_SERIALIZE_UPDATE, U_SERIALIZE_UPDATE)   \
+        payload.reserve(ATTRS(X_RESERVE, M_RESERVE, U_RESERVE) 0);          \
+        ATTRS(X_APPEND_UPDATE, M_APPEND_UPDATE, U_APPEND_UPDATE)            \
+                                                                            \
+        return payload;                                                     \
+    }
+
+SERIALIZE_UPDATE(UtilityUpdate, UTILITY_ATTRS)
+SERIALIZE_UPDATE(GunUpdate, GUN_ATTRS)
+SERIALIZE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)
+SERIALIZE_UPDATE(PlayerUpdate, PLAYER_ATTRS)
+SERIALIZE_UPDATE(PhaseUpdate, PHASE_ATTRS)
+SERIALIZE_UPDATE(GameUpdate, GAME_ATTRS)
+
 payload_t ServerProtocol::serialize_message(const Message& message) const {
     switch (message.get_type()) {
         case MessageType::LIST_GAMES_RESP: {
             const auto& response = message.get_content<ListGamesResponse>();
             return serialize_msg(response);
+        }
+        case MessageType::GAME_UPDATE: {
+            const auto& update = message.get_content<GameUpdate>();
+            return serialize_update(update);
         }
         default:
             throw std::runtime_error("Invalid message type for serialization");
@@ -42,7 +83,6 @@ payload_t ServerProtocol::serialize_message(const Message& message) const {
 }
 
 // === Deserialization ===
-
 
 template <>
 CreateGameCommand ServerProtocol::deserialize_msg<CreateGameCommand>(payload_t& payload) const {
