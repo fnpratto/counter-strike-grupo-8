@@ -7,8 +7,9 @@
 #include <string>
 #include <vector>
 
+#include "game/game.h"
+
 #include "errors.h"
-#include "game.h"
 #include "game_thread.h"
 
 
@@ -58,7 +59,7 @@ void LobbyMonitor::reap() {
 }
 
 LobbyMonitor::~LobbyMonitor() {
-    for (const auto& [name, game]: games) {
+    for (const auto& [_, game]: games) {  // cppcheck-suppress[unusedVariable]
         game->stop();
         game->join();
     }

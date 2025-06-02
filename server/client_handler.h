@@ -32,6 +32,6 @@ private:
 public:
     ClientHandler(Socket&& client_socket, LobbyMonitor& lobby_monitor);
 
-    void connect(pipe_t pipe);
+    void connect(const std::string& player_name, pipe_t pipe);
     void disconnect();
 };

@@ -15,6 +15,7 @@ target_sources(taller_client
     sdl_input.cpp
     PUBLIC
     # .h files
+    ../common/utils/vector_2d.h
     client.h
     display.h
     protocol.h

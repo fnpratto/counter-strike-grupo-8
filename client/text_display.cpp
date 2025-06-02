@@ -14,6 +14,7 @@
 #include "common/commands.h"
 #include "common/message.h"
 #include "common/models.h"
+#include "common/utils/vector_2d.h"
 
 #include "requests.h"
 
@@ -109,16 +110,18 @@ Message TextDisplay::build_message<ConnectionRequest>(std::istringstream& iss) {
 
 template <>
 Message TextDisplay::build_message<CreateGameCommand>(std::istringstream& iss) {
-    std::string name;
-    iss >> name;
-    return Message(CreateGameCommand(name));
+    std::string game_name;
+    std::string player_name;
+    iss >> game_name >> player_name;
+    return Message(CreateGameCommand(game_name, player_name));
 }
 
 template <>
 Message TextDisplay::build_message<JoinGameCommand>(std::istringstream& iss) {
-    std::string name;
-    iss >> name;
-    return Message(JoinGameCommand(name));
+    std::string game_name;
+    std::string player_name;
+    iss >> game_name >> player_name;
+    return Message(JoinGameCommand(game_name, player_name));
 }
 
 template <>
@@ -133,9 +136,9 @@ Message TextDisplay::build_message<SelectTeamCommand>(std::istringstream& iss) {
 
     Team team;
     if (team_str == "terrorist" || team_str == "t") {
-        team = Team::Terrorist;
+        team = Team::TT;
     } else if (team_str == "counterterrorist" || team_str == "ct") {
-        team = Team::CounterTerrorist;
+        team = Team::CT;
     } else {
         throw std::invalid_argument("Invalid team: " + team_str);
     }
@@ -149,36 +152,45 @@ Message TextDisplay::build_message<StartGameCommand>([[maybe_unused]] std::istri
 }
 
 template <>
-Message TextDisplay::build_message<BuyWeaponCommand>(std::istringstream& iss) {
-    std::string weapon_str;
-    iss >> weapon_str;
+Message TextDisplay::build_message<BuyGunCommand>(std::istringstream& iss) {
+    std::string gun_str;
+    iss >> gun_str;
 
-    WeaponType weapon;
-    if (weapon_str == "glock") {
-        weapon = WeaponType::Glock;
-    } else if (weapon_str == "ak47") {
-        weapon = WeaponType::AK47;
-    } else if (weapon_str == "m3") {
-        weapon = WeaponType::M3;
-    } else if (weapon_str == "awp") {
-        weapon = WeaponType::AWP;
+    GunType gun;
+    if (gun_str == "glock") {
+        gun = GunType::Glock;
+    } else if (gun_str == "ak47") {
+        gun = GunType::AK47;
+    } else if (gun_str == "m3") {
+        gun = GunType::M3;
+    } else if (gun_str == "awp") {
+        gun = GunType::AWP;
     } else {
-        throw std::invalid_argument("Invalid weapon: " + weapon_str);
+        throw std::invalid_argument("Invalid gun: " + gun_str);
     }
 
-    return Message(BuyWeaponCommand(weapon));
+    return Message(BuyGunCommand(gun));
 }
 
 template <>
 Message TextDisplay::build_message<MoveCommand>(std::istringstream& iss) {
-    int dx, dy;
-    iss >> dx >> dy;
+    std::string direction_str;
+    iss >> direction_str;
 
-    if (iss.fail()) {
-        throw std::invalid_argument("Invalid direction: expected two integers dx and dy");
+    Vector2D direction(0, 0);
+    if (direction_str == "up") {
+        direction = Vector2D(0, 1);
+    } else if (direction_str == "down") {
+        direction = Vector2D(0, -1);
+    } else if (direction_str == "left") {
+        direction = Vector2D(-1, 0);
+    } else if (direction_str == "right") {
+        direction = Vector2D(1, 0);
+    } else {
+        throw std::invalid_argument("Invalid direction: " + direction_str);
     }
 
-    return Message(MoveCommand(dx, dy));
+    return Message(MoveCommand(direction));
 }
 
 template <>
@@ -213,12 +225,12 @@ Message TextDisplay::build_message<SwitchWeaponCommand>(std::istringstream& iss)
         slot = WeaponSlot::Primary;
     } else if (slot_str == "secondary") {
         slot = WeaponSlot::Secondary;
-    } else if (slot_str == "knife") {
-        slot = WeaponSlot::Knife;
+    } else if (slot_str == "melee") {
+        slot = WeaponSlot::Melee;
     } else if (slot_str == "bomb") {
         slot = WeaponSlot::Bomb;
     } else {
-        throw std::invalid_argument("Invalid weapon slot: " + slot_str);
+        throw std::invalid_argument("Invalid gun slot: " + slot_str);
     }
 
     return Message(SwitchWeaponCommand(slot));
@@ -265,7 +277,7 @@ Message TextDisplay::parse_line(const std::string& line) {
             {"start",
              [this](std::istringstream& is) { return this->build_message<StartGameCommand>(is); }},
             {"buy",
-             [this](std::istringstream& is) { return this->build_message<BuyWeaponCommand>(is); }},
+             [this](std::istringstream& is) { return this->build_message<BuyGunCommand>(is); }},
             {"move",
              [this](std::istringstream& is) { return this->build_message<MoveCommand>(is); }},
             {"stop",
