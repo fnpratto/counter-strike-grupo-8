@@ -1,8 +1,10 @@
 target_sources(taller_tests
     PRIVATE
+    common/test_game_state_update.cpp
     server/map/test_map.cpp
     server/game/test_game.cpp
     server/game/test_game_phase.cpp
+    server/game/test_shop.cpp
     server/player/test_player.cpp
     # game
     ../server/game/game.cpp

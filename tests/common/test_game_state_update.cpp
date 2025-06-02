@@ -12,7 +12,7 @@ protected:
 TEST_F(TestGameUpdate, InitialState) { EXPECT_FALSE(game_update.has_change()); }
 
 TEST_F(TestGameUpdate, ClearUpdate) {
-    game_update.set_num_tts(6);
+    game_update.set_num_rounds(1);
     EXPECT_TRUE(game_update.has_change());
     game_update.clear();
     EXPECT_FALSE(game_update.has_change());
@@ -31,19 +31,19 @@ TEST_F(TestGameUpdate, OptionalMerging) {
     // Test merging when second has value, first doesn't
     GameUpdate update3;
     GameUpdate update4;
-    update4.set_num_tts(8);
+    update4.set_num_rounds(2);
     merged = update3.merged(update4);
-    EXPECT_TRUE(merged.has_num_tts_changed());
-    EXPECT_EQ(merged.get_num_tts(), 8);
+    EXPECT_TRUE(merged.has_num_rounds_changed());
+    EXPECT_EQ(merged.get_num_rounds(), 2);
 
     // Test merging when both have values (second should win)
     GameUpdate update5;
     GameUpdate update6;
-    update5.set_num_cts(3);
-    update6.set_num_cts(7);
+    update5.set_num_rounds(2);
+    update6.set_num_rounds(3);
     merged = update5.merged(update6);
-    EXPECT_TRUE(merged.has_num_cts_changed());
-    EXPECT_EQ(merged.get_num_cts(), 7);
+    EXPECT_TRUE(merged.has_num_rounds_changed());
+    EXPECT_EQ(merged.get_num_rounds(), 3);
 }
 
 TEST_F(TestGameUpdate, MapMerging) {
@@ -53,14 +53,12 @@ TEST_F(TestGameUpdate, MapMerging) {
     // Create player updates
     PlayerUpdate player1;
     player1.set_health(100);
-    player1.set_money(800);
 
     PlayerUpdate player2;
     player2.set_health(75);
     player2.set_team(Team::CT);
 
     PlayerUpdate player3;
-    player3.set_money(1200);
     player3.set_ready(true);
 
     // Set players in first update
@@ -73,7 +71,7 @@ TEST_F(TestGameUpdate, MapMerging) {
     std::map<std::string, PlayerUpdate> players2;
     players2["player2"] = player3;  // This should merge with existing player2
     PlayerUpdate player4;
-    player4.set_pos_x(10.5f);
+    player4.set_pos(Vector2D(10.5f, 0));
     players2["player4"] = player4;  // New player
     update2.set_players(players2);
 
@@ -96,17 +94,15 @@ TEST_F(TestGameUpdate, MapMerging) {
     auto& merged_player2 = merged_players["player2"];
     EXPECT_TRUE(merged_player2.has_health_changed());
     EXPECT_TRUE(merged_player2.has_team_changed());
-    EXPECT_TRUE(merged_player2.has_money_changed());
     EXPECT_TRUE(merged_player2.has_ready_changed());
     EXPECT_EQ(merged_player2.get_health(), 75);      // From original player2
     EXPECT_EQ(merged_player2.get_team(), Team::CT);  // From original player2
-    EXPECT_EQ(merged_player2.get_money(), 1200);     // From player3 (newer value)
     EXPECT_EQ(merged_player2.get_ready(), true);     // From player3
 
     // Check player4 was added
     EXPECT_TRUE(merged_players.count("player4"));
-    EXPECT_TRUE(merged_players["player4"].has_pos_x_changed());
-    EXPECT_EQ(merged_players["player4"].get_pos_x(), 10.5f);
+    EXPECT_TRUE(merged_players["player4"].has_pos_changed());
+    EXPECT_EQ(merged_players["player4"].get_pos().get_x(), 10.5f);
 }
 
 TEST_F(TestGameUpdate, NestedUpdateMerging) {
@@ -137,8 +133,6 @@ TEST_F(TestGameUpdate, IndividualChangeDetection) {
     // Test individual change detection methods
     EXPECT_FALSE(game_update.has_phase_changed());
     EXPECT_FALSE(game_update.has_num_rounds_changed());
-    EXPECT_FALSE(game_update.has_num_tts_changed());
-    EXPECT_FALSE(game_update.has_num_cts_changed());
     EXPECT_FALSE(game_update.has_players_changed());
 
     // Set some values and check detection
@@ -162,12 +156,6 @@ TEST_F(TestGameUpdate, SettersAndGetters) {
     // Test that setting values works correctly
     game_update.set_num_rounds(10);
     EXPECT_EQ(game_update.get_num_rounds(), 10);
-
-    game_update.set_num_tts(5);
-    EXPECT_EQ(game_update.get_num_tts(), 5);
-
-    game_update.set_num_cts(5);
-    EXPECT_EQ(game_update.get_num_cts(), 5);
 
     // Test phase setting
     PhaseUpdate phase;
