@@ -1,0 +1,16 @@
+#pragma once
+
+#include <map>
+#include <optional>
+#include <stdexcept>
+#include <string>
+
+#include "common/models.h"
+
+#include "state_update.h"
+
+#define UTILITY_ATTRS(X, M, U) \
+    X(UtilityType, type)       \
+    X(int, damage)
+
+DEFINE_UPDATE(UtilityUpdate, UTILITY_ATTRS)

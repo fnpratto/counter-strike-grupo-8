@@ -7,8 +7,9 @@
 #include <string>
 #include <vector>
 
+#include "game/game.h"
+
 #include "errors.h"
-#include "game.h"
 #include "game_thread.h"
 
 
@@ -30,7 +31,7 @@ pipe_t LobbyMonitor::join_game(const std::string& name) {
 
     auto game = games[name];
 
-    if (!game->is_alive())
+    if (!game || !game->is_alive())
         throw JoinGameError();
 
     return game->join_game("player_name");  // TODO: take the player name from the message
@@ -58,7 +59,7 @@ void LobbyMonitor::reap() {
 }
 
 LobbyMonitor::~LobbyMonitor() {
-    for (const auto& [name, game]: games) {
+    for (const auto& [_, game]: games) {  // cppcheck-suppress[unusedVariable]
         game->stop();
         game->join();
     }

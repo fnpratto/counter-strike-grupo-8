@@ -33,3 +33,21 @@ jobs:
 
             - name: Run pre-commit hooks
               run: pre-commit run --all-files
+    tests:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Setup Cpp
+          uses: aminya/setup-cpp@v1
+          with:
+            compiler: gcc
+            cmake: true
+            make: true
+
+        - name: Install dependencies
+          run: sudo apt-get update && sudo apt-get install -y libopusfile-dev libxmp-dev fluidsynth libfluidsynth-dev libwavpack-dev libfreetype-dev qtbase5-dev qtbase5-dev-tools qt5-qmake
+
+        - name: Run tests
+          run: make test

@@ -17,7 +17,9 @@
 // Default to GUI if not defined
 // Actually not necessary just better for IntelliSense
 #ifndef UI_TYPE_GUI
+#ifndef UI_TYPE_TUI
 #define UI_TYPE_GUI
+#endif  // !UI_TYPE_TUI
 #endif  // !UI_TYPE_GUI
 
 #ifdef UI_TYPE_GUI
@@ -117,7 +119,10 @@ void Client::switch_display() {
     display->start();
     std::cout << "Switched to SDLDisplay" << std::endl;
 #elif defined(UI_TYPE_TUI)
-    // No need to switch, TUI handles both stages
+    display->stop();
+    display->join();
+    display = std::make_unique<TextDisplay>(display_queue, ingame_queue);
+    display->start();
 #endif
 }
 

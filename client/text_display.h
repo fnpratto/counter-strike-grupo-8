@@ -21,4 +21,7 @@ public:
     void read_input();
     Message parse_line(const std::string& line);
     void handle_char(char c);
+
+    template <typename T>
+    Message build_message(std::istringstream& iss);
 };

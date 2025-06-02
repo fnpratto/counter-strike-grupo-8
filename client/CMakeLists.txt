@@ -20,6 +20,7 @@ target_sources(taller_client
 
     PUBLIC
     # .h files
+    ../common/utils/vector_2d.h
     client.h
     display.h
     protocol.h
