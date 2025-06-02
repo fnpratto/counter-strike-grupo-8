@@ -49,7 +49,8 @@ public:
         return update;
     }
 
-    InventoryUpdate get_full_update() const override {
+    InventoryUpdate get_full_update()  // cppcheck-suppress[virtualCallInConstructor]
+            const override {
         InventoryUpdate full_update;
         full_update.set_money(money);
         for (const auto& [slot, gun]: guns) {

@@ -26,7 +26,7 @@ public:
         updates.set_damage(new_damage);
     }
 
-    UtilityUpdate get_full_update() const override {
+    UtilityUpdate get_full_update() const override {  // cppcheck-suppress[virtualCallInConstructor]
         UtilityUpdate full_update;
         full_update.set_type(type);
         full_update.set_damage(damage);

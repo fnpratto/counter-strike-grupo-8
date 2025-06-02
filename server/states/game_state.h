@@ -75,7 +75,7 @@ public:
         return update;
     }
 
-    GameUpdate get_full_update() const override {
+    GameUpdate get_full_update() const override {  // cppcheck-suppress[virtualCallInConstructor]
         GameUpdate update;
         update.set_phase(phase.get_full_update());
         update.set_num_rounds(num_rounds);

@@ -29,7 +29,7 @@ public:
         updates.set_time(new_time);
     }
 
-    PhaseUpdate get_full_update() const override {
+    PhaseUpdate get_full_update() const override {  // cppcheck-suppress[virtualCallInConstructor]
         PhaseUpdate full_update;
         full_update.set_phase(phase);
         full_update.set_time(time);

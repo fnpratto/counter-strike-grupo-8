@@ -12,7 +12,6 @@ class GunState: public State<GunUpdate> {
     int reserve_ammo;
 
 public:
-    GunState() = default;
     GunState(GunType gun_type, int bullets_per_mag, int mag_ammo, int reserve_ammo):
             gun(gun_type),
             bullets_per_mag(bullets_per_mag),
@@ -43,7 +42,7 @@ public:
         updates.set_reserve_ammo(new_reserve_ammo);
     }
 
-    GunUpdate get_full_update() const override {
+    GunUpdate get_full_update() const override {  // cppcheck-suppress[virtualCallInConstructor]
         GunUpdate full_update;
         full_update.set_gun(gun);
         full_update.set_bullets_per_mag(bullets_per_mag);
