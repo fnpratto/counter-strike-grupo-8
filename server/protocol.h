@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <atomic>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <numeric>
 #include <string>
@@ -16,8 +17,9 @@
 #include "common/queue.h"
 #include "common/socket.h"
 #include "common/thread.h"
+#include "common/updates/state_update.h"
+#include "game/game.h"
 
-#include "game.h"
 #include "lobby_monitor.h"
 
 class ServerProtocol: public BaseProtocol {
@@ -29,6 +31,32 @@ private:
 
     template <typename T>
     payload_t serialize_msg(const T& value) const;
+
+    template <typename T>
+    payload_t serialize_update(const T& value) const;
+
+    template <typename K, typename V>
+    payload_t serialize_map(const std::map<K, V>& map) const {
+        payload_t result;
+
+        payload_t length = serialize(static_cast<uint16_t>(map.size()));
+        result.insert(result.begin(), length.begin(), length.end());
+        for (const auto& [key, value]: map) {
+            payload_t key_payload = serialize(key);
+            payload_t value_payload;
+
+            if constexpr (std::is_base_of_v<StateUpdate, V>) {
+                value_payload = serialize_update(value);
+            } else {
+                value_payload = serialize(value);
+            }
+
+            result.insert(result.end(), key_payload.begin(), key_payload.end());
+            result.insert(result.end(), value_payload.begin(), value_payload.end());
+        }
+
+        return result;
+    }
 
     Message deserialize_message(const MessageType& type, payload_t& payload) const override;
 

@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "common/utils/vector_2d.h"
+
 #include "models.h"
 
 /**
@@ -22,9 +24,12 @@ public:
  */
 class CreateGameCommand: public Command {
     std::string game_name;
+    std::string player_name;
 
 public:
-    explicit CreateGameCommand(const std::string& name): game_name(name) {}
+    CreateGameCommand(const std::string& game_name, const std::string& player_name):
+            game_name(game_name), player_name(player_name) {}
+    std::string get_player_name() const { return player_name; }
     std::string get_game_name() const { return game_name; }
 };
 
@@ -34,9 +39,13 @@ public:
  */
 class JoinGameCommand: public Command {
     std::string game_name;
+    std::string player_name;
 
 public:
-    explicit JoinGameCommand(const std::string& name): game_name(name) {}
+    JoinGameCommand(const std::string& game_name, const std::string& player_name):
+            game_name(game_name), player_name(player_name) {}
+
+    std::string get_player_name() const { return player_name; }
     std::string get_game_name() const { return game_name; }
 };
 
@@ -65,27 +74,40 @@ public:
 class StartGameCommand: public Command {};
 
 /**
- * @class BuyWeaponCommand
- * @brief Command to buy a weapon during the preparation phase.
+ * @class BuyGunCommand
+ * @brief Command to buy a gun during the preparation phase.
  */
-class BuyWeaponCommand: public Command {
-    WeaponType weapon;
+class BuyGunCommand: public Command {
+    GunType gun;
 
 public:
-    explicit BuyWeaponCommand(WeaponType w): weapon(w) {}
-    WeaponType get_weapon() const { return weapon; }
+    explicit BuyGunCommand(GunType g): gun(g) {}
+    GunType get_gun() const { return gun; }
+};
+
+/**
+ * @class BuyAmmoCommand
+ * @brief Command to buy ammo during the preparation phase.
+ */
+class BuyAmmoCommand: public Command {
+    GunType gun;
+
+public:
+    explicit BuyAmmoCommand(GunType g): gun(g) {}
+    GunType get_gun() const { return gun; }
 };
 
 /**
  * @class MoveCommand
- * @brief Command to start movement in a direction.
+ * @brief Command to start moving in a direction.
  */
 class MoveCommand: public Command {
-    MoveDirection direction;
+    Vector2D direction;
 
 public:
-    explicit MoveCommand(MoveDirection dir): direction(dir) {}
-    MoveDirection get_direction() const { return direction; }
+    explicit MoveCommand(Vector2D direction): direction(direction.normalized()) {}
+
+    Vector2D get_direction() const { return direction; }
 };
 
 /**

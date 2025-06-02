@@ -1,16 +1,18 @@
 #include "receiver.h"
 
 #include <iostream>
+#include <string>
 #include <utility>
 
-Receiver::Receiver(ServerProtocol& protocol, std::shared_ptr<Queue<Message>> queue):
-        protocol(protocol), queue(std::move(queue)) {}
+Receiver::Receiver(const std::string& player_name, ServerProtocol& protocol,
+                   std::shared_ptr<Queue<PlayerMessage>> queue):
+        player_name(player_name), protocol(protocol), queue(std::move(queue)) {}
 
 void Receiver::run() {
     while (should_keep_running()) {
         try {
             auto msg = protocol.recv();
-            queue->push(msg);
+            queue->push(PlayerMessage(player_name, msg));
         } catch (const ClosedQueue&) {
             stop();
             break;
