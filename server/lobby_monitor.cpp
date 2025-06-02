@@ -52,7 +52,7 @@ void LobbyMonitor::reap() {
     std::lock_guard<std::mutex> lock(mtx);
 
     for (const auto& [name, game]: games)
-        if (!game->is_alive()) {
+        if (game && !game->is_alive()) {
             game->join();
             games.erase(name);
         }
