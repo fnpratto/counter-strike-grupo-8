@@ -175,6 +175,20 @@ protected:
         return payload;
     }
 
+    payload_t serialize(const GameInfo& game_info) const {
+        payload_t payload;
+
+        payload_t name_payload = serialize(game_info.name);
+        payload_t count_payload = serialize(static_cast<uint16_t>(game_info.players_count));
+        payload_t phase_payload = serialize(static_cast<uint8_t>(game_info.phase));
+        payload.reserve(name_payload.size() + count_payload.size() + phase_payload.size());
+        payload.insert(payload.end(), name_payload.begin(), name_payload.end());
+        payload.insert(payload.end(), count_payload.begin(), count_payload.end());
+        payload.insert(payload.end(), phase_payload.begin(), phase_payload.end());
+
+        return payload;
+    }
+
     template <typename T>
     typename std::enable_if<std::is_enum<T>::value, payload_t>::type serialize(
             const T& enum_value) const {
@@ -200,7 +214,8 @@ protected:
 
     template <typename T>
     typename std::enable_if<std::is_enum<T>::value, T>::type deserialize(payload_t& payload) const {
-        auto underlying_value = deserialize<std::underlying_type_t<T>>(payload);
+        // auto underlying_value = deserialize<std::underlying_type_t<T>>(payload);
+        auto underlying_value = deserialize<uint8_t>(payload);
         return static_cast<T>(underlying_value);
     }
 };

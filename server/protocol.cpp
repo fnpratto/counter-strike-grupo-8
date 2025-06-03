@@ -27,8 +27,7 @@
 
 template <>
 payload_t ServerProtocol::serialize_msg(const ListGamesResponse& response) const {
-    auto game_names = response.get_game_names();
-    return serialize(game_names);
+    return serialize(response.get_games_info());
 }
 
 #define X_SERIALIZE_UPDATE(type, attr)                                               \

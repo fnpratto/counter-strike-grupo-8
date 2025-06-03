@@ -77,9 +77,11 @@ bool Client::connect_to_server() noexcept {
                     Socket(conn_req.get_ip().c_str(), conn_req.get_port().c_str()));
         } catch (const std::exception& e) {
             std::cerr << "Error: " << e.what() << std::endl;
+            display_queue.push(Message(false));
             continue;
         }
 
+        display_queue.push(Message(true));
         break;
     }
 
@@ -107,6 +109,8 @@ void Client::wait_for_game_start() {
             msg.get_type() == MessageType::CREATE_GAME_CMD)
             break;
     }
+
+    display_queue.push(Message(true));
 }
 
 void Client::switch_display() {

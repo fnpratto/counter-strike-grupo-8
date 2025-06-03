@@ -64,6 +64,6 @@ void LobbyThread::handle_join_game_cmd(const JoinGameCommand& cmd) {
 }
 
 void LobbyThread::handle_list_games_cmd() {
-    auto games = lobby_monitor.get_games_names();
+    auto games = lobby_monitor.get_games_info();
     protocol.send(Message(ListGamesResponse(games)));
 }

@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include "common/responses.h"
+
 #include "errors.h"
 #include "game_thread.h"
 #include "pipe.h"
@@ -34,7 +36,7 @@ public:
     pipe_t join_game(const std::string& game_name, const std::string& player_name);
 
     // Get a list of available games
-    std::vector<std::string> get_games_names();
+    std::vector<GameInfo> get_games_info();
 
     void reap();
 
