@@ -219,7 +219,7 @@ TEST_F(TestGame, PlayerCanMove) {
     game.tick({});
 
     // Check velocity
-    Vector2D dir = Vector2D(0, 1).normalized();
+    Vector2D dir = Vector2D(0, 32).normalized();
     Message msg_move = Message(MoveCommand(dir));
     updates = game.tick({PlayerMessage("test_player", msg_move)});
     player_updates = updates.get_players();
@@ -244,7 +244,7 @@ TEST_F(TestGame, PlayerCanMoveInDiagonal) {
     advance_secs(PhaseTimes::buying_phase_secs);
     game.tick({});
 
-    Vector2D dir = Vector2D(1, 1).normalized();
+    Vector2D dir = Vector2D(32, 32).normalized();
     Message msg_move = Message(MoveCommand(dir));
     updates = game.tick({PlayerMessage("test_player", msg_move)});
 

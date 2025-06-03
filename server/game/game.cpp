@@ -78,7 +78,8 @@ void Game::advance_players_movement() {
     for (const auto& [player_name, player]: state.get_players()) {
         if (player->is_moving()) {
             Vector2D old_pos = player->get_pos();
-            Vector2D new_pos = old_pos + physics_system.calculate_step(player->get_move_dir());
+            Vector2D step = physics_system.calculate_step(player->get_move_dir());
+            Vector2D new_pos = old_pos + step;
             // TODO: Check collisions with physics_system (with tiles and entities)
             player->move_to_pos(new_pos);
             game_players_update.emplace(player_name, player->get_updates());
