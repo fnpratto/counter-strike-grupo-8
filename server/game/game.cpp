@@ -60,7 +60,7 @@ void Game::advance_round_logic() {
 
     phase.advance();
 
-    if (phase.is_round_finished())
+    if (phase.round_has_finished())
         state.advance_round();
 
     if (state.get_num_rounds() == GameConfig::max_rounds / 2)

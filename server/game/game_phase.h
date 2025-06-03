@@ -11,12 +11,13 @@ class GamePhase: public Logic<PhaseState, PhaseUpdate> {
 private:
     std::shared_ptr<Clock> game_clock;
     TimePoint phase_start;
+    bool round_finished;
 
 public:
     explicit GamePhase(std::shared_ptr<Clock>&& game_clock);
 
     bool is_started() const;
-    bool is_round_finished() const;
+    bool round_has_finished() const;
     bool is_buying_phase() const;
 
     void start_buying_phase();

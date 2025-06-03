@@ -49,7 +49,7 @@ TEST_F(TestGamePhase, FinishOneRoundAfterRoundDuration) {
     game_phase.advance();
 
     PhaseUpdate updates = game_phase.get_updates();
-    EXPECT_EQ(updates.get_phase(), PhaseType::RoundFinished);
+    EXPECT_EQ(updates.get_phase(), PhaseType::End);
 }
 
 TEST_F(TestGamePhase, StartAnotherRoundAfterRoundFinishedDuration) {

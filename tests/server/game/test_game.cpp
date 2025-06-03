@@ -128,19 +128,25 @@ TEST_F(TestGame, PlayerCannotSelectTeamWhenStartedGame) {
     EXPECT_THROW({ game.tick({PlayerMessage("test_player", msg_select_team)}); }, SelectTeamError);
 }
 
-TEST_F(TestGame, IncrementRoundsPlayedAfterRoundDuration) {
+TEST_F(TestGame, NumberOfRoundsIncrementCorrectly) {
     GameUpdate update = game.join_player("test_player");
     EXPECT_EQ(update.get_num_rounds(), 0);
 
     Message msg_start = Message(StartGameCommand());
     game.tick({PlayerMessage("test_player", msg_start)});
 
-    advance_secs(PhaseTimes::buying_phase_secs);
-    game.tick({});
-    advance_secs(PhaseTimes::playing_phase_secs);
-    GameUpdate updates = game.tick({});
+    GameUpdate updates;
+    int rounds = 3;
+    for (int i = 0; i < rounds; i++) {
+        advance_secs(PhaseTimes::buying_phase_secs);
+        game.tick({});
+        advance_secs(PhaseTimes::playing_phase_secs);
+        for (int j = 0; j < 10; j++) game.tick({});
+        advance_secs(PhaseTimes::round_finished_phase_secs);
+        updates = game.tick({});
+    }
 
-    EXPECT_EQ(updates.get_num_rounds(), 1);
+    EXPECT_EQ(updates.get_num_rounds(), rounds);
 }
 
 TEST_F(TestGame, OneTerroristHasBombWhenGameStarted) {
@@ -201,11 +207,10 @@ TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
         advance_secs(PhaseTimes::buying_phase_secs);
         game.tick({});
         advance_secs(PhaseTimes::playing_phase_secs);
-        updates = game.tick({});
-        EXPECT_EQ(updates.get_phase().get_phase(), PhaseType::RoundFinished);
-        EXPECT_EQ(updates.get_num_rounds(), i + 1);
-        advance_secs(PhaseTimes::round_finished_phase_secs);
         game.tick({});
+        advance_secs(PhaseTimes::round_finished_phase_secs);
+        updates = game.tick({});
+        EXPECT_EQ(updates.get_num_rounds(), i + 1);
     }
 
     std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
