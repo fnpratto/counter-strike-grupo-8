@@ -1,11 +1,12 @@
 #include "sdl_display.h"
 
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <string>
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_events.h>
+#include <SDL.h>
+#include <SDL_events.h>
 
 #include "../client/requests.h"
 #include "../common/message.h"
@@ -103,6 +104,16 @@ void SDLDisplay::run() {
     // Uint32 lost;
 
     try {
+        char* basePath = SDL_GetBasePath();
+        if (basePath) {
+
+            if (chdir(basePath) != 0) {
+                std::cerr << "chdir failed: " << strerror(errno) << std::endl;
+            }
+            SDL_free(basePath);
+        } else {
+            std::cerr << "SDL_GetBasePath failed: " << SDL_GetError() << std::endl;
+        }
         SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
         hudDisplay hudDisplay(window);
         shopDisplay shopDisplay(window);

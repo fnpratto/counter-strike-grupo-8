@@ -33,7 +33,6 @@ add_library(taller_common STATIC)
 # HEY!! TODO XXX: add more subfolders here
 add_subdirectory(common/)
 
-
 # set compiler warnings to the targets
 include(cmake/CompilerWarnings.cmake)
 set_project_warnings(taller_common ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
@@ -98,9 +97,15 @@ if(TALLER_CLIENT OR TALLER_EDITOR)
     )
 
     FetchContent_MakeAvailable(SDL2 SDL2_image SDL2_mixer SDL2_ttf libSDL2pp)
+
+    # Find and include Qt5 packages
+    find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui)
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_AUTORCC ON)
+    set(CMAKE_AUTOUIC ON)
 endif()
 
-if(TALLER_SERVER OR TALLER_CLIENT OR TALLER_TESTS)
+if(TALLER_SERVER OR TALLER_TESTS)
     include(FetchContent)
 
     FetchContent_Declare(
@@ -111,7 +116,6 @@ if(TALLER_SERVER OR TALLER_CLIENT OR TALLER_TESTS)
 
     FetchContent_MakeAvailable(yaml-cpp)
 endif()
-
 
 # Program section
 # ---------------
@@ -133,8 +137,18 @@ if(TALLER_CLIENT)
     # add libSDL2pp's headers
     target_include_directories(taller_client PRIVATE ${libSDL2pp_SOURCE_DIR})
 
-    target_link_libraries(taller_client PRIVATE taller_common SDL2pp::SDL2pp yaml-cpp::yaml-cpp)
-
+    # Link the taller_common lib target
+    target_link_libraries(taller_client
+        taller_common
+        SDL2pp::SDL2pp
+        Qt5::Core
+        Qt5::Widgets
+        Qt5::Gui
+        SDL2::SDL2
+        SDL2_image::SDL2_image
+        SDL2_mixer::SDL2_mixer
+        SDL2_ttf::SDL2_ttf
+    )
 
     # Add UI_TYPE definition
     if(UI_TYPE STREQUAL "gui")
@@ -160,7 +174,7 @@ if(TALLER_SERVER)
     set_project_warnings(taller_server ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 
     # Link the taller_common lib target
-    target_link_libraries(taller_server taller_common)
+    target_link_libraries(taller_server taller_common yaml-cpp::yaml-cpp)
 endif()
 
 if(TALLER_EDITOR)
@@ -180,7 +194,13 @@ if(TALLER_EDITOR)
     target_include_directories(taller_editor PRIVATE ${libSDL2pp_SOURCE_DIR})
 
     # Link the taller_common lib target
-    target_link_libraries(taller_editor taller_common SDL2pp::SDL2pp)
+    target_link_libraries(taller_editor
+        taller_common
+        SDL2pp::SDL2pp
+        Qt5::Core
+        Qt5::Widgets
+        Qt5::Gui
+    )
 endif()
 
 

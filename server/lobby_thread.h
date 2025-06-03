@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <memory>
+#include <string>
 #include <utility>
 
 #include "common/commands.h"
@@ -17,11 +18,11 @@ private:
     ServerProtocol& protocol;
     LobbyMonitor& lobby_monitor;  // TODO: check lifetime of this reference
 
-    std::function<void(pipe_t)> join_callback;
+    std::function<void(const std::string&, pipe_t)> join_callback;
 
 public:
     LobbyThread(ServerProtocol& proto, LobbyMonitor& lobby_monitor,
-                std::function<void(pipe_t)> join_callback);
+                std::function<void(const std::string&, pipe_t)> join_callback);
 
     void run() override;
 

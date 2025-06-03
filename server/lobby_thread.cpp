@@ -1,9 +1,12 @@
 #include "lobby_thread.h"
 
 #include <iostream>
+#include <string>
+
+#include "common/responses.h"
 
 LobbyThread::LobbyThread(ServerProtocol& proto, LobbyMonitor& lobby_monitor,
-                         std::function<void(pipe_t)> join_callback):
+                         std::function<void(const std::string&, pipe_t)> join_callback):
         protocol(proto), lobby_monitor(lobby_monitor), join_callback(std::move(join_callback)) {}
 
 void LobbyThread::run() {
@@ -45,22 +48,22 @@ void LobbyThread::run() {
 }
 
 void LobbyThread::handle_create_game_cmd(const CreateGameCommand& cmd) {
-    pipe_t pipe = lobby_monitor.create_game(cmd.get_game_name());
+    pipe_t pipe = lobby_monitor.create_game(cmd.get_game_name(), cmd.get_player_name());
 
-    join_callback(pipe);
+    join_callback(cmd.get_player_name(), pipe);
 
     stop();
 }
 
 void LobbyThread::handle_join_game_cmd(const JoinGameCommand& cmd) {
-    pipe_t pipe = lobby_monitor.join_game(cmd.get_game_name());
+    pipe_t pipe = lobby_monitor.join_game(cmd.get_game_name(), cmd.get_player_name());
 
-    join_callback(pipe);
+    join_callback(cmd.get_player_name(), pipe);
 
     stop();
 }
 
 void LobbyThread::handle_list_games_cmd() {
-    // auto games = lobby_monitor.get_games_names();
-    // TODO: send the list of games to the client
+    auto games = lobby_monitor.get_games_info();
+    protocol.send(Message(ListGamesResponse(games)));
 }
