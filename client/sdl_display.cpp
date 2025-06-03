@@ -23,11 +23,26 @@ sender->start();
 receiver = std::make_unique<ClientReceiver>(protocol, display_queue);
 
 //*/
+
+GameUpdate SDLDisplay::receive_initial_state() {
+    Message msg;
+    while (true) {
+        msg = input_queue.pop();
+        if (msg.get_type() == MessageType::GAME_UPDATE) {
+            return msg.get_content<GameUpdate>();
+        } else {
+            std::cerr << "Received unexpected message type: " << static_cast<int>(msg.get_type())
+                      << std::endl;
+        }
+    }
+}
+
 SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue):
         Display(input_queue, output_queue),
         quit_flag(false),
-        input_handler(std::make_unique<SDLInput>(output_queue, quit_flag)),
-        state() {}
+        input_handler(std::make_unique<SDLInput>(output_queue, quit_flag)) {
+    state = receive_initial_state();
+}
 
 void SDLDisplay::run() {
     char* basePath = SDL_GetBasePath();
@@ -42,6 +57,9 @@ void SDLDisplay::run() {
     }
 
     input_handler->start();
+
+    std::cout << "Initialized new GameState" << std::endl;
+
 
     // FOR FULL SIZE
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -141,104 +159,21 @@ void SDLDisplay::stop() {
 void SDLDisplay::update_game() {
     Message msg;
     if (input_queue.try_pop(msg)) {
-        /*if (state = nullptr) {
-            state = receive_initial_state(msg);
-            std::cout << "Initialized new GameState" << std::endl;
-        }*/
         handle_msg(msg);
         std::cout << "Message handled in SDLDisplay" << std::endl;
     }
 }
 
 
-void SDLDisplay::handle_msg(const Message& msg /*, const std::string& player_name*/) {
+void SDLDisplay::handle_msg(const Message& msg) {
     const GameUpdate& update = msg.get_content<GameUpdate>();
-    apply_game_update(update);  // assuming 'state' is your GameState
+    state = state.merged(update);
+    apply_game_update();
     std::cout << "Applied GameUpdate" << std::endl;
 }
 
-void apply_game_update(GameState& state, const GameUpdate& update) {
-    // Update number of rounds
-    if (update.has_num_rounds_changed()) {
-        // state.num_rounds = update.get_num_rounds();
-    }
-
-    // Update game phase
-    if (update.has_phase_changed()) {
-        const PhaseUpdate& phase_update = update.get_phase();
-
-        if (phase_update.has_phase_changed()) {
-            // state.phase = phase_update.get_phase();
-        }
-        if (phase_update.has_time_changed()) {
-            // state.time = phase_update.get_time();
-        }
-    }
-
-    // Update player states
-    if (update.has_players_changed()) {
-        for (const auto& [player_id, player_update]: update.get_players()) {
-            // PlayerState& player = state.players[player_id];  // create if not exists
-
-            if (player_update.has_team_changed()) {
-                // player.team = player_update.get_team();
-            }
-            if (player_update.has_pos_changed()) {
-                // player.pos = player_update.get_pos();
-            }
-            if (player_update.has_aim_direction_changed()) {
-                // player.aim_direction = player_update.get_aim_direction();
-            }
-            if (player_update.has_velocity_changed()) {
-                // player.velocity = player_update.get_velocity();
-            }
-            if (player_update.has_ready_changed()) {
-                // player.ready = player_update.get_ready();
-            }
-            if (player_update.has_health_changed()) {
-                // player.health = player_update.get_health();
-            }
-            if (player_update.has_current_weapon_changed()) {
-                // player.current_weapon = player_update.get_current_weapon();
-            }
-
-            // Inventory update
-            if (player_update.has_inventory_changed()) {
-                const InventoryUpdate& inv = player_update.get_inventory();
-
-                if (inv.has_money_changed()) {
-                    // player.inventory.money = inv.get_money();
-                }
-
-                if (inv.has_guns_changed()) {
-                    for (const auto& [slot, gun_update]: inv.get_guns()) {
-                        // GunState& gun = player.inventory.guns[slot];
-
-                        if (gun_update.has_gun_changed()) {
-                            //  gun.gun = gun_update.get_gun();
-                        }
-                        if (gun_update.has_bullets_per_mag_changed()) {
-                            // gun.bullets_per_mag = gun_update.get_bullets_per_mag();
-                        }
-                        if (gun_update.has_mag_ammo_changed()) {
-                            // gun.mag_ammo = gun_update.get_mag_ammo();
-                        }
-                        if (gun_update.has_reserve_ammo_changed()) {
-                            // gun.reserve_ammo = gun_update.get_reserve_ammo();
-                        }
-                    }
-                }
-
-                if (inv.has_utilities_changed()) {
-                    for (const auto& [slot, util_update]: inv.get_utilities()) {
-                        // UtilityState& util = player.inventory.utilities[slot];
-                        //  Populate fields here as needed, e.g.:
-                        //  if (util_update.has_X_changed()) { util.X = util_update.get_X(); }
-                    }
-                }
-            }
-        }
-    }
+void SDLDisplay::apply_game_update() {
+    // avisar a quien sea
 }
 
 #pragma GCC diagnostic pop

@@ -22,12 +22,25 @@ struct HudLayout {
     int padding;
     float scale;
 };
+
+struct HudData {
+    int money;
+    int life;
+    int bullets;
+    int timer;  // in seconds or ticks (depending on your timer system)
+    int roundNumber;
+    std::vector<std::string> equippedGuns;  // paths to gun icons (e.g., "ak47_k.xcf", etc.)
+    int selectedGunIndex;
+    int scoreTT;
+    int scoreCT;  // index of the currently selected gun
+};
 class hudDisplay {
 public:
     explicit hudDisplay(SdlWindow& window);
     void render();
     void updatePointerPosition(int x, int y);
     void update(int currentClockTick);
+    HudData hudData;
 
 private:
     SdlWindow& window;
@@ -61,7 +74,7 @@ private:
     void renderPointer();
     void renderMoney();
     void renderLife();
-    void renderTimer(int currentClockTick);
+    void renderTimer();
     void renderRoundText();
     void renderBullets();
     void renderGunIcons();

@@ -18,7 +18,9 @@ const std::string& PARALELO_RED_O_PATH = "../assets/gfx/hud/parallelogram_red_op
 const std::string& PARALELO_BLUE_O_PATH = "../assets/gfx/hud/parallelogram_blue_op.xcf";
 const std::string& HUD_NUMS_XCF = "../assets/gfx/fonts/hud_nums.xcf";
 
+
 hudDisplay::hudDisplay(SdlWindow& window):
+        hudData(),
         window(window),
         SCREEN_WIDTH(window.getWidth()),
         SCREEN_HEIGHT(window.getHeight()),
@@ -52,21 +54,23 @@ hudDisplay::hudDisplay(SdlWindow& window):
     layout.digitSpacing = static_cast<int>(22 * scaleRatio);
     layout.digitHeight = static_cast<int>(32 * scaleRatio);
     layout.scale = 0.5f * scaleRatio;
+
+    hudData.money = 1000;
+    hudData.life = 85;
+    hudData.bullets = 30;
+    hudData.timer = 1023;
+    hudData.roundNumber = 10;
+    hudData.equippedGuns = {"ak47_k.xcf", "aug_k.xcf", "elite_k.xcf"};
+    hudData.selectedGunIndex = 0;
 }
 
 
 void hudDisplay::update(/*const PlayerDTO& player_info,*/ int currentClockTick) {
 
-    renderBackground();
-    renderParal();
-    renderPointer();
-    renderMoney();
-    renderLife();
-    renderTimer(currentClockTick);
-    renderRoundText();
-    renderBullets();
-    renderGunIcons();
-    window.render();
+    hudData.money = 1000;
+    hudData.life = 100;
+    hudData.bullets = 30;
+    hudData.timer = currentClockTick;
 }
 
 
@@ -76,7 +80,7 @@ void hudDisplay::render() {
     renderPointer();
     renderMoney();
     renderLife();
-    renderTimer(1023);
+    renderTimer();
     renderRoundText();
     renderBullets();
     renderGunIcons();
@@ -114,7 +118,7 @@ void hudDisplay::renderParal() {
                             paralHeight);
     parallelogram1.render(srcParallelogram1, destParallelogram1);
 
-    scoreText.setTextString("9");
+    scoreText.setTextString(std::to_string(hudData.scoreTT));
     scoreText.render(Area(trapecioX - paralWidth / 4 + margin * 6, layout.padding * 3,
                           layout.size_width / 1.75, layout.size_height / 2));
 
@@ -125,7 +129,7 @@ void hudDisplay::renderParal() {
                            paralHeight);
     parallelogram.render(srcParallelogram, destParallelogram);
 
-    scoreText.setTextString("1");
+    scoreText.setTextString(std::to_string(hudData.scoreCT));
     scoreText.render(
             Area(trapecioX + trapecioWidth + margin + paralWidth / 2 - layout.size_width / 4,
                  layout.padding * 3, layout.size_width / 1.75, layout.size_height / 2));
@@ -147,7 +151,7 @@ void hudDisplay::renderMoney() {
                          iconHeight);
     money.render(sizeMoney, destMoney);
 
-    std::string moneyStr = "1000";
+    std::string moneyStr = std::to_string(hudData.money);
     int x = SCREEN_WIDTH - layout.size_width - layout.padding * 4;
     int y = SCREEN_HEIGHT - iconHeight - layout.padding;
     renderDigits(moneyStr, x, y, money_amount);
@@ -163,16 +167,16 @@ void hudDisplay::renderLife() {
                         iconHeight);
     life.render(sizeLife, destLife);
 
-    std::string lifeStr = "100";
+    std::string lifeStr = std::to_string(hudData.life);
     int x = layout.padding + iconWidth + layout.digitSpacing / 2;
     int y = SCREEN_HEIGHT - iconHeight - layout.padding;
     renderDigits(lifeStr, x, y, life_amount);
 }
 
 
-void hudDisplay::renderTimer(int currentClockTick) {
-    int minutesIdx = std::floor(currentClockTick / 60);
-    int seconds = currentClockTick % 60;
+void hudDisplay::renderTimer() {
+    int minutesIdx = std::floor(hudData.timer / 60);
+    int seconds = hudData.timer % 60;
     int secondsIdxH = std::floor(seconds / 10);
     int secondsIdxL = seconds % 10;
 
@@ -195,7 +199,7 @@ void hudDisplay::renderTimer(int currentClockTick) {
 
 
 void hudDisplay::renderRoundText() {
-    roundText.setTextString("Round 10");
+    roundText.setTextString("Round " + std::to_string(hudData.roundNumber));
     roundText.render(Area(SCREEN_WIDTH / 2 - 50, layout.padding, 100, 20));
 }
 
@@ -207,7 +211,7 @@ void hudDisplay::renderBullets() {
                            SCREEN_HEIGHT - iconHeight * 3, 64 * layout.scale, 64 * layout.scale);
     equipedBullets.render(sizeBullets, destBullets);
 
-    std::string bulletsStr = "30";
+    std::string bulletsStr = std::to_string(hudData.bullets);
     int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 40 - layout.padding * 2;
     int y = SCREEN_HEIGHT - iconHeight * 3;
     renderDigits(bulletsStr, x, y, equipedBulletsAmount);
