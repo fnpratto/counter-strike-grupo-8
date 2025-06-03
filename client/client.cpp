@@ -109,6 +109,8 @@ void Client::wait_for_game_start() {
             msg.get_type() == MessageType::CREATE_GAME_CMD)
             break;
     }
+
+    display_queue.push(Message(true));
 }
 
 void Client::switch_display() {
