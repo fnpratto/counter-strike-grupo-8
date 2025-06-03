@@ -13,28 +13,28 @@
 #include "game_thread.h"
 
 
-pipe_t LobbyMonitor::create_game(const std::string& name) {
+pipe_t LobbyMonitor::create_game(const std::string& game_name, const std::string& player_name) {
     std::lock_guard<std::mutex> lock(mtx);
 
-    if (games.find(name) != games.end())
+    if (games.find(game_name) != games.end())
         throw GameExistsError();
 
-    auto game = std::make_shared<GameThread>(name);
+    auto game = std::make_shared<GameThread>(game_name);
     game->start();
-    games[name] = game;
+    games[game_name] = game;
 
-    return game->join_game("player_name");  // TODO: take the player name from the message
+    return game->join_game(player_name);
 }
 
-pipe_t LobbyMonitor::join_game(const std::string& name) {
+pipe_t LobbyMonitor::join_game(const std::string& game_name, const std::string& player_name) {
     std::lock_guard<std::mutex> lock(mtx);
 
-    auto game = games[name];
+    auto game = games[game_name];
 
     if (!game || !game->is_alive())
         throw JoinGameError();
 
-    return game->join_game("player_name");  // TODO: take the player name from the message
+    return game->join_game(player_name);
 }
 
 std::vector<GameInfo> LobbyMonitor::get_games_info() {
