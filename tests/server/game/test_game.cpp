@@ -219,18 +219,18 @@ TEST_F(TestGame, PlayerCanMove) {
     game.tick({});
 
     // Check velocity
-    Vector2D expected_vel = Vector2D(0, 1).normalized();
-    Message msg_move = Message(MoveCommand(expected_vel));
+    Vector2D dir = Vector2D(0, 1).normalized();
+    Message msg_move = Message(MoveCommand(dir));
     updates = game.tick({PlayerMessage("test_player", msg_move)});
     player_updates = updates.get_players();
     Vector2D move_vel = player_updates.at("test_player").get_velocity();
-    EXPECT_EQ(move_vel, expected_vel);
+    EXPECT_EQ(move_vel, dir);
 
     // Check updated position
     player_updates = updates.get_players();
     Vector2D new_pos = player_updates.at("test_player").get_pos();
-    Vector2D step = expected_vel * static_cast<float>(map.get_tile_size()) *
-                    GameConfig::player_speed * (1.0f / GameConfig::tickrate);
+
+    Vector2D step = dir * GameConfig::player_speed * (1.0f / GameConfig::tickrate);
 
     EXPECT_EQ(new_pos.get_x(), old_pos.get_x() + step.get_x());
     EXPECT_EQ(new_pos.get_y(), old_pos.get_y() + step.get_y());
@@ -251,8 +251,8 @@ TEST_F(TestGame, PlayerCanMoveInDiagonal) {
     std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
     Vector2D new_pos = player_updates.at("test_player").get_pos();
 
-    Vector2D step = dir * static_cast<float>(map.get_tile_size()) * GameConfig::player_speed *
-                    (1.0f / GameConfig::tickrate);
+    Vector2D step = dir * GameConfig::player_speed * (1.0f / GameConfig::tickrate);
+
     EXPECT_EQ(new_pos.get_x(), old_pos.get_x() + step.get_x());
     EXPECT_EQ(new_pos.get_y(), old_pos.get_y() + step.get_y());
 }

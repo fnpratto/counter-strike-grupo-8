@@ -14,8 +14,6 @@ Vector2D PhysicsSystem::random_spawn_tt_pos() const { return map.random_spawn_tt
 Vector2D PhysicsSystem::random_spawn_ct_pos() const { return map.random_spawn_ct_pos(); }
 
 Vector2D PhysicsSystem::calculate_step(const Vector2D& dir) const {
-    float tick_duration = 1.0f / GameConfig::tickrate;
-    float tile_size = static_cast<float>(map.get_tile_size());
-    float units_per_second = tile_size * GameConfig::player_speed;
-    return dir.normalized() * units_per_second * tick_duration;
+    float tick_duration = 1.0f / GameConfig::tickrate;  // TODO use clock
+    return dir.normalized() * GameConfig::player_speed * tick_duration;
 }

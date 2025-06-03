@@ -158,7 +158,7 @@ protected:
 
     payload_t serialize(const Vector2D& vec) const {
         payload_t payload;
-        payload.reserve(2 * sizeof(float));
+        payload.reserve(2 * sizeof(uint16_t));
         payload_t x_payload = serialize(vec.get_x());
         payload_t y_payload = serialize(vec.get_y());
         payload.insert(payload.end(), x_payload.begin(), x_payload.end());

@@ -137,8 +137,8 @@ StopPlayerCommand ServerProtocol::deserialize_msg<StopPlayerCommand>(payload_t& 
 
 template <>
 AimCommand ServerProtocol::deserialize_msg<AimCommand>(payload_t& payload) const {
-    float x = deserialize<float>(payload);
-    float y = deserialize<float>(payload);
+    int x = deserialize<int>(payload);
+    int y = deserialize<int>(payload);
     return AimCommand(x, y);
 }
 
