@@ -61,6 +61,26 @@ void TextDisplay::draw(const Message& message) {
             }
             break;
         }
+        case MessageType::GAME_UPDATE: {
+            const auto& update = message.get_content<GameUpdate>();
+            state = state.merged(update);
+
+            std::cout << "Game Update:" << std::endl;
+            std::string phase_str =
+                    (state.get_phase().get_phase() == PhaseType::Buying)        ? "Buying" :
+                    (state.get_phase().get_phase() == PhaseType::Playing)       ? "Playing" :
+                    (state.get_phase().get_phase() == PhaseType::RoundFinished) ? "Round Finished" :
+                                                                                  "Warm Up";
+            std::cout << "Phase: " << phase_str << std::endl;
+            std::cout << "Players:" << std::endl;
+            for (const auto& [player_name, player]:  // cppcheck-suppress[unassignedVariable]
+                 state.get_players()) {
+                std::string team_str =
+                        (player.get_team() == Team::TT) ? "Terrorist" : "Counter-Terrorist";
+                std::cout << " - " << player_name << " (" << team_str << ")" << std::endl;
+            }
+            break;
+        }
         default:
             throw std::runtime_error("Invalid message type for TextDisplay");
             break;

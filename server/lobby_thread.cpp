@@ -48,7 +48,7 @@ void LobbyThread::run() {
 }
 
 void LobbyThread::handle_create_game_cmd(const CreateGameCommand& cmd) {
-    pipe_t pipe = lobby_monitor.create_game(cmd.get_game_name());
+    pipe_t pipe = lobby_monitor.create_game(cmd.get_game_name(), cmd.get_player_name());
 
     join_callback(cmd.get_player_name(), pipe);
 
@@ -56,7 +56,7 @@ void LobbyThread::handle_create_game_cmd(const CreateGameCommand& cmd) {
 }
 
 void LobbyThread::handle_join_game_cmd(const JoinGameCommand& cmd) {
-    pipe_t pipe = lobby_monitor.join_game(cmd.get_game_name());
+    pipe_t pipe = lobby_monitor.join_game(cmd.get_game_name(), cmd.get_player_name());
 
     join_callback(cmd.get_player_name(), pipe);
 
