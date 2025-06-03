@@ -60,13 +60,20 @@ void GameListTable::update_game_list(const std::vector<GameInfo>& game_list) {
         int row = this->rowCount();
         this->insertRow(row);
 
-        this->setItem(row, 0, new QTableWidgetItem(QString::fromStdString(game_info.name)));
-        this->setItem(row, 1, new QTableWidgetItem(QString::number(game_info.players_count)));
-        this->setItem(row, 2,
-                      new QTableWidgetItem(QString::fromStdString(
-                              game_info.phase == PhaseType::WarmUp  ? "Warm Up" :
-                              game_info.phase == PhaseType::Buying  ? "Buying" :
-                              game_info.phase == PhaseType::Playing ? "Playing" :
-                                                                      "Round Finished")));
+        QTableWidgetItem* game_name_item =
+                new QTableWidgetItem(QString::fromStdString(game_info.name));
+        game_name_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        this->setItem(row, 0, game_name_item);
+        QTableWidgetItem* players_count_item =
+                new QTableWidgetItem(QString::number(game_info.players_count));
+        players_count_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        this->setItem(row, 1, players_count_item);
+        QTableWidgetItem* status_item = new QTableWidgetItem(
+                QString::fromStdString(game_info.phase == PhaseType::WarmUp  ? "Warm Up" :
+                                       game_info.phase == PhaseType::Buying  ? "Buying" :
+                                       game_info.phase == PhaseType::Playing ? "Playing" :
+                                                                               "Round Finished"));
+        status_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        this->setItem(row, 2, status_item);
     }
 }

@@ -93,6 +93,11 @@ void LobbyWindow::add_start_buttons() {
 }
 
 void LobbyWindow::on_create_button_clicked() {
+    if (player_name_input->text().isEmpty()) {
+        this->player_name_empty_warning();
+        return;
+    }
+
     std::string player_name = this->player_name_input->text().toStdString();
     this->close();
     this->create_game_window = new CreateGameWindow(input_queue, output_queue, player_name);
@@ -101,13 +106,23 @@ void LobbyWindow::on_create_button_clicked() {
 
 void LobbyWindow::on_join_button_clicked() {
     QString selected_game = this->game_list_table->get_selected_game();
+
+    if (selected_game.isEmpty()) {
+        return;
+    }
+
     qDebug() << "Join Game button clicked. Selected game:" << selected_game;
     this->join_game(selected_game);
 }
 
 void LobbyWindow::join_game(QString game_name) {
-    qDebug() << "Joining game:" << game_name;
     std::string game_name_str = game_name.toStdString();
+
+    if (player_name_input->text().isEmpty()) {
+        this->player_name_empty_warning();
+        return;
+    }
+
     std::string player_name = this->player_name_input->text().toStdString();
     output_queue.push(Message(JoinGameCommand(game_name_str, player_name)));
 
@@ -133,4 +148,8 @@ void LobbyWindow::update_game_list() {
     }
     auto game_info_list = msg.get_content<ListGamesResponse>().get_games_info();
     this->game_list_table->update_game_list(game_info_list);
+}
+
+void LobbyWindow::player_name_empty_warning() {
+    QMessageBox::warning(this, "Warning", "Player name cannot be empty.", QMessageBox::Ok);
 }

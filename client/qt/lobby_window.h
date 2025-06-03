@@ -43,6 +43,8 @@ private:
     void on_join_button_clicked();
 
     void update_game_list();
+
+    void player_name_empty_warning();
 };
 
 #endif  // LOBBY_WINDOW_H
