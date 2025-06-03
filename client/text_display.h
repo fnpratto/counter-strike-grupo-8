@@ -5,11 +5,14 @@
 #include <string>
 
 #include "common/message.h"
+#include "common/updates/game_update.h"
 
 #include "display.h"
 
 class TextDisplay: public Display {
     std::string line;
+
+    GameUpdate state;
 
 public:
     explicit TextDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue);
