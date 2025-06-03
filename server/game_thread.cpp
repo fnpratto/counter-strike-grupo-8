@@ -23,7 +23,13 @@ void GameThread::run() {
                 break;  // No more messages to process
             msgs.push_back(msg);
         }
-        game.tick(msgs);  // TODO Replace "player_name" with actual player name
+        GameUpdate update = game.tick(msgs);  // TODO Replace "player_name" with actual player name
+
+        if (update.has_change()) {
+            for (const auto& output_queue: output_queues) {
+                output_queue->push(Message(update));
+            }
+        }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }

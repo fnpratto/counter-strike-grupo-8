@@ -9,17 +9,6 @@
 #include <SDL_events.h>
 #include <unistd.h>
 
-#include "../client/requests.h"
-#include "../common/message.h"
-#include "common/message.h"
-#include "gui/controllers/keyboardhandler.h"
-#include "gui/controllers/mousehandler.h"
-#include "gui/hud_component/hud_display.h"
-#include "gui/map_view/map_view.h"
-#include "gui/pre_game_view/list_teams.h"
-#include "gui/shop_view/shop.h"
-#include "gui/window_elements/sdl_window.h"
-
 #include "display.h"
 
 #pragma GCC diagnostic push
@@ -37,7 +26,8 @@ receiver = std::make_unique<ClientReceiver>(protocol, display_queue);
 SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue):
         Display(input_queue, output_queue),
         quit_flag(false),
-        input_handler(std::make_unique<SDLInput>(output_queue, quit_flag)) {}
+        input_handler(std::make_unique<SDLInput>(output_queue, quit_flag)),
+        state() {}
 
 void SDLDisplay::run() {
     char* basePath = SDL_GetBasePath();
@@ -83,7 +73,7 @@ void SDLDisplay::run() {
         SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
         hudDisplay hudDisplay(window);
         shopDisplay shopDisplay(window);
-        Map map(window);
+        // Map map(window);
         listTeams listTeams(window);
 
         bool shop = false;
@@ -120,7 +110,7 @@ void SDLDisplay::run() {
             window.fill();
             if (clock > 20) {
                 hudDisplay.update(clock);
-                map.render();
+                // map.render();
                 if (shop) {
                     shopDisplay.render();
                 }
@@ -149,61 +139,106 @@ void SDLDisplay::stop() {
 
 
 void SDLDisplay::update_game() {
-    // state.clear_updates(); why this?
     Message msg;
     if (input_queue.try_pop(msg)) {
+        /*if (state = nullptr) {
+            state = receive_initial_state(msg);
+            std::cout << "Initialized new GameState" << std::endl;
+        }*/
         handle_msg(msg);
         std::cout << "Message handled in SDLDisplay" << std::endl;
     }
 }
 
-void SDLDisplay::handle_msg(const Message& msg /*, const std::string& player_name*/) {
-    MessageType msg_type = msg.get_type();
-    if (msg_type == MessageType::SELECT_TEAM_CMD) {
-        // Team team = msg.get_content<SelectTeamCommand>().get_team();
-        std::cout << "Received SELECT_TEAM_CMD message with team: ";
-        // handle_select_team_msg(player_name, team);
-    } else if (msg_type == MessageType::START_GAME_CMD) {
-        std::cout << "Received START_GAME_CMD message" << std::endl;
-        // handle_start_game_msg(player_name);
-    } else if (msg_type == MessageType::BUY_GUN_CMD) {
-        // GunType gun = msg.get_content<BuyGunCommand>().get_gun();
-        std::cout << "Received BUY_GUN_CMD message with gun: ";
-        // handle_buy_gun_msg(player_name, gun);
-    } else if (msg_type == MessageType::BUY_AMMO_CMD) {
-        // GunType gun = msg.get_content<BuyAmmoCommand>().get_gun();
-        std::cout << "Received BUY_AMMO_CMD message with gun: ";
-        // handle_buy_ammo_msg(player_name, gun);
-    } else if (msg_type == MessageType::MOVE_CMD) {
-        // Vector2D direction = msg.get_content<MoveCommand>().get_direction();
-        std::cout << "Received MOVE_CMD message with direction: ("
-                     ")"
-                  << std::endl;
-        // handle_move_msg(player_name, direction);
-    } else if (msg_type == MessageType::STOP_PLAYER_CMD) {
-        std::cout << "Received STOP_PLAYER_CMD message" << std::endl;
-        // handle_stop_player_msg(player_name);
-    } else if (msg_type == MessageType::AIM_CMD) {
-        float x = msg.get_content<AimCommand>().get_x();
-        float y = msg.get_content<AimCommand>().get_y();
-        std::cout << "Received AIM_CMD message with coordinates: (" << x << ", " << y << ")"
-                  << std::endl;
-        // handle_aim_msg(player_name, x, y);
-        // } else if (msg_type == MessageType::SHOOT_CMD) {
-        //     int x = msg.get_content<ShootCommand>().get_x();
-        //     int y = msg.get_content<ShootCommand>().get_y();
-        //     handle_shoot_msg(player_name, x, y);
-    } else if (msg_type == MessageType::SWITCH_WEAPON_CMD) {
-        // WeaponSlot slot = msg.get_content<SwitchWeaponCommand>().get_slot();
-        std::cout << "Received SWITCH_WEAPON_CMD message with slot: " << std::endl;
-        // handle_switch_weapon_msg(player_name, slot);
-    } else if (msg_type == MessageType::RELOAD_CMD) {
-        std::cout << "Received RELOAD_CMD message" << std::endl;
-        // handle_reload_msg(player_name);
-    }
 
-    std::cout << "Nada" << std::endl;
+void SDLDisplay::handle_msg(const Message& msg /*, const std::string& player_name*/) {
+    const GameUpdate& update = msg.get_content<GameUpdate>();
+    apply_game_update(update);  // assuming 'state' is your GameState
+    std::cout << "Applied GameUpdate" << std::endl;
 }
 
+void apply_game_update(GameState& state, const GameUpdate& update) {
+    // Update number of rounds
+    if (update.has_num_rounds_changed()) {
+        // state.num_rounds = update.get_num_rounds();
+    }
+
+    // Update game phase
+    if (update.has_phase_changed()) {
+        const PhaseUpdate& phase_update = update.get_phase();
+
+        if (phase_update.has_phase_changed()) {
+            // state.phase = phase_update.get_phase();
+        }
+        if (phase_update.has_time_changed()) {
+            // state.time = phase_update.get_time();
+        }
+    }
+
+    // Update player states
+    if (update.has_players_changed()) {
+        for (const auto& [player_id, player_update]: update.get_players()) {
+            // PlayerState& player = state.players[player_id];  // create if not exists
+
+            if (player_update.has_team_changed()) {
+                // player.team = player_update.get_team();
+            }
+            if (player_update.has_pos_changed()) {
+                // player.pos = player_update.get_pos();
+            }
+            if (player_update.has_aim_direction_changed()) {
+                // player.aim_direction = player_update.get_aim_direction();
+            }
+            if (player_update.has_velocity_changed()) {
+                // player.velocity = player_update.get_velocity();
+            }
+            if (player_update.has_ready_changed()) {
+                // player.ready = player_update.get_ready();
+            }
+            if (player_update.has_health_changed()) {
+                // player.health = player_update.get_health();
+            }
+            if (player_update.has_current_weapon_changed()) {
+                // player.current_weapon = player_update.get_current_weapon();
+            }
+
+            // Inventory update
+            if (player_update.has_inventory_changed()) {
+                const InventoryUpdate& inv = player_update.get_inventory();
+
+                if (inv.has_money_changed()) {
+                    // player.inventory.money = inv.get_money();
+                }
+
+                if (inv.has_guns_changed()) {
+                    for (const auto& [slot, gun_update]: inv.get_guns()) {
+                        // GunState& gun = player.inventory.guns[slot];
+
+                        if (gun_update.has_gun_changed()) {
+                            //  gun.gun = gun_update.get_gun();
+                        }
+                        if (gun_update.has_bullets_per_mag_changed()) {
+                            // gun.bullets_per_mag = gun_update.get_bullets_per_mag();
+                        }
+                        if (gun_update.has_mag_ammo_changed()) {
+                            // gun.mag_ammo = gun_update.get_mag_ammo();
+                        }
+                        if (gun_update.has_reserve_ammo_changed()) {
+                            // gun.reserve_ammo = gun_update.get_reserve_ammo();
+                        }
+                    }
+                }
+
+                if (inv.has_utilities_changed()) {
+                    for (const auto& [slot, util_update]: inv.get_utilities()) {
+                        // UtilityState& util = player.inventory.utilities[slot];
+                        //  Populate fields here as needed, e.g.:
+                        //  if (util_update.has_X_changed()) { util.X = util_update.get_X(); }
+                    }
+                }
+            }
+        }
+    }
+}
 
 #pragma GCC diagnostic pop

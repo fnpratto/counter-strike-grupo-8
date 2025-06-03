@@ -159,7 +159,6 @@ void Game::handle_move_msg(const std::string& player_name, const Vector2D& direc
 
 void Game::handle_stop_player_msg(const std::string& player_name) {
     auto& player = state.get_player(player_name);
-
     player->stop_moving();
 }
 
