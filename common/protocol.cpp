@@ -68,26 +68,12 @@ uint16_t BaseProtocol::deserialize<uint16_t>(payload_t& payload) const {
 }
 
 template <>
-float BaseProtocol::deserialize<float>(payload_t& payload) const {
-    payload_t data = pop(payload, sizeof(float));
-    uint32_t network_f = *reinterpret_cast<const uint32_t*>(data.data());
-    return ntohl(network_f);
-}
-
-template <>
 std::string BaseProtocol::deserialize<std::string>(payload_t& payload) const {
     uint16_t length = deserialize<uint16_t>(payload);
 
     payload_t data = pop(payload, length);
 
     return std::string(data.data(), data.size());
-}
-
-template <>
-Vector2D BaseProtocol::deserialize<Vector2D>(payload_t& payload) const {
-    float x = deserialize<float>(payload);
-    float y = deserialize<float>(payload);
-    return Vector2D(x, y);
 }
 
 template <>
@@ -99,6 +85,13 @@ template <>
 bool BaseProtocol::deserialize<bool>(payload_t& payload) const {
     payload_t data = pop(payload, sizeof(uint8_t));
     return static_cast<bool>(data[0]);
+}
+
+template <>
+Vector2D BaseProtocol::deserialize<Vector2D>(payload_t& payload) const {
+    int x = deserialize<int>(payload);
+    int y = deserialize<int>(payload);
+    return Vector2D(x, y);
 }
 
 template <>
