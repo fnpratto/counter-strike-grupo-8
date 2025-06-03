@@ -2,6 +2,9 @@
 
 #include <QHeaderView>
 #include <QTableWidgetItem>
+#include <vector>
+
+#include "common/responses.h"
 
 #include "lobby_window.h"
 
@@ -26,30 +29,6 @@ GameListTable::GameListTable(QWidget* parent): QTableWidget(ROWS, COLUMNS, paren
     this->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Fixed);
     this->setColumnWidth(2, 100);
 
-    // Game 1
-    this->insertRow(0);
-    QTableWidgetItem* game_name = new QTableWidgetItem("Game 1");
-    game_name->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-    QTableWidgetItem* players = new QTableWidgetItem("2/16");
-    players->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-    QTableWidgetItem* status = new QTableWidgetItem("Waiting");
-    status->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-    this->setItem(0, 0, game_name);
-    this->setItem(0, 1, players);
-    this->setItem(0, 2, status);
-
-    // Game 2
-    this->insertRow(1);
-    QTableWidgetItem* game_name2 = new QTableWidgetItem("Game 2");
-    game_name2->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-    QTableWidgetItem* players2 = new QTableWidgetItem("16/16");
-    players2->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-    QTableWidgetItem* status2 = new QTableWidgetItem("In Progess");
-    status2->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-    this->setItem(1, 0, game_name2);
-    this->setItem(1, 1, players2);
-    this->setItem(1, 2, status2);
-
     connect(this, &QTableWidget::cellDoubleClicked, this, &GameListTable::on_cell_double_clicked);
 }
 
@@ -71,5 +50,23 @@ void GameListTable::on_cell_double_clicked(int row, int column) {
     LobbyWindow* game_menu = qobject_cast<LobbyWindow*>(this->parent());
     if (game_menu) {
         game_menu->join_game(this->get_selected_game());
+    }
+}
+
+void GameListTable::update_game_list(const std::vector<GameInfo>& game_list) {
+    this->setRowCount(0);
+
+    for (const auto& game_info: game_list) {
+        int row = this->rowCount();
+        this->insertRow(row);
+
+        this->setItem(row, 0, new QTableWidgetItem(QString::fromStdString(game_info.name)));
+        this->setItem(row, 1, new QTableWidgetItem(QString::number(game_info.players_count)));
+        this->setItem(row, 2,
+                      new QTableWidgetItem(QString::fromStdString(
+                              game_info.phase == PhaseType::WarmUp  ? "Warm Up" :
+                              game_info.phase == PhaseType::Buying  ? "Buying" :
+                              game_info.phase == PhaseType::Playing ? "Playing" :
+                                                                      "Round Finished")));
     }
 }

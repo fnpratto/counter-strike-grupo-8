@@ -35,11 +35,14 @@ private:
     void add_game_title();
     void add_window_subtitle();
     void add_game_list();
+    void add_refresh_button();
     void add_player_name_input();
     void add_start_buttons();
 
     void on_create_button_clicked();
     void on_join_button_clicked();
+
+    void update_game_list();
 };
 
 #endif  // LOBBY_WINDOW_H

@@ -204,7 +204,7 @@ GameUpdate ClientProtocol::deserialize_msg<GameUpdate>(payload_t& payload) const
 
 template <>
 ListGamesResponse ClientProtocol::deserialize_msg<ListGamesResponse>(payload_t& payload) const {
-    return ListGamesResponse(deserialize_vector<std::string>(payload));
+    return ListGamesResponse(deserialize_vector<GameInfo>(payload));
 }
 
 Message ClientProtocol::deserialize_message(const MessageType& type, payload_t& payload) const {

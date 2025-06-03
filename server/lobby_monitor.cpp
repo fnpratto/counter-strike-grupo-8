@@ -37,15 +37,18 @@ pipe_t LobbyMonitor::join_game(const std::string& name) {
     return game->join_game("player_name");  // TODO: take the player name from the message
 }
 
-std::vector<std::string> LobbyMonitor::get_games_names() {
+std::vector<GameInfo> LobbyMonitor::get_games_info() {
     std::lock_guard<std::mutex> lock(mtx);
 
-    std::vector<std::string> games_names;
-    for (const auto& [name, _]: games) {
-        games_names.push_back(name);
+    std::vector<GameInfo> games_info;
+    for (const auto& [_, game]: games) {  // cppcheck-suppress[unusedVariable]
+        if (!game)
+            continue;
+
+        games_info.push_back(game->get_game_info());
     }
 
-    return games_names;
+    return games_info;
 }
 
 void LobbyMonitor::reap() {

@@ -40,4 +40,8 @@ pipe_t GameThread::join_game(const std::string& player_name) {
 
 bool GameThread::is_full() { return game.is_full(); }
 
+GameInfo GameThread::get_game_info() {
+    return GameInfo(game.get_name(), game.get_player_count(), game.get_phase());
+}
+
 void GameThread::stop() { Thread::stop(); }  // TODO: finish game

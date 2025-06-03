@@ -31,7 +31,10 @@ void LobbyWindow::init_gui() {
     this->add_window_subtitle();
     this->add_player_name_input();
     this->add_game_list();
+    this->add_refresh_button();
     this->add_start_buttons();
+
+    this->update_game_list();
 }
 
 void LobbyWindow::add_game_title() {
@@ -54,6 +57,16 @@ void LobbyWindow::add_window_subtitle() {
 void LobbyWindow::add_game_list() {
     this->game_list_table = new GameListTable(this);
     this->main_layout->addWidget(this->game_list_table);
+}
+
+void LobbyWindow::add_refresh_button() {
+    QPushButton* refresh_button = new QPushButton("Refresh Game List", this);
+    refresh_button->setDefault(true);
+    this->main_layout->addWidget(refresh_button);
+    connect(refresh_button, &QPushButton::clicked, this, [this]() {
+        this->update_game_list();
+        qDebug() << "Game list refreshed.";
+    });
 }
 
 void LobbyWindow::add_player_name_input() {
@@ -110,4 +123,14 @@ void LobbyWindow::join_game(QString game_name) {
     }
 
     this->close();
+}
+
+void LobbyWindow::update_game_list() {
+    output_queue.push(Message(ListGamesCommand()));
+    auto msg = input_queue.pop();
+    while (msg.get_type() != MessageType::LIST_GAMES_RESP) {
+        msg = input_queue.pop();
+    }
+    auto game_info_list = msg.get_content<ListGamesResponse>().get_games_info();
+    this->game_list_table->update_game_list(game_info_list);
 }
