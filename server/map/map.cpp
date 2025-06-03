@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <utility>
 
-Map::Map(const std::string& name, int tile_size): name(name), tile_size(tile_size) {}
+Map::Map(const std::string& name, int max_players): name(name), max_players(max_players) {}
 
 void Map::validate() const {
     if (tiles.empty()) {
@@ -17,6 +17,8 @@ void Map::validate() const {
         throw std::runtime_error("Map '" + name + "' has no Counter-Terrorist spawns");
     }
 }
+
+int Map::get_max_players() const { return max_players; }
 
 int Map::get_tile_size() const { return tile_size; }
 

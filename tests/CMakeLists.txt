@@ -15,6 +15,13 @@ target_sources(taller_tests
     # player
     ../server/player/player.cpp
     ../server/player/inventory.cpp
+    # states
+    ../server/states/game_state.cpp
+    ../server/states/gun_state.cpp
+    ../server/states/phase_state.cpp
+    ../server/states/player_state.cpp
+    ../server/states/inventory_state.cpp
+    ../server/states/utility_state.cpp
 
     PUBLIC
     ../common/updates/state_update.h
@@ -24,7 +31,6 @@ target_sources(taller_tests
     ../common/updates/inventory_update.h
     ../common/updates/utility_update.h
     ../common/updates/gun_update.h
-    ../server/states/game_state.h
     ../server/errors.h
     # clock
     ../server/clock/mock_clock.h
@@ -42,6 +48,14 @@ target_sources(taller_tests
     ../server/player/player.h
     ../server/player/player_config.h
     ../server/player/inventory.h
+    # states
+    ../server/states/state.h
+    ../server/states/game_state.h
+    ../server/states/gun_state.h
+    ../server/states/phase_state.h
+    ../server/states/player_state.h
+    ../server/states/inventory_state.h
+    ../server/states/utility_state.h
     # weapons
     ../server/weapons/weapons_config.h
     ../server/weapons/bullet.h

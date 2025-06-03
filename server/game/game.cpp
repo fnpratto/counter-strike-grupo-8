@@ -6,9 +6,11 @@
 #include "server/player_message.h"
 
 Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map):
-        Logic<GameState, GameUpdate>(GameState(std::move(game_clock))),
+        Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.get_max_players())),
         name(name),
         physics_system(std::move(map), state.get_players()) {}
+
+bool Game::is_full() const { return state.game_is_full(); }
 
 GameUpdate Game::tick(const std::vector<PlayerMessage>& msgs) {
     state.clear_updates();
@@ -59,13 +61,11 @@ void Game::advance_round_logic() {
     phase.advance();
 
     if (phase.is_round_finished())
-        advance_round();
+        state.advance_round();
 
     if (state.get_num_rounds() == GameConfig::max_rounds / 2)
-        swap_teams();
+        state.swap_players_teams();
 }
-
-void Game::advance_round() { state.set_num_rounds(state.get_num_rounds() + 1); }
 
 void Game::advance_players_movement() {
     std::map<std::string, PlayerUpdate> game_players_update;
@@ -83,8 +83,11 @@ void Game::advance_players_movement() {
 GameUpdate Game::join_player(const std::string& player_name) {
     if (player_name.empty())
         throw InvalidPlayerNameError();
-    if (player_is_in_game(player_name) || is_full() || state.get_phase().is_started())
+    if (state.player_is_in_game(player_name))
         throw JoinGameError();
+    if (is_full() || state.get_phase().is_started())
+        // TODO: Error response
+        return state.get_full_update();
 
     Team default_team = (state.get_num_tts() > state.get_num_cts()) ? Team::CT : Team::TT;
     if (default_team == Team::TT) {
@@ -99,51 +102,45 @@ GameUpdate Game::join_player(const std::string& player_name) {
 }
 
 void Game::handle_select_team_msg(const std::string& player_name, Team team) {
-    const std::unique_ptr<Player>& player = state.get_player(player_name);
     if (state.get_phase().is_started())
         throw SelectTeamError();
-    if (team_is_full(team))
-        // TODO: Return error response
+    if (state.team_is_full(team))
+        // TODO: Error response
         return;
 
-    Team old_team = player->is_tt() ? Team::TT : Team::CT;
-
-    if (old_team == team)
-        return;
-
-    player->select_team(team);
+    state.get_player(player_name)->select_team(team);
 }
 
 void Game::handle_start_game_msg(const std::string& player_name) {
     if (state.get_phase().is_started())
         throw StartGameError();
 
-    auto& player = state.get_player(player_name);
-    player->set_ready();
-    if (all_players_ready()) {
+    state.get_player(player_name)->set_ready();
+    if (state.all_players_ready()) {
         give_bomb_to_random_tt();
         state.get_phase().start_buying_phase();
     }
 }
 
 void Game::handle_buy_gun_msg(const std::string& player_name, GunType gun) {
-    auto& player = state.get_player(player_name);
     if (!state.get_phase().is_buying_phase())
         throw BuyGunError();
-    // if (physics_system.player_not_in_spawn(player))
+    // if (physics_system.player_not_in_spawn(player_name))
     //     return;
 
+    auto& player = state.get_player(player_name);
     shop.buy_gun(player->get_inventory(), gun);
 }
 
 // TODO this could take a WeaponSlot instead of GunType
 void Game::handle_buy_ammo_msg(const std::string& player_name, GunType gun) {
-    auto& player = state.get_player(player_name);
     if (!state.get_phase().is_buying_phase())
         throw BuyAmmoError();
-    // if (physics_system.player_not_in_spawn(player))
+    // if (physics_system.player_not_in_spawn(player_name))
     //     return;
+
     WeaponSlot slot = (gun == GunType::Glock) ? WeaponSlot::Secondary : WeaponSlot::Primary;
+    auto& player = state.get_player(player_name);
     shop.buy_ammo(player->get_inventory(), slot);
 }
 
@@ -152,19 +149,16 @@ void Game::handle_move_msg(const std::string& player_name, const Vector2D& direc
         return;
 
     auto& player = state.get_player(player_name);
-
     player->start_moving(direction);
 }
 
 void Game::handle_stop_player_msg(const std::string& player_name) {
     auto& player = state.get_player(player_name);
-
     player->stop_moving();
 }
 
 void Game::handle_aim_msg(const std::string& player_name, float x, float y) {
     auto& player = state.get_player(player_name);
-
     player->aim(x, y);
 }
 
@@ -208,36 +202,4 @@ void Game::give_bomb_to_random_tt() {
     player->pick_bomb();
 }
 
-void Game::swap_teams() {
-    for (auto& [_, player]: state.get_players()) {  // cppcheck-suppress[unusedVariable]
-        if (player->is_tt()) {
-            player->select_team(Team::CT);
-        } else if (player->is_ct()) {
-            player->select_team(Team::TT);
-        }
-    }
-}
-
 Game::~Game() {}
-
-bool Game::player_is_in_game(const std::string& player_name) const {
-    return state.get_players().find(player_name) != state.get_players().end();
-}
-
-bool Game::is_full() const {
-    return static_cast<int>(state.get_players().size()) == GameConfig::max_players;
-}
-
-bool Game::team_is_full(const Team& team) const {
-    if (team == Team::TT)
-        return state.get_num_tts() == GameConfig::max_team_players;
-    return state.get_num_cts() == GameConfig::max_team_players;
-}
-
-bool Game::all_players_ready() const {
-    for (auto& [_, player]: state.get_players()) {  // cppcheck-suppress[unusedVariable]
-        if (!player->is_ready())
-            return false;
-    }
-    return true;
-}

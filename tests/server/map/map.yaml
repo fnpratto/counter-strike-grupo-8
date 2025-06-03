@@ -1,5 +1,5 @@
 name: test_map
-tile_size: 16
+max_players: 10
 tiles:
   floors:
     - x: 1

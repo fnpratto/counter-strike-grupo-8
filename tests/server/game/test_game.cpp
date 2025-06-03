@@ -21,11 +21,13 @@ class TestGame: public ::testing::Test {
 protected:
     std::shared_ptr<MockClock> clock;
     Map map;
+    int max_players;
     Game game;
 
     TestGame():
             clock(std::make_shared<MockClock>(std::chrono::steady_clock::now())),
             map(MapBuilder("./tests/server/map/map.yaml").build()),
+            max_players(map.get_max_players()),
             game("test_game", clock, std::move(map)) {}
 
     void advance_secs(int secs) { clock->advance(std::chrono::seconds(secs)); }
@@ -48,13 +50,12 @@ TEST_F(TestGame, PlayerCannotJoinGameWithInvalidName) {
 }
 
 TEST_F(TestGame, PlayersCanJoinGameUntilItIsFull) {
-    for (int i = 1; i <= GameConfig::max_players; i++) {
+    for (int i = 1; i <= max_players; i++) {
         game.join_player("test_player_" + std::to_string(i));
     }
-    EXPECT_THROW({ game.join_player("extra_player"); }, JoinGameError);
-
+    game.join_player("extra_player");
     GameUpdate update = game.get_full_update();
-    EXPECT_EQ(static_cast<int>(update.get_players().size()), GameConfig::max_players);
+    EXPECT_EQ(static_cast<int>(update.get_players().size()), max_players);
 }
 
 TEST_F(TestGame, PlayerCanSelectTeam) {
@@ -74,12 +75,13 @@ TEST_F(TestGame, PlayerCanSelectTeam) {
 
 TEST_F(TestGame, PlayerJoinFullTeam) {
     Message msg_select_team = Message(SelectTeamCommand(Team::TT));
-    for (int i = 1; i <= GameConfig::max_team_players; i++) {
+    int max_team_players = max_players / 2;
+    for (int i = 1; i <= max_team_players; i++) {
         game.join_player("test_player_" + std::to_string(i));
         game.tick({PlayerMessage("test_player_" + std::to_string(i), msg_select_team)});
     }
     GameUpdate update = game.join_player("extra_player");
-    EXPECT_EQ(static_cast<int>(update.get_players().size()), GameConfig::max_team_players + 1);
+    EXPECT_EQ(static_cast<int>(update.get_players().size()), max_team_players + 1);
 
     GameUpdate updates = game.tick({PlayerMessage("extra_player", msg_select_team)});
     EXPECT_FALSE(updates.has_players_changed());
@@ -103,7 +105,9 @@ TEST_F(TestGame, PlayerCannotJoinStartedGame) {
     Message msg_start = Message(StartGameCommand());
     game.tick({PlayerMessage("test_player", msg_start)});
 
-    EXPECT_THROW({ game.join_player("another_player"); }, JoinGameError);
+    game.join_player("another_player");
+    GameUpdate update = game.get_full_update();
+    EXPECT_EQ(static_cast<int>(update.get_players().size()), 1);
 }
 
 TEST_F(TestGame, PlayerCannotSelectTeamWhenStartedGame) {

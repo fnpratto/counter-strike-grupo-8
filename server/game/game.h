@@ -38,13 +38,9 @@ public:
     ~Game();
 
 private:
-    bool player_is_in_game(const std::string& player_name) const;
     bool team_is_full(const Team& team) const;
-    bool all_players_ready() const;
 
     void give_bomb_to_random_tt();
-
-    void swap_teams();
 
     void handle_msg(const Message& msg, const std::string& player_name);
     void handle_select_team_msg(const std::string& player_name, Team team);
@@ -61,8 +57,6 @@ private:
     void handle_switch_weapon_msg(const std::string& player_name, WeaponSlot slot);
     void handle_reload_msg(const std::string& player_name);
 
-
     void advance_players_movement();
     void advance_round_logic();
-    void advance_round();
 };

@@ -11,28 +11,13 @@ class PhaseState: public State<PhaseUpdate> {
     TimePoint time;
 
 public:
-    PhaseState(PhaseType phase_type, TimePoint time_point): phase(phase_type), time(time_point) {
-        updates = get_full_update();
-    }
+    PhaseState(PhaseType phase_type, TimePoint time_point);
 
-    PhaseType get_phase() const { return phase; }
-    TimePoint get_time() const { return time; }
+    PhaseType get_phase() const;
+    TimePoint get_time() const;
 
-    void set_phase(PhaseType new_phase) {
-        phase = new_phase;
-        updates.set_phase(new_phase);
-    }
-    void set_time(TimePoint new_time) {
-        if (time == new_time)
-            return;
-        time = new_time;
-        updates.set_time(new_time);
-    }
+    void set_phase(PhaseType new_phase);
+    void set_time(TimePoint new_time);
 
-    PhaseUpdate get_full_update() const override {  // cppcheck-suppress[virtualCallInConstructor]
-        PhaseUpdate full_update;
-        full_update.set_phase(phase);
-        full_update.set_time(time);
-        return full_update;
-    }
+    PhaseUpdate get_full_update() const override;  // cppcheck-suppress[virtualCallInConstructor]
 };

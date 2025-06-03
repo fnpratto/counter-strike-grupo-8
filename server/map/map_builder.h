@@ -26,8 +26,8 @@ public:
         YAML::Node map_data = YAML::LoadFile(filename);
 
         std::string name = map_data["name"].as<std::string>();
-        int tile_size = map_data["tile_size"].as<int>();
-        Map map(name, tile_size);
+        int max_players = map_data["max_players"].as<int>();
+        Map map(name, max_players);
 
         YAML::Node tiles = map_data["tiles"];
         if (tiles["floors"]) {

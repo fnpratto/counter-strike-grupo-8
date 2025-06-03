@@ -35,7 +35,6 @@ public:
     std::map<GunType, int> get_gun_prices() const { return gun_prices; }
     std::map<GunType, int> get_mag_prices() const { return mag_prices; }
 
-    // TODO this should take an Inventory
     void buy_gun(Inventory& inventory, const GunType& gun_type) const {
         int price = gun_prices.at(gun_type);
         if (inventory.get_money() < price)
@@ -45,7 +44,6 @@ public:
         inventory.set_money(inventory.get_money() - price);
     }
 
-    // TODO this should take an Inventory
     void buy_ammo(Inventory& inventory, const WeaponSlot& slot) const {
         GunType gun_type = inventory.get_gun(slot)->get_type();
         int price = mag_prices.at(gun_type);

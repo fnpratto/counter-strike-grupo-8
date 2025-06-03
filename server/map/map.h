@@ -5,12 +5,14 @@
 
 #include "common/utils/vector_2d.h"
 
+#include "map_config.h"
 #include "tile.h"
 
 class Map {
 private:
     std::string name;
-    int tile_size;
+    int max_players;
+    int tile_size = MapConfig::tile_size;
     std::vector<Tile> tiles;
     std::vector<Vector2D> spawns_tts;
     std::vector<Vector2D> spawns_cts;
@@ -19,10 +21,11 @@ private:
     Vector2D random_spawn_pos(const std::vector<Vector2D>& spawns) const;
 
 public:
-    Map(const std::string& name, int tile_size);
+    Map(const std::string& name, int max_players);
 
     void validate() const;
 
+    int get_max_players() const;
     int get_tile_size() const;
 
     void add_tile(MapTileType type, Vector2D&& grid_pos);
