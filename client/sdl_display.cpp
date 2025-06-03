@@ -124,7 +124,9 @@ void SDLDisplay::run() {
 
             update_game();
             window.fill();
-            apply_game_update(hudDisplay);
+            // apply_game_update(hudDisplay);
+            hudDisplay.update(state);
+            hudDisplay.render();
             window.render();
         }
     } catch (std::exception& e) {

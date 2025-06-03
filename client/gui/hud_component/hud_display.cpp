@@ -59,18 +59,23 @@ hudDisplay::hudDisplay(SdlWindow& window):
     hudData.life = 85;
     hudData.bullets = 30;
     hudData.roundNumber = 10;
+    // hudData.timer = std::chrono::steady_clock::now();
+    hudData.scoreTT = 0;
+    hudData.scoreCT = 0;
+
     // hudData.equippedGuns = {"ak47_k.xcf", "aug_k.xcf", "elite_k.xcf"};
 }
 
 
 void hudDisplay::update(GameUpdate state) {
 
-    std::string name = "player_name";
+    std::string name = "Player1";
     hudData.money = state.get_players().at(name).get_inventory().get_money();
     hudData.life = state.get_players().at(name).get_health();
-    // hudData.bullets =state.get_players().at(name).get_inventory()
+    //  hudData.bullets = state.get_players().at(name).get_inventory().;
     hudData.timer = state.get_phase().get_time();
     hudData.roundNumber = state.get_num_rounds();
+
     // hudData.equippedGuns = std::vector<std::string>(
     // state.get_players().at(name).get_inventory().get_guns().begin(),
     // state.get_players().at(name).get_inventory().get_guns().end());
@@ -181,14 +186,13 @@ void hudDisplay::renderLife() {
 
 
 void hudDisplay::renderTimer() {
-    int minutesIdx =
+
+    int totalSeconds =
             std::chrono::duration_cast<std::chrono::seconds>(hudData.timer.time_since_epoch())
-                    .count() /
-            60;  // no idea si funciona esto
-    int seconds = std::chrono::duration_cast<std::chrono::seconds>(hudData.timer.time_since_epoch())
-                          .count() %
-                  60;
-    int secondsIdxH = std::floor(seconds / 10);
+                    .count();
+    int minutesIdx = totalSeconds / 60;
+    int seconds = totalSeconds % 60;
+    int secondsIdxH = seconds / 10;
     int secondsIdxL = seconds % 10;
 
     int totalTimerWidth = layout.digitSpacing * 4 + 10;
