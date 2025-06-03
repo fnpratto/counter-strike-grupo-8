@@ -170,15 +170,21 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
 
 // === Deserialization ===
 
-#define X_DESERIALIZE_UPDATE(type, attr)    \
-    type attr = deserialize<type>(payload); \
-    result.set_##attr(attr);
-#define M_DESERIALIZE_UPDATE(key_type, value_type, attr)                                  \
-    std::map<key_type, value_type> attr = deserialize_map<key_type, value_type>(payload); \
-    result.set_##attr(attr);
-#define U_DESERIALIZE_UPDATE(type, attr)           \
-    type attr = deserialize_update<type>(payload); \
-    result.set_##attr(attr);
+#define X_DESERIALIZE_UPDATE(type, attr)        \
+    if (deserialize<bool>(payload)) {           \
+        type attr = deserialize<type>(payload); \
+        result.set_##attr(attr);                \
+    }
+#define M_DESERIALIZE_UPDATE(key_type, value_type, attr)                                      \
+    if (deserialize<bool>(payload)) {                                                         \
+        std::map<key_type, value_type> attr = deserialize_map<key_type, value_type>(payload); \
+        result.set_##attr(attr);                                                              \
+    }
+#define U_DESERIALIZE_UPDATE(type, attr)               \
+    if (deserialize<bool>(payload)) {                  \
+        type attr = deserialize_update<type>(payload); \
+        result.set_##attr(attr);                       \
+    }
 
 #define DESERIALIZE_UPDATE(CLASS, ATTRS)                                         \
     template <>                                                                  \
