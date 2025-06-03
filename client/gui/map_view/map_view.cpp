@@ -12,7 +12,11 @@ Map::Map(SdlWindow& window):
         character(CHARACTER_PATH, window),
         tiles(TILES_PATH, window),
         DISPLAY_WIDTH(window.getWidth()),
-        DISPLAY_HEIGHT(window.getHeight()) {}
+        DISPLAY_HEIGHT(window.getHeight()),
+        map_data({Vector2D(100, 100)}) {
+    std::cout << "Map initialized with position: (" << map_data.position.get_x() << ", "
+              << map_data.position.get_y() << ")" << std::endl;
+}
 
 void Map::load_map(/*int map_id*/) {
 
@@ -34,11 +38,19 @@ void Map::load_map(/*int map_id*/) {
     }*/
 }
 
+void Map::update(GameUpdate state) {
+    map_data.position = state.get_players().at("Player1").get_pos();
+    std::cout << "Map position updated to: (" << map_data.position.get_x() << ", "
+              << map_data.position.get_y() << ")" << std::endl;
+}
+
 
 void Map::render() {
 
     Area src(0, 0, 28, 29);
-    Area iconDest(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, 30, 10);
+    Area iconDest(100, 100, 50, 50);
+    std::cout << "Rendering map at position: (" << map_data.position.get_x() << ", "
+              << map_data.position.get_y() << ")" << std::endl;
 
     character.render(src, iconDest);
 }

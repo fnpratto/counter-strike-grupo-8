@@ -13,8 +13,13 @@
 #include "../window_elements/area.h"
 #include "../window_elements/sdl_texture.h"
 #include "../window_elements/sdl_window.h"
+#include "common/updates/game_update.h"
 
 // #include "camera.h"
+struct MapData {
+    Vector2D position;
+};
+
 
 class Map {
 public:
@@ -23,6 +28,7 @@ public:
     void load_map(/*int map_id*/);
 
     void render();
+    void update(GameUpdate state);
 
 private:
     SdlWindow& window;
@@ -31,6 +37,7 @@ private:
     SdlTexture tiles;
     int DISPLAY_WIDTH;
     int DISPLAY_HEIGHT;
+    MapData map_data;
 };
 
 #endif  // MAP_VIEW_H
