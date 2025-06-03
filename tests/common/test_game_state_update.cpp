@@ -71,7 +71,7 @@ TEST_F(TestGameUpdate, MapMerging) {
     std::map<std::string, PlayerUpdate> players2;
     players2["player2"] = player3;  // This should merge with existing player2
     PlayerUpdate player4;
-    player4.set_pos(Vector2D(10.5f, 0));
+    player4.set_pos(Vector2D(10, 0));
     players2["player4"] = player4;  // New player
     update2.set_players(players2);
 
@@ -102,7 +102,7 @@ TEST_F(TestGameUpdate, MapMerging) {
     // Check player4 was added
     EXPECT_TRUE(merged_players.count("player4"));
     EXPECT_TRUE(merged_players["player4"].has_pos_changed());
-    EXPECT_EQ(merged_players["player4"].get_pos().get_x(), 10.5f);
+    EXPECT_EQ(merged_players["player4"].get_pos().get_x(), 10);
 }
 
 TEST_F(TestGameUpdate, NestedUpdateMerging) {
