@@ -15,7 +15,8 @@
 
 class MouseHandler {
 public:
-    explicit MouseHandler(Queue<Message>& output_queue):
+    explicit MouseHandler(
+            Queue<Message>& output_queue /*,ListTeams& listTeamsRef , Shop& shopRef*/):
 
             output_queue(output_queue) {}
     void handleEvent(const SDL_Event& event /*, bool shop, bool list_teams*/);

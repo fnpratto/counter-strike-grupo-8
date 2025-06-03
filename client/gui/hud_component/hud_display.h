@@ -8,6 +8,7 @@
 #include "../window_elements/sdl_text.h"
 #include "../window_elements/sdl_texture.h"
 #include "../window_elements/sdl_window.h"
+#include "common/updates/game_update.h"
 
 #include "bit_map_font_number.h"
 
@@ -27,10 +28,10 @@ struct HudData {
     int money;
     int life;
     int bullets;
-    int timer;  // in seconds or ticks (depending on your timer system)
+    TimePoint timer;  // in seconds or ticks (depending on your timer system)
     int roundNumber;
-    std::vector<std::string> equippedGuns;  // paths to gun icons (e.g., "ak47_k.xcf", etc.)
-    int selectedGunIndex;
+    // std::vector<std::string> equippedGuns;  // paths to gun icons (e.g., "ak47_k.xcf", etc.)
+    // std::optional<WeaponSlot> selectedGunIndex;
     int scoreTT;
     int scoreCT;  // index of the currently selected gun
 };
@@ -39,7 +40,7 @@ public:
     explicit hudDisplay(SdlWindow& window);
     void render();
     void updatePointerPosition(int x, int y);
-    void update(int currentClockTick);
+    void update(GameUpdate state);
     HudData hudData;
 
 private:
@@ -78,10 +79,6 @@ private:
     void renderRoundText();
     void renderBullets();
     void renderGunIcons();
-
-    void show_timer();
-
-    void updateComponents();
 
     void renderGunIcon(const std::string& path, const std::string& number, int x, int y);
     void renderDigits(const std::string& str, int x, int y, BitmapFont& texture);

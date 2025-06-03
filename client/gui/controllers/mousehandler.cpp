@@ -41,7 +41,7 @@ void MouseHandler::handleEvent(const SDL_Event& event /*, bool shop, bool list_t
                     }
                     return;
                 }*/
-                output_queue.push(Message(ShootCommand()));
+                // output_queue.push(Message(ShootCommand()));
                 std::cout << "ShootCommand sent with coordinates: (" << x << ", " << y << ")"
                           << std::endl;
                 break;
@@ -52,6 +52,6 @@ void MouseHandler::handleEvent(const SDL_Event& event /*, bool shop, bool list_t
     } else if (event.type == SDL_MOUSEMOTION) {
         SDL_GetMouseState(&x, &y);
         sendNormalizedCoordinates(x, y);
-        //  hudDisplayRef.updatePointerPosition(x, y);
+        // hudDisplayRef.updatePointerPosition(x, y);
     }
 }

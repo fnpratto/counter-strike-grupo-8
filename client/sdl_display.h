@@ -23,7 +23,6 @@
 class SDLDisplay: public Display {
 public:
     explicit SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue);
-
     void run() override;
     void stop() override;
 
@@ -32,7 +31,7 @@ private:
     std::unique_ptr<SDLInput> input_handler;
     void update_game();
     void handle_msg(const Message& msg);
-    void apply_game_update();
+    void apply_game_update(hudDisplay hudDisplay);
     GameUpdate state;
     GameUpdate receive_initial_state();
 };

@@ -40,9 +40,8 @@ GameUpdate SDLDisplay::receive_initial_state() {
 SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue):
         Display(input_queue, output_queue),
         quit_flag(false),
-        input_handler(std::make_unique<SDLInput>(output_queue, quit_flag)) {
-    state = receive_initial_state();
-}
+        input_handler(std::make_unique<SDLInput>(output_queue, quit_flag)),
+        state(receive_initial_state()) {}
 
 void SDLDisplay::run() {
     char* basePath = SDL_GetBasePath();
@@ -94,8 +93,8 @@ void SDLDisplay::run() {
         // Map map(window);
         listTeams listTeams(window);
 
-        bool shop = false;
-        // bool list_teams = true;
+        // bool shop = false;
+        //  bool list_teams = true;
         int clock = 0;  // por ahora
 
         while (!quit_flag) {
@@ -123,20 +122,9 @@ void SDLDisplay::run() {
                 accumulated_time -= 1000;
             }
 
-            /*update --> pull event from the queue*/  // TODO
             update_game();
             window.fill();
-            if (clock > 20) {
-                hudDisplay.update(clock);
-                // map.render();
-                if (shop) {
-                    shopDisplay.render();
-                }
-                // list_teams = false;
-            } else {
-
-                listTeams.update(clock);
-            }
+            apply_game_update(hudDisplay);
             window.render();
         }
     } catch (std::exception& e) {
@@ -168,12 +156,25 @@ void SDLDisplay::update_game() {
 void SDLDisplay::handle_msg(const Message& msg) {
     const GameUpdate& update = msg.get_content<GameUpdate>();
     state = state.merged(update);
-    apply_game_update();
     std::cout << "Applied GameUpdate" << std::endl;
 }
 
-void SDLDisplay::apply_game_update() {
-    // avisar a quien sea
+void SDLDisplay::apply_game_update(hudDisplay hudDisplay) {
+    hudDisplay.update(state);
+    // map.update(state);s
+    // listTeams.update(state);
+
+    // if (clock > 20) {
+    // hudDisplay.update(clock);
+    //  map.render();
+    /*if (shop) {
+        shopDisplay.render();
+    }*/
+    // list_teams = false;
+    //} else {
+
+    // listTeams.update(clock);
+    //}
 }
 
 #pragma GCC diagnostic pop

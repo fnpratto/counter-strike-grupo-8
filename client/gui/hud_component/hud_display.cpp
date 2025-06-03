@@ -58,19 +58,25 @@ hudDisplay::hudDisplay(SdlWindow& window):
     hudData.money = 1000;
     hudData.life = 85;
     hudData.bullets = 30;
-    hudData.timer = 1023;
     hudData.roundNumber = 10;
-    hudData.equippedGuns = {"ak47_k.xcf", "aug_k.xcf", "elite_k.xcf"};
-    hudData.selectedGunIndex = 0;
+    // hudData.equippedGuns = {"ak47_k.xcf", "aug_k.xcf", "elite_k.xcf"};
 }
 
 
-void hudDisplay::update(/*const PlayerDTO& player_info,*/ int currentClockTick) {
+void hudDisplay::update(GameUpdate state) {
 
-    hudData.money = 1000;
-    hudData.life = 100;
-    hudData.bullets = 30;
-    hudData.timer = currentClockTick;
+    std::string name = "player_name";
+    hudData.money = state.get_players().at(name).get_inventory().get_money();
+    hudData.life = state.get_players().at(name).get_health();
+    // hudData.bullets =state.get_players().at(name).get_inventory()
+    hudData.timer = state.get_phase().get_time();
+    hudData.roundNumber = state.get_num_rounds();
+    // hudData.equippedGuns = std::vector<std::string>(
+    // state.get_players().at(name).get_inventory().get_guns().begin(),
+    // state.get_players().at(name).get_inventory().get_guns().end());
+    // hudData.selectedGunIndex = state.get_players().at(name).get_current_weapon();
+    hudData.scoreTT = 0;
+    hudData.scoreCT = 0;
 }
 
 
@@ -175,8 +181,13 @@ void hudDisplay::renderLife() {
 
 
 void hudDisplay::renderTimer() {
-    int minutesIdx = std::floor(hudData.timer / 60);
-    int seconds = hudData.timer % 60;
+    int minutesIdx =
+            std::chrono::duration_cast<std::chrono::seconds>(hudData.timer.time_since_epoch())
+                    .count() /
+            60;  // no idea si funciona esto
+    int seconds = std::chrono::duration_cast<std::chrono::seconds>(hudData.timer.time_since_epoch())
+                          .count() %
+                  60;
     int secondsIdxH = std::floor(seconds / 10);
     int secondsIdxL = seconds % 10;
 
