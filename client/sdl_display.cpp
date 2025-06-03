@@ -16,9 +16,11 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
 
-SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue):
+SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue,
+                       const std::string& player_name):
         Display(input_queue, output_queue),
         state(get_initial_state()),
+        player_name(player_name),
         quit_flag(false),
         input_handler(std::make_unique<SDLInput>(output_queue, quit_flag)) {}
 
