@@ -9,18 +9,18 @@
 
 GameThread::GameThread(const std::string& name):
         game(name, std::make_unique<RealClock>(),
-             std::move(MapBuilder("./tests/server/map/map.yaml").build())),
+             std::move(MapBuilder("../tests/server/map/map.yaml").build())),
         input_queue(std::make_shared<Queue<PlayerMessage>>()) {}
 
 // TODO: Tick rate
 void GameThread::run() {
+
     while (should_keep_running()) {
         std::vector<PlayerMessage> msgs;
         for (int i = 0; i < MSG_BATCH_SIZE; ++i) {
             PlayerMessage msg;
             if (!input_queue->try_pop(msg))
                 break;  // No more messages to process
-
             msgs.push_back(msg);
         }
         game.tick(msgs);  // TODO Replace "player_name" with actual player name

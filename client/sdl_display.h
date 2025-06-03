@@ -19,4 +19,6 @@ public:
 private:
     std::atomic<bool> quit_flag;
     std::unique_ptr<SDLInput> input_handler;
+    void update_game();
+    void handle_msg(const Message& msg /*, const std::string& player_name*/);
 };

@@ -14,7 +14,7 @@ void MouseHandler::sendNormalizedCoordinates(int x, int y) {
     // Optional: Clamp values between 0 and 1 just in case
     norm_x = std::max(0.0f, std::min(1.0f, norm_x));
     norm_y = std::max(0.0f, std::min(1.0f, norm_y));
-    inputQueue.push(Message(AimCommand(norm_x, norm_y)));
+    // output_queue.push(Message(AimCommand(norm_x, norm_y)));
 }
 
 void MouseHandler::handleEvent(const SDL_Event& event /*, bool shop, bool list_teams*/) {
@@ -41,7 +41,7 @@ void MouseHandler::handleEvent(const SDL_Event& event /*, bool shop, bool list_t
                     }
                     return;
                 }*/
-                inputQueue.push(Message(ShootCommand()));
+                output_queue.push(Message(ShootCommand()));
                 std::cout << "ShootCommand sent with coordinates: (" << x << ", " << y << ")"
                           << std::endl;
                 break;
@@ -52,6 +52,6 @@ void MouseHandler::handleEvent(const SDL_Event& event /*, bool shop, bool list_t
     } else if (event.type == SDL_MOUSEMOTION) {
         SDL_GetMouseState(&x, &y);
         sendNormalizedCoordinates(x, y);
-        // hudDisplayRef.updatePointerPosition(x, y);
+        //  hudDisplayRef.updatePointerPosition(x, y);
     }
 }

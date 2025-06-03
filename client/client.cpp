@@ -56,7 +56,7 @@ void Client::run() {
     cleanup();
 }
 
-bool Client::connect_to_server() noexcept {
+bool Client::connect_to_server() {
     Message msg;
     while (true) {
         msg = pregame_queue.pop();

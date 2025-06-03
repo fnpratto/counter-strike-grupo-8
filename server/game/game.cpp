@@ -13,7 +13,6 @@ Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& m
 GameUpdate Game::tick(const std::vector<PlayerMessage>& msgs) {
     state.clear_updates();
     for (const PlayerMessage& msg: msgs) handle_msg(msg.get_message(), msg.get_player_name());
-
     advance_players_movement();
     advance_round_logic();
     return state.get_updates();
@@ -21,6 +20,8 @@ GameUpdate Game::tick(const std::vector<PlayerMessage>& msgs) {
 
 void Game::handle_msg(const Message& msg, const std::string& player_name) {
     MessageType msg_type = msg.get_type();
+    std::cout << "Game::handle_msg: Received message of type: " << static_cast<int>(msg_type)
+              << " from player: " << player_name << "\n";
     if (msg_type == MessageType::SELECT_TEAM_CMD) {
         Team team = msg.get_content<SelectTeamCommand>().get_team();
         handle_select_team_msg(player_name, team);

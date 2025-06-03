@@ -157,14 +157,14 @@ std::optional<Team> listTeams::updatePointerPosition(int x, int y) {
         y <= terrorist_y + slot_height) {
         std::cerr << "Mouse is over Terrorist slot." << std::endl;
         selected_team = 1;  // terrorist
-        return Team::Terrorist;
+        return Team::TT;
     }
 
     // Check if the pointer is over the counter-terrorist slot
     if (x >= counter_terrorist_x && x <= counter_terrorist_x + slot_width &&
         y >= counter_terrorist_y && y <= counter_terrorist_y + slot_height) {
         selected_team = 0;  // counter
-        return Team::CounterTerrorist;
+        return Team::CT;
     }
     return std::nullopt;
 }

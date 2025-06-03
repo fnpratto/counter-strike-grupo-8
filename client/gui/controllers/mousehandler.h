@@ -15,14 +15,14 @@
 
 class MouseHandler {
 public:
-    explicit MouseHandler(Queue<Message>& inputQueue):
+    explicit MouseHandler(Queue<Message>& output_queue):
 
-            inputQueue(inputQueue) {}
+            output_queue(output_queue) {}
     void handleEvent(const SDL_Event& event /*, bool shop, bool list_teams*/);
 
 
 private:
-    Queue<Message>& inputQueue;
+    Queue<Message>& output_queue;
 
     void sendNormalizedCoordinates(int x, int y);
 };

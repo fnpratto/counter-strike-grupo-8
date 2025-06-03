@@ -5,7 +5,7 @@
 #include <SDL2/SDL.h>
 
 
-KeyboardHandler::KeyboardHandler(Queue<Message>& inputQueue): inputQueue(inputQueue) {
+KeyboardHandler::KeyboardHandler(Queue<Message>& output_queue): output_queue(output_queue) {
     // Constructor implementation can be empty or contain initialization logic if needed
 }
 
@@ -46,7 +46,7 @@ void KeyboardHandler::update_direction() {
     }
 
     if (dx != 0 || dy != 0) {
-        inputQueue.push(Message(MoveCommand(dx, dy)));
+        output_queue.push(Message(MoveCommand(Vector2D(dx, dy))));
         std::cout << "KEY_PRESS_MOVE: dx=" << dx << ", dy=" << dy << std::endl;
     }
 }
