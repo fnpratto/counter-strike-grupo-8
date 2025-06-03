@@ -47,20 +47,13 @@ void SDLDisplay::setup() {
         SDL_Quit();
         exit(1);
     }
-
-    /*TODO maybe will change*/
-    Uint32 RATE = 16;  // Define RATE as the frame duration in milliseconds (e.g., 16ms for ~60 FPS)
-    Uint32 frame_start = SDL_GetTicks();
-    Uint32 frame_end;
-    Uint32 behind;
-    Uint32 lost;
 }
 
 void SDLDisplay::run() {
     setup();
 
     SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
-    hudDisplay hud_display(window);
+    hudDisplay hud_display(window, state, player_name);
     shopDisplay shop_display(window);
     // Map map(window);
     listTeams list_teams(window);
@@ -144,7 +137,6 @@ void SDLDisplay::update_state() {
 }
 
 void SDLDisplay::update_display(hudDisplay& hud_display) {
-    hud_display.update(state);
     hud_display.render();
     // map.update(state);
 

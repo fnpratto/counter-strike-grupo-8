@@ -19,8 +19,9 @@ const std::string& PARALELO_BLUE_O_PATH = "../assets/gfx/hud/parallelogram_blue_
 const std::string& HUD_NUMS_XCF = "../assets/gfx/fonts/hud_nums.xcf";
 
 
-hudDisplay::hudDisplay(SdlWindow& window):
-        hudData(),
+hudDisplay::hudDisplay(SdlWindow& window, const GameUpdate& state, const std::string& player_name):
+        state(state),
+        player_name(player_name),
         window(window),
         SCREEN_WIDTH(window.getWidth()),
         SCREEN_HEIGHT(window.getHeight()),
@@ -37,7 +38,6 @@ hudDisplay::hudDisplay(SdlWindow& window):
         roundText(FONT_PATH, 20, {150, 150, 150, 255}, window),
         gunNumber(FONT_PATH, 20, {150, 150, 150, 255}, window),
         scoreText(FONT_PATH, 20, {255, 255, 255, 255}, window) {
-
     float BASE_WIDTH = 800.0f;
     float BASE_HEIGHT = 600.0f;
 
@@ -54,40 +54,11 @@ hudDisplay::hudDisplay(SdlWindow& window):
     layout.digitSpacing = static_cast<int>(22 * scaleRatio);
     layout.digitHeight = static_cast<int>(32 * scaleRatio);
     layout.scale = 0.5f * scaleRatio;
-
-    hudData.money = 1000;
-    hudData.life = 85;
-    hudData.bullets = 30;
-    hudData.roundNumber = 10;
-    // hudData.timer = std::chrono::steady_clock::now();
-    hudData.scoreTT = 0;
-    hudData.scoreCT = 0;
-
-    // hudData.equippedGuns = {"ak47_k.xcf", "aug_k.xcf", "elite_k.xcf"};
 }
-
-
-void hudDisplay::update(GameUpdate state) {
-
-    std::string name = "Player1";
-    hudData.money = state.get_players().at(name).get_inventory().get_money();
-    hudData.life = state.get_players().at(name).get_health();
-    //  hudData.bullets = state.get_players().at(name).get_inventory().;
-    hudData.timer = state.get_phase().get_time();
-    hudData.roundNumber = state.get_num_rounds();
-
-    // hudData.equippedGuns = std::vector<std::string>(
-    // state.get_players().at(name).get_inventory().get_guns().begin(),
-    // state.get_players().at(name).get_inventory().get_guns().end());
-    // hudData.selectedGunIndex = state.get_players().at(name).get_current_weapon();
-    hudData.scoreTT = 0;
-    hudData.scoreCT = 0;
-}
-
 
 void hudDisplay::render() {
     renderBackground();
-    renderParal();
+    renderTeamScores();
     renderPointer();
     renderMoney();
     renderLife();
@@ -114,7 +85,7 @@ void hudDisplay::renderBackground() {
 }
 
 // Render trapecio
-void hudDisplay::renderParal() {
+void hudDisplay::renderTeamScores() {
     const int trapecioWidth = SCREEN_WIDTH * 0.5;
     const int trapecioX = (SCREEN_WIDTH - trapecioWidth) / 4;
 
@@ -129,7 +100,7 @@ void hudDisplay::renderParal() {
                             paralHeight);
     parallelogram1.render(srcParallelogram1, destParallelogram1);
 
-    scoreText.setTextString(std::to_string(hudData.scoreTT));
+    scoreText.setTextString(std::to_string(0));  // TODO : Replace with actual score
     scoreText.render(Area(trapecioX - paralWidth / 4 + margin * 6, layout.padding * 3,
                           layout.size_width / 1.75, layout.size_height / 2));
 
@@ -140,7 +111,7 @@ void hudDisplay::renderParal() {
                            paralHeight);
     parallelogram.render(srcParallelogram, destParallelogram);
 
-    scoreText.setTextString(std::to_string(hudData.scoreCT));
+    scoreText.setTextString(std::to_string(0));  // TODO : Replace with actual score
     scoreText.render(
             Area(trapecioX + trapecioWidth + margin + paralWidth / 2 - layout.size_width / 4,
                  layout.padding * 3, layout.size_width / 1.75, layout.size_height / 2));
@@ -162,7 +133,8 @@ void hudDisplay::renderMoney() {
                          iconHeight);
     money.render(sizeMoney, destMoney);
 
-    std::string moneyStr = std::to_string(hudData.money);
+    std::string moneyStr =
+            std::to_string(state.get_players().at(player_name).get_inventory().get_money());
     int x = SCREEN_WIDTH - layout.size_width - layout.padding * 4;
     int y = SCREEN_HEIGHT - iconHeight - layout.padding;
     renderDigits(moneyStr, x, y, money_amount);
@@ -178,7 +150,7 @@ void hudDisplay::renderLife() {
                         iconHeight);
     life.render(sizeLife, destLife);
 
-    std::string lifeStr = std::to_string(hudData.life);
+    std::string lifeStr = std::to_string(state.get_players().at(player_name).get_health());
     int x = layout.padding + iconWidth + layout.digitSpacing / 2;
     int y = SCREEN_HEIGHT - iconHeight - layout.padding;
     renderDigits(lifeStr, x, y, life_amount);
@@ -187,9 +159,9 @@ void hudDisplay::renderLife() {
 
 void hudDisplay::renderTimer() {
 
-    int totalSeconds =
-            std::chrono::duration_cast<std::chrono::seconds>(hudData.timer.time_since_epoch())
-                    .count();
+    int totalSeconds = std::chrono::duration_cast<std::chrono::seconds>(
+                               state.get_phase().get_time().time_since_epoch())
+                               .count();
     int minutesIdx = totalSeconds / 60;
     int seconds = totalSeconds % 60;
     int secondsIdxH = seconds / 10;
@@ -214,7 +186,7 @@ void hudDisplay::renderTimer() {
 
 
 void hudDisplay::renderRoundText() {
-    roundText.setTextString("Round " + std::to_string(hudData.roundNumber));
+    roundText.setTextString("Round " + std::to_string(state.get_num_rounds()));
     roundText.render(Area(SCREEN_WIDTH / 2 - 50, layout.padding, 100, 20));
 }
 
@@ -226,7 +198,13 @@ void hudDisplay::renderBullets() {
                            SCREEN_HEIGHT - iconHeight * 3, 64 * layout.scale, 64 * layout.scale);
     equipedBullets.render(sizeBullets, destBullets);
 
-    std::string bulletsStr = std::to_string(hudData.bullets);
+    std::string bulletsStr =
+            std::to_string(state.get_players()
+                                   .at(player_name)
+                                   .get_inventory()
+                                   .get_guns()
+                                   .at(state.get_players().at(player_name).get_current_weapon())
+                                   .get_mag_ammo());
     int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 40 - layout.padding * 2;
     int y = SCREEN_HEIGHT - iconHeight * 3;
     renderDigits(bulletsStr, x, y, equipedBulletsAmount);
@@ -237,7 +215,7 @@ void hudDisplay::renderGunIcons() {
     int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 20;
     int y = SCREEN_HEIGHT / 2;
 
-    int spacing = 64;
+    static constexpr int spacing = 64;
 
     renderGunIcon("../assets/gfx/guns/ak47_k.xcf", "1", x, y);
     y += spacing;

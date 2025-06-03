@@ -24,27 +24,11 @@ struct HudLayout {
     float scale;
 };
 
-struct HudData {
-    int money;
-    int life;
-    int bullets;
-    TimePoint timer;  // in seconds or ticks (depending on your timer system)
-    int roundNumber;
-    // std::vector<std::string> equippedGuns;  // paths to gun icons (e.g., "ak47_k.xcf", etc.)
-    // std::optional<WeaponSlot> selectedGunIndex;
-    int scoreTT;
-    int scoreCT;  // index of the currently selected gun
-};
 class hudDisplay {
-public:
-    explicit hudDisplay(SdlWindow& window);
-    void render();
-    void updatePointerPosition(int x, int y);
-    void update(GameUpdate state);
-    HudData hudData;
-
-private:
+    const GameUpdate& state;
+    const std::string& player_name;
     SdlWindow& window;
+
     int SCREEN_WIDTH;
     int SCREEN_HEIGHT;
     SdlTexture back;
@@ -60,7 +44,6 @@ private:
     SdlText roundText;
     SdlText gunNumber;
     SdlText scoreText;
-
     int pointerX = SCREEN_WIDTH / 2;
     int pointerY = SCREEN_HEIGHT / 2;
     float widthRatio;
@@ -68,10 +51,14 @@ private:
     float scaleRatio;
     HudLayout layout;
 
+public:
+    explicit hudDisplay(SdlWindow& window, const GameUpdate& state, const std::string& player_name);
+    void render();
+    void updatePointerPosition(int x, int y);
 
 private:
     void renderBackground();
-    void renderParal();
+    void renderTeamScores();
     void renderPointer();
     void renderMoney();
     void renderLife();

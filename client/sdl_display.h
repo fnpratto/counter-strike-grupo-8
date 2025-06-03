@@ -22,6 +22,7 @@
 
 class SDLDisplay: public Display {
     GameUpdate state;
+    std::string player_name = "Player1";
 
     std::atomic<bool> quit_flag;
 
