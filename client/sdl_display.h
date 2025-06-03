@@ -23,7 +23,7 @@
 
 class SDLDisplay: public Display {
     GameUpdate state;
-    std::string player_name = "Player1";
+    std::string player_name;
 
     std::atomic<bool> quit_flag;
 
@@ -33,7 +33,8 @@ class SDLDisplay: public Display {
     std::unique_ptr<SDLInput> input_handler;
 
 public:
-    explicit SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue);
+    explicit SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue,
+                        const std::string& player_name);
     void run() override;
     void stop() override;
 

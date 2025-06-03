@@ -45,9 +45,10 @@ Client::Client():
 
 void Client::run() {
     if (connect_to_server()) {
+        std::string player_name;
         setup_communication();
-        wait_for_game_start();
-        switch_display();
+        wait_for_game_start(player_name);
+        switch_display(player_name);
 
         while (display->is_alive() && sender->is_alive() && receiver->is_alive())
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -97,23 +98,30 @@ void Client::setup_communication() {
     receiver->start();
 }
 
-void Client::wait_for_game_start() {
+void Client::wait_for_game_start(std::string& player_name) {
     Message msg;
     while (true) {
         msg = pregame_queue.pop();
         ingame_queue.push(msg);
 
-        if (msg.get_type() == MessageType::JOIN_GAME_CMD ||
-            msg.get_type() == MessageType::CREATE_GAME_CMD)
-            break;
+        switch (msg.get_type()) {
+            case MessageType::CREATE_GAME_CMD:
+                player_name = msg.get_content<CreateGameCommand>().get_player_name();
+                break;
+            case MessageType::JOIN_GAME_CMD:
+                player_name = msg.get_content<JoinGameCommand>().get_player_name();
+                break;
+            default:
+                continue;
+        }
     }
 }
 
-void Client::switch_display() {
+void Client::switch_display(const std::string& player_name) {
 #ifdef UI_TYPE_GUI
     display->stop();
     display->join();
-    display = std::make_unique<SDLDisplay>(display_queue, ingame_queue);
+    display = std::make_unique<SDLDisplay>(display_queue, ingame_queue, player_name);
     display->start();
     std::cout << "Switched to SDLDisplay" << std::endl;
 #elif defined(UI_TYPE_TUI)
