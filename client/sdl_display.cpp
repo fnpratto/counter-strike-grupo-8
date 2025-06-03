@@ -1,6 +1,7 @@
 #include "sdl_display.h"
 
 #include <filesystem>
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -10,43 +11,20 @@
 #include <unistd.h>
 
 #include "display.h"
+#include "sdl_input.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
 
-// display = std::make_unique<SDLDisplay>(display_queue, ingame_queue);
-
-/*    sender = std::make_unique<ClientSender>(protocol, ingame_queue);
-sender->start();
-
-// Feed the receiver queue to the display
-receiver = std::make_unique<ClientReceiver>(protocol, display_queue);
-
-//*/
-
-GameUpdate SDLDisplay::receive_initial_state() {
-    Message msg;
-    while (true) {
-        msg = input_queue.pop();
-        if (msg.get_type() == MessageType::GAME_UPDATE) {
-            return msg.get_content<GameUpdate>();
-        } else {
-            std::cerr << "Received unexpected message type: " << static_cast<int>(msg.get_type())
-                      << std::endl;
-        }
-    }
-}
-
 SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue):
         Display(input_queue, output_queue),
+        state(get_initial_state()),
         quit_flag(false),
-        input_handler(std::make_unique<SDLInput>(output_queue, quit_flag)),
-        state(receive_initial_state()) {}
+        input_handler(std::make_unique<SDLInput>(output_queue, quit_flag)) {}
 
-void SDLDisplay::run() {
+void SDLDisplay::setup() {
     char* basePath = SDL_GetBasePath();
     if (basePath) {
-
         if (chdir(basePath) != 0) {
             std::cerr << "chdir failed: " << strerror(errno) << std::endl;
         }
@@ -56,9 +34,6 @@ void SDLDisplay::run() {
     }
 
     input_handler->start();
-
-    std::cout << "Initialized new GameState" << std::endl;
-
 
     // FOR FULL SIZE
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -72,12 +47,6 @@ void SDLDisplay::run() {
         SDL_Quit();
         exit(1);
     }
-    /*int SCREEN_WIDTH = displayMode.w;
-    int SCREEN_HEIGHT = displayMode.h - 150;*/
-
-
-    const int SCREEN_WIDTH = 800;
-    const int SCREEN_HEIGHT = 600;
 
     /*TODO maybe will change*/
     Uint32 RATE = 16;  // Define RATE as the frame duration in milliseconds (e.g., 16ms for ~60 FPS)
@@ -85,52 +54,59 @@ void SDLDisplay::run() {
     Uint32 frame_end;
     Uint32 behind;
     Uint32 lost;
+}
 
-    try {
-        SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
-        hudDisplay hudDisplay(window);
-        shopDisplay shopDisplay(window);
-        // Map map(window);
-        listTeams listTeams(window);
+void SDLDisplay::run() {
+    setup();
 
-        // bool shop = false;
-        //  bool list_teams = true;
-        int clock = 0;  // por ahora
+    SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
+    hudDisplay hud_display(window);
+    shopDisplay shop_display(window);
+    // Map map(window);
+    listTeams list_teams(window);
 
-        while (!quit_flag) {
-            /* update clock */
-            frame_end = SDL_GetTicks();
-            int elapsed_time = frame_end - frame_start;
-            int rest_time = RATE - elapsed_time;
+    // bool shop = false;
+    //  bool list_teams = true;
+    int clock = 0;  // por ahora
 
-            if (rest_time < 0) {
-                behind = -rest_time;
-                rest_time = RATE - (behind % RATE);
-                lost = behind / RATE;
-                frame_start += lost * RATE;
-                // clock += lost;  // Increment clock for lost frames
+    framerated([&]() {
+        // Update game state and display
+        update_state();
+        window.fill();
+        update_display(hud_display);
+        window.render();
+        return !quit_flag;
+    });
+}
+
+
+void SDLDisplay::framerated(std::function<bool()> draw) {
+    const int target_fps = 60;
+    const std::chrono::milliseconds frame_duration(1000 / target_fps);
+
+    auto next_frame_time = std::chrono::steady_clock::now();
+
+    while (true) {
+        auto now = std::chrono::steady_clock::now();
+
+        if (now >= next_frame_time) {
+            // We're at or past the time for the next frame
+            // Call draw(), if it returns false, exit loop
+            if (!draw())
+                break;
+
+            // Schedule next frame (even if we’re late)
+            next_frame_time += frame_duration;
+
+            // If we are significantly behind (e.g. > 5 frames), skip ahead
+            auto max_lag = 5 * frame_duration;
+            if (now - next_frame_time > max_lag) {
+                next_frame_time = now;
             }
-
-            SDL_Delay(rest_time);
-            frame_start += RATE;
-
-            // Increment clock if a second has passed
-            static Uint32 accumulated_time = 0;
-            accumulated_time += RATE;
-            if (accumulated_time >= 1000) {  // 1000 ms = 1 second
-                clock++;
-                accumulated_time -= 1000;
-            }
-
-            update_game();
-            window.fill();
-            // apply_game_update(hudDisplay);
-            hudDisplay.update(state);
-            hudDisplay.render();
-            window.render();
+        } else {
+            // We're ahead of schedule: sleep to limit framerate
+            std::this_thread::sleep_until(next_frame_time);
         }
-    } catch (std::exception& e) {
-        std::cout << e.what() << std::endl;
     }
 }
 
@@ -145,25 +121,33 @@ void SDLDisplay::stop() {
     Thread::stop();
 }
 
-
-void SDLDisplay::update_game() {
+GameUpdate SDLDisplay::get_initial_state() {
     Message msg;
-    if (input_queue.try_pop(msg)) {
-        handle_msg(msg);
-        std::cout << "Message handled in SDLDisplay" << std::endl;
+    while (true) {
+        msg = input_queue.pop();
+        if (msg.get_type() == MessageType::GAME_UPDATE) {
+            return msg.get_content<GameUpdate>();
+        } else {
+            std::cerr << "Received unexpected message type: " << static_cast<int>(msg.get_type())
+                      << std::endl;
+        }
     }
 }
 
-
-void SDLDisplay::handle_msg(const Message& msg) {
-    const GameUpdate& update = msg.get_content<GameUpdate>();
-    state = state.merged(update);
-    std::cout << "Applied GameUpdate" << std::endl;
+void SDLDisplay::update_state() {
+    Message msg;
+    if (input_queue.try_pop(msg)) {
+        const GameUpdate& update = msg.get_content<GameUpdate>();
+        state = state.merged(update);
+        std::cout << "Applied GameUpdate" << std::endl;
+    }
 }
 
-void SDLDisplay::apply_game_update(hudDisplay hudDisplay) {
-    hudDisplay.update(state);
-    // map.update(state);s
+void SDLDisplay::update_display(hudDisplay& hud_display) {
+    hud_display.update(state);
+    hud_display.render();
+    // map.update(state);
+
     // listTeams.update(state);
 
     // if (clock > 20) {

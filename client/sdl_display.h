@@ -21,17 +21,26 @@
 #include "sdl_input.h"
 
 class SDLDisplay: public Display {
+    GameUpdate state;
+
+    std::atomic<bool> quit_flag;
+
+    static constexpr int SCREEN_WIDTH = 800;
+    static constexpr int SCREEN_HEIGHT = 600;
+
+    std::unique_ptr<SDLInput> input_handler;
+
 public:
     explicit SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue);
     void run() override;
     void stop() override;
 
 private:
-    std::atomic<bool> quit_flag;
-    std::unique_ptr<SDLInput> input_handler;
-    void update_game();
-    void handle_msg(const Message& msg);
-    void apply_game_update(hudDisplay hudDisplay);
-    GameUpdate state;
-    GameUpdate receive_initial_state();
+    void setup();
+
+    void update_display(hudDisplay& hud_display);
+    void framerated(std::function<bool()> draw);
+
+    GameUpdate get_initial_state();
+    void update_state();
 };
