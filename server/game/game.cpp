@@ -32,8 +32,8 @@ void Game::handle_msg(const Message& msg, const std::string& player_name) {
         GunType gun = msg.get_content<BuyGunCommand>().get_gun();
         handle_buy_gun_msg(player_name, gun);
     } else if (msg_type == MessageType::BUY_AMMO_CMD) {
-        GunType gun = msg.get_content<BuyAmmoCommand>().get_gun();
-        handle_buy_ammo_msg(player_name, gun);
+        WeaponSlot slot = msg.get_content<BuyAmmoCommand>().get_slot();
+        handle_buy_ammo_msg(player_name, slot);
     } else if (msg_type == MessageType::MOVE_CMD) {
         Vector2D direction = msg.get_content<MoveCommand>().get_direction();
         handle_move_msg(player_name, direction);
@@ -133,13 +133,12 @@ void Game::handle_buy_gun_msg(const std::string& player_name, GunType gun) {
 }
 
 // TODO this could take a WeaponSlot instead of GunType
-void Game::handle_buy_ammo_msg(const std::string& player_name, GunType gun) {
+void Game::handle_buy_ammo_msg(const std::string& player_name, WeaponSlot slot) {
     if (!state.get_phase().is_buying_phase())
         throw BuyAmmoError();
     // if (physics_system.player_not_in_spawn(player_name))
     //     return;
 
-    WeaponSlot slot = (gun == GunType::Glock) ? WeaponSlot::Secondary : WeaponSlot::Primary;
     auto& player = state.get_player(player_name);
     shop.buy_ammo(player->get_inventory(), slot);
 }

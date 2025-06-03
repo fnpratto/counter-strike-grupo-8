@@ -90,11 +90,11 @@ public:
  * @brief Command to buy ammo during the preparation phase.
  */
 class BuyAmmoCommand: public Command {
-    GunType gun;
+    WeaponSlot slot;
 
 public:
-    explicit BuyAmmoCommand(GunType g): gun(g) {}
-    GunType get_gun() const { return gun; }
+    explicit BuyAmmoCommand(WeaponSlot s): slot(s) {}
+    WeaponSlot get_slot() const { return slot; }
 };
 
 /**

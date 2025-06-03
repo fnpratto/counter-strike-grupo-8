@@ -46,7 +46,7 @@ private:
     void handle_select_team_msg(const std::string& player_name, Team team);
     void handle_start_game_msg(const std::string& player_name);
     void handle_buy_gun_msg(const std::string& player_name, GunType gun);
-    void handle_buy_ammo_msg(const std::string& player_name, GunType gun);
+    void handle_buy_ammo_msg(const std::string& player_name, WeaponSlot slot);
     void handle_move_msg(const std::string& player_name, const Vector2D& direction);
     void handle_stop_player_msg(const std::string& player_name);
     void handle_aim_msg(const std::string& player_name, float x, float y);
