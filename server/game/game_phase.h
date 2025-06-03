@@ -15,6 +15,8 @@ private:
 public:
     explicit GamePhase(std::shared_ptr<Clock>&& game_clock);
 
+    PhaseType get_type() const;
+
     bool is_started() const;
     bool is_round_finished() const;
     bool is_buying_phase() const;

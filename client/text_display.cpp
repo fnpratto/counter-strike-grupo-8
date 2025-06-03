@@ -54,10 +54,16 @@ void TextDisplay::draw(const Message& message) {
 
     switch (message.get_type()) {
         case MessageType::LIST_GAMES_RESP: {
-            auto names = message.get_content<ListGamesResponse>().get_game_names();
-            std::cout << "Available games:" << std::endl;
-            for (const auto& name: names) {
-                std::cout << " - " << name << std::endl;
+            auto game_list = message.get_content<ListGamesResponse>().get_games_info();
+            std::cout << "Available games:\n";
+            for (const auto& game_info: game_list) {
+                std::cout << "Game Name: " << game_info.name
+                          << ", Players: " << game_info.players_count << ", Status: "
+                          << (game_info.phase == PhaseType::WarmUp  ? "WarmUp" :
+                              game_info.phase == PhaseType::Buying  ? "Buying" :
+                              game_info.phase == PhaseType::Playing ? "Playing" :
+                                                                      "Round Finished")
+                          << "\n";
             }
             break;
         }

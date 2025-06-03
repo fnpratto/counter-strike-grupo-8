@@ -13,6 +13,12 @@ target_sources(taller_client
     qt_display.cpp
     sdl_display.cpp
     sdl_input.cpp
+    qt/create_game_window.cpp
+    qt/game_list_table.cpp
+    qt/lobby_window.cpp
+    qt/log_in_window.cpp
+    qt/resources.qrc
+
     PUBLIC
     # .h files
     ../common/utils/vector_2d.h
@@ -25,4 +31,8 @@ target_sources(taller_client
     qt_display.h
     sdl_display.h
     sdl_input.h
+    qt/create_game_window.h
+    qt/game_list_table.h
+    qt/lobby_window.h
+    qt/log_in_window.h
 )

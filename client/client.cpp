@@ -78,9 +78,11 @@ bool Client::connect_to_server() {
                     Socket(conn_req.get_ip().c_str(), conn_req.get_port().c_str()));
         } catch (const std::exception& e) {
             std::cerr << "Error: " << e.what() << std::endl;
+            display_queue.push(Message(false));
             continue;
         }
 
+        display_queue.push(Message(true));
         break;
     }
 
@@ -115,6 +117,8 @@ void Client::wait_for_game_start(std::string& player_name) {
                 continue;
         }
     }
+
+    display_queue.push(Message(true));
 }
 
 void Client::switch_display(const std::string& player_name) {

@@ -18,6 +18,12 @@ GameUpdate Game::tick(const std::vector<PlayerMessage>& msgs) {
     return state.get_updates();
 }
 
+std::string Game::get_name() const { return name; }
+
+int Game::get_player_count() const { return static_cast<int>(state.get_players().size()); }
+
+PhaseType Game::get_phase() { return state.get_phase().get_type(); }
+
 void Game::handle_msg(const Message& msg, const std::string& player_name) {
     MessageType msg_type = msg.get_type();
     std::cout << "Game::handle_msg: Received message of type: " << static_cast<int>(msg_type)

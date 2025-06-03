@@ -15,6 +15,7 @@
 
 
 #define MESSAGE_TYPE_MAP(F)                            \
+    F(bool, BOOL)                                      \
     F(ConnectionRequest, CONN_REQ)                     \
     F(ListGamesResponse, LIST_GAMES_RESP)              \
     F(CreateGameCommand, CREATE_GAME_CMD) /*Commands*/ \

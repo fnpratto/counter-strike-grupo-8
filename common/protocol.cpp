@@ -101,11 +101,13 @@ TimePoint BaseProtocol::deserialize<TimePoint>(payload_t& payload) const {
     return TimePoint(std::chrono::nanoseconds(time_ns));
 }
 
-// template <>
-// MessageType BaseProtocol::deserialize<MessageType>(payload_t& payload) const {
-//     payload_t data = pop(payload, sizeof(uint8_t));
-//     return static_cast<MessageType>(data[0]);
-// }
+template <>
+GameInfo BaseProtocol::deserialize<GameInfo>(payload_t& payload) const {
+    std::string name = deserialize<std::string>(payload);
+    int players_count = deserialize<int>(payload);
+    PhaseType phase = deserialize<PhaseType>(payload);
+    return GameInfo(name, players_count, phase);
+}
 
 Message BaseProtocol::recv() {
     payload_t header(sizeof(uint8_t) + sizeof(uint16_t));

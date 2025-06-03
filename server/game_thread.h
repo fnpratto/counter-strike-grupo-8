@@ -6,6 +6,7 @@
 
 #include "common/message.h"
 #include "common/queue.h"
+#include "common/responses.h"
 #include "common/thread.h"
 #include "game/game.h"
 
@@ -27,6 +28,8 @@ public:
 
     // Check if the game is full
     bool is_full();
+
+    GameInfo get_game_info();
 
     void stop() override;
 };
