@@ -13,8 +13,6 @@
 #include "display.h"
 #include "sdl_input.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable"
 
 SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue,
                        const std::string& player_name):
@@ -156,5 +154,3 @@ void SDLDisplay::update_display(hudDisplay& hud_display) {
     // listTeams.update(clock);
     //}
 }
-
-#pragma GCC diagnostic pop
