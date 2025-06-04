@@ -180,6 +180,12 @@ class DefuseBombCommand: public Command {};
 class PickUpItemCommand: public Command {};
 
 /**
+ * @class GetShopPricesCommand
+ * @brief Command to request the shop prices.
+ */
+class GetShopPricesCommand: public Command {};
+
+/**
  * @class LeaveGameCommand
  * @brief Command to leave the current game.
  */

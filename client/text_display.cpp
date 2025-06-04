@@ -18,6 +18,21 @@
 
 #include "requests.h"
 
+std::ostream& operator<<(std::ostream& os, const GunType& type) {
+    switch (type) {
+        case GunType::Glock:
+            return os << "Glock";
+        case GunType::AK47:
+            return os << "AK-47";
+        case GunType::M3:
+            return os << "M3";
+        case GunType::AWP:
+            return os << "AWP";
+        default:
+            return os << "Unknown Gun";
+    }
+}
+
 TextDisplay::TextDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue):
         Display(input_queue, output_queue) {
 // Set stdin to non-blocking
@@ -87,8 +102,22 @@ void TextDisplay::draw(const Message& message) {
             }
             break;
         }
+        case MessageType::SHOP_PRICES_RESP: {
+            const auto& prices = message.get_content<ShopPricesResponse>().get_gun_prices();
+            std::cout << "Shop Prices:\n";
+            for (const auto& [gun, price]: prices) {  // cppcheck-suppress[unassignedVariable]
+                std::cout << " - " << gun << ": " << price << " credits\n";
+            }
+            break;
+        }
+        case MessageType::BOOL: {
+            bool result = message.get_content<bool>();
+            std::cout << "Operation result: " << (result ? "Success" : "Failure") << std::endl;
+            break;
+        }
         default:
-            throw std::runtime_error("Invalid message type for TextDisplay");
+            throw std::runtime_error("Invalid message type for TextDisplay: " +
+                                     std::to_string(static_cast<int>(message.get_type())));
             break;
     }
 }
@@ -276,6 +305,10 @@ template <>
 Message TextDisplay::build_message<PickUpItemCommand>([[maybe_unused]] std::istringstream& iss) {
     return Message(PickUpItemCommand());
 }
+template <>
+Message TextDisplay::build_message<GetShopPricesCommand>([[maybe_unused]] std::istringstream& iss) {
+    return Message(GetShopPricesCommand());
+}
 
 template <>
 Message TextDisplay::build_message<LeaveGameCommand>([[maybe_unused]] std::istringstream& iss) {
@@ -324,7 +357,12 @@ Message TextDisplay::parse_line(const std::string& line) {
             {"pickup",
              [this](std::istringstream& is) { return this->build_message<PickUpItemCommand>(is); }},
             {"leave",
-             [this](std::istringstream& is) { return this->build_message<LeaveGameCommand>(is); }}};
+             [this](std::istringstream& is) { return this->build_message<LeaveGameCommand>(is); }},
+            {"shop",
+             [this](std::istringstream& is) {
+                 return this->build_message<GetShopPricesCommand>(is);
+             }},
+    };
 
     auto it = command_map.find(command);
     if (it != command_map.end())

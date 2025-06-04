@@ -23,29 +23,25 @@ void GameThread::run() {
                 break;  // No more messages to process
             msgs.push_back(msg);
         }
-        GameUpdate update = game.tick(msgs);
-        if (update.has_change()) {
-            for (const auto& output_queue: output_queues) {
-                output_queue->push(Message(update));
-            }
+
+        auto out_msgs = game.tick(msgs);
+
+        for (const auto& out_msg: out_msgs) {
+            auto q = output_queues.at(out_msg.get_player_name());
+            q->push(out_msg.get_message());
         }
+
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
 
 // FIXME: Race condition
 pipe_t GameThread::join_game(const std::string& player_name) {
-    GameUpdate initial_state = game.join_player(player_name);
+    game.join_player(player_name);
 
-    auto output_queue = std::make_shared<Queue<Message>>();
-    output_queues.push_back(output_queue);
+    output_queues[player_name] = std::make_shared<Queue<Message>>();
 
-    // Awful hack to ensure that the other players receive the joined player's state
-    for (const auto& q: output_queues) {
-        q->push(Message(initial_state));
-    }
-
-    return {input_queue, output_queue};
+    return {input_queue, output_queues[player_name]};
 }
 
 bool GameThread::is_full() { return game.is_full(); }
