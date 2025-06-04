@@ -146,7 +146,7 @@ std::optional<Message> shopDisplay::updatePointerPosition(int x, int y) {
                 std::cerr << "Mouse is over slot: " << slot_index + 1
                           << " (Gun: " << guns[slot_index].name << ")" << std::endl;
                 gun_buy = slot_index;
-                return Message(BuyWeaponCommand(static_cast<WeaponType>(slot_index)));
+                return Message(BuyGunCommand(static_cast<GunType>(slot_index)));
             } else {
                 std::cerr << "Mouse is over an invalid slot." << std::endl;
                 return std::nullopt;

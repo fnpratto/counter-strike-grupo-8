@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "common/utils/vector_2d.h"
+
 #include "models.h"
 
 /**
@@ -22,10 +24,14 @@ public:
  */
 class CreateGameCommand: public Command {
     std::string game_name;
+    std::string player_name;
 
 public:
-    explicit CreateGameCommand(const std::string& name): game_name(name) {}
+    CreateGameCommand(const std::string& game_name, const std::string& player_name):
+            game_name(game_name), player_name(player_name) {}
+
     std::string get_game_name() const { return game_name; }
+    std::string get_player_name() const { return player_name; }
 };
 
 /**
@@ -34,10 +40,14 @@ public:
  */
 class JoinGameCommand: public Command {
     std::string game_name;
+    std::string player_name;
 
 public:
-    explicit JoinGameCommand(const std::string& name): game_name(name) {}
+    JoinGameCommand(const std::string& game_name, const std::string& player_name):
+            game_name(game_name), player_name(player_name) {}
+
     std::string get_game_name() const { return game_name; }
+    std::string get_player_name() const { return player_name; }
 };
 
 /**
@@ -65,30 +75,49 @@ public:
 class StartGameCommand: public Command {};
 
 /**
- * @class BuyWeaponCommand
- * @brief Command to buy a weapon during the preparation phase.
+ * @class BuyGunCommand
+ * @brief Command to buy a gun during the preparation phase.
  */
-class BuyWeaponCommand: public Command {
-    WeaponType weapon;
+class BuyGunCommand: public Command {
+    GunType gun;
 
 public:
-    explicit BuyWeaponCommand(WeaponType w): weapon(w) {}
-    WeaponType get_weapon() const { return weapon; }
+    explicit BuyGunCommand(GunType g): gun(g) {}
+    GunType get_gun() const { return gun; }
+};
+
+/**
+ * @class BuyAmmoCommand
+ * @brief Command to buy ammo during the preparation phase.
+ */
+class BuyAmmoCommand: public Command {
+    GunType gun;
+
+public:
+    explicit BuyAmmoCommand(GunType g): gun(g) {}
+    GunType get_gun() const { return gun; }
 };
 
 /**
  * @class MoveCommand
- * @brief Command to start or stop movement in a direction.
+ * @brief Command to start moving in a direction.
  */
 class MoveCommand: public Command {
-    int dx;
-    int dy;
-    bool start;
+    Vector2D direction;
 
 public:
-    MoveCommand(int dx, int dy, bool start): dx(dx), dy(dy), start(start) {}
-    // MoveDirection get_direction() const { return direction; }
-    bool is_start() const { return start; }
+    explicit MoveCommand(Vector2D direction): direction(direction.normalized()) {}
+
+    Vector2D get_direction() const { return direction; }
+};
+
+/**
+ * @class StopPlayerCommand
+ * @brief Command to stop the player's movement.
+ */
+class StopPlayerCommand: public Command {
+public:
+    StopPlayerCommand(): Command() {}
 };
 
 /**
@@ -109,13 +138,15 @@ public:
  * @brief Command to shoot towards the aimed direction.
  */
 class ShootCommand: public Command {
-    float x, y;
-
 public:
-    ShootCommand(float targetX, float targetY): x(targetX), y(targetY) {}
-    float get_x() const { return x; }
-    float get_y() const { return y; }
+    ShootCommand() {}
 };
+
+/**
+ * @class ReloadCommand
+ * @brief Command to reload the current weapon.
+ */
+class ReloadCommand: public Command {};
 
 /**
  * @class SwitchWeaponCommand
@@ -152,9 +183,3 @@ class PickUpItemCommand: public Command {};
  * @brief Command to leave the current game.
  */
 class LeaveGameCommand: public Command {};
-
-/**
- * @class ReloadCommand
- * @brief Command to reload the current weapon.
- */
-class ReloadCommand: public Command {};

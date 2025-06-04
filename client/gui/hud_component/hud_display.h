@@ -23,13 +23,6 @@ struct HudLayout {
     float scale;
 };
 class hudDisplay {
-public:
-    explicit hudDisplay(SdlWindow& window);
-    void render();
-    void updatePointerPosition(int x, int y);
-    void update(int currentClockTick, bool isMuted);
-
-private:
     SdlWindow& window;
     int SCREEN_WIDTH;
     int SCREEN_HEIGHT;
@@ -47,15 +40,20 @@ private:
     SdlText gunNumber;
     SdlText scoreText;
     SdlTexture muteIcon;
-    int pointerX = SCREEN_WIDTH / 2;
-    int pointerY = SCREEN_HEIGHT / 2;
-
     float widthRatio;
     float heightRatio;
     float scaleRatio;
     HudLayout layout;
+    int pointerX = SCREEN_WIDTH / 2;
+    int pointerY = SCREEN_HEIGHT / 2;
 
+public:
+    explicit hudDisplay(SdlWindow& window);
+    void render();
+    void update(int currentClockTick, bool isMuted);
+    void updatePointerPosition(int x, int y);
 
+private:
     void renderBackground();
     void renderParal();
     void renderPointer();

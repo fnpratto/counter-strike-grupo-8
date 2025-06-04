@@ -7,58 +7,62 @@
 #include <string>
 #include <vector>
 
+#include "game/game.h"
+
 #include "errors.h"
-#include "game.h"
 #include "game_thread.h"
 
 
-pipe_t LobbyMonitor::create_game(const std::string& name) {
+pipe_t LobbyMonitor::create_game(const std::string& game_name, const std::string& player_name) {
     std::lock_guard<std::mutex> lock(mtx);
 
-    if (games.find(name) != games.end())
+    if (games.find(game_name) != games.end())
         throw GameExistsError();
 
-    auto game = std::make_shared<GameThread>(name);
+    auto game = std::make_shared<GameThread>(game_name);
     game->start();
-    games[name] = game;
+    games[game_name] = game;
 
-    return game->join_game("player_name");  // TODO: take the player name from the message
+    return game->join_game(player_name);
 }
 
-pipe_t LobbyMonitor::join_game(const std::string& name) {
+pipe_t LobbyMonitor::join_game(const std::string& game_name, const std::string& player_name) {
     std::lock_guard<std::mutex> lock(mtx);
 
-    auto game = games[name];
+    auto game = games[game_name];
 
-    if (!game->is_alive())
+    if (!game || !game->is_alive())
         throw JoinGameError();
 
-    return game->join_game("player_name");  // TODO: take the player name from the message
+    return game->join_game(player_name);
 }
 
-std::vector<std::string> LobbyMonitor::get_games_names() {
+std::vector<GameInfo> LobbyMonitor::get_games_info() {
     std::lock_guard<std::mutex> lock(mtx);
 
-    std::vector<std::string> games_names;
-    for (const auto& [name, _]: games) {
-        games_names.push_back(name);
+    std::vector<GameInfo> games_info;
+    for (const auto& [_, game]: games) {  // cppcheck-suppress[unusedVariable]
+        if (!game)
+            continue;
+
+        games_info.push_back(game->get_game_info());
     }
 
-    return games_names;
+    return games_info;
 }
 
 void LobbyMonitor::reap() {
     std::lock_guard<std::mutex> lock(mtx);
 
     for (const auto& [name, game]: games)
-        if (!game->is_alive()) {
+        if (game && !game->is_alive()) {
             game->join();
             games.erase(name);
         }
 }
 
 LobbyMonitor::~LobbyMonitor() {
-    for (const auto& [name, game]: games) {
+    for (const auto& [_, game]: games) {  // cppcheck-suppress[unusedVariable]
         game->stop();
         game->join();
     }

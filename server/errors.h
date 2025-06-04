@@ -32,5 +32,48 @@ public:
 
 class JoinGameError: public GameError {
 public:
-    JoinGameError(): GameError("game not found") {}
+    JoinGameError(): GameError("could not join game") {}
+};
+
+class StartGameError: public GameError {
+public:
+    StartGameError(): GameError("try to start an already started game") {}
+};
+
+class SelectTeamError: public GameError {
+public:
+    SelectTeamError(): GameError("error at select team") {}
+};
+
+class InvalidPlayerNameError: public GameError {
+public:
+    InvalidPlayerNameError(): GameError("invalid player name") {}
+};
+
+class PlayerError: public ServerError {
+public:
+    explicit PlayerError(const std::string& message): ServerError(message) {}
+    const char* what() const noexcept override {
+        static std::string full_message = "Player Error: " + std::string(ServerError::what());
+        return full_message.c_str();
+    }
+};
+
+class BuyGunError: public PlayerError {
+public:
+    BuyGunError(): PlayerError("could not buy gun") {}
+};
+
+class BuyAmmoError: public PlayerError {
+public:
+    BuyAmmoError(): PlayerError("could not buy ammo") {}
+};
+
+class MapError: public ServerError {
+public:
+    explicit MapError(const std::string& message): ServerError(message) {}
+    const char* what() const noexcept override {
+        static std::string full_message = "Map Error: " + std::string(ServerError::what());
+        return full_message.c_str();
+    }
 };

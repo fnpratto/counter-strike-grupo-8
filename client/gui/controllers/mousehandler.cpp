@@ -41,7 +41,7 @@ void MouseHandler::handleEvent(const SDL_Event& event, bool shop, bool list_team
                     }
                     return;
                 }
-                inputQueue.push(Message(ShootCommand(x, y)));
+                // inputQueue.push(Message(ShootCommand(x, y)));
                 std::cout << "ShootCommand sent with coordinates: (" << x << ", " << y << ")"
                           << std::endl;
                 break;

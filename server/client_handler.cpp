@@ -5,18 +5,22 @@
 #include <string>
 #include <utility>
 
+#include "server/player_message.h"
+
 #include "errors.h"
 
 ClientHandler::ClientHandler(Socket&& client_socket, LobbyMonitor& lobby_monitor):
         protocol(ServerProtocol(std::move(client_socket))),
         lobby_thread(std::make_unique<LobbyThread>(
-                protocol, lobby_monitor, [this](pipe_t pipe) { this->connect(std::move(pipe)); })) {
+                protocol, lobby_monitor, [this](const std::string& player_name, pipe_t pipe) {
+                    this->connect(player_name, std::move(pipe));
+                })) {
     lobby_thread->start();
 }
 
-void ClientHandler::connect(pipe_t pipe) {
-    sender = std::make_unique<Sender>(protocol, std::move(pipe.first));
-    receiver = std::make_unique<Receiver>(protocol, std::move(pipe.second));
+void ClientHandler::connect(const std::string& player_name, pipe_t pipe) {
+    receiver = std::make_unique<Receiver>(player_name, protocol, std::move(pipe.first));
+    sender = std::make_unique<Sender>(protocol, std::move(pipe.second));
 
     sender->start();
     receiver->start();

@@ -17,7 +17,9 @@
 // Default to GUI if not defined
 // Actually not necessary just better for IntelliSense
 #ifndef UI_TYPE_GUI
+#ifndef UI_TYPE_TUI
 #define UI_TYPE_GUI
+#endif  // !UI_TYPE_TUI
 #endif  // !UI_TYPE_GUI
 
 #ifdef UI_TYPE_GUI
@@ -75,9 +77,11 @@ bool Client::connect_to_server() noexcept {
                     Socket(conn_req.get_ip().c_str(), conn_req.get_port().c_str()));
         } catch (const std::exception& e) {
             std::cerr << "Error: " << e.what() << std::endl;
+            display_queue.push(Message(false));
             continue;
         }
 
+        display_queue.push(Message(true));
         break;
     }
 
@@ -105,6 +109,8 @@ void Client::wait_for_game_start() {
             msg.get_type() == MessageType::CREATE_GAME_CMD)
             break;
     }
+
+    display_queue.push(Message(true));
 }
 
 void Client::switch_display() {
@@ -115,7 +121,10 @@ void Client::switch_display() {
     display->start();
     std::cout << "Switched to SDLDisplay" << std::endl;
 #elif defined(UI_TYPE_TUI)
-    // No need to switch, TUI handles both stages
+    display->stop();
+    display->join();
+    display = std::make_unique<TextDisplay>(display_queue, ingame_queue);
+    display->start();
 #endif
 }
 

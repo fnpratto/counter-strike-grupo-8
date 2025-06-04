@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <atomic>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <numeric>
 #include <string>
@@ -16,19 +17,67 @@
 #include "common/queue.h"
 #include "common/socket.h"
 #include "common/thread.h"
+#include "common/updates/state_update.h"
+#include "game/game.h"
 
-#include "game.h"
 #include "lobby_monitor.h"
 
 class ServerProtocol: public BaseProtocol {
 public:
     explicit ServerProtocol(Socket&& skt): BaseProtocol(std::move(skt)) {}
 
-    Message recv() override;
-    payload_t serialize_message(const Message& message) override;
-
 private:
-    Message deserialize_create_game_cmd();
-    Message deserialize_join_game_cmd();
-    Message deserialize_list_games_cmd();
+    payload_t serialize_message(const Message& message) const override;
+
+    template <typename T>
+    payload_t serialize_msg(const T& value) const;
+
+    template <typename T>
+    payload_t serialize_update(const T& value) const;
+
+    template <typename K, typename V>
+    payload_t serialize_map(const std::map<K, V>& map) const {
+        payload_t result;
+
+        payload_t length = serialize(static_cast<uint16_t>(map.size()));
+        result.insert(result.begin(), length.begin(), length.end());
+        for (const auto& [key, value]: map) {
+            payload_t key_payload = serialize(key);
+            payload_t value_payload;
+
+            if constexpr (std::is_base_of_v<StateUpdate, V>) {
+                value_payload = serialize_update(value);
+            } else {
+                value_payload = serialize(value);
+            }
+
+            result.insert(result.end(), key_payload.begin(), key_payload.end());
+            result.insert(result.end(), value_payload.begin(), value_payload.end());
+        }
+
+        return result;
+    }
+
+    Message deserialize_message(const MessageType& type, payload_t& payload) const override;
+
+    /**
+     * @brief Deserializes the payload into the type T.
+     * @tparam T The type to deserialize into.
+     * @return The deserialized object of type T.
+     */
+    template <typename T>
+    T deserialize_msg(payload_t& payload) const;
+
+    template <typename T>
+    std::vector<T> deserialize_vector(payload_t& payload) const {
+        uint16_t length = deserialize<uint16_t>(payload);
+
+        std::vector<T> result;
+        for (size_t i = 0; i < length; i++) {
+            T item = deserialize<T>(payload);
+            result.push_back(item);
+        }
+
+        return result;
+    }
 };
