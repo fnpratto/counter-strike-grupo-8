@@ -60,7 +60,7 @@ void SDLDisplay::run() {
 
     // bool shop = false;
     //  bool list_teams = true;
-    int clock = 0;  // por ahora
+    // int clock = 0;  // por ahora
 
     framerated([&]() {
         // Update game state and display
