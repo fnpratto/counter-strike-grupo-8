@@ -184,8 +184,10 @@ ListGamesResponse ClientProtocol::deserialize_msg<ListGamesResponse>(payload_t& 
 
 template <>
 ShopPricesResponse ClientProtocol::deserialize_msg<ShopPricesResponse>(payload_t& payload) const {
-    return ShopPricesResponse(deserialize_map<GunType, int>(payload),
-                              deserialize_map<GunType, int>(payload));
+    auto gun_prices = deserialize_map<GunType, int>(payload);
+    auto ammo_prices = deserialize_map<GunType, int>(payload);
+
+    return ShopPricesResponse(gun_prices, ammo_prices);
 }
 
 #define X_DESERIALIZE_UPDATE(type, attr)        \

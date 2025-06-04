@@ -104,9 +104,15 @@ void TextDisplay::draw(const Message& message) {
         }
         case MessageType::SHOP_PRICES_RESP: {
             const auto& prices = message.get_content<ShopPricesResponse>().get_gun_prices();
-            std::cout << "Shop Prices:\n";
+            std::cout << "Shop:\n";
+            std::cout << "Gun Prices:\n";
             for (const auto& [gun, price]: prices) {  // cppcheck-suppress[unassignedVariable]
-                std::cout << " - " << gun << ": " << price << " credits\n";
+                std::cout << " - " << gun << ": $" << price << std::endl;
+            }
+            std::cout << "Ammo Prices:\n";
+            const auto& ammo_prices = message.get_content<ShopPricesResponse>().get_ammo_prices();
+            for (const auto& [gun, price]: ammo_prices) {  // cppcheck-suppress[unassignedVariable]
+                std::cout << " - " << gun << ": $" << price << std::endl;
             }
             break;
         }

@@ -21,7 +21,7 @@ std::vector<PlayerMessage> Game::tick(const std::vector<PlayerMessage>& msgs) {
         for (const auto& [player_name, player]: state.get_players())
             output_messages.push_back(PlayerMessage(player_name, Message(update)));
 
-    return output_messages;
+    return std::move(output_messages);
 }
 
 std::string Game::get_name() const { return name; }
@@ -162,9 +162,8 @@ void Game::handle<AimCommand>(const std::string& player_name, const AimCommand& 
 template <>
 void Game::handle<GetShopPricesCommand>(const std::string& player_name,
                                         [[maybe_unused]] const GetShopPricesCommand& msg) {
-    output_messages.push_back(PlayerMessage(
-            player_name,
-            Message(ShopPricesResponse(shop.get_gun_prices(), shop.get_ammo_prices()))));
+    output_messages.emplace_back(player_name, Message(ShopPricesResponse(shop.get_gun_prices(),
+                                                                         shop.get_ammo_prices())));
 }
 
 // void Game::handle_shoot_msg(const std::string& player_name, int x, int y) {
