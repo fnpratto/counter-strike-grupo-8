@@ -30,10 +30,10 @@ private:
     std::unique_ptr<ClientSender> sender;
     std::unique_ptr<ClientReceiver> receiver;
 
-    bool connect_to_server() noexcept;
+    bool connect_to_server();
     void setup_communication();
-    void wait_for_game_start();
-    void switch_display();
+    void wait_for_game_start(std::string& player_name);
+    void switch_display(const std::string& player_name);
     void cleanup();
 
 public:

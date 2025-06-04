@@ -4,16 +4,6 @@
 #include <filesystem>
 #include <vector>
 
-// Constants
-const int size_width = 62;
-const int size_height = 64;
-const int padding = 10;
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
-const float scale = 0.5f;
-const int digitSpacingSmall = static_cast<int>(42 * scale) + 1;
-
-
 const std::string& BACKGROUND_PATH = "../assets/gfx/backgrounds/water1.jpg";
 const std::string& POINTER_PATH = "../assets/gfx/hud/pointer.xcf";
 const std::string& MONEY_PATH = "../assets/gfx/hud/hud_symbols.xcf";
@@ -29,9 +19,12 @@ const std::string& PARALELO_BLUE_O_PATH = "../assets/gfx/hud/parallelogram_blue_
 const std::string& HUD_NUMS_XCF = "../assets/gfx/fonts/hud_nums.xcf";
 
 
-// Constructor
-hudDisplay::hudDisplay(SdlWindow& window):
+hudDisplay::hudDisplay(SdlWindow& window, const GameUpdate& state, const std::string& player_name):
+        state(state),
+        player_name(player_name),
         window(window),
+        SCREEN_WIDTH(window.getWidth()),
+        SCREEN_HEIGHT(window.getHeight()),
         back(BACKGROUND_PATH, window),
         pointer(POINTER_PATH, window),
         money(MONEY_PATH, window),
@@ -44,13 +37,28 @@ hudDisplay::hudDisplay(SdlWindow& window):
         timer_dots(HUD_NUMS_XCF, window),
         roundText(FONT_PATH, 20, {150, 150, 150, 255}, window),
         gunNumber(FONT_PATH, 20, {150, 150, 150, 255}, window),
-        scoreText(FONT_PATH, 20, {255, 255, 255, 255}, window) {}
+        scoreText(FONT_PATH, 20, {255, 255, 255, 255}, window) {
+    float BASE_WIDTH = 800.0f;
+    float BASE_HEIGHT = 600.0f;
 
-// Main render function
+    widthRatio = SCREEN_WIDTH / BASE_WIDTH;
+    heightRatio = SCREEN_HEIGHT / BASE_HEIGHT;
+    scaleRatio = std::min(widthRatio, heightRatio);
+
+
+    layout.padding = static_cast<int>(10 * scaleRatio);
+    layout.iconWidth = static_cast<int>(32 * scaleRatio);
+    layout.size_width = static_cast<int>(62 * scaleRatio);
+    layout.size_height = static_cast<int>(64 * scaleRatio);
+    layout.iconHeight = static_cast<int>(32 * scaleRatio);
+    layout.digitSpacing = static_cast<int>(22 * scaleRatio);
+    layout.digitHeight = static_cast<int>(32 * scaleRatio);
+    layout.scale = 0.5f * scaleRatio;
+}
+
 void hudDisplay::render() {
-    window.fill();
     renderBackground();
-    renderParal();
+    renderTeamScores();
     renderPointer();
     renderMoney();
     renderLife();
@@ -58,14 +66,12 @@ void hudDisplay::render() {
     renderRoundText();
     renderBullets();
     renderGunIcons();
-    window.render();
 }
+
 
 // Render background
 void hudDisplay::renderBackground() {
-    const Area sizeBackground(0, 0, 60, 60);
-    const Area destBackground(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    back.render(sizeBackground, destBackground);
+    // back.render(sizeBackground, destBackground);
     SDL_Renderer* renderer = window.getRenderer();
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
@@ -73,126 +79,143 @@ void hudDisplay::renderBackground() {
     SDL_RenderFillRect(renderer, &rect);
     SdlTexture trapecio(TRAPECIO_PATH, window);
     Area srcTrapecio(0, 0, 500, 230);
-    Area destTrapecio(SCREEN_WIDTH / 2 - 200, 0, SCREEN_WIDTH / 2, size_height * 2);
+    Area destTrapecio(SCREEN_WIDTH * 0.5 - SCREEN_WIDTH * 0.5 / 2, 0, SCREEN_WIDTH * 0.5,
+                      layout.size_height * 1.75);
     trapecio.render(srcTrapecio, destTrapecio);
 }
 
 // Render trapecio
-void hudDisplay::renderParal() {
+void hudDisplay::renderTeamScores() {
+    const int trapecioWidth = SCREEN_WIDTH * 0.5;
+    const int trapecioX = (SCREEN_WIDTH - trapecioWidth) / 4;
 
-    // int randomNum = getTeam()  // TODO logica depende el usuario si es terrorista o counter
-    // if (randomNum == 1) {
+    const int paralWidth = layout.size_width * 4;
+    const int paralHeight = layout.size_height * 1.75;
+    const int margin = layout.padding * 2;  // espacio entre trapecio y paralelogramas
+
+    // BLUE (izquierda del trapecio)
     SdlTexture parallelogram1(PARALELO_BLUE_O_PATH, window);
     Area srcParallelogram1(0, 180, 500, 320);
-    Area destParallelogram1(SCREEN_WIDTH / 2 - 290, padding * 2, size_width * 3, size_height * 2);
+    Area destParallelogram1(trapecioX - paralWidth / 4 + margin, layout.padding * 2, paralWidth,
+                            paralHeight);
     parallelogram1.render(srcParallelogram1, destParallelogram1);
 
+    scoreText.setTextString(std::to_string(0));  // TODO : Replace with actual score
+    scoreText.render(Area(trapecioX - paralWidth / 4 + margin * 6, layout.padding * 3,
+                          layout.size_width / 1.75, layout.size_height / 2));
 
-    scoreText.setTextString("9");
-    scoreText.render(Area(SCREEN_WIDTH / 2 - 200, padding * 3, size_width / 1.75, size_height / 2));
-
+    // RED (derecha del trapecio)
     SdlTexture parallelogram(PARALELO_RED_PATH, window);
     Area srcParallelogram(0, 180, 500, 320);
-    Area destParallelogram(SCREEN_WIDTH / 2 + 110, padding * 2, size_width * 3, size_height * 2);
+    Area destParallelogram(trapecioX + trapecioWidth + margin, layout.padding * 2, paralWidth,
+                           paralHeight);
     parallelogram.render(srcParallelogram, destParallelogram);
 
-    scoreText.setTextString("1");
-    scoreText.render(Area(SCREEN_WIDTH / 2 + 190, padding * 3, size_width / 1.75, size_height / 2));
-    /*}
-    else {
-        SdlTexture parallelogram(PARALELO_BLUE_PATH, window);
-        Area srcParallelogram(0, 0, 500, 230);
-        Area destParallelogram(0, 0, 100, size_height * 2);
-        parallelogram.render(srcParallelogram, destParallelogram);
-
-        SdlTexture parallelogram1(PARALELO_RED_O_PATH, window);
-        Area srcParallelogram1(0, 0, 500, 230);
-        Area destParallelogram1(SCREEN_WIDTH / 2 - 200, 0, 100, size_height * 2);
-        parallelogram1.render(srcParallelogram1, destParallelogram1);
-        SDL_Renderer* renderer = window.getRenderer();
-    }*/
+    scoreText.setTextString(std::to_string(0));  // TODO : Replace with actual score
+    scoreText.render(
+            Area(trapecioX + trapecioWidth + margin + paralWidth / 2 - layout.size_width / 4,
+                 layout.padding * 3, layout.size_width / 1.75, layout.size_height / 2));
 }
 
 
 void hudDisplay::renderPointer() {
     const Area sizePointer(0, 0, 50, 50);
-    const Area destPointer(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 50, 50);
+    const Area destPointer(pointerX - 25, pointerY - 25, 50, 50);
     pointer.render(sizePointer, destPointer);
 }
 
 
 void hudDisplay::renderMoney() {
-    const Area sizeMoney(460, 0, size_height, size_width);
-    const Area destMoney(SCREEN_WIDTH - size_width - padding * 2 - SCREEN_WIDTH / 20,
-                         SCREEN_HEIGHT - size_height + 10, SCREEN_WIDTH / 20, 32);
+    int iconHeight = static_cast<int>(32 * scaleRatio);
+    const Area sizeMoney(460, 0, 64, 62);
+    const Area destMoney(SCREEN_WIDTH - layout.size_width * 2 - layout.padding,
+                         SCREEN_HEIGHT - iconHeight - layout.padding, SCREEN_WIDTH / 20,
+                         iconHeight);
     money.render(sizeMoney, destMoney);
 
-    std::string moneyStr = "1000";
-    int x = SCREEN_WIDTH - size_width - padding * 4;
-    int y = SCREEN_HEIGHT - size_height + 10;
+    std::string moneyStr =
+            std::to_string(state.get_players().at(player_name).get_inventory().get_money());
+    int x = SCREEN_WIDTH - layout.size_width - layout.padding * 4;
+    int y = SCREEN_HEIGHT - iconHeight - layout.padding;
     renderDigits(moneyStr, x, y, money_amount);
 }
 
 
 void hudDisplay::renderLife() {
-    const Area sizeLife(0, 0, size_height, size_width);
-    const Area destLife(10, SCREEN_HEIGHT - size_height + 10, SCREEN_WIDTH / 20, 32);
+    int iconWidth = static_cast<int>(32 * scaleRatio);
+    int iconHeight = static_cast<int>(32 * scaleRatio);
+
+    const Area sizeLife(0, 0, 62, 64);
+    const Area destLife(layout.padding, SCREEN_HEIGHT - iconHeight - layout.padding, iconWidth,
+                        iconHeight);
     life.render(sizeLife, destLife);
 
-    std::string lifeStr = "100";
-    int x = 55;
-    int y = SCREEN_HEIGHT - size_height + 10;
+    std::string lifeStr = std::to_string(state.get_players().at(player_name).get_health());
+    int x = layout.padding + iconWidth + layout.digitSpacing / 2;
+    int y = SCREEN_HEIGHT - iconHeight - layout.padding;
     renderDigits(lifeStr, x, y, life_amount);
 }
 
 
 void hudDisplay::renderTimer() {
-    int currentClockTick = 123;
-    int minutesIdx = std::floor(currentClockTick / 60);
-    int seconds = currentClockTick % 60;
-    int secondsIdxH = std::floor(seconds / 10);
+
+    int totalSeconds = std::chrono::duration_cast<std::chrono::seconds>(
+                               state.get_phase().get_time().time_since_epoch())
+                               .count();
+    int minutesIdx = totalSeconds / 60;
+    int seconds = totalSeconds % 60;
+    int secondsIdxH = seconds / 10;
     int secondsIdxL = seconds % 10;
 
-    int x = SCREEN_WIDTH / 2 - 40;
-    int y = padding + 30;
+    int totalTimerWidth = layout.digitSpacing * 4 + 10;
+    int x = SCREEN_WIDTH / 2 - totalTimerWidth / 2;
+    int y = layout.padding + 30;
 
-    timer_amount.renderDigit(minutesIdx, x, y, scale);
-    x += digitSpacingSmall;
+    timer_amount.renderDigit(minutesIdx, x, y, layout.scale);
+    x += layout.digitSpacing;
 
-    Area srcColon(475, 0, 10, size_height);
-    Area dstColon(x, y, 10, size_height / 2);
+    Area srcColon(475, 0, 10, layout.size_height);
+    Area dstColon(x, y, 10, layout.size_height / 2);
     timer_dots.render(srcColon, dstColon);
-    x += digitSpacingSmall;
+    x += layout.digitSpacing;
 
-    timer_amount.renderDigit(secondsIdxH, x, y, scale);
-    x += digitSpacingSmall;
-    timer_amount.renderDigit(secondsIdxL, x, y, scale);
+    timer_amount.renderDigit(secondsIdxH, x, y, layout.scale);
+    x += layout.digitSpacing;
+    timer_amount.renderDigit(secondsIdxL, x, y, layout.scale);
 }
 
 
 void hudDisplay::renderRoundText() {
-    roundText.setTextString("Round 10");
-    roundText.render(Area(SCREEN_WIDTH / 2 - 50, padding, 100, 20));
+    roundText.setTextString("Round " + std::to_string(state.get_num_rounds()));
+    roundText.render(Area(SCREEN_WIDTH / 2 - 50, layout.padding, 100, 20));
 }
 
 
 void hudDisplay::renderBullets() {
+    int iconHeight = static_cast<int>(32 * scaleRatio);
     const Area sizeBullets(0, 0, 300, 302);
-    const Area destBullets(SCREEN_WIDTH - padding * 5, SCREEN_HEIGHT - size_height * 2 + 10,
-                           SCREEN_WIDTH / 20, 32);
+    const Area destBullets(SCREEN_WIDTH - SCREEN_WIDTH / 40 - layout.padding * 2,
+                           SCREEN_HEIGHT - iconHeight * 3, 64 * layout.scale, 64 * layout.scale);
     equipedBullets.render(sizeBullets, destBullets);
 
-    std::string bulletsStr = "30";
-    int x = SCREEN_WIDTH - size_width - padding * 6;
-    int y = SCREEN_HEIGHT - size_height * 2 + 10;
+    std::string bulletsStr =
+            std::to_string(state.get_players()
+                                   .at(player_name)
+                                   .get_inventory()
+                                   .get_guns()
+                                   .at(state.get_players().at(player_name).get_current_weapon())
+                                   .get_mag_ammo());
+    int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 40 - layout.padding * 2;
+    int y = SCREEN_HEIGHT - iconHeight * 3;
     renderDigits(bulletsStr, x, y, equipedBulletsAmount);
 }
 
 
 void hudDisplay::renderGunIcons() {
-    int x = SCREEN_WIDTH - size_width - padding * 6;
+    int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 20;
     int y = SCREEN_HEIGHT / 2;
-    int spacing = 64;
+
+    static constexpr int spacing = 64;
 
     renderGunIcon("../assets/gfx/guns/ak47_k.xcf", "1", x, y);
     y += spacing;
@@ -204,18 +227,26 @@ void hudDisplay::renderGunIcons() {
 
 void hudDisplay::renderGunIcon(const std::string& path, const std::string& number, int x, int y) {
     SdlTexture gunTexture(path, window);
-    Area destArea(x, y, SCREEN_WIDTH / 10, 34);
-    gunTexture.render(Area(0, 0, 30, 10), destArea);
+    Area destArea(x, y, SCREEN_WIDTH / 14, 34);
+    gunTexture.render(
+            Area(0, 0, layout.size_width * 2 * layout.scale, layout.size_height * layout.scale),
+            destArea);
     gunNumber.setTextString(number);
-    gunNumber.render(Area(SCREEN_WIDTH - padding * 2, y, 10, 20));
+    gunNumber.render(Area(SCREEN_WIDTH - layout.padding * 2, y, 10, 20));
 }
 
 
 void hudDisplay::renderDigits(const std::string& str, int x, int y, BitmapFont& texture) {
     for (char c: str) {
         if (isdigit(c)) {
-            texture.renderDigit(c - '0', x, y, scale);
-            x += digitSpacingSmall;
+            texture.renderDigit(c - '0', x, y, layout.scale);
+            x += layout.digitSpacing;
         }
     }
+}
+
+
+void hudDisplay::updatePointerPosition(int x, int y) {
+    pointerX = x;
+    pointerY = y;
 }

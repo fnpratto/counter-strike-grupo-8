@@ -111,6 +111,7 @@ public:
     Vector2D get_direction() const { return direction; }
 };
 
+
 /**
  * @class StopPlayerCommand
  * @brief Command to stop the player's movement.
