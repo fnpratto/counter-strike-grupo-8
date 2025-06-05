@@ -2,8 +2,10 @@
 
 #include <utility>
 
+#include "server/attack_effects/attack_effect.h"
 #include "server/errors.h"
 #include "server/player_message.h"
+#include "server/weapons/bomb.h"
 
 Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map):
         Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.get_max_players())),
@@ -14,10 +16,10 @@ bool Game::is_full() const { return state.game_is_full(); }
 
 GameUpdate Game::tick(const std::vector<PlayerMessage>& msgs) {
     state.clear_updates();
-    for (const PlayerMessage& msg: msgs) handle_msg(msg.get_message(), msg.get_player_name());
-
-    advance_players_movement();
     advance_round_logic();
+    for (const PlayerMessage& msg: msgs) handle_msg(msg.get_message(), msg.get_player_name());
+    process_attacks();
+    advance_players_movement();
     return state.get_updates();
 }
 
@@ -32,7 +34,7 @@ void Game::handle_msg(const Message& msg, const std::string& player_name) {
         GunType gun = msg.get_content<BuyGunCommand>().get_gun();
         handle_buy_gun_msg(player_name, gun);
     } else if (msg_type == MessageType::BUY_AMMO_CMD) {
-        WeaponSlot slot = msg.get_content<BuyAmmoCommand>().get_slot();
+        ItemSlot slot = msg.get_content<BuyAmmoCommand>().get_slot();
         handle_buy_ammo_msg(player_name, slot);
     } else if (msg_type == MessageType::MOVE_CMD) {
         Vector2D direction = msg.get_content<MoveCommand>().get_direction();
@@ -40,16 +42,13 @@ void Game::handle_msg(const Message& msg, const std::string& player_name) {
     } else if (msg_type == MessageType::STOP_PLAYER_CMD) {
         handle_stop_player_msg(player_name);
     } else if (msg_type == MessageType::AIM_CMD) {
-        float x = msg.get_content<AimCommand>().get_x();
-        float y = msg.get_content<AimCommand>().get_y();
-        handle_aim_msg(player_name, x, y);
-        // } else if (msg_type == MessageType::SHOOT_CMD) {
-        //     int x = msg.get_content<ShootCommand>().get_x();
-        //     int y = msg.get_content<ShootCommand>().get_y();
-        //     handle_shoot_msg(player_name, x, y);
-    } else if (msg_type == MessageType::SWITCH_WEAPON_CMD) {
-        WeaponSlot slot = msg.get_content<SwitchWeaponCommand>().get_slot();
-        handle_switch_weapon_msg(player_name, slot);
+        Vector2D direction = msg.get_content<AimCommand>().get_direction();
+        handle_aim_msg(player_name, direction);
+    } else if (msg_type == MessageType::ATTACK_CMD) {
+        handle_attack_msg(player_name);
+    } else if (msg_type == MessageType::SWITCH_ITEM_CMD) {
+        ItemSlot slot = msg.get_content<SwitchItemCommand>().get_slot();
+        handle_switch_item_msg(player_name, slot);
     } else if (msg_type == MessageType::RELOAD_CMD) {
         handle_reload_msg(player_name);
     }
@@ -78,6 +77,16 @@ void Game::advance_players_movement() {
             game_players_update.emplace(player_name, player->get_updates());
         }
     }
+}
+
+void Game::process_attacks() {
+    // TODO:
+    //      - Access to weapons actually attacking
+    //      - perform attack
+    //      - if we have an AttackEffect, then:
+    //              closest = physics_system.get_closest()
+    //              if we have a closest player, then:
+    //                      - effect.apply(closest player);
 }
 
 GameUpdate Game::join_player(const std::string& player_name) {
@@ -124,20 +133,19 @@ void Game::handle_start_game_msg(const std::string& player_name) {
 
 void Game::handle_buy_gun_msg(const std::string& player_name, GunType gun) {
     if (!state.get_phase().is_buying_phase())
-        throw BuyGunError();
-    // if (physics_system.player_not_in_spawn(player_name))
-    //     return;
+        return;
+    if (!physics_system.player_in_spawn(player_name))
+        return;
 
     auto& player = state.get_player(player_name);
     shop.buy_gun(player->get_inventory(), gun);
 }
 
-// TODO this could take a WeaponSlot instead of GunType
-void Game::handle_buy_ammo_msg(const std::string& player_name, WeaponSlot slot) {
+void Game::handle_buy_ammo_msg(const std::string& player_name, ItemSlot slot) {
     if (!state.get_phase().is_buying_phase())
-        throw BuyAmmoError();
-    // if (physics_system.player_not_in_spawn(player_name))
-    //     return;
+        return;
+    if (!physics_system.player_in_spawn(player_name))
+        return;
 
     auto& player = state.get_player(player_name);
     shop.buy_ammo(player->get_inventory(), slot);
@@ -156,26 +164,24 @@ void Game::handle_stop_player_msg(const std::string& player_name) {
     player->stop_moving();
 }
 
-void Game::handle_aim_msg(const std::string& player_name, float x, float y) {
+void Game::handle_aim_msg(const std::string& player_name, const Vector2D& direction) {
     auto& player = state.get_player(player_name);
-    player->aim(x, y);
+    player->aim(direction);
 }
 
-// void Game::handle_shoot_msg(const std::string& player_name, int x, int y) {
-//     if (player->get_current_weapon() == WeaponSlot::Melee) {
-//         Knife knife = player->attack();
-//         Vector2D pos(player->get_pos_x(), player->get_pos_y());
-//         physics_system.handle_attack(knife, pos);
-//     } else {
-//         std::vector<Bullet> bullets = player->shoot_gun(x, y, physics_system.time_now());
-//         for (Bullet& b : bullets)
-//             physics_system.shoot_bullet(b);
-//     }
-// }
+void Game::handle_attack_msg(const std::string& player_name) {
+    if (!state.get_phase().is_playing_phase())
+        return;
+    (void)player_name;
+    // TODO:
+    //      - Current weapon of Player should be set in attacking
+    //      - We could keep a reference of the "attacking weapons"
+    //        in Game (to access later un process_attacks)
+}
 
-void Game::handle_switch_weapon_msg(const std::string& player_name, WeaponSlot slot) {
+void Game::handle_switch_item_msg(const std::string& player_name, ItemSlot slot) {
     auto& player = state.get_player(player_name);
-    player->equip_weapon(slot);
+    player->equip_item(slot);
 }
 
 void Game::handle_reload_msg(const std::string& player_name) {
@@ -198,7 +204,7 @@ void Game::give_bomb_to_random_tt() {
 
     std::string player_name = tt_names[random_index];
     auto& player = state.get_player(player_name);
-    player->pick_bomb();
+    player->pick_bomb(Bomb());
 }
 
 Game::~Game() {}

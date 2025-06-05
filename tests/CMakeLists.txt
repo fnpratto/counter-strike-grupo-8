@@ -21,7 +21,6 @@ target_sources(taller_tests
     ../server/states/phase_state.cpp
     ../server/states/player_state.cpp
     ../server/states/inventory_state.cpp
-    ../server/states/utility_state.cpp
 
     PUBLIC
     ../common/updates/state_update.h
@@ -29,9 +28,12 @@ target_sources(taller_tests
     ../common/updates/phase_update.h
     ../common/updates/player_update.h
     ../common/updates/inventory_update.h
-    ../common/updates/utility_update.h
     ../common/updates/gun_update.h
     ../server/errors.h
+    # attack_effects
+    ../server/attack_effects/attack_effect.h
+    ../server/attack_effects/gun_attack.h
+    ../server/attack_effects/melee_attack.h
     # clock
     ../server/clock/mock_clock.h
     # game
@@ -55,16 +57,13 @@ target_sources(taller_tests
     ../server/states/phase_state.h
     ../server/states/player_state.h
     ../server/states/inventory_state.h
-    ../server/states/utility_state.h
     # weapons
     ../server/weapons/weapons_config.h
-    ../server/weapons/bullet.h
     ../server/weapons/gun.h
-    ../server/weapons/utility.h
     ../server/weapons/m3.h
     ../server/weapons/knife.h
-    ../server/weapons/glock.h
     ../server/weapons/bomb.h
+    ../server/weapons/glock.h
     ../server/weapons/awp.h
     ../server/weapons/ak47.h
     # utils

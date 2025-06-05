@@ -18,6 +18,10 @@ bool GamePhase::round_has_finished() const { return round_finished; }
 
 bool GamePhase::is_buying_phase() const { return state.get_phase() == PhaseType::Buying; }
 
+bool GamePhase::is_playing_phase() const { return state.get_phase() == PhaseType::Playing; }
+
+TimePoint GamePhase::get_time_now() const { return game_clock->now(); }
+
 void GamePhase::start_buying_phase() {
     state.set_phase(PhaseType::Buying);
     phase_start = game_clock->now();

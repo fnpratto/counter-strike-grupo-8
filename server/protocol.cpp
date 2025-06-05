@@ -36,10 +36,13 @@ payload_t ServerProtocol::serialize_msg(const ListGamesResponse& response) const
     payload_t attr##_payload = serialize_map(update.get_##attr());
 #define U_SERIALIZE_UPDATE(type, attr) \
     payload_t attr##_payload = serialize_update(update.get_##attr());
+#define V_SERIALIZE_UPDATE(type, attr) \
+    payload_t attr##_payload = serialize_vector(update.get_##attr());
 
 #define X_RESERVE(type, attr) attr##_payload.size() +
 #define M_RESERVE(key_type, value_type, attr) attr##_payload.size() +
 #define U_RESERVE(type, attr) attr##_payload.size() +
+#define V_RESERVE(type, attr) attr##_payload.size() +
 
 #define X_APPEND_UPDATE(type, attr) \
     payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end());
@@ -47,20 +50,21 @@ payload_t ServerProtocol::serialize_msg(const ListGamesResponse& response) const
     payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end());
 #define U_APPEND_UPDATE(type, attr) \
     payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end());
+#define V_APPEND_UPDATE(type, attr) \
+    payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end());
 
-#define SERIALIZE_UPDATE(CLASS, ATTRS)                                      \
-    template <>                                                             \
-    payload_t ServerProtocol::serialize_update(const CLASS& update) const { \
-        payload_t payload;                                                  \
-                                                                            \
-        ATTRS(X_SERIALIZE_UPDATE, M_SERIALIZE_UPDATE, U_SERIALIZE_UPDATE)   \
-        payload.reserve(ATTRS(X_RESERVE, M_RESERVE, U_RESERVE) 0);          \
-        ATTRS(X_APPEND_UPDATE, M_APPEND_UPDATE, U_APPEND_UPDATE)            \
-                                                                            \
-        return payload;                                                     \
+#define SERIALIZE_UPDATE(CLASS, ATTRS)                                                        \
+    template <>                                                                               \
+    payload_t ServerProtocol::serialize_update(const CLASS& update) const {                   \
+        payload_t payload;                                                                    \
+                                                                                              \
+        ATTRS(X_SERIALIZE_UPDATE, M_SERIALIZE_UPDATE, U_SERIALIZE_UPDATE, V_SERIALIZE_UPDATE) \
+        payload.reserve(ATTRS(X_RESERVE, M_RESERVE, U_RESERVE, V_RESERVE) 0);                 \
+        ATTRS(X_APPEND_UPDATE, M_APPEND_UPDATE, U_APPEND_UPDATE, V_APPEND_UPDATE)             \
+                                                                                              \
+        return payload;                                                                       \
     }
 
-SERIALIZE_UPDATE(UtilityUpdate, UTILITY_ATTRS)
 SERIALIZE_UPDATE(GunUpdate, GUN_ATTRS)
 SERIALIZE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)
 SERIALIZE_UPDATE(PlayerUpdate, PLAYER_ATTRS)
@@ -138,13 +142,13 @@ template <>
 AimCommand ServerProtocol::deserialize_msg<AimCommand>(payload_t& payload) const {
     float x = deserialize<float>(payload);
     float y = deserialize<float>(payload);
-    return AimCommand(x, y);
+    return AimCommand(Vector2D(x, y));
 }
 
 template <>
-ShootCommand ServerProtocol::deserialize_msg<ShootCommand>(payload_t& payload) const {
+AttackCommand ServerProtocol::deserialize_msg<AttackCommand>(payload_t& payload) const {
     (void)payload;
-    return ShootCommand();
+    return AttackCommand();
 }
 
 template <>
@@ -154,9 +158,9 @@ ReloadCommand ServerProtocol::deserialize_msg<ReloadCommand>(payload_t& payload)
 }
 
 template <>
-SwitchWeaponCommand ServerProtocol::deserialize_msg<SwitchWeaponCommand>(payload_t& payload) const {
+SwitchItemCommand ServerProtocol::deserialize_msg<SwitchItemCommand>(payload_t& payload) const {
     uint8_t slot = deserialize<uint8_t>(payload);
-    return SwitchWeaponCommand(static_cast<WeaponSlot>(slot));
+    return SwitchItemCommand(static_cast<ItemSlot>(slot));
 }
 
 template <>
@@ -203,12 +207,12 @@ Message ServerProtocol::deserialize_message(const MessageType& msg_type, payload
             return Message(deserialize_msg<StopPlayerCommand>(payload));
         case MessageType::AIM_CMD:
             return Message(deserialize_msg<AimCommand>(payload));
-        case MessageType::SHOOT_CMD:
-            return Message(deserialize_msg<ShootCommand>(payload));
+        case MessageType::ATTACK_CMD:
+            return Message(deserialize_msg<AttackCommand>(payload));
         case MessageType::RELOAD_CMD:
             return Message(deserialize_msg<ReloadCommand>(payload));
-        case MessageType::SWITCH_WEAPON_CMD:
-            return Message(deserialize_msg<SwitchWeaponCommand>(payload));
+        case MessageType::SWITCH_ITEM_CMD:
+            return Message(deserialize_msg<SwitchItemCommand>(payload));
         case MessageType::PLANT_BOMB_CMD:
             return Message(deserialize_msg<PlantBombCommand>(payload));
         case MessageType::DEFUSE_BOMB_CMD:

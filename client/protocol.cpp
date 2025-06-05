@@ -16,7 +16,6 @@
 #include "common/updates/inventory_update.h"
 #include "common/updates/phase_update.h"
 #include "common/updates/player_update.h"
-#include "common/updates/utility_update.h"
 
 #include "errors.h"
 #include "protocol.h"
@@ -84,8 +83,8 @@ payload_t ClientProtocol::serialize_msg(const AimCommand& cmd) const {
     payload_t payload;
     payload.reserve(2 * sizeof(float));
 
-    payload_t x = serialize(cmd.get_x());
-    payload_t y = serialize(cmd.get_y());
+    payload_t x = serialize(cmd.get_direction().get_x());
+    payload_t y = serialize(cmd.get_direction().get_y());
 
     payload.reserve(x.size() + y.size());
     payload.insert(payload.end(), x.begin(), x.end());
@@ -95,7 +94,7 @@ payload_t ClientProtocol::serialize_msg(const AimCommand& cmd) const {
 }
 
 template <>
-payload_t ClientProtocol::serialize_msg([[maybe_unused]] const ShootCommand& cmd) const {
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const AttackCommand& cmd) const {
     return payload_t();
 }
 
@@ -105,7 +104,7 @@ payload_t ClientProtocol::serialize_msg([[maybe_unused]] const ReloadCommand& cm
 }
 
 template <>
-payload_t ClientProtocol::serialize_msg(const SwitchWeaponCommand& cmd) const {
+payload_t ClientProtocol::serialize_msg(const SwitchItemCommand& cmd) const {
     return serialize(static_cast<uint8_t>(cmd.get_slot()));
 }
 
@@ -149,12 +148,12 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
             return serialize_msg(message.get_content<StopPlayerCommand>());
         case MessageType::AIM_CMD:
             return serialize_msg(message.get_content<AimCommand>());
-        case MessageType::SHOOT_CMD:
-            return serialize_msg(message.get_content<ShootCommand>());
+        case MessageType::ATTACK_CMD:
+            return serialize_msg(message.get_content<AttackCommand>());
         case MessageType::RELOAD_CMD:
             return serialize_msg(message.get_content<ReloadCommand>());
-        case MessageType::SWITCH_WEAPON_CMD:
-            return serialize_msg(message.get_content<SwitchWeaponCommand>());
+        case MessageType::SWITCH_ITEM_CMD:
+            return serialize_msg(message.get_content<SwitchItemCommand>());
         case MessageType::PLANT_BOMB_CMD:
             return serialize_msg(message.get_content<PlantBombCommand>());
         case MessageType::DEFUSE_BOMB_CMD:
@@ -179,18 +178,21 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
 #define U_DESERIALIZE_UPDATE(type, attr)           \
     type attr = deserialize_update<type>(payload); \
     result.set_##attr(attr);
+#define V_DESERIALIZE_UPDATE(type, attr)                        \
+    std::vector<type> attr = deserialize_vector<type>(payload); \
+    result.set_##attr(attr);
 
 #define DESERIALIZE_UPDATE(CLASS, ATTRS)                                         \
     template <>                                                                  \
     CLASS ClientProtocol::deserialize_update<CLASS>(payload_t & payload) const { \
         CLASS result;                                                            \
                                                                                  \
-        ATTRS(X_DESERIALIZE_UPDATE, M_DESERIALIZE_UPDATE, U_DESERIALIZE_UPDATE)  \
+        ATTRS(X_DESERIALIZE_UPDATE, M_DESERIALIZE_UPDATE, U_DESERIALIZE_UPDATE,  \
+              V_DESERIALIZE_UPDATE)                                              \
                                                                                  \
         return result;                                                           \
     }
 
-DESERIALIZE_UPDATE(UtilityUpdate, UTILITY_ATTRS)
 DESERIALIZE_UPDATE(GunUpdate, GUN_ATTRS)
 DESERIALIZE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)
 DESERIALIZE_UPDATE(PlayerUpdate, PLAYER_ATTRS)

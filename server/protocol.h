@@ -58,6 +58,13 @@ private:
         return result;
     }
 
+    template <typename T>
+    payload_t serialize_vector(const std::vector<T>& vector) const {
+        // TODO: Implement
+        (void)vector;
+        return payload_t{};
+    }
+
     Message deserialize_message(const MessageType& type, payload_t& payload) const override;
 
     /**

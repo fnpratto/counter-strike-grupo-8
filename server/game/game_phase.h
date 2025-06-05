@@ -19,6 +19,9 @@ public:
     bool is_started() const;
     bool round_has_finished() const;
     bool is_buying_phase() const;
+    bool is_playing_phase() const;
+
+    TimePoint get_time_now() const;
 
     void start_buying_phase();
 

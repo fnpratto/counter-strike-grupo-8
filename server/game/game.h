@@ -46,17 +46,15 @@ private:
     void handle_select_team_msg(const std::string& player_name, Team team);
     void handle_start_game_msg(const std::string& player_name);
     void handle_buy_gun_msg(const std::string& player_name, GunType gun);
-    void handle_buy_ammo_msg(const std::string& player_name, WeaponSlot slot);
+    void handle_buy_ammo_msg(const std::string& player_name, ItemSlot slot);
     void handle_move_msg(const std::string& player_name, const Vector2D& direction);
     void handle_stop_player_msg(const std::string& player_name);
-    void handle_aim_msg(const std::string& player_name, float x, float y);
-
-    // TODO: implement shoot command
-    // void handle_shoot_msg(const std::string& player_name, int x, int y);
-
-    void handle_switch_weapon_msg(const std::string& player_name, WeaponSlot slot);
+    void handle_aim_msg(const std::string& player_name, const Vector2D& direction);
+    void handle_attack_msg(const std::string& player_name);
+    void handle_switch_item_msg(const std::string& player_name, ItemSlot slot);
     void handle_reload_msg(const std::string& player_name);
 
-    void advance_players_movement();
     void advance_round_logic();
+    void advance_players_movement();
+    void process_attacks();
 };

@@ -7,11 +7,10 @@
 
 #include "gun_update.h"
 #include "state_update.h"
-#include "utility_update.h"
 
-#define INVENTORY_ATTRS(X, M, U)   \
-    X(int, money)                  \
-    M(WeaponSlot, GunUpdate, guns) \
-    M(WeaponSlot, UtilityUpdate, utilities)
+#define INVENTORY_ATTRS(X, M, U, V) \
+    X(int, money)                   \
+    V(ItemSlot, weapons_added)      \
+    M(ItemSlot, GunUpdate, guns)
 
 DEFINE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)

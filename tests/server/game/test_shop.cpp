@@ -34,8 +34,8 @@ TEST_F(TestInventory, CanBuyAnyPrimaryWeapon) {
         initial_money = actual_money;
 
         InventoryUpdate inv_updates = inventory.get_updates();
-        std::map<WeaponSlot, GunUpdate> guns_updates = inv_updates.get_guns();
-        EXPECT_EQ(guns_updates.at(WeaponSlot::Primary).get_gun(), gun_type);
+        std::map<ItemSlot, GunUpdate> guns_updates = inv_updates.get_guns();
+        EXPECT_EQ(guns_updates.at(ItemSlot::Primary).get_gun(), gun_type);
     }
 }
 
@@ -62,15 +62,15 @@ TEST_F(TestInventory, BuyAmmo) {
 
     inventory_update = inventory.get_full_update();
     int old_money = inventory_update.get_money();
-    GunUpdate old_glock = inventory_update.get_guns().at(WeaponSlot::Secondary);
+    GunUpdate old_glock = inventory_update.get_guns().at(ItemSlot::Secondary);
 
-    shop.buy_ammo(inventory, WeaponSlot::Secondary);
+    shop.buy_ammo(inventory, ItemSlot::Secondary);
     InventoryUpdate new_update = inventory.get_full_update();
     int new_money = new_update.get_money();
 
     EXPECT_EQ(new_money, old_money - PRICE_MAG_GLOCK);
 
-    GunUpdate new_glock = new_update.get_guns().at(WeaponSlot::Secondary);
+    GunUpdate new_glock = new_update.get_guns().at(ItemSlot::Secondary);
     EXPECT_EQ(new_glock.get_mag_ammo(), old_glock.get_mag_ammo());
     EXPECT_EQ(new_glock.get_reserve_ammo(),
               old_glock.get_reserve_ammo() + new_glock.get_bullets_per_mag());

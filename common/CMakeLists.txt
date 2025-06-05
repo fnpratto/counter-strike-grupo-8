@@ -15,13 +15,11 @@ target_sources(taller_common
     updates/phase_update.h
     updates/player_update.h
     updates/inventory_update.h
-    updates/utility_update.h
     updates/gun_update.h
     ../server/states/state.h
     ../server/states/game_state.h
     ../server/states/gun_state.h
     ../server/states/inventory_state.h
-    ../server/states/utility_state.h
     ../server/states/phase_state.h
     ../server/states/player_state.h
     liberror.h

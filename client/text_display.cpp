@@ -202,12 +202,12 @@ template <>
 Message TextDisplay::build_message<AimCommand>(std::istringstream& iss) {
     float x, y;
     iss >> x >> y;
-    return Message(AimCommand(x, y));
+    return Message(AimCommand(Vector2D(x, y)));
 }
 
 template <>
-Message TextDisplay::build_message<ShootCommand>([[maybe_unused]] std::istringstream& iss) {
-    return Message(ShootCommand());
+Message TextDisplay::build_message<AttackCommand>([[maybe_unused]] std::istringstream& iss) {
+    return Message(AttackCommand());
 }
 
 template <>
@@ -216,24 +216,24 @@ Message TextDisplay::build_message<ReloadCommand>([[maybe_unused]] std::istrings
 }
 
 template <>
-Message TextDisplay::build_message<SwitchWeaponCommand>(std::istringstream& iss) {
+Message TextDisplay::build_message<SwitchItemCommand>(std::istringstream& iss) {
     std::string slot_str;
     iss >> slot_str;
 
-    WeaponSlot slot;
+    ItemSlot slot;
     if (slot_str == "primary") {
-        slot = WeaponSlot::Primary;
+        slot = ItemSlot::Primary;
     } else if (slot_str == "secondary") {
-        slot = WeaponSlot::Secondary;
+        slot = ItemSlot::Secondary;
     } else if (slot_str == "melee") {
-        slot = WeaponSlot::Melee;
+        slot = ItemSlot::Melee;
     } else if (slot_str == "bomb") {
-        slot = WeaponSlot::Bomb;
+        slot = ItemSlot::Bomb;
     } else {
         throw std::invalid_argument("Invalid gun slot: " + slot_str);
     }
 
-    return Message(SwitchWeaponCommand(slot));
+    return Message(SwitchItemCommand(slot));
 }
 
 template <>
@@ -284,13 +284,11 @@ Message TextDisplay::parse_line(const std::string& line) {
              [this](std::istringstream& is) { return this->build_message<StopPlayerCommand>(is); }},
             {"aim", [this](std::istringstream& is) { return this->build_message<AimCommand>(is); }},
             {"shoot",
-             [this](std::istringstream& is) { return this->build_message<ShootCommand>(is); }},
+             [this](std::istringstream& is) { return this->build_message<AttackCommand>(is); }},
             {"reload",
              [this](std::istringstream& is) { return this->build_message<ReloadCommand>(is); }},
             {"switch",
-             [this](std::istringstream& is) {
-                 return this->build_message<SwitchWeaponCommand>(is);
-             }},
+             [this](std::istringstream& is) { return this->build_message<SwitchItemCommand>(is); }},
             {"plant",
              [this](std::istringstream& is) { return this->build_message<PlantBombCommand>(is); }},
             {"defuse",

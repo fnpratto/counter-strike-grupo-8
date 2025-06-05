@@ -8,12 +8,12 @@
 class Tile {
 private:
     MapTileType tile;
-    Vector2D grid_pos;
+    Vector2D pos;
 
 public:
-    Tile(MapTileType tile, Vector2D&& grid_pos): tile(tile), grid_pos(std::move(grid_pos)) {}
+    Tile(MapTileType tile, Vector2D&& pos): tile(tile), pos(std::move(pos)) {}
 
-    Vector2D get_grid_pos() const { return grid_pos; }
+    Vector2D get_pos() const { return pos; }
 
     bool is_collidable() const {
         if (tile == MapTileType::Floor)

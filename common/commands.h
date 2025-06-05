@@ -90,11 +90,11 @@ public:
  * @brief Command to buy ammo during the preparation phase.
  */
 class BuyAmmoCommand: public Command {
-    WeaponSlot slot;
+    ItemSlot slot;
 
 public:
-    explicit BuyAmmoCommand(WeaponSlot s): slot(s) {}
-    WeaponSlot get_slot() const { return slot; }
+    explicit BuyAmmoCommand(ItemSlot s): slot(s) {}
+    ItemSlot get_slot() const { return slot; }
 };
 
 /**
@@ -124,22 +124,19 @@ public:
  * @brief Command to update the aiming direction.
  */
 class AimCommand: public Command {
-    float x, y;
+    Vector2D direction;
 
 public:
-    AimCommand(float targetX, float targetY): x(targetX), y(targetY) {}
-    float get_x() const { return x; }
-    float get_y() const { return y; }
+    explicit AimCommand(Vector2D direction): direction(direction.normalized()) {}
+
+    Vector2D get_direction() const { return direction; }
 };
 
 /**
- * @class ShootCommand
- * @brief Command to shoot towards the aimed direction.
+ * @class AttackCommand
+ * @brief Command to attack towards the aimed direction.
  */
-class ShootCommand: public Command {
-public:
-    ShootCommand() {}
-};
+class AttackCommand: public Command {};
 
 /**
  * @class ReloadCommand
@@ -148,15 +145,15 @@ public:
 class ReloadCommand: public Command {};
 
 /**
- * @class SwitchWeaponCommand
+ * @class SwitchItemCommand
  * @brief Command to switch the equipped weapon.
  */
-class SwitchWeaponCommand: public Command {
-    WeaponSlot slot;
+class SwitchItemCommand: public Command {
+    ItemSlot slot;
 
 public:
-    explicit SwitchWeaponCommand(WeaponSlot s): slot(s) {}
-    WeaponSlot get_slot() const { return slot; }
+    explicit SwitchItemCommand(ItemSlot s): slot(s) {}
+    ItemSlot get_slot() const { return slot; }
 };
 
 /**

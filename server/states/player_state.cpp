@@ -1,14 +1,16 @@
 #include "player_state.h"
 
+#include <utility>
+
 PlayerState::PlayerState(Team team, Vector2D pos, Vector2D aim_direction, Vector2D velocity,
-                         bool ready, int health, WeaponSlot current_weapon):
+                         bool ready, int health, ItemSlot equipped_item):
         team(team),
         pos(pos),
         aim_direction(aim_direction),
         velocity(velocity),
         ready(ready),
         health(health),
-        current_weapon(current_weapon) {
+        equipped_item(equipped_item) {
     updates = get_full_update();
 }
 
@@ -24,7 +26,7 @@ bool PlayerState::get_ready() const { return ready; }
 
 int PlayerState::get_health() const { return health; }
 
-WeaponSlot PlayerState::get_current_weapon() const { return current_weapon; }
+ItemSlot PlayerState::get_equipped_item() const { return equipped_item; }
 
 Inventory& PlayerState::get_inventory() { return inventory; }
 
@@ -58,12 +60,12 @@ void PlayerState::set_health(int new_health) {
     updates.set_health(new_health);
 }
 
-void PlayerState::set_current_weapon(WeaponSlot new_current_weapon) {
-    current_weapon = new_current_weapon;
-    updates.set_current_weapon(new_current_weapon);
+void PlayerState::set_equipped_item(ItemSlot new_equipped_item) {
+    equipped_item = new_equipped_item;
+    updates.set_equipped_item(new_equipped_item);
 }
 
-void PlayerState::add_bomb() { inventory.add_bomb(); }
+void PlayerState::add_bomb(Bomb&& bomb) { inventory.add_bomb(std::move(bomb)); }
 
 PlayerUpdate PlayerState::get_updates() const {
     PlayerUpdate update = updates;
@@ -81,7 +83,7 @@ PlayerUpdate PlayerState::get_full_update() const {
     full_update.set_velocity(velocity);
     full_update.set_ready(ready);
     full_update.set_health(health);
-    full_update.set_current_weapon(current_weapon);
+    full_update.set_equipped_item(equipped_item);
     full_update.set_inventory(inventory.get_full_update());
     return full_update;
 }

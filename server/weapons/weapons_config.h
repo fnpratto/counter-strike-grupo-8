@@ -4,7 +4,7 @@ namespace GlockConfig {
 const int bullets_per_mag = 20;
 const int init_mag_ammo = 20;
 const int init_reserve_ammo = 120;
-const float fire_rate = 6.6;
+const float attack_rate = 6.6;
 };  // namespace GlockConfig
 
 namespace GlockBulletConfig {
@@ -19,7 +19,7 @@ const float burst_frec = 0.4f;  // bullets per second
 const int bullets_per_mag = 30;
 const int init_mag_ammo = 30;
 const int init_reserve_ammo = 90;
-const float fire_rate = 10;
+const float attack_rate = 10;
 };  // namespace Ak47Config
 
 namespace Ak47BulletConfig {
@@ -29,12 +29,11 @@ const float precision = 0.70f;
 };  // namespace Ak47BulletConfig
 
 namespace M3Config {
-const int burst_bullets = 5;
-const float burst_frec = 0;
+const int bullets_per_shoot = 5;
 const int bullets_per_mag = 1;
 const int init_mag_ammo = 8;
 const int init_reserve_ammo = 32;
-const float fire_rate = 1.1;
+const float attack_rate = 1.1;
 const float cone_max_angle = 30.0f;
 };  // namespace M3Config
 
@@ -48,7 +47,7 @@ namespace AwpConfig {
 const int bullets_per_mag = 10;
 const int init_mag_ammo = 10;
 const int init_reserve_ammo = 30;
-const float fire_rate = 0.68;
+const float attack_rate = 0.68;
 };  // namespace AwpConfig
 
 namespace AwpBulletConfig {
@@ -58,7 +57,8 @@ const float precision = 1.0f;
 
 namespace KnifeConfig {
 const int damage = 50;
-};
+const float attack_rate = 5.0;
+};  // namespace KnifeConfig
 
 namespace BombConfig {
 const int damage = 100;

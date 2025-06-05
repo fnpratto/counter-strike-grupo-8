@@ -17,12 +17,12 @@ class PlayerState: public State<PlayerUpdate> {
     Vector2D velocity;
     bool ready;
     int health;
-    WeaponSlot current_weapon;
+    ItemSlot equipped_item;
     Inventory inventory;
 
 public:
     PlayerState(Team team, Vector2D pos, Vector2D aim_direction, Vector2D velocity, bool ready,
-                int health, WeaponSlot current_weapon);
+                int health, ItemSlot equipped_item);
 
     Team get_team() const;
     Vector2D get_pos() const;
@@ -30,7 +30,7 @@ public:
     Vector2D get_velocity() const;
     bool get_ready() const;
     int get_health() const;
-    WeaponSlot get_current_weapon() const;
+    ItemSlot get_equipped_item() const;
     Inventory& get_inventory();
 
     void set_team(Team new_team);
@@ -39,9 +39,9 @@ public:
     void set_velocity(Vector2D new_velocity);
     void set_ready(bool new_ready);
     void set_health(int new_health);
-    void set_current_weapon(WeaponSlot new_current_weapon);
+    void set_equipped_item(ItemSlot new_equipped_item);
 
-    void add_bomb();
+    void add_bomb(Bomb&& bomb);
 
     PlayerUpdate get_updates() const override;
     PlayerUpdate get_full_update() const override;  // cppcheck-suppress[virtualCallInConstructor]

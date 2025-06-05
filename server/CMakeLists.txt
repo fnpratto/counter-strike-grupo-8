@@ -24,7 +24,6 @@ target_sources(taller_server
     states/phase_state.cpp
     states/player_state.cpp
     states/inventory_state.cpp
-    states/utility_state.cpp
 
     PUBLIC
     acceptor.h
@@ -34,6 +33,10 @@ target_sources(taller_server
     protocol.h
     receiver.h
     errors.h
+    # attack_effects
+    attack_effects/attack_effect.h
+    attack_effects/gun_attack.h
+    attack_effects/melee_attack.h
     # clock
     clock/clock.h
     clock/mock_clock.h
@@ -59,16 +62,13 @@ target_sources(taller_server
     states/phase_state.h
     states/player_state.h
     states/inventory_state.h
-    states/utility_state.h
     # weapons
     weapons/weapons_config.h
     weapons/gun.h
-    weapons/utility.h
     weapons/m3.h
     weapons/knife.h
-    weapons/glock.h
     weapons/bomb.h
+    weapons/glock.h
     weapons/awp.h
     weapons/ak47.h
-    weapons/bullet.h
 )

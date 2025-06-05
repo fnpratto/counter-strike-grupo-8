@@ -17,13 +17,23 @@ public:
     float get_x() const { return x; }
     float get_y() const { return y; }
 
+    Vector2D operator-(const Vector2D& other) const { return Vector2D(x - other.x, y - other.y); }
+
     Vector2D operator+(const Vector2D& other) const { return Vector2D(x + other.x, y + other.y); }
 
     Vector2D operator*(float n) const { return Vector2D(x * n, y * n); }
 
+    Vector2D operator/(float n) const { return Vector2D(x / n, y / n); }
+
     bool operator==(const Vector2D& other) const { return x == other.x && y == other.y; }
 
     bool operator!=(const Vector2D& other) const { return x != other.x || y != other.y; }
+
+    float cross(const Vector2D& other) const { return x * other.y - y * other.x; }
+
+    float dot(const Vector2D& other) const { return x * other.x + y * other.y; }
+
+    float length() const { return std::sqrt(x * x + y * y); }
 
     Vector2D normalized() const {
         float norm = std::sqrt(x * x + y * y);
@@ -32,8 +42,7 @@ public:
         return Vector2D(x / norm, y / norm);
     }
 
-    // TODO esto no va acá
-    void vary_dir_in_cone(float cone_max_angle_deg) {
+    Vector2D varied_dir_in_cone(float cone_max_angle_deg) const {
         float base_angle = std::atan2(y, x);
 
         float cone_max_angle_rad = cone_max_angle_deg * M_PI / 180.0f;
@@ -42,8 +51,7 @@ public:
 
         float varied_angle = base_angle + angle_offset;
 
-        x = std::cos(varied_angle);
-        y = std::sin(varied_angle);
+        return Vector2D(std::cos(varied_angle), std::sin(varied_angle));
     }
 
     ~Vector2D() {}

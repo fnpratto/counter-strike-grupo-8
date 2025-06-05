@@ -7,7 +7,6 @@
 #include "common/updates/inventory_update.h"
 #include "common/updates/phase_update.h"
 #include "common/updates/player_update.h"
-#include "common/updates/utility_update.h"
 #include "server/clock/mock_clock.h"
 #include "server/errors.h"
 #include "server/game/game.h"
@@ -16,6 +15,8 @@
 #include "server/map/map.h"
 #include "server/map/map_builder.h"
 #include "server/player_message.h"
+
+#define TILE_SIZE 32.0
 
 class TestGame: public ::testing::Test {
 protected:
@@ -165,12 +166,10 @@ TEST_F(TestGame, OneTerroristHasBombWhenGameStarted) {
 
     if (player_updates.find("test_player") != player_updates.end()) {
         InventoryUpdate inv_updates = player_updates.at("test_player").get_inventory();
-        std::map<WeaponSlot, UtilityUpdate> util_updates = inv_updates.get_utilities();
-        EXPECT_EQ(util_updates.at(WeaponSlot::Bomb).get_type(), UtilityType::C4);
+        EXPECT_TRUE(inv_updates.has_weapons_added_changed());
     } else if (player_updates.find("another_player") != player_updates.end()) {
         InventoryUpdate inv_updates = player_updates.at("another_player").get_inventory();
-        std::map<WeaponSlot, UtilityUpdate> util_updates = inv_updates.get_utilities();
-        EXPECT_EQ(util_updates.at(WeaponSlot::Bomb).get_type(), UtilityType::C4);
+        EXPECT_TRUE(inv_updates.has_weapons_added_changed());
     } else {
         FAIL();
     }
@@ -238,8 +237,8 @@ TEST_F(TestGame, PlayerCanMove) {
     // Check updated position
     player_updates = updates.get_players();
     Vector2D new_pos = player_updates.at("test_player").get_pos();
-    Vector2D step = expected_vel * static_cast<float>(map.get_tile_size()) *
-                    GameConfig::player_speed * (1.0f / GameConfig::tickrate);
+    Vector2D step =
+            expected_vel * TILE_SIZE * GameConfig::player_speed * (1.0f / GameConfig::tickrate);
 
     EXPECT_EQ(new_pos.get_x(), old_pos.get_x() + step.get_x());
     EXPECT_EQ(new_pos.get_y(), old_pos.get_y() + step.get_y());
@@ -260,8 +259,40 @@ TEST_F(TestGame, PlayerCanMoveInDiagonal) {
     std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
     Vector2D new_pos = player_updates.at("test_player").get_pos();
 
-    Vector2D step = dir * static_cast<float>(map.get_tile_size()) * GameConfig::player_speed *
-                    (1.0f / GameConfig::tickrate);
+    Vector2D step = dir * TILE_SIZE * GameConfig::player_speed * (1.0f / GameConfig::tickrate);
     EXPECT_EQ(new_pos.get_x(), old_pos.get_x() + step.get_x());
     EXPECT_EQ(new_pos.get_y(), old_pos.get_y() + step.get_y());
+}
+
+TEST_F(TestGame, PlayerCanAimInADirection) {
+    GameUpdate updates = game.join_player("test_player");
+    Vector2D old_aim_dir = updates.get_players().at("test_player").get_aim_direction();
+    Vector2D new_aim_dir(old_aim_dir * (-1));
+
+    Message msg_aim = Message(AimCommand(new_aim_dir));
+    updates = game.tick({PlayerMessage("test_player", msg_aim)});
+
+    EXPECT_EQ(updates.get_players().at("test_player").get_aim_direction(), new_aim_dir);
+}
+
+TEST_F(TestGame, PlayerCanAttack) {
+    GameUpdate updates = game.join_player("test_player");
+    InventoryUpdate p_inv = updates.get_players().at("test_player").get_inventory();
+    int old_mag_ammo = p_inv.get_guns().at(ItemSlot::Secondary).get_mag_ammo();
+
+    Message msg_aim = Message(AimCommand(Vector2D(1, 1)));
+    Message msg_switch_weap = Message(SwitchItemCommand(ItemSlot::Secondary));
+    Message msg_start = Message(StartGameCommand());
+    game.tick({PlayerMessage("test_player", msg_aim), PlayerMessage("test_player", msg_switch_weap),
+               PlayerMessage("test_player", msg_start)});
+
+    advance_secs(PhaseTimes::buying_phase_secs);
+
+    Message msg_attack = Message(AttackCommand());
+    updates = game.tick({PlayerMessage("test_player", msg_attack)});
+
+    EXPECT_TRUE(updates.has_players_changed());
+    p_inv = updates.get_players().at("test_player").get_inventory();
+    int new_mag_ammo = p_inv.get_guns().at(ItemSlot::Secondary).get_mag_ammo();
+    EXPECT_EQ(new_mag_ammo, old_mag_ammo - 1);
 }

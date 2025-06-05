@@ -175,22 +175,22 @@ TEST_F(TestPlayerUpdate, InventoryMerging) {
 
     // Create inventory updates
     InventoryUpdate inv1;
-    std::map<WeaponSlot, GunUpdate> guns1;
+    std::map<ItemSlot, GunUpdate> guns1;
     GunUpdate gun1;
     gun1.set_gun(GunType::AK47);
     gun1.set_mag_ammo(30);
-    guns1[WeaponSlot::Primary] = gun1;
+    guns1[ItemSlot::Primary] = gun1;
     inv1.set_guns(guns1);
 
     InventoryUpdate inv2;
-    std::map<WeaponSlot, GunUpdate> guns2;
+    std::map<ItemSlot, GunUpdate> guns2;
     GunUpdate gun2;
     gun2.set_reserve_ammo(90);  // Same slot, should merge
-    guns2[WeaponSlot::Primary] = gun2;
+    guns2[ItemSlot::Primary] = gun2;
 
     GunUpdate gun3;
     gun3.set_gun(GunType::Glock);
-    guns2[WeaponSlot::Secondary] = gun3;  // New slot
+    guns2[ItemSlot::Secondary] = gun3;  // New slot
     inv2.set_guns(guns2);
 
     update1.set_inventory(inv1);
@@ -204,8 +204,8 @@ TEST_F(TestPlayerUpdate, InventoryMerging) {
     EXPECT_EQ(merged_guns.size(), 2);
 
     // Primary weapon should have merged attributes
-    EXPECT_TRUE(merged_guns.count(WeaponSlot::Primary));
-    auto& primary = merged_guns[WeaponSlot::Primary];
+    EXPECT_TRUE(merged_guns.count(ItemSlot::Primary));
+    auto& primary = merged_guns[ItemSlot::Primary];
     EXPECT_TRUE(primary.has_gun_changed());
     EXPECT_TRUE(primary.has_mag_ammo_changed());
     EXPECT_TRUE(primary.has_reserve_ammo_changed());
@@ -214,8 +214,8 @@ TEST_F(TestPlayerUpdate, InventoryMerging) {
     EXPECT_EQ(primary.get_reserve_ammo(), 90);
 
     // Secondary weapon should be present
-    EXPECT_TRUE(merged_guns.count(WeaponSlot::Secondary));
-    EXPECT_EQ(merged_guns[WeaponSlot::Secondary].get_gun(), GunType::Glock);
+    EXPECT_TRUE(merged_guns.count(ItemSlot::Secondary));
+    EXPECT_EQ(merged_guns[ItemSlot::Secondary].get_gun(), GunType::Glock);
 }
 
 class TestGunUpdate: public ::testing::Test {
