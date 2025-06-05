@@ -12,8 +12,8 @@ LobbyThread::LobbyThread(ServerProtocol& proto, LobbyMonitor& lobby_monitor,
 void LobbyThread::run() {
     try {
         while (should_keep_running()) {
+            // Wait for a message from the client
             auto msg = protocol.recv();
-
             // TODO: function map
             switch (msg.get_type()) {
                 {

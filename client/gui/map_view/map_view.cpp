@@ -19,8 +19,10 @@ Map::Map(SdlWindow& window):
         background(BACKGROUND2_PATH, window),
         tiles_area(TILES_PATH, window),
         character(CHARACTER_PATH, window),
+        yaml_map_data(YAML::LoadFile(MAP_PATH)),
         DISPLAY_WIDTH(window.getWidth()),
-        DISPLAY_HEIGHT(window.getHeight()) {
+        DISPLAY_HEIGHT(window.getHeight()),
+        map_data({Vector2D(100, 100)}) {
     character_x = 300;
     character_y = 300;
     // WALK UP (top-left)
@@ -56,14 +58,10 @@ Map::Map(SdlWindow& window):
     walkLeftClips[5] = {96, 160, 32, 32};
 }
 
-void Map::load_map(/*int map_id*/) {
-
-    map_data = YAML::LoadFile(MAP_PATH);
-    build();
-}
+void Map::load_map(/*int map_id*/) { build(); }
 
 void Map::build() {
-    YAML::Node tiles = map_data["tiles"];
+    YAML::Node tiles = yaml_map_data["tiles"];
     if (tiles["floors"]) {
         for (const auto& tile_data: tiles["floors"]) {
             int x = tile_data["x"].as<int>();
@@ -86,19 +84,26 @@ void Map::build() {
     }
 }
 
-void Map::update_character(int x, int y, Direction dir) {
+void Map::update_character(int x, int y /*, Direction dir*/) {
     character_x = x;
     character_y = y;
-    current_direction = dir;
+    // current_direction = dir;
 
     // Advance animation frame
     animation_frame = (animation_frame + 1) % 6;
 }
 
+void Map::update(GameUpdate state) {
+    update_character(map_data.position.get_x(), map_data.position.get_y());
+    // map_data.position = state.get_players().at("Player1").get_pos();
+    std::cout << "Map position updated to: (" << map_data.position.get_x() << ", "
+              << map_data.position.get_y() << ")" << std::endl;
+}
+
 
 void Map::render() {
-    const SDL_Rect* currentClip = nullptr;
-    switch (current_direction) {
+    // const SDL_Rect* currentClip = nullptr;
+    /*switch (current_direction) {
         case DIR_DOWN:
             currentClip = &walkDownClips[animation_frame];
             break;
@@ -111,12 +116,18 @@ void Map::render() {
         case DIR_RIGHT:
             currentClip = &walkRightClips[animation_frame];
             break;
-    }
+    }*/
     // Replace static src with animated clip
-    Area iconSrc(currentClip->x, currentClip->y, currentClip->w, currentClip->h);
-    Area iconDest(character_x, character_y, currentClip->w * 1.5, currentClip->h * 1.5);
+    // Area iconSrc(currentClip->x, currentClip->y, currentClip->w, currentClip->h);
+    // Area iconDest(character_x, character_y, currentClip->w * 1.5, currentClip->h * 1.5);
 
     load_map();  // Load the map with ID 0
     /*for*/
-    character.render(iconSrc, iconDest);
+    // character.render(iconSrc, iconDest);
+    Area src(0, 0, 28, 29);
+    Area iconDest(map_data.position.get_x(), map_data.position.get_y(), 50, 50);
+    std::cout << "Rendering map at position: (" << map_data.position.get_x() << ", "
+              << map_data.position.get_y() << ")" << std::endl;
+
+    character.render(src, iconDest);
 }

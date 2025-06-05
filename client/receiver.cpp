@@ -9,6 +9,8 @@ void ClientReceiver::run() {
     try {
         while (should_keep_running()) {
             Message message = protocol->recv();
+            std::cout << "Received message of type: " << static_cast<int>(message.get_type())
+                      << std::endl;
 
             if (message.get_type() != MessageType::NONE)
                 queue.push(message);

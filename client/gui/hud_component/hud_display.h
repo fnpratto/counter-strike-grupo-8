@@ -8,6 +8,7 @@
 #include "../window_elements/sdl_text.h"
 #include "../window_elements/sdl_texture.h"
 #include "../window_elements/sdl_window.h"
+#include "common/updates/game_update.h"
 
 #include "bit_map_font_number.h"
 
@@ -23,7 +24,10 @@ struct HudLayout {
     float scale;
 };
 class hudDisplay {
+    const GameUpdate& state;
+    const std::string& player_name;
     SdlWindow& window;
+
     int SCREEN_WIDTH;
     int SCREEN_HEIGHT;
     SdlTexture back;
@@ -39,35 +43,33 @@ class hudDisplay {
     SdlText roundText;
     SdlText gunNumber;
     SdlText scoreText;
+
     SdlTexture muteIcon;
+    int pointerX = SCREEN_WIDTH / 2;
+    int pointerY = SCREEN_HEIGHT / 2;
     float widthRatio;
     float heightRatio;
     float scaleRatio;
     HudLayout layout;
-    int pointerX = SCREEN_WIDTH / 2;
-    int pointerY = SCREEN_HEIGHT / 2;
+
 
 public:
-    explicit hudDisplay(SdlWindow& window);
+    explicit hudDisplay(SdlWindow& window, const GameUpdate& state, const std::string& player_name);
     void render();
     void update(int currentClockTick, bool isMuted);
     void updatePointerPosition(int x, int y);
 
 private:
     void renderBackground();
-    void renderParal();
+    void renderTeamScores();
     void renderPointer();
     void renderMoney();
     void renderLife();
-    void renderTimer(int currentClockTick);
+    void renderTimer();
     void renderRoundText();
     void renderBullets();
     void renderGunIcons();
     void renderMuteIcon(bool isMuted);
-
-    void show_timer();
-
-    void updateComponents();
 
     void renderGunIcon(const std::string& path, const std::string& number, int x, int y);
     void renderDigits(const std::string& str, int x, int y, BitmapFont& texture);

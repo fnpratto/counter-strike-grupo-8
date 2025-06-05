@@ -1,83 +1,38 @@
 #include "sdl_display.h"
 
 #include <filesystem>
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <string>
 
 #include <SDL.h>
 #include <SDL_events.h>
+#include <unistd.h>
 
-#include "../client/requests.h"
-#include "../common/message.h"
-#include "common/message.h"
-#include "gui/controllers/keyboardhandler.h"
-#include "gui/controllers/mousehandler.h"
-#include "gui/hud_component/hud_display.h"
-#include "gui/map_view/map_view.h"
-#include "gui/pre_game_view/list_teams.h"
-#include "gui/shop_view/shop.h"
-#include "gui/window_elements/sdl_window.h"
+#include "sdl_input.h"
 
-#include "display.h"
 
-void update_components() {}
+SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue,
+                       const std::string& player_name):
+        Display(input_queue, output_queue),
+        state(get_initial_state()),
+        player_name(player_name),
+        quit_flag(false),
+        input_handler(std::make_unique<SDLInput>(output_queue, quit_flag)) {}
 
-void keyboard_update(const SDL_Event& event, bool& shop) {
-    if (event.type == SDL_KEYDOWN) {
-        switch (event.key.keysym.sym) {
-            case SDLK_DOWN:
-                std::cout << "KEY_PRESS_DOWN" << std::endl;
-                break;
-            case SDLK_UP:
-                std::cout << "KEY_PRESS_UP" << std::endl;
-                break;
-            case SDLK_LEFT:
-
-                std::cout << "KEY_PRESS_LEFT" << std::endl;
-                break;
-            case SDLK_RIGHT:
-                std::cout << "KEY_PRESS_RIGHT" << std::endl;
-                break;
-            case SDLK_SPACE:
-                std::cout << "KEY_PRESS_SPACE" << std::endl;
-                shop = false;
-                break;
-            case SDLK_b:
-                shop = true;
-                std::cout << "KEY_PRESS_B" << std::endl;
-
-                break;
+void SDLDisplay::setup() {
+    char* basePath = SDL_GetBasePath();
+    if (basePath) {
+        if (chdir(basePath) != 0) {
+            std::cerr << "chdir failed: " << strerror(errno) << std::endl;
         }
+        SDL_free(basePath);
+    } else {
+        std::cerr << "SDL_GetBasePath failed: " << SDL_GetError() << std::endl;
     }
-}
 
-
-void mouse_update(const SDL_Event& event, hudDisplay& hudDisplay, shopDisplay& shopDisplay,
-                  bool shop) {
-    int x, y;
-    if (event.type == SDL_MOUSEBUTTONDOWN) {
-        switch (event.button.button) {
-            case SDL_BUTTON_LEFT:
-                std::cout << "MOUSE_PRESS_LEFT" << std::endl;
-                if (shop) {
-                    shopDisplay.updatePointerPosition(x, y);
-                }
-                break;
-            case SDL_BUTTON_RIGHT:
-                std::cout << "MOUSE_PRESS_RIGHT" << std::endl;
-                break;
-        }
-    } else if (event.type == SDL_MOUSEMOTION) {
-        SDL_GetMouseState(&x, &y);
-        hudDisplay.updatePointerPosition(x, y);
-    }
-}
-
-SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue):
-        Display(input_queue, output_queue) {}
-
-void SDLDisplay::run() {
+    input_handler->start();
 
     // FOR FULL SIZE
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -91,86 +46,130 @@ void SDLDisplay::run() {
         SDL_Quit();
         exit(1);
     }
-    int SCREEN_WIDTH = displayMode.w;
-    int SCREEN_HEIGHT = displayMode.h - 150;
+}
 
-    /*const int SCREEN_WIDTH = 800;
-    const int SCREEN_HEIGHT = 600;*/
+void SDLDisplay::run() {
+    setup();
 
-    /*TODO maybe will change*/
-    // Uint32 RATE = 16;  // Define RATE as the frame duration in milliseconds (e.g., 16ms for ~60
-    // FPS) Uint32 frame_start = SDL_GetTicks(); Uint32 frame_end;
-    /// Uint32 behind;
-    // Uint32 lost;
+    SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
+    hudDisplay hud_display(window, state, player_name);
+    shopDisplay shop_display(window);
+    Map map(window);
+    listTeams list_teams(window);
 
-    try {
-        char* basePath = SDL_GetBasePath();
-        if (basePath) {
+    // bool shop = false;
+    //  bool list_teams = true;
+    // int clock = 0;  // por ahora
 
-            if (chdir(basePath) != 0) {
-                std::cerr << "chdir failed: " << strerror(errno) << std::endl;
+    framerated([&]() {
+        // Update game state and display
+        update_state();
+        window.fill();
+        update_display(hud_display);
+        window.render();
+        return !quit_flag;
+    });
+
+    /*update --> pull event from the queue*/
+    /*window.fill();
+    if (clock > 5) {
+        map.render();
+        hudDisplay.update(clock - 5, isMuted);
+        if (shop) {
+            shopDisplay.render();
+        }
+        list_teams = false;
+    } else {
+
+        listTeams.update(clock);
+    }
+
+    window.render();
+}
+
+*/
+}
+
+
+void SDLDisplay::framerated(std::function<bool()> draw) {
+    const int target_fps = 60;
+    const std::chrono::milliseconds frame_duration(1000 / target_fps);
+
+    auto next_frame_time = std::chrono::steady_clock::now();
+
+
+    while (true) {
+        auto now = std::chrono::steady_clock::now();
+
+        if (now >= next_frame_time) {
+            // We're at or past the time for the next frame
+            // Call draw(), if it returns false, exit loop
+            if (!draw())
+                break;
+
+            // Schedule next frame (even if we’re late)
+            next_frame_time += frame_duration;
+
+            // If we are significantly behind (e.g. > 5 frames), skip ahead
+            auto max_lag = 5 * frame_duration;
+            if (now - next_frame_time > max_lag) {
+                next_frame_time = now;
             }
-            SDL_free(basePath);
         } else {
-            std::cerr << "SDL_GetBasePath failed: " << SDL_GetError() << std::endl;
+            // We're ahead of schedule: sleep to limit framerate
+            std::this_thread::sleep_until(next_frame_time);
         }
-        SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
-        hudDisplay hudDisplay(window);
-        shopDisplay shopDisplay(window);
-        Map map(window);
-        listTeams listTeams(window);
-
-        MouseHandler mouseHandler(hudDisplay, shopDisplay, listTeams, this->input_queue);
-        KeyboardHandler keyboardHandler(this->input_queue, map);
-        SDL_Event e;
-
-        bool quit = false;
-        bool shop = false;
-        bool list_teams = true;
-        int clock = 0;  // por ahora
-        bool isMuted = false;
-
-        while (!quit) {
-            while (SDL_PollEvent(&e)) {
-                if (e.type == SDL_QUIT) {
-                    quit = true;
-                }
-                keyboardHandler.handleEvent(e, shop, isMuted);
-                mouseHandler.handleEvent(e, shop, list_teams);
-            }
-            // At the start of your main loop
-            Uint32 current_time = SDL_GetTicks();
-            static Uint32 previous_time = current_time;
-            static Uint32 accumulated_time = 0;
-
-            // Compute delta and accumulate time
-            Uint32 delta_time = current_time - previous_time;
-            previous_time = current_time;
-
-            accumulated_time += delta_time;
-            if (accumulated_time >= 1000) {  // 1000 ms = 1 second
-                clock++;
-                accumulated_time -= 1000;
-            }
-            /*update --> pull event from the queue*/
-            window.fill();
-            if (clock > 5) {
-                map.render();
-                hudDisplay.update(clock - 5, isMuted);
-                if (shop) {
-                    shopDisplay.render();
-                }
-                list_teams = false;
-            } else {
-
-                listTeams.update(clock);
-            }
-
-            window.render();
-        }
-    } catch (std::exception& e) {
-        std::cout << e.what() << std::endl;
     }
 }
 
-void SDLDisplay::stop() { Thread::stop(); }
+void SDLDisplay::stop() {
+    std::cout << "Stopping SDLDisplay...\n";
+    if (input_handler) {
+        std::cout << "Stopping input handler...\n";
+        input_handler->stop();
+        input_handler->join();
+    }
+    std::cout << "Client::run done\n";
+    Thread::stop();
+}
+
+GameUpdate SDLDisplay::get_initial_state() {
+    Message msg;
+    while (true) {
+        msg = input_queue.pop();
+        if (msg.get_type() == MessageType::GAME_UPDATE) {
+            return msg.get_content<GameUpdate>();
+        } else {
+            std::cerr << "Received unexpected message type: " << static_cast<int>(msg.get_type())
+                      << std::endl;
+        }
+    }
+}
+
+void SDLDisplay::update_state() {
+    Message msg;
+    if (input_queue.try_pop(msg)) {
+        const GameUpdate& update = msg.get_content<GameUpdate>();
+        state = state.merged(update);
+        std::cout << "Applied GameUpdate" << std::endl;
+    }
+}
+
+void SDLDisplay::update_display(hudDisplay& hud_display) {
+    hud_display.render();
+    // map.update(state);
+
+    // listTeams.update(state);
+
+    // if (clock > 20) {
+    // hudDisplay.update(clock);
+    //  map.render();
+    /*if (shop) {
+        shopDisplay.render();
+    }*/
+    // list_teams = false;
+    //} else {
+
+    // listTeams.update(clock);
+    //}
+}

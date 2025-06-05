@@ -13,7 +13,6 @@ Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& m
 GameUpdate Game::tick(const std::vector<PlayerMessage>& msgs) {
     state.clear_updates();
     for (const PlayerMessage& msg: msgs) handle_msg(msg.get_message(), msg.get_player_name());
-
     advance_players_movement();
     advance_round_logic();
     return state.get_updates();
@@ -27,6 +26,8 @@ PhaseType Game::get_phase() { return state.get_phase().get_type(); }
 
 void Game::handle_msg(const Message& msg, const std::string& player_name) {
     MessageType msg_type = msg.get_type();
+    std::cout << "Game::handle_msg: Received message of type: " << static_cast<int>(msg_type)
+              << " from player: " << player_name << "\n";
     if (msg_type == MessageType::SELECT_TEAM_CMD) {
         Team team = msg.get_content<SelectTeamCommand>().get_team();
         handle_select_team_msg(player_name, team);
@@ -78,7 +79,8 @@ void Game::advance_players_movement() {
     for (const auto& [player_name, player]: state.get_players()) {
         if (player->is_moving()) {
             Vector2D old_pos = player->get_pos();
-            Vector2D new_pos = old_pos + physics_system.calculate_step(player->get_move_dir());
+            Vector2D step = physics_system.calculate_step(player->get_move_dir());
+            Vector2D new_pos = old_pos + step;
             // TODO: Check collisions with physics_system (with tiles and entities)
             player->move_to_pos(new_pos);
             game_players_update.emplace(player_name, player->get_updates());
@@ -164,7 +166,6 @@ void Game::handle_move_msg(const std::string& player_name, const Vector2D& direc
 
 void Game::handle_stop_player_msg(const std::string& player_name) {
     auto& player = state.get_player(player_name);
-
     player->stop_moving();
 }
 

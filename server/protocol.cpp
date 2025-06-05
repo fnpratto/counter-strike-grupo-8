@@ -127,6 +127,7 @@ MoveCommand ServerProtocol::deserialize_msg<MoveCommand>(payload_t& payload) con
     return MoveCommand(dir);
 }
 
+
 template <>
 StopPlayerCommand ServerProtocol::deserialize_msg<StopPlayerCommand>(payload_t& payload) const {
     (void)payload;

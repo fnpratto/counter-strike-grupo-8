@@ -4,16 +4,6 @@
 #include <filesystem>
 #include <vector>
 
-// Constants
-const int size_width = 62;
-const int size_height = 64;
-const int padding = 10;
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
-const float scale = 0.5f;
-const int digitSpacingSmall = static_cast<int>(42 * scale) + 1;
-
-
 const std::string& BACKGROUND_PATH = "../assets/gfx/backgrounds/water1.jpg";
 const std::string& POINTER_PATH = "../assets/gfx/hud/pointer.xcf";
 const std::string& MONEY_PATH = "../assets/gfx/hud/hud_symbols.xcf";
@@ -30,7 +20,9 @@ const std::string& HUD_NUMS_XCF = "../assets/gfx/fonts/hud_nums.xcf";
 const std::string& MUTE_ICON_PATH = "../assets/gfx/hud/hud_voice.xcf";
 
 
-hudDisplay::hudDisplay(SdlWindow& window):
+hudDisplay::hudDisplay(SdlWindow& window, const GameUpdate& state, const std::string& player_name):
+        state(state),
+        player_name(player_name),
         window(window),
         SCREEN_WIDTH(window.getWidth()),
         SCREEN_HEIGHT(window.getHeight()),
@@ -48,7 +40,6 @@ hudDisplay::hudDisplay(SdlWindow& window):
         gunNumber(FONT_PATH, 20, {150, 150, 150, 255}, window),
         scoreText(FONT_PATH, 20, {255, 255, 255, 255}, window),
         muteIcon(MUTE_ICON_PATH, window) {
-
     float BASE_WIDTH = 800.0f;
     float BASE_HEIGHT = 600.0f;
 
@@ -68,28 +59,13 @@ hudDisplay::hudDisplay(SdlWindow& window):
 }
 
 
-void hudDisplay::update(/*const PlayerDTO& player_info,*/ int currentClockTick, bool isMuted) {
-
-    renderBackground();
-    renderParal();
-    renderPointer();
-    renderMoney();
-    renderLife();
-    renderTimer(currentClockTick);
-    renderRoundText();
-    renderBullets();
-    renderGunIcons();
-    renderMuteIcon(isMuted);
-}
-
-
 void hudDisplay::render() {
     renderBackground();
-    renderParal();
+    renderTeamScores();
     renderPointer();
     renderMoney();
     renderLife();
-    renderTimer(1023);
+    renderTimer();
     renderRoundText();
     renderBullets();
     renderGunIcons();
@@ -132,7 +108,7 @@ void hudDisplay::renderBackground() {
 }
 
 // Render trapecio
-void hudDisplay::renderParal() {
+void hudDisplay::renderTeamScores() {
     const int trapecioWidth = SCREEN_WIDTH * 0.5;
     const int trapecioX = (SCREEN_WIDTH - trapecioWidth) / 4;
 
@@ -147,7 +123,7 @@ void hudDisplay::renderParal() {
                             paralHeight);
     parallelogram1.render(srcParallelogram1, destParallelogram1);
 
-    scoreText.setTextString("9");
+    scoreText.setTextString(std::to_string(0));  // TODO : Replace with actual score
     scoreText.render(Area(trapecioX - paralWidth / 4 + margin * 6, layout.padding * 3,
                           layout.size_width / 1.75, layout.size_height / 2));
 
@@ -158,7 +134,7 @@ void hudDisplay::renderParal() {
                            paralHeight);
     parallelogram.render(srcParallelogram, destParallelogram);
 
-    scoreText.setTextString("1");
+    scoreText.setTextString(std::to_string(0));  // TODO : Replace with actual score
     scoreText.render(
             Area(trapecioX + trapecioWidth + margin + paralWidth / 2 - layout.size_width / 4,
                  layout.padding * 3, layout.size_width / 1.75, layout.size_height / 2));
@@ -180,7 +156,8 @@ void hudDisplay::renderMoney() {
                          iconHeight);
     money.render(sizeMoney, destMoney);
 
-    std::string moneyStr = "1000";
+    std::string moneyStr =
+            std::to_string(state.get_players().at(player_name).get_inventory().get_money());
     int x = SCREEN_WIDTH - layout.size_width - layout.padding * 4;
     int y = SCREEN_HEIGHT - iconHeight - layout.padding;
     renderDigits(moneyStr, x, y, money_amount);
@@ -196,17 +173,21 @@ void hudDisplay::renderLife() {
                         iconHeight);
     life.render(sizeLife, destLife);
 
-    std::string lifeStr = "100";
+    std::string lifeStr = std::to_string(state.get_players().at(player_name).get_health());
     int x = layout.padding + iconWidth + layout.digitSpacing / 2;
     int y = SCREEN_HEIGHT - iconHeight - layout.padding;
     renderDigits(lifeStr, x, y, life_amount);
 }
 
 
-void hudDisplay::renderTimer(int currentClockTick) {
-    int minutesIdx = std::floor(currentClockTick / 60);
-    int seconds = currentClockTick % 60;
-    int secondsIdxH = std::floor(seconds / 10);
+void hudDisplay::renderTimer() {
+
+    int totalSeconds = std::chrono::duration_cast<std::chrono::seconds>(
+                               state.get_phase().get_time().time_since_epoch())
+                               .count();
+    int minutesIdx = totalSeconds / 60;
+    int seconds = totalSeconds % 60;
+    int secondsIdxH = seconds / 10;
     int secondsIdxL = seconds % 10;
 
     int totalTimerWidth = layout.digitSpacing * 4 + 10;
@@ -228,7 +209,7 @@ void hudDisplay::renderTimer(int currentClockTick) {
 
 
 void hudDisplay::renderRoundText() {
-    roundText.setTextString("Round 10");
+    roundText.setTextString("Round " + std::to_string(state.get_num_rounds()));
     roundText.render(Area(SCREEN_WIDTH / 2 - 50, layout.padding, 100, 20));
 }
 
@@ -240,7 +221,13 @@ void hudDisplay::renderBullets() {
                            SCREEN_HEIGHT - iconHeight * 3, 64 * layout.scale, 64 * layout.scale);
     equipedBullets.render(sizeBullets, destBullets);
 
-    std::string bulletsStr = "30";
+    std::string bulletsStr =
+            std::to_string(state.get_players()
+                                   .at(player_name)
+                                   .get_inventory()
+                                   .get_guns()
+                                   .at(state.get_players().at(player_name).get_current_weapon())
+                                   .get_mag_ammo());
     int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 40 - layout.padding * 2;
     int y = SCREEN_HEIGHT - iconHeight * 3;
     renderDigits(bulletsStr, x, y, equipedBulletsAmount);
@@ -251,7 +238,7 @@ void hudDisplay::renderGunIcons() {
     int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 20;
     int y = SCREEN_HEIGHT / 2;
 
-    int spacing = 64;
+    static constexpr int spacing = 64;
 
     renderGunIcon("../assets/gfx/guns/knife_k.xcf", "1", x, y);
     y += spacing;

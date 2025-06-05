@@ -14,37 +14,40 @@
 #include "../window_elements/area.h"
 #include "../window_elements/sdl_texture.h"
 #include "../window_elements/sdl_window.h"
-// #include "camera.h"
-enum Direction { DIR_DOWN, DIR_UP, DIR_LEFT, DIR_RIGHT };
+#include "common/updates/game_update.h"
 
+struct MapData {
+    Vector2D position;
+};
 
 class Map {
 public:
     explicit Map(SdlWindow& window);
 
-    void load_map(/*int map_id*/);
-
     void render();
-    void update_character(int x, int y, Direction dir);
-    void loadClips(SDL_Rect* clips, int start_x, int start_y);
+
+    void update(GameUpdate state);
 
 private:
     SdlWindow& window;
     SdlTexture background;
     SdlTexture tiles_area;
     SdlTexture character;
-    YAML::Node map_data;
+    YAML::Node yaml_map_data;
     const int DISPLAY_WIDTH;
     const int DISPLAY_HEIGHT;
     int character_x;
     int character_y;
     int animation_frame = 0;
-    Direction current_direction = DIR_DOWN;
-
     SDL_Rect walkDownClips[6];
     SDL_Rect walkUpClips[6];
     SDL_Rect walkLeftClips[6];
     SDL_Rect walkRightClips[6];
+    MapData map_data;
+
+
+    void update_character(int x, int y /*, Direction dir*/);
+    void load_map(/*int map_id*/);
     void build();
 };
 

@@ -13,6 +13,7 @@
 QtDisplay::QtDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue):
         Display(input_queue, output_queue) {}
 void QtDisplay::run() {
+
     int argc = 0;
     QApplication app(argc, nullptr);
 

@@ -11,13 +11,12 @@
 #include "common/thread.h"
 class KeyboardHandler {
 public:
-    explicit KeyboardHandler(Queue<Message>& inputQueue, Map& map_ref);
-    void handleEvent(const SDL_Event& event, bool& shop, bool& isMuted);
+    explicit KeyboardHandler(Queue<Message>& output_queue);
+    void handleEvent(const SDL_Event& event /*, bool& shop*/);
 
 private:
-    Queue<Message>& inputQueue;
+    Queue<Message>& output_queue;
     void update_direction();
-    Map& map_ref;
     int x;  // TODO sacar
     int y;  // TODO sacar
 };

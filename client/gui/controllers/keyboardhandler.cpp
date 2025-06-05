@@ -4,27 +4,27 @@
 
 #include <SDL2/SDL.h>
 
-KeyboardHandler::KeyboardHandler(Queue<Message>& inputQueue, Map& map_ref):
-        inputQueue(inputQueue), map_ref(map_ref) {
+KeyboardHandler::KeyboardHandler(Queue<Message>& output_queue): output_queue(output_queue) {
     x = 300;
     y = 300;
     // Constructor implementation can be empty or contain initialization logic if needed
 }
 
-void KeyboardHandler::handleEvent(const SDL_Event& event, bool& shop, bool& isMuted) {
+
+void KeyboardHandler::handleEvent(const SDL_Event& event /*, bool& shop*/) {
     if (event.type == SDL_KEYDOWN) {
         switch (event.key.keysym.sym) {
             case SDLK_SPACE:
                 std::cout << "KEY_PRESS_SPACE" << std::endl;
-                shop = false;
+                // shop = false;
                 break;
             case SDLK_b:
                 std::cout << "KEY_PRESS_B" << std::endl;
                 // inputQueue.push(Message(Request Store);
-                shop = true;
+                // shop = true;
                 break;
             case SDLK_m:
-                isMuted = !isMuted;
+                // Toggle mute functionality (implementation pending)
                 break;
         }
     }
@@ -39,27 +39,27 @@ void KeyboardHandler::update_direction() {
 
     if (keystate[SDL_SCANCODE_UP]) {
         y -= 5;
-        map_ref.update_character(x, y, DIR_UP);
+        // map_ref.update_character(x, y, DIR_UP);
         dy = -1;
     }
     if (keystate[SDL_SCANCODE_DOWN]) {
         y += 5;
-        map_ref.update_character(x, y, DIR_DOWN);
+        // map_ref.update_character(x, y, DIR_DOWN);
         dy = 1;
     }
     if (keystate[SDL_SCANCODE_LEFT]) {
         x -= 5;
-        map_ref.update_character(x, y, DIR_LEFT);
+        // map_ref.update_character(x, y, DIR_LEFT);
         dx = -1;
     }
     if (keystate[SDL_SCANCODE_RIGHT]) {
         x += 5;
-        map_ref.update_character(x, y, DIR_RIGHT);
+        // map_ref.update_character(x, y, DIR_RIGHT);
         dx = 1;
     }
 
     if (dx != 0 || dy != 0) {
-        inputQueue.push(Message(MoveCommand(Vector2D(dx, dy))));
+        output_queue.push(Message(MoveCommand(Vector2D(dx, dy))));
         std::cout << "KEY_PRESS_MOVE: dx=" << dx << ", dy=" << dy << std::endl;
     }
 }
