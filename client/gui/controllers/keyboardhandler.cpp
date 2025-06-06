@@ -5,8 +5,7 @@
 #include <SDL2/SDL.h>
 
 KeyboardHandler::KeyboardHandler(Queue<Message>& output_queue): output_queue(output_queue) {
-    x = 300;
-    y = 300;
+    no_movement = true;
     // Constructor implementation can be empty or contain initialization logic if needed
 }
 
@@ -16,15 +15,16 @@ void KeyboardHandler::handleEvent(const SDL_Event& event /*, bool& shop*/) {
         switch (event.key.keysym.sym) {
             case SDLK_SPACE:
                 std::cout << "KEY_PRESS_SPACE" << std::endl;
-                // shop = false;
+                // shop = false; TODO ver si agregamos esta logica solamente el client y no avisamos
+                // al server
                 break;
             case SDLK_b:
                 std::cout << "KEY_PRESS_B" << std::endl;
-                // inputQueue.push(Message(Request Store);
+                // inputQueue.push(Message(Request Store); //TODO_ADD SERVER
                 // shop = true;
                 break;
             case SDLK_m:
-                // Toggle mute functionality (implementation pending)
+                // Toggle mute functionality //TODO_ADD SERVER
                 break;
         }
     }
@@ -38,23 +38,15 @@ void KeyboardHandler::update_direction() {
     int dy = 0;
 
     if (keystate[SDL_SCANCODE_UP]) {
-        y -= 5;
-        // map_ref.update_character(x, y, DIR_UP);
         dy = -1;
     }
     if (keystate[SDL_SCANCODE_DOWN]) {
-        y += 5;
-        // map_ref.update_character(x, y, DIR_DOWN);
         dy = 1;
     }
     if (keystate[SDL_SCANCODE_LEFT]) {
-        x -= 5;
-        // map_ref.update_character(x, y, DIR_LEFT);
         dx = -1;
     }
     if (keystate[SDL_SCANCODE_RIGHT]) {
-        x += 5;
-        // map_ref.update_character(x, y, DIR_RIGHT);
         dx = 1;
     }
 

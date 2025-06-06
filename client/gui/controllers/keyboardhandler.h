@@ -17,8 +17,8 @@ public:
 private:
     Queue<Message>& output_queue;
     void update_direction();
-    int x;  // TODO sacar
-    int y;  // TODO sacar
+    // bool isMuted = false;  // TODO sacar
+    bool no_movement = false;  // TODO sacar
 };
 
 #endif  // KEYBOARDHANDLER_H

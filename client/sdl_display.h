@@ -22,8 +22,8 @@
 #include "sdl_input.h"
 
 class SDLDisplay: public Display {
-    GameUpdate state;
     std::string player_name;
+    GameUpdate state;
 
     std::atomic<bool> quit_flag;
 

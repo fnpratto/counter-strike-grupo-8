@@ -62,8 +62,8 @@ void hudDisplay::render() {
     renderTeamScores();
     renderPointer();
     // renderMoney();
-    //  renderLife();
-    //   renderTimer();
+    //   renderLife();
+    //    renderTimer();
     renderRoundText();
     // renderBullets();
     //   renderGunIcons();
