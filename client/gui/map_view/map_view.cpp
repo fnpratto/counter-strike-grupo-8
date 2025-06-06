@@ -3,10 +3,10 @@
 #include <stdexcept>
 
 
-const std::string& BACKGROUND2_PATH = "./assets/gfx/tiles/dust.bmp";
-const std::string& TILES_PATH = "./assets/gfx/tiles/default_aztec.png";
-const std::string& CHARACTER_PATH = "./assets/gfx/player/ct2.xcf";
-const std::string& MAP_PATH = "./client/gui/map_view/cod_big_map_20x20-1.yaml";
+const std::string& BACKGROUND2_PATH = "../assets/gfx/tiles/dust.bmp";
+const std::string& TILES_PATH = "../assets/gfx/tiles/default_aztec.png";
+const std::string& CHARACTER_PATH = "../assets/gfx/player/ct2.xcf";
+const std::string& MAP_PATH = "../client/gui/map_view/cod_big_map_20x20-1.yaml";
 
 const int tile_width = 32;
 const int tile_height = 32;

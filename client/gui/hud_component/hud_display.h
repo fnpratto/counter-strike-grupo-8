@@ -30,7 +30,6 @@ class hudDisplay {
 
     int SCREEN_WIDTH;
     int SCREEN_HEIGHT;
-    SdlTexture back;
     SdlTexture pointer;
     SdlTexture money;
     BitmapFont money_amount;

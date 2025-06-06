@@ -3,14 +3,14 @@
 #include <algorithm>
 #include <iostream>
 
-const std::string& RECTANGULE_HORIZONTAL = "./assets/gfx/listTeams/rectanguloxcf.xcf";
-const std::string& SHADE_PATH = "./assets/gfx/listTeams/gui_shade.bmp";
-const std::string& BACKGROUND_PATH_1 = "./assets/gfx/listTeams/rusty-black.xcf";
+const std::string& RECTANGULE_HORIZONTAL = "../assets/gfx/listTeams/rectanguloxcf.xcf";
+const std::string& SHADE_PATH = "../assets/gfx/listTeams/gui_shade.bmp";
+const std::string& BACKGROUND_PATH_1 = "../assets/gfx/listTeams/rusty-black.xcf";
 const int padding = 10;
-const std::string& TEXT_PATH = "./assets/gfx/fonts/Bebas_Neue/BebasNeue-Regular.ttf";
-const std::string& TERRORIST_PATH = "./assets/gfx/listTeams/terrorist.png";
-const std::string& COUNTER_TERRORIST_PATH = "./assets/gfx/listTeams/counter-terrorist.png";
-const std::string& SMALLER_TEXT_PATH = "./assets/gfx/fonts/HeadingNowTrial-03Book.ttf";
+const std::string& TEXT_PATH = "../assets/gfx/fonts/Bebas_Neue/BebasNeue-Regular.ttf";
+const std::string& TERRORIST_PATH = "../assets/gfx/listTeams/terrorist.png";
+const std::string& COUNTER_TERRORIST_PATH = "../assets/gfx/listTeams/counter-terrorist.png";
+const std::string& SMALLER_TEXT_PATH = "../assets/gfx/fonts/HeadingNowTrial-03Book.ttf";
 
 
 listTeams::listTeams(SdlWindow& window):
@@ -23,8 +23,8 @@ listTeams::listTeams(SdlWindow& window):
         background(BACKGROUND_PATH_1, window),
         terrorist(TERRORIST_PATH, window),
         counter_terrorist(COUNTER_TERRORIST_PATH, window),
-        timer_amount(window.getRenderer(), "./assets/gfx/fonts/hud_nums.xcf"),
-        timer_dots("./assets/gfx/fonts/hud_nums.xcf", window),
+        timer_amount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
+        timer_dots("../assets/gfx/fonts/hud_nums.xcf", window),
         selected_team(0) {
     float BASE_WIDTH = 800.0f;
     float BASE_HEIGHT = 600.0f;

@@ -19,12 +19,7 @@ SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue
         state(get_initial_state()),
         player_name(player_name),
         quit_flag(false),
-        input_handler(std::make_unique<SDLInput>(output_queue, quit_flag)),
-        window(SCREEN_WIDTH, SCREEN_HEIGHT),
-        hud_display(window, state, player_name),
-        shop_display(window),
-        map(window),
-        list_teams(window) {}
+        input_handler(std::make_unique<SDLInput>(output_queue, quit_flag)) {}
 
 void SDLDisplay::setup() {
     char* basePath = SDL_GetBasePath();
@@ -55,9 +50,25 @@ void SDLDisplay::setup() {
 
 void SDLDisplay::run() {
     setup();
+    SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
+    hudDisplay hud_display(window, state, player_name);
+    // shopDisplay shop_display(window);
+    Map map(window);
+    listTeams list_teams(window);
+
+    // bool shop = false;
+    //  bool list_teams = true;
+    // int clock = 0;  // por ahora
+
     framerated([&]() {
+        // Update game state and display
         update_state();
-        update_display();
+        window.fill();
+        // update_display(hud_display);
+        // map.update(state);
+        map.render();
+        hud_display.render();
+        window.render();
         return !quit_flag;
     });
 }
@@ -127,15 +138,17 @@ void SDLDisplay::update_state() {
     }
 }
 
-void SDLDisplay::update_display() {
-    // bool shop = false;
-    //  bool list_teams = true;
-    // int clock = 0;  // por ahora
+void SDLDisplay::update_display(SdlWindow window, hudDisplay hud_display, shopDisplay shop_display,
+                                Map map, listTeams list_teams) {
 
-    window.fill();
-    hud_display.render();
-    // map.update(state);
+    //   map.update(state);
     map.render();
+    hud_display.render();
+    shop_display.render();
+    map.update(state);
+    list_teams.update(0);
+
+
     window.render();
 
 
@@ -145,13 +158,18 @@ void SDLDisplay::update_display() {
     // hudDisplay.update(clock);
     //  map.render();
     /*if (shop) {
-        shopDisplay.render();
+        shop_display.render();
+        map.update(state);
+    }
+    if (b_list_teams) {
+        list_teams.update(clock);
     }*/
+
     // list_teams = false;
     //} else {
 
     // listTeams.update(clock);
-    //}
+    // }
 
     /*
         if (clock > 5) {
