@@ -3,14 +3,13 @@
 #include <stdexcept>
 
 
-const std::string& BACKGROUND2_PATH = "../assets/gfx/tiles/dust.bmp";
-const std::string& TILES_PATH = "../assets/gfx/tiles/default_aztec.png";
-const std::string& CHARACTER_PATH = "../assets/gfx/player/ct2.xcf";
-const std::string& MAP_PATH = "../client/gui/map_view/cod_big_map_20x20-1.yaml";
+const std::string& BACKGROUND2_PATH = "./assets/gfx/tiles/dust.bmp";
+const std::string& TILES_PATH = "./assets/gfx/tiles/default_aztec.png";
+const std::string& CHARACTER_PATH = "./assets/gfx/player/ct2.xcf";
+const std::string& MAP_PATH = "./client/gui/map_view/cod_big_map_20x20-1.yaml";
 
 const int tile_width = 32;
 const int tile_height = 32;
-
 const int tile_size = 96;
 
 
@@ -23,8 +22,10 @@ Map::Map(SdlWindow& window):
         DISPLAY_WIDTH(window.getWidth()),
         DISPLAY_HEIGHT(window.getHeight()),
         map_data({Vector2D(100, 100)}) {
-    character_x = 300;
-    character_y = 300;
+    character_x = -1;
+    character_y = -1;
+    current_direction = Direction::DIR_DOWN;
+    currentClip = nullptr;
     // WALK UP (top-left)
     walkUpClips[0] = {0, 0, 32, 32};
     walkUpClips[1] = {32, 0, 32, 32};
@@ -84,50 +85,81 @@ void Map::build() {
     }
 }
 
-void Map::update_character(int x, int y /*, Direction dir*/) {
-    character_x = x;
-    character_y = y;
-    // current_direction = dir;
+void Map::update_character(int x, int y) {
+    if (character_x == -1 && character_y == -1) {
+        character_x = x;
+        character_y = y;
+        return;
+    }
+
+    if (x > character_x && y > character_y) {
+        current_direction = Direction::DIR_DOWN_RIGHT;
+    } else if (x > character_x && y < character_y) {
+        current_direction = Direction::DIR_UP_RIGHT;
+    } else if (x < character_x && y > character_y) {
+        current_direction = Direction::DIR_DOWN_LEFT;
+    } else if (x < character_x && y < character_y) {
+        current_direction = Direction::DIR_UP_LEFT;
+    } else if (x > character_x) {
+        current_direction = Direction::DIR_RIGHT;
+    } else if (x < character_x) {
+        current_direction = Direction::DIR_LEFT;
+    } else if (y > character_y) {
+        current_direction = Direction::DIR_DOWN;
+    } else if (y < character_y) {
+        current_direction = Direction::DIR_UP;
+    }
 
     // Advance animation frame
     animation_frame = (animation_frame + 1) % 6;
+    character_x = x;
+    character_y = y;
 }
 
 void Map::update(GameUpdate state) {
     update_character(map_data.position.get_x(), map_data.position.get_y());
-    // map_data.position = state.get_players().at("Player1").get_pos();
+    map_data.position = state.get_players().at("Player1").get_pos();
     std::cout << "Map position updated to: (" << map_data.position.get_x() << ", "
               << map_data.position.get_y() << ")" << std::endl;
 }
 
 
 void Map::render() {
-    // const SDL_Rect* currentClip = nullptr;
-    /*switch (current_direction) {
-        case DIR_DOWN:
+
+    /*switch (current_direction) {  // todo diagonales
+        case Direction::DIR_DOWN:
             currentClip = &walkDownClips[animation_frame];
             break;
-        case DIR_UP:
+        case Direction::DIR_UP:
             currentClip = &walkUpClips[animation_frame];
             break;
-        case DIR_LEFT:
+        case Direction::DIR_UP_RIGHT:
+        case Direction::DIR_DOWN_RIGHT:
+        case Direction::DIR_DOWN_LEFT:
+        case Direction::DIR_UP_LEFT:
+            // Handle diagonal directions (e.g., use walkRightClips or walkLeftClips as fallback)
+            currentClip = &walkRightClips[animation_frame];  // Example fallback
+            break;
+            break;
+        case Direction::DIR_LEFT:
             currentClip = &walkLeftClips[animation_frame];
             break;
-        case DIR_RIGHT:
+        case Direction::DIR_RIGHT:
             currentClip = &walkRightClips[animation_frame];
             break;
-    }*/
+    }
     // Replace static src with animated clip
-    // Area iconSrc(currentClip->x, currentClip->y, currentClip->w, currentClip->h);
-    // Area iconDest(character_x, character_y, currentClip->w * 1.5, currentClip->h * 1.5);
+    Area iconSrc(currentClip->x, currentClip->y, currentClip->w, currentClip->h);
+    Area iconDest(map_data.position.get_x(), map_data.position.get_y(), currentClip->w * 1.5,
+                  currentClip->h * 1.5);*/
 
     load_map();  // Load the map with ID 0
-    /*for*/
-    // character.render(iconSrc, iconDest);
-    Area src(0, 0, 28, 29);
-    Area iconDest(map_data.position.get_x(), map_data.position.get_y(), 50, 50);
-    std::cout << "Rendering map at position: (" << map_data.position.get_x() << ", "
-              << map_data.position.get_y() << ")" << std::endl;
+                 /*for*/
+                 // character.render(iconSrc, iconDest);
+                 //  Area src(0, 0, 28, 29);
+                 //  Area iconDest(map_data.position.get_x(), map_data.position.get_y(), 50, 50);
+                 // std::cout << "Rendering map at position: (" << map_data.position.get_x() << ", "
+                 // << map_data.position.get_y() << ")" << std::endl;
 
-    character.render(src, iconDest);
+    // character.render(src, iconDest);
 }

@@ -9,14 +9,14 @@
 
 const int VALID_SLOTS = 6;
 
-const std::string& GUNS_PATH = "../assets/gfx/guns/guns.xcf";
-const std::string& HUD_SLOT_PATH = "../assets/gfx/shop/hud_slot.xcf";
-const std::string& HUD_SLOT_CLICKED_PATH = "../assets/gfx/shop/hud_slot_clicked.xcf";
-const std::string& HUD_SLOT_BLOCKED_PATH = "../assets/gfx/shop/hud_slot_blocked.xcf";
-const std::string& FONT_PAT = "../assets/gfx/fonts/joystix_monospace.otf";
-const std::string& AMMO_PATH = "../assets/gfx/guns/AMMO.xcf";
-const std::string& GUNS_PATH_AMMO1 = "../assets/gfx/guns/ammo.xcf";
-const std::string& GUNS_PATH_AMMO2 = "../assets/gfx/guns/ammo1.xcf";
+const std::string& GUNS_PATH = "./assets/gfx/guns/guns.xcf";
+const std::string& HUD_SLOT_PATH = "./assets/gfx/shop/hud_slot.xcf";
+const std::string& HUD_SLOT_CLICKED_PATH = "./assets/gfx/shop/hud_slot_clicked.xcf";
+const std::string& HUD_SLOT_BLOCKED_PATH = "./assets/gfx/shop/hud_slot_blocked.xcf";
+const std::string& FONT_PAT = "./assets/gfx/fonts/joystix_monospace.otf";
+const std::string& AMMO_PATH = "./assets/gfx/guns/AMMO.xcf";
+const std::string& GUNS_PATH_AMMO1 = "./assets/gfx/guns/ammo.xcf";
+const std::string& GUNS_PATH_AMMO2 = "./assets/gfx/guns/ammo1.xcf";
 
 struct GunInfo {
     std::string name;

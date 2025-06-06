@@ -19,7 +19,12 @@ SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue
         state(get_initial_state()),
         player_name(player_name),
         quit_flag(false),
-        input_handler(std::make_unique<SDLInput>(output_queue, quit_flag)) {}
+        input_handler(std::make_unique<SDLInput>(output_queue, quit_flag)),
+        window(SCREEN_WIDTH, SCREEN_HEIGHT),
+        hud_display(window, state, player_name),
+        shop_display(window),
+        map(window),
+        list_teams(window) {}
 
 void SDLDisplay::setup() {
     char* basePath = SDL_GetBasePath();
@@ -50,44 +55,11 @@ void SDLDisplay::setup() {
 
 void SDLDisplay::run() {
     setup();
-
-    SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
-    hudDisplay hud_display(window, state, player_name);
-    shopDisplay shop_display(window);
-    Map map(window);
-    listTeams list_teams(window);
-
-    // bool shop = false;
-    //  bool list_teams = true;
-    // int clock = 0;  // por ahora
-
     framerated([&]() {
-        // Update game state and display
         update_state();
-        window.fill();
-        update_display(hud_display);
-        window.render();
+        update_display();
         return !quit_flag;
     });
-
-    /*update --> pull event from the queue*/
-    /*window.fill();
-    if (clock > 5) {
-        map.render();
-        hudDisplay.update(clock - 5, isMuted);
-        if (shop) {
-            shopDisplay.render();
-        }
-        list_teams = false;
-    } else {
-
-        listTeams.update(clock);
-    }
-
-    window.render();
-}
-
-*/
 }
 
 
@@ -155,9 +127,17 @@ void SDLDisplay::update_state() {
     }
 }
 
-void SDLDisplay::update_display(hudDisplay& hud_display) {
+void SDLDisplay::update_display() {
+    // bool shop = false;
+    //  bool list_teams = true;
+    // int clock = 0;  // por ahora
+
+    window.fill();
     hud_display.render();
     // map.update(state);
+    map.render();
+    window.render();
+
 
     // listTeams.update(state);
 
@@ -172,4 +152,22 @@ void SDLDisplay::update_display(hudDisplay& hud_display) {
 
     // listTeams.update(clock);
     //}
+
+    /*
+        if (clock > 5) {
+            map.render();
+            hudDisplay.update(clock - 5, isMuted);
+            if (shop) {
+                shopDisplay.render();
+            }
+            list_teams = false;
+        } else {
+
+            listTeams.update(clock);
+        }
+
+        window.render();
+    }
+
+    */
 }

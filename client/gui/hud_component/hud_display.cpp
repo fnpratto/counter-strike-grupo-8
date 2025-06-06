@@ -2,22 +2,23 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <iostream>
 #include <vector>
 
-const std::string& BACKGROUND_PATH = "../assets/gfx/backgrounds/water1.jpg";
-const std::string& POINTER_PATH = "../assets/gfx/hud/pointer.xcf";
-const std::string& MONEY_PATH = "../assets/gfx/hud/hud_symbols.xcf";
-const std::string& LIFE_PATH = "../assets/gfx/hud/hud_symbols.xcf";
-const std::string& FONT_PATH = "../assets/gfx/fonts/joystix_monospace.otf";
-const std::string& BULLET_PATH = "../assets/gfx/hud/bullet-icon1.xcf";
+const std::string& BACKGROUND_PATH = "./assets/gfx/backgrounds/water1.jpg";
+const std::string& POINTER_PATH = "./assets/gfx/hud/pointer.xcf";
+const std::string& MONEY_PATH = "./assets/gfx/hud/hud_symbols.xcf";
+const std::string& LIFE_PATH = "./assets/gfx/hud/hud_symbols.xcf";
+const std::string& FONT_PATH = "./assets/gfx/fonts/joystix_monospace.otf";
+const std::string& BULLET_PATH = "./assets/gfx/hud/bullet-icon1.xcf";
 const std::string& TRAPECIO_PATH = "../assets/gfx/hud/trapezoid.xcf";
 const std::string& HUD_NUMS_PATH = "../assets/gfx/fonts/hud_nums.xcf";
 const std::string& PARALELO_RED_PATH = "../assets/gfx/hud/parallelogram.xcf";
 const std::string& PARALELO_BLUE_PATH = "../assets/gfx/hud/parallelogram_blue.xcf";
 const std::string& PARALELO_RED_O_PATH = "../assets/gfx/hud/parallelogram_red_op.xcf";
 const std::string& PARALELO_BLUE_O_PATH = "../assets/gfx/hud/parallelogram_blue_op.xcf";
-const std::string& HUD_NUMS_XCF = "../assets/gfx/fonts/hud_nums.xcf";
-const std::string& MUTE_ICON_PATH = "../assets/gfx/hud/hud_voice.xcf";
+const std::string& HUD_NUMS_XCF = "./assets/gfx/fonts/hud_nums.xcf";
+const std::string& MUTE_ICON_PATH = "./assets/gfx/hud/hud_voice.xcf";
 
 
 hudDisplay::hudDisplay(SdlWindow& window, const GameUpdate& state, const std::string& player_name):
@@ -46,8 +47,6 @@ hudDisplay::hudDisplay(SdlWindow& window, const GameUpdate& state, const std::st
     widthRatio = SCREEN_WIDTH / BASE_WIDTH;
     heightRatio = SCREEN_HEIGHT / BASE_HEIGHT;
     scaleRatio = std::min(widthRatio, heightRatio);
-
-
     layout.padding = static_cast<int>(10 * scaleRatio);
     layout.iconWidth = static_cast<int>(32 * scaleRatio);
     layout.size_width = static_cast<int>(62 * scaleRatio);
@@ -63,12 +62,12 @@ void hudDisplay::render() {
     renderBackground();
     renderTeamScores();
     renderPointer();
-    renderMoney();
-    renderLife();
-    renderTimer();
+    // renderMoney();
+    //  renderLife();
+    //   renderTimer();
     renderRoundText();
-    renderBullets();
-    renderGunIcons();
+    // renderBullets();
+    //   renderGunIcons();
     renderMuteIcon(false);
 }
 
@@ -94,7 +93,6 @@ void hudDisplay::renderMuteIcon(bool isMuted) {
 
 // Render background
 void hudDisplay::renderBackground() {
-    // back.render(sizeBackground, destBackground);
     SDL_Renderer* renderer = window.getRenderer();
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 

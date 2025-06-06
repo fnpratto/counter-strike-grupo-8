@@ -61,5 +61,8 @@ void KeyboardHandler::update_direction() {
     if (dx != 0 || dy != 0) {
         output_queue.push(Message(MoveCommand(Vector2D(dx, dy))));
         std::cout << "KEY_PRESS_MOVE: dx=" << dx << ", dy=" << dy << std::endl;
+        return;
     }
+    output_queue.push(Message(StopPlayerCommand()));
+    std::cout << "stop command" << std::endl;
 }

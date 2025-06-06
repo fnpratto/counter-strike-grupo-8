@@ -39,9 +39,15 @@ public:
     void stop() override;
 
 private:
+    SdlWindow window;
+    hudDisplay hud_display;
+    shopDisplay shop_display;
+    Map map;
+    listTeams list_teams;
+
     void setup();
 
-    void update_display(hudDisplay& hud_display);
+    void update_display();
     void framerated(std::function<bool()> draw);
 
     GameUpdate get_initial_state();
