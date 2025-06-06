@@ -81,7 +81,7 @@ public:
         return update;
     }
 
-    PlayerUpdate get_full_update() const override {  // cppcheck-suppress[virtualCallInConstructor]
+    PlayerUpdate get_full_update() const override {
         PlayerUpdate full_update;
         full_update.set_team(team);
         full_update.set_pos(pos);
