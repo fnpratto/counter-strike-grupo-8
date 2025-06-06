@@ -12,6 +12,8 @@ const std::string& MAP_PATH = "../client/gui/map_view/cod_big_map_20x20-1.yaml";
 const int tile_width = 32;
 const int tile_height = 32;
 const int tile_size = 96;
+const int total_map_width = 640;   // TODO
+const int total_map_height = 640;  // TODO
 
 
 Map::Map(SdlWindow& window):
@@ -22,7 +24,12 @@ Map::Map(SdlWindow& window):
         yaml_map_data(YAML::LoadFile(MAP_PATH)),
         DISPLAY_WIDTH(window.getWidth()),
         DISPLAY_HEIGHT(window.getHeight()),
-        map_data({Vector2D(100, 100)}) {
+        map_data({Vector2D(100, 100)}),
+        camera(DISPLAY_WIDTH, DISPLAY_HEIGHT, total_map_width,
+               total_map_height)  // Define total map size in pixels
+{
+
+    // TODO load_map(0); segun id del yaml
     character_x = -1;
     character_y = -1;
     current_direction = Direction::DIR_DOWN;
@@ -60,9 +67,7 @@ Map::Map(SdlWindow& window):
     walkLeftClips[5] = {96, 160, 32, 32};
 }
 
-void Map::load_map(/*int map_id*/) { build(); }
-
-void Map::build() {
+void Map::render_map() {
     YAML::Node tiles = yaml_map_data["tiles"];
     if (tiles["floors"]) {
         for (const auto& tile_data: tiles["floors"]) {
@@ -75,13 +80,13 @@ void Map::build() {
             // TODO: store or render based on x, y, id
             // Source area in tileset: shift horizontally by id * tile_width
 
+            Area screen_dest((x * tile_size) - camera.get_offset().get_x(),
+                             (y * tile_size) - camera.get_offset().get_y(), tile_size, tile_size);
+
             Area src(id_x * tile_width, tile_height * id_y, tile_width, tile_height);
 
-            // Destination position on screen: place tile at x,y grid
-            Area dest(x * tile_size, y * tile_size, tile_size, tile_size);
-
             // Render this tile from tiles texture to the screen
-            tiles_area.render(src, dest);
+            tiles_area.render(src, screen_dest);
         }
     }
 }
@@ -126,8 +131,7 @@ void Map::update(GameUpdate state) {
 
 
 void Map::render() {
-
-    /*switch (current_direction) {  // todo diagonales
+    switch (current_direction) {  // todo diagonales
         case Direction::DIR_DOWN:
             currentClip = &walkDownClips[animation_frame];
             break;
@@ -138,9 +142,7 @@ void Map::render() {
         case Direction::DIR_DOWN_RIGHT:
         case Direction::DIR_DOWN_LEFT:
         case Direction::DIR_UP_LEFT:
-            // Handle diagonal directions (e.g., use walkRightClips or walkLeftClips as fallback)
-            currentClip = &walkRightClips[animation_frame];  // Example fallback
-            break;
+            currentClip = &walkRightClips[animation_frame];  // TODO
             break;
         case Direction::DIR_LEFT:
             currentClip = &walkLeftClips[animation_frame];
@@ -149,18 +151,14 @@ void Map::render() {
             currentClip = &walkRightClips[animation_frame];
             break;
     }
-    // Replace static src with animated clip
+
+    camera.center(map_data.position);
+    render_map();
+
+    /*for*/
     Area iconSrc(currentClip->x, currentClip->y, currentClip->w, currentClip->h);
-    Area iconDest(map_data.position.get_x(), map_data.position.get_y(), currentClip->w * 1.5,
-                  currentClip->h * 1.5);*/
-
-    load_map();  // Load the map with ID 0
-                 /*for*/
-                 // character.render(iconSrc, iconDest);
-                 //  Area src(0, 0, 28, 29);
-                 //  Area iconDest(map_data.position.get_x(), map_data.position.get_y(), 50, 50);
-                 // std::cout << "Rendering map at position: (" << map_data.position.get_x() << ", "
-                 // << map_data.position.get_y() << ")" << std::endl;
-
-    // character.render(src, iconDest);
+    Area iconDest(map_data.position.get_x() - camera.get_offset().get_x(),
+                  map_data.position.get_y() - camera.get_offset().get_y(), currentClip->w * 1.5,
+                  currentClip->h * 1.5);
+    character.render(iconSrc, iconDest);
 }

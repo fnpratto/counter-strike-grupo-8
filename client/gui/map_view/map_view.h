@@ -16,6 +16,8 @@
 #include "../window_elements/sdl_window.h"
 #include "common/updates/game_update.h"
 
+#include "camera.h"
+
 struct MapData {
     Vector2D position;
 };
@@ -57,11 +59,9 @@ private:
     SDL_Rect walkRightClips[6];
     MapData map_data;
     SDL_Rect* currentClip;
-
-
+    Camera camera;
     void update_character(int x, int y /*, Direction dir*/);
-    void load_map(/*int map_id*/);
-    void build();
+    void render_map();
 };
 
 #endif  // MAP_VIEW_H
