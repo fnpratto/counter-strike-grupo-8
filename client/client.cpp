@@ -74,8 +74,8 @@ bool Client::connect_to_server() {
         auto conn_req = msg.get_content<ConnectionRequest>();
 
         try {
-            protocol = std::make_shared<ClientProtocol>(
-                    Socket(conn_req.get_ip().c_str(), conn_req.get_port().c_str()));
+            protocol = std::make_shared<ClientProtocol>(std::make_shared<Socket>(
+                    Socket(conn_req.get_ip().c_str(), conn_req.get_port().c_str())));
         } catch (const std::exception& e) {
             std::cerr << "Error: " << e.what() << std::endl;
             display_queue.push(Message(false));
@@ -121,7 +121,7 @@ void Client::wait_for_game_start(std::string& player_name) {
     display_queue.push(Message(true));
 }
 
-void Client::switch_display(const std::string& player_name) {
+void Client::switch_display([[maybe_unused]] const std::string& player_name) {
 #ifdef UI_TYPE_GUI
     display->stop();
     display->join();

@@ -24,7 +24,7 @@
 
 class ServerProtocol: public BaseProtocol {
 public:
-    explicit ServerProtocol(Socket&& skt): BaseProtocol(std::move(skt)) {}
+    explicit ServerProtocol(std::shared_ptr<BaseSocket> skt): BaseProtocol(std::move(skt)) {}
 
 private:
     payload_t serialize_message(const Message& message) const override;

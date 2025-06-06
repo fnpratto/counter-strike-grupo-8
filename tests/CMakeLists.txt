@@ -1,11 +1,15 @@
 target_sources(taller_tests
     PRIVATE
     common/test_game_state_update.cpp
+    common/mock_socket.cpp
     server/map/test_map.cpp
     server/game/test_game.cpp
     server/game/test_game_phase.cpp
     server/game/test_shop.cpp
     server/player/test_player.cpp
+    server/test_protocol.cpp
+    # protocol
+    ../server/protocol.cpp
     # game
     ../server/game/game.cpp
     ../server/game/game_phase.cpp
@@ -28,6 +32,8 @@ target_sources(taller_tests
     ../server/errors.h
     # clock
     ../server/clock/mock_clock.h
+    # testing
+    common/mock_socket.h
     # game
     ../server/game/shop.h
     ../server/game/game.h

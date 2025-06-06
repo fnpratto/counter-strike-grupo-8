@@ -87,8 +87,18 @@ void TextDisplay::draw(const Message& message) {
             }
             break;
         }
+        case MessageType::BOOL: {
+            bool success = message.get_content<bool>();
+            if (success) {
+                std::cout << "Command executed successfully." << std::endl;
+            } else {
+                std::cout << "Command execution failed." << std::endl;
+            }
+            break;
+        }
         default:
-            throw std::runtime_error("Invalid message type for TextDisplay");
+            throw std::runtime_error("Invalid message type for TextDisplay: " +
+                                     std::to_string(static_cast<int>(message.get_type())));
             break;
     }
 }

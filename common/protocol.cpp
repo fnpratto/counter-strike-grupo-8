@@ -14,10 +14,14 @@
 
 #include "message.h"
 
-BaseProtocol::BaseProtocol(Socket&& skt): socket(std::move(skt)) {}
+BaseProtocol::BaseProtocol(std::shared_ptr<BaseSocket> skt): socket(std::move(skt)) {
+    if (!socket) {
+        throw std::runtime_error("BaseProtocol: null socket provided");
+    }
+}
 
 bool BaseProtocol::is_closed() const {
-    return socket.is_stream_recv_closed() || socket.is_stream_send_closed();
+    return socket->is_stream_recv_closed() || socket->is_stream_send_closed();
 }
 
 bool BaseProtocol::is_open() const { return !is_closed(); }
@@ -36,7 +40,7 @@ void BaseProtocol::send(const Message& message) {
     if (payload.size() == 0)
         throw std::runtime_error("BaseProtocol: Empty payload");
 
-    socket.sendall(payload.data(), payload.size());
+    socket->sendall(payload.data(), payload.size());
 }
 
 payload_t BaseProtocol::serialize(MessageType type) const {
@@ -111,13 +115,13 @@ GameInfo BaseProtocol::deserialize<GameInfo>(payload_t& payload) const {
 
 Message BaseProtocol::recv() {
     payload_t header(sizeof(uint8_t) + sizeof(uint16_t));
-    socket.recvall(header.data(), sizeof(uint8_t) + sizeof(uint16_t));
+    socket->recvall(header.data(), sizeof(uint8_t) + sizeof(uint16_t));
 
     MessageType msg_type = deserialize<MessageType>(header);
     uint16_t length = deserialize<uint16_t>(header);
 
     payload_t content(length);
-    socket.recvall(content.data(), length);
+    socket->recvall(content.data(), length);
 
     return deserialize_message(msg_type, content);
 }
@@ -126,6 +130,6 @@ void BaseProtocol::close() {
     if (is_closed())
         return;
 
-    socket.shutdown(SHUT_RDWR);
-    socket.close();
+    socket->shutdown(SHUT_RDWR);
+    socket->close();
 }
