@@ -16,7 +16,7 @@ public:
     Knife() {}
 
     std::vector<std::unique_ptr<AttackEffect>> attack(const Vector2D& dir, TimePoint now) override {
-        (void)dir;       // TODO: MeleeAttack does not actually need this
+        (void)dir;
         int radius = 2;  // TODO: This should be received instead
         std::vector<std::unique_ptr<AttackEffect>> effects;
         if (!can_attack(KnifeConfig::attack_rate, now))
