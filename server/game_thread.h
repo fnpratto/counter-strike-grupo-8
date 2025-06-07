@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -19,7 +20,7 @@ class GameThread: public Thread {
     std::mutex mtx;
 
     std::shared_ptr<Queue<PlayerMessage>> input_queue;  // Shared queue for incoming messages
-    std::vector<std::shared_ptr<Queue<Message>>> output_queues;  // Shared output queues
+    std::map<std::string, std::shared_ptr<Queue<Message>>> output_queues;  // Shared output queues
 
 public:
     explicit GameThread(const std::string& name);
