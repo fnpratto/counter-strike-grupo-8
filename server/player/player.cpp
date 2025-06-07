@@ -69,7 +69,7 @@ void Player::equip_item(ItemSlot slot) {
 
 void Player::reload() {
     ItemSlot slot = state.get_equipped_item();
-    if (slot == ItemSlot::Melee || slot == ItemSlot::Bomb)
+    if (slot != ItemSlot::Primary && slot != ItemSlot::Secondary)
         return;
 
     auto& gun = state.get_inventory().get_gun(slot);

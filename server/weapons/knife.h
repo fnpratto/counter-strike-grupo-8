@@ -17,11 +17,11 @@ public:
 
     std::vector<std::unique_ptr<AttackEffect>> attack(const Vector2D& dir, TimePoint now) override {
         (void)dir;
-        int radius = 2;  // TODO: This should be received instead
         std::vector<std::unique_ptr<AttackEffect>> effects;
         if (!can_attack(KnifeConfig::attack_rate, now))
             return effects;
-        effects.push_back(std::make_unique<MeleeAttack>(KnifeConfig::damage, radius));
+        effects.push_back(std::make_unique<MeleeAttack>(
+                KnifeConfig::damage, KnifeConfig::attack_radius, KnifeConfig::cone_max_angle));
         time_last_attack = now;
         return effects;
     }
