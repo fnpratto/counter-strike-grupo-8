@@ -22,12 +22,10 @@ class Camera {
 private:
     int screen_width;
     int screen_height;
-    int world_width;
-    int world_height;
     Vector2D offset;
 
 public:
-    Camera(int screen_width, int screen_height, int world_width, int world_height);
+    Camera(int screen_width, int screen_height);
     void center(const Vector2D& target_pos);
     Vector2D get_offset() const;
     ~Camera();

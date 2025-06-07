@@ -35,7 +35,8 @@ enum Direction {
 
 class Map {
 public:
-    explicit Map(SdlWindow& window);
+    explicit Map(SdlWindow& window, const std::string& name);
+
 
     void render();
 
@@ -60,8 +61,17 @@ private:
     MapData map_data;
     SDL_Rect* currentClip;
     Camera camera;
+    const std::string& player_name;
     void update_character(int x, int y /*, Direction dir*/);
     void render_map();
+    int camera_x_px;
+    int camera_y_px;
+
+    int camera_x_tile;
+    int camera_y_tile;
+
+    int tiles_in_view_x;  // +2 for margin/padding
+    int tiles_in_view_y;
 };
 
 #endif  // MAP_VIEW_H

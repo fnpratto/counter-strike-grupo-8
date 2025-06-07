@@ -16,7 +16,7 @@ const int total_map_width = 640;   // TODO
 const int total_map_height = 640;  // TODO
 
 
-Map::Map(SdlWindow& window):
+Map::Map(SdlWindow& window, const std::string& name):
         window(window),
         background(BACKGROUND2_PATH, window),
         tiles_area(TILES_PATH, window),
@@ -25,9 +25,8 @@ Map::Map(SdlWindow& window):
         DISPLAY_WIDTH(window.getWidth()),
         DISPLAY_HEIGHT(window.getHeight()),
         map_data({Vector2D(100, 100)}),
-        camera(DISPLAY_WIDTH, DISPLAY_HEIGHT, total_map_width,
-               total_map_height)  // Define total map size in pixels
-{
+        camera(DISPLAY_WIDTH, DISPLAY_HEIGHT),  // Define total map size in pixels,
+        player_name(name) {
 
     // TODO load_map(0); segun id del yaml
     character_x = -1;
@@ -65,6 +64,16 @@ Map::Map(SdlWindow& window):
     walkLeftClips[3] = {96, 128, 32, 32};
     walkLeftClips[4] = {64, 160, 32, 32};
     walkLeftClips[5] = {96, 160, 32, 32};
+
+    Vector2D offset = camera.get_offset();
+    camera_x_px = offset.get_x() * tile_size;
+    camera_y_px = offset.get_y() * tile_size;
+
+    camera_x_tile = camera_x_px / tile_size;
+    camera_y_tile = camera_y_px / tile_size;
+
+    tiles_in_view_x = DISPLAY_WIDTH / tile_size + 2;  // +2 for margin/padding
+    tiles_in_view_y = DISPLAY_HEIGHT / tile_size + 2;
 }
 
 void Map::render_map() {
@@ -73,6 +82,12 @@ void Map::render_map() {
         for (const auto& tile_data: tiles["floors"]) {
             int x = tile_data["x"].as<int>();
             int y = tile_data["y"].as<int>();
+
+            if (x < camera_x_tile || x > camera_x_tile + tiles_in_view_x || y < camera_y_tile ||
+                y > camera_y_tile + tiles_in_view_y) {
+                continue;
+            }
+
             int id = tile_data["id"].as<int>();
             int id_x = id % 5;  // Calculate the x position in the 5x10 grid
             int id_y = id / 5;  // Calculate the y position in the 5x10 grid
@@ -92,12 +107,8 @@ void Map::render_map() {
 }
 
 void Map::update_character(int x, int y) {
-    if (character_x == -1 && character_y == -1) {
-        character_x = x;
-        character_y = y;
-        return;
-    }
-
+    x = x * tile_size;
+    y = y * tile_size;
     if (x > character_x && y > character_y) {
         current_direction = Direction::DIR_DOWN_RIGHT;
     } else if (x > character_x && y < character_y) {
@@ -124,9 +135,7 @@ void Map::update_character(int x, int y) {
 
 void Map::update(GameUpdate state) {
     update_character(map_data.position.get_x(), map_data.position.get_y());
-    map_data.position = state.get_players().at("Player1").get_pos();
-    std::cout << "Map position updated to: (" << map_data.position.get_x() << ", "
-              << map_data.position.get_y() << ")" << std::endl;
+    map_data.position = state.get_players().at(player_name).get_pos();
 }
 
 
@@ -156,9 +165,12 @@ void Map::render() {
     render_map();
 
     /*for*/
+    std::cout << "Rendering character at tile (" << map_data.position.get_x() << ", "
+              << map_data.position.get_y() << ")" << std::endl;
     Area iconSrc(currentClip->x, currentClip->y, currentClip->w, currentClip->h);
-    Area iconDest(map_data.position.get_x() - camera.get_offset().get_x(),
-                  map_data.position.get_y() - camera.get_offset().get_y(), currentClip->w * 1.5,
+    Area iconDest(character_x - camera.get_offset().get_x(),
+                  character_y - camera.get_offset().get_y(), currentClip->w * 1.5,
                   currentClip->h * 1.5);
+
     character.render(iconSrc, iconDest);
 }
