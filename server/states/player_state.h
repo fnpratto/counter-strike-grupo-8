@@ -44,6 +44,7 @@ public:
     void add_bomb(Bomb&& bomb);
 
     PlayerUpdate get_updates() const override;
+
     PlayerUpdate get_full_update() const override;  // cppcheck-suppress[virtualCallInConstructor]
 
     void clear_updates() override;

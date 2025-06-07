@@ -32,6 +32,7 @@ public:
     void set_bomb(Bomb&& bomb);
 
     InventoryUpdate get_updates() const override;
+
     InventoryUpdate get_full_update()  // cppcheck-suppress[virtualCallInConstructor]
             const override;
 

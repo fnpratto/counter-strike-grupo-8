@@ -15,7 +15,6 @@ protected:
     TestInventory(): inventory() {}
 };
 
-
 TEST_F(TestInventory, CanBuyAnyPrimaryWeapon) {
     Shop shop;
     inventory.set_money(10000);

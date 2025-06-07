@@ -19,7 +19,7 @@
 class Shop {
 private:
     std::map<GunType, int> gun_prices;
-    std::map<GunType, int> mag_prices;
+    std::map<GunType, int> ammo_prices;
 
 public:
     Shop() {
@@ -27,14 +27,14 @@ public:
         gun_prices[GunType::M3] = PRICE_M3;
         gun_prices[GunType::AWP] = PRICE_AWP;
 
-        mag_prices[GunType::AK47] = PRICE_MAG_AK47;
-        mag_prices[GunType::M3] = PRICE_MAG_M3;
-        mag_prices[GunType::AWP] = PRICE_MAG_AWP;
-        mag_prices[GunType::Glock] = PRICE_MAG_GLOCK;
+        ammo_prices[GunType::AK47] = PRICE_MAG_AK47;
+        ammo_prices[GunType::M3] = PRICE_MAG_M3;
+        ammo_prices[GunType::AWP] = PRICE_MAG_AWP;
+        ammo_prices[GunType::Glock] = PRICE_MAG_GLOCK;
     }
 
     std::map<GunType, int> get_gun_prices() const { return gun_prices; }
-    std::map<GunType, int> get_mag_prices() const { return mag_prices; }
+    std::map<GunType, int> get_ammo_prices() const { return ammo_prices; }
 
     void buy_gun(Inventory& inventory, const GunType& gun_type) const {
         int price = gun_prices.at(gun_type);
@@ -48,7 +48,7 @@ public:
     void buy_ammo(Inventory& inventory, const ItemSlot& slot) const {
         auto& gun = inventory.get_gun(slot);
         GunType gun_type = gun->get_type();
-        int price = mag_prices.at(gun_type);
+        int price = ammo_prices.at(gun_type);
 
         if (inventory.get_money() < price)
             throw BuyAmmoError();
