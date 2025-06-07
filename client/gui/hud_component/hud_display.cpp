@@ -61,12 +61,12 @@ void hudDisplay::render() {
     renderBackground();
     renderTeamScores();
     renderPointer();
-    // renderMoney();
-    //   renderLife();
-    //    renderTimer();
+    renderMoney();
+    renderLife();
+    renderTimer();
     renderRoundText();
-    // renderBullets();
-    //   renderGunIcons();
+    renderBullets();
+    renderGunIcons();
     renderMuteIcon(false);
 }
 

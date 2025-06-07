@@ -121,7 +121,7 @@ void Client::wait_for_game_start(std::string& player_name) {
     }
 }
 
-void Client::switch_display(const std::string& player_name) {
+void Client::switch_display([[maybe_unused]] const std::string& player_name) {
 #ifdef UI_TYPE_GUI
     display->stop();
     display->join();
