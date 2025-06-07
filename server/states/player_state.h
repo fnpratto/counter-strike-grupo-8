@@ -43,30 +43,51 @@ public:
     Inventory& get_inventory() { return inventory; }
 
     void set_team(Team new_team) {
+        if (team == new_team)
+            return;
+
         team = new_team;
         updates.set_team(new_team);
     }
     void set_pos(Vector2D new_pos) {
+        if (pos == new_pos)
+            return;
+
         pos = new_pos;
         updates.set_pos(new_pos);
     }
     void set_aim_direction(Vector2D new_aim_direction) {
+        if (aim_direction == new_aim_direction)
+            return;
+
         aim_direction = new_aim_direction;
         updates.set_aim_direction(new_aim_direction);
     }
     void set_velocity(Vector2D new_velocity) {
+        if (velocity == new_velocity)
+            return;
+
         velocity = new_velocity;
         updates.set_velocity(new_velocity);
     }
     void set_ready(bool new_ready) {
+        if (ready == new_ready)
+            return;
+
         ready = new_ready;
         updates.set_ready(new_ready);
     }
     void set_health(int new_health) {
+        if (health == new_health)
+            return;
+
         health = new_health;
         updates.set_health(new_health);
     }
     void set_current_weapon(WeaponSlot new_current_weapon) {
+        if (current_weapon == new_current_weapon)
+            return;
+
         current_weapon = new_current_weapon;
         updates.set_current_weapon(new_current_weapon);
     }

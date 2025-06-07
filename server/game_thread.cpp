@@ -9,12 +9,11 @@
 
 GameThread::GameThread(const std::string& name):
         game(name, std::make_unique<RealClock>(),
-             std::move(MapBuilder("../tests/server/map/map.yaml").build())),
+             std::move(MapBuilder("./tests/server/map/map.yaml").build())),
         input_queue(std::make_shared<Queue<PlayerMessage>>()) {}
 
 // TODO: Tick rate
 void GameThread::run() {
-
     while (should_keep_running()) {
         std::vector<PlayerMessage> msgs;
         for (int i = 0; i < MSG_BATCH_SIZE; ++i) {
@@ -24,7 +23,11 @@ void GameThread::run() {
             msgs.push_back(msg);
         }
 
-        auto out_msgs = game.tick(msgs);
+        std::vector<PlayerMessage> out_msgs;
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+            out_msgs = game.tick(msgs);
+        }
 
         for (const auto& out_msg: out_msgs) {
             auto q = output_queues.at(out_msg.get_player_name());
@@ -35,8 +38,8 @@ void GameThread::run() {
     }
 }
 
-// FIXME: Race condition
 pipe_t GameThread::join_game(const std::string& player_name) {
+    std::lock_guard<std::mutex> lock(mtx);
     game.join_player(player_name);
 
     output_queues[player_name] = std::make_shared<Queue<Message>>();
@@ -44,9 +47,13 @@ pipe_t GameThread::join_game(const std::string& player_name) {
     return {input_queue, output_queues[player_name]};
 }
 
-bool GameThread::is_full() { return game.is_full(); }
+bool GameThread::is_full() {
+    std::lock_guard<std::mutex> lock(mtx);
+    return game.is_full();
+}
 
 GameInfo GameThread::get_game_info() {
+    std::lock_guard<std::mutex> lock(mtx);
     return GameInfo(game.get_name(), game.get_player_count(), game.get_phase());
 }
 

@@ -17,6 +17,8 @@ class GameThread: public Thread {
     static constexpr int MSG_BATCH_SIZE = 10;  // Number of messages to process in one tick
 
     Game game;
+    std::mutex mtx;
+
     std::shared_ptr<Queue<PlayerMessage>> input_queue;  // Shared queue for incoming messages
     std::map<std::string, std::shared_ptr<Queue<Message>>> output_queues;  // Shared output queues
 

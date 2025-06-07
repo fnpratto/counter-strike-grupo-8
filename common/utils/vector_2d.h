@@ -5,7 +5,7 @@
 #include "random_float_generator.h"
 
 class Vector2D {
-    static constexpr int meter_size = 32;  // 1 meter = 32 game world units
+    static constexpr int meter_size = 64;  // 1 meter = 32 game world units
 
 private:
     int x;

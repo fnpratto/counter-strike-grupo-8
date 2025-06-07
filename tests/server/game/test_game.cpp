@@ -79,7 +79,8 @@ TEST_F(TestGame, PlayerCanSelectTeam) {
     EXPECT_EQ(player_updates.at("test_player").get_team(), new_team);
 }
 
-TEST_F(TestGame, PlayerJoinFullTeam) {
+TEST_F(TestGame, PlayerCannotJoinFullTeam) {
+    // Fill the Terrorist team
     Message msg_select_team = Message(SelectTeamCommand(Team::TT));
     for (int i = 1; i <= GameConfig::max_team_players; i++) {
         game.join_player("test_player_" + std::to_string(i));
@@ -89,14 +90,19 @@ TEST_F(TestGame, PlayerJoinFullTeam) {
     GameUpdate update = game.get_full_update();
     EXPECT_EQ(static_cast<int>(update.get_players().size()), GameConfig::max_team_players + 1);
 
+    // Try to select Terrorist team
     auto player_messages = game.tick({PlayerMessage("extra_player", msg_select_team)});
     GameUpdate updates;
-    updates = player_messages[0].get_message().get_content<GameUpdate>();
-    EXPECT_FALSE(updates.has_players_changed());
+
+    for (const auto& msg: player_messages) {
+        updates = msg.get_message().get_content<GameUpdate>();
+        EXPECT_EQ(updates.get_players().at("extra_player").get_team(), Team::CT);
+    }
 }
 
 TEST_F(TestGame, CannotStartAnAlreadyStartedGame) {
     game.join_player("test_player");
+    game.tick({});
 
     auto player_messages = game.tick({PlayerMessage("test_player", Message(StartGameCommand()))});
     GameUpdate updates;
@@ -196,9 +202,11 @@ TEST_F(TestGame, CounterTerroristDoesNotHaveBombWhenGameStarted) {
                                       PlayerMessage("test_player", msg_start)});
     GameUpdate updates;
     updates = player_messages[0].get_message().get_content<GameUpdate>();
-    std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
 
-    EXPECT_FALSE(player_updates.at("test_player").has_inventory_changed());
+    PlayerUpdate player_update = updates.get_players().at("test_player");
+    InventoryUpdate inv_updates = player_update.get_inventory();
+    std::map<WeaponSlot, UtilityUpdate> util_updates = inv_updates.get_utilities();
+    EXPECT_EQ(util_updates.find(WeaponSlot::Bomb), util_updates.end());
 }
 
 TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
