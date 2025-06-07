@@ -97,6 +97,12 @@ if(TALLER_CLIENT OR TALLER_EDITOR)
     )
 
     FetchContent_MakeAvailable(SDL2 SDL2_image SDL2_mixer SDL2_ttf libSDL2pp)
+
+    # Find and include Qt5 packages
+    find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui)
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_AUTORCC ON)
+    set(CMAKE_AUTOUIC ON)
 endif()
 
 if(TALLER_SERVER OR TALLER_TESTS)
@@ -135,6 +141,9 @@ if(TALLER_CLIENT)
     target_link_libraries(taller_client
         taller_common
         SDL2pp::SDL2pp
+        Qt5::Core
+        Qt5::Widgets
+        Qt5::Gui
         SDL2::SDL2
         SDL2_image::SDL2_image
         SDL2_mixer::SDL2_mixer
@@ -183,7 +192,13 @@ if(TALLER_EDITOR)
     target_include_directories(taller_editor PRIVATE ${libSDL2pp_SOURCE_DIR})
 
     # Link the taller_common lib target
-    target_link_libraries(taller_editor taller_common SDL2pp::SDL2pp)
+    target_link_libraries(taller_editor
+        taller_common
+        SDL2pp::SDL2pp
+        Qt5::Core
+        Qt5::Widgets
+        Qt5::Gui
+    )
 endif()
 
 

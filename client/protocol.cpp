@@ -169,18 +169,26 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
 
 // === Deserialization ===
 
-#define X_DESERIALIZE_UPDATE(type, attr)    \
-    type attr = deserialize<type>(payload); \
-    result.set_##attr(attr);
-#define M_DESERIALIZE_UPDATE(key_type, value_type, attr)                                  \
-    std::map<key_type, value_type> attr = deserialize_map<key_type, value_type>(payload); \
-    result.set_##attr(attr);
-#define U_DESERIALIZE_UPDATE(type, attr)           \
-    type attr = deserialize_update<type>(payload); \
-    result.set_##attr(attr);
-#define V_DESERIALIZE_UPDATE(type, attr)                        \
-    std::vector<type> attr = deserialize_vector<type>(payload); \
-    result.set_##attr(attr);
+#define X_DESERIALIZE_UPDATE(type, attr)        \
+    if (deserialize<bool>(payload)) {           \
+        type attr = deserialize<type>(payload); \
+        result.set_##attr(attr);                \
+    }
+#define M_DESERIALIZE_UPDATE(key_type, value_type, attr)                                      \
+    if (deserialize<bool>(payload)) {                                                         \
+        std::map<key_type, value_type> attr = deserialize_map<key_type, value_type>(payload); \
+        result.set_##attr(attr);                                                              \
+    }
+#define U_DESERIALIZE_UPDATE(type, attr)               \
+    if (deserialize<bool>(payload)) {                  \
+        type attr = deserialize_update<type>(payload); \
+        result.set_##attr(attr);                       \
+    }
+#define V_DESERIALIZE_UPDATE(type, attr)                            \
+    if (deserialize<bool>(payload)) {                               \
+        std::vector<type> attr = deserialize_vector<type>(payload); \
+        result.set_##attr(attr);                                    \
+    }
 
 #define DESERIALIZE_UPDATE(CLASS, ATTRS)                                         \
     template <>                                                                  \
@@ -206,7 +214,7 @@ GameUpdate ClientProtocol::deserialize_msg<GameUpdate>(payload_t& payload) const
 
 template <>
 ListGamesResponse ClientProtocol::deserialize_msg<ListGamesResponse>(payload_t& payload) const {
-    return ListGamesResponse(deserialize_vector<std::string>(payload));
+    return ListGamesResponse(deserialize_vector<GameInfo>(payload));
 }
 
 Message ClientProtocol::deserialize_message(const MessageType& type, payload_t& payload) const {

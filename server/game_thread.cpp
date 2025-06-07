@@ -20,24 +20,48 @@ void GameThread::run() {
             PlayerMessage msg;
             if (!input_queue->try_pop(msg))
                 break;  // No more messages to process
-
             msgs.push_back(msg);
         }
-        game.tick(msgs);  // TODO Replace "player_name" with actual player name
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+        GameUpdate update;
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+            update = game.tick(msgs);
+        }
+
+        if (update.has_change()) {
+            for (const auto& output_queue: output_queues) {
+                output_queue->push(Message(update));
+            }
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
 
 pipe_t GameThread::join_game(const std::string& player_name) {
+    std::lock_guard<std::mutex> lock(mtx);
     GameUpdate initial_state = game.join_player(player_name);
 
     auto output_queue = std::make_shared<Queue<Message>>();
     output_queues.push_back(output_queue);
 
-    output_queue->push(Message(initial_state));
+    // Awful hack to ensure that the other players receive the joined player's state
+    for (const auto& q: output_queues) {
+        q->push(Message(initial_state));
+    }
+
     return {input_queue, output_queue};
 }
 
-bool GameThread::is_full() { return game.is_full(); }
+bool GameThread::is_full() {
+    std::lock_guard<std::mutex> lock(mtx);
+    return game.is_full();
+}
+
+GameInfo GameThread::get_game_info() {
+    std::lock_guard<std::mutex> lock(mtx);
+    return GameInfo(game.get_name(), game.get_player_count(), game.get_phase());
+}
 
 void GameThread::stop() { Thread::stop(); }  // TODO: finish game

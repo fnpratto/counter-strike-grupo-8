@@ -30,9 +30,8 @@ bool PhysicsSystem::player_in_spawn(const std::string& player_name) const {
 }
 
 Vector2D PhysicsSystem::calculate_step(const Vector2D& dir) const {
-    float tick_duration = 1.0f / GameConfig::tickrate;
-    float units_per_second = TILE_SIZE * GameConfig::player_speed;
-    return dir.normalized() * units_per_second * tick_duration;
+    float tick_duration = 1.0f / GameConfig::tickrate;  // TODO use clock
+    return dir.normalized() * GameConfig::player_speed * tick_duration;
 }
 
 Vector2D PhysicsSystem::map_to_physics_pos(const Vector2D& pos) const { return pos * TILE_SIZE; }

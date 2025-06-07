@@ -12,8 +12,8 @@ LobbyThread::LobbyThread(ServerProtocol& proto, LobbyMonitor& lobby_monitor,
 void LobbyThread::run() {
     try {
         while (should_keep_running()) {
+            // Wait for a message from the client
             auto msg = protocol.recv();
-
             // TODO: function map
             switch (msg.get_type()) {
                 {
@@ -48,7 +48,7 @@ void LobbyThread::run() {
 }
 
 void LobbyThread::handle_create_game_cmd(const CreateGameCommand& cmd) {
-    pipe_t pipe = lobby_monitor.create_game(cmd.get_game_name());
+    pipe_t pipe = lobby_monitor.create_game(cmd.get_game_name(), cmd.get_player_name());
 
     join_callback(cmd.get_player_name(), pipe);
 
@@ -56,7 +56,7 @@ void LobbyThread::handle_create_game_cmd(const CreateGameCommand& cmd) {
 }
 
 void LobbyThread::handle_join_game_cmd(const JoinGameCommand& cmd) {
-    pipe_t pipe = lobby_monitor.join_game(cmd.get_game_name());
+    pipe_t pipe = lobby_monitor.join_game(cmd.get_game_name(), cmd.get_player_name());
 
     join_callback(cmd.get_player_name(), pipe);
 
@@ -64,6 +64,6 @@ void LobbyThread::handle_join_game_cmd(const JoinGameCommand& cmd) {
 }
 
 void LobbyThread::handle_list_games_cmd() {
-    auto games = lobby_monitor.get_games_names();
+    auto games = lobby_monitor.get_games_info();
     protocol.send(Message(ListGamesResponse(games)));
 }

@@ -35,6 +35,10 @@ public:
 
     GameUpdate tick(const std::vector<PlayerMessage>& msgs);
 
+    std::string get_name() const;
+    int get_player_count() const;
+    PhaseType get_phase();
+
     ~Game();
 
 private:

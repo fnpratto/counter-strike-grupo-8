@@ -29,8 +29,9 @@ class CreateGameCommand: public Command {
 public:
     CreateGameCommand(const std::string& game_name, const std::string& player_name):
             game_name(game_name), player_name(player_name) {}
-    std::string get_player_name() const { return player_name; }
+
     std::string get_game_name() const { return game_name; }
+    std::string get_player_name() const { return player_name; }
 };
 
 /**
@@ -45,8 +46,8 @@ public:
     JoinGameCommand(const std::string& game_name, const std::string& player_name):
             game_name(game_name), player_name(player_name) {}
 
-    std::string get_player_name() const { return player_name; }
     std::string get_game_name() const { return game_name; }
+    std::string get_player_name() const { return player_name; }
 };
 
 /**
@@ -109,6 +110,7 @@ public:
 
     Vector2D get_direction() const { return direction; }
 };
+
 
 /**
  * @class StopPlayerCommand

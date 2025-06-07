@@ -1,9 +1,9 @@
 #pragma once
 
 namespace GameConfig {
-const float tickrate = 60;
-const float player_speed = 2;
-const int max_rounds = 10;
+static constexpr int tickrate = 60;
+static constexpr int player_speed = 2;  // m/s
+static constexpr int max_rounds = 10;
 };  // namespace GameConfig
 
 namespace PhaseTimes {

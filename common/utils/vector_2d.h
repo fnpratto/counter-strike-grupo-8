@@ -5,17 +5,19 @@
 #include "random_float_generator.h"
 
 class Vector2D {
+    static constexpr int meter_size = 32;  // 1 meter = 32 game world units
+
 private:
-    float x;
-    float y;
+    int x;
+    int y;
 
 public:
-    Vector2D(float x, float y): x(x), y(y) {}
+    Vector2D(int x, int y): x(x), y(y) {}
     Vector2D(const Vector2D& v1, const Vector2D& v2):
             x(v2.get_x() - v1.get_x()), y(v2.get_y() - v1.get_y()) {}
 
-    float get_x() const { return x; }
-    float get_y() const { return y; }
+    int get_x() const { return x; }
+    int get_y() const { return y; }
 
     Vector2D operator-(const Vector2D& other) const { return Vector2D(x - other.x, y - other.y); }
 
@@ -35,11 +37,12 @@ public:
 
     float length() const { return std::sqrt(x * x + y * y); }
 
+    // Normalize the vector to 1 meter_size
     Vector2D normalized() const {
         float norm = std::sqrt(x * x + y * y);
         if (norm == 0)
             return Vector2D(0, 0);
-        return Vector2D(x / norm, y / norm);
+        return Vector2D((x / norm) * meter_size, (y / norm) * meter_size);
     }
 
     Vector2D varied_dir_in_cone(float cone_max_angle_deg) const {

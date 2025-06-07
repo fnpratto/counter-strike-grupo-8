@@ -12,6 +12,8 @@ GamePhase::GamePhase(std::shared_ptr<Clock>&& game_clock):
     phase_start = this->game_clock->now();
 }
 
+PhaseType GamePhase::get_type() const { return state.get_phase(); }
+
 bool GamePhase::is_started() const { return state.get_phase() != PhaseType::WarmUp; }
 
 bool GamePhase::round_has_finished() const { return round_finished; }

@@ -54,10 +54,36 @@ void TextDisplay::draw(const Message& message) {
 
     switch (message.get_type()) {
         case MessageType::LIST_GAMES_RESP: {
-            auto names = message.get_content<ListGamesResponse>().get_game_names();
-            std::cout << "Available games:" << std::endl;
-            for (const auto& name: names) {
-                std::cout << " - " << name << std::endl;
+            auto game_list = message.get_content<ListGamesResponse>().get_games_info();
+            std::cout << "Available games:\n";
+            for (const auto& game_info: game_list) {
+                std::cout << "Game Name: " << game_info.name
+                          << ", Players: " << game_info.players_count << ", Status: "
+                          << (game_info.phase == PhaseType::WarmUp  ? "WarmUp" :
+                              game_info.phase == PhaseType::Buying  ? "Buying" :
+                              game_info.phase == PhaseType::Playing ? "Playing" :
+                                                                      "Round Finished")
+                          << "\n";
+            }
+            break;
+        }
+        case MessageType::GAME_UPDATE: {
+            const auto& update = message.get_content<GameUpdate>();
+            state = state.merged(update);
+
+            std::cout << "Game Update:" << std::endl;
+            std::string phase_str =
+                    (state.get_phase().get_phase() == PhaseType::Buying)        ? "Buying" :
+                    (state.get_phase().get_phase() == PhaseType::Playing)       ? "Playing" :
+                    (state.get_phase().get_phase() == PhaseType::RoundFinished) ? "Round Finished" :
+                                                                                  "Warm Up";
+            std::cout << "Phase: " << phase_str << std::endl;
+            std::cout << "Players:" << std::endl;
+            for (const auto& [player_name, player]:  // cppcheck-suppress[unassignedVariable]
+                 state.get_players()) {
+                std::string team_str =
+                        (player.get_team() == Team::TT) ? "Terrorist" : "Counter-Terrorist";
+                std::cout << " - " << player_name << " (" << team_str << ")" << std::endl;
             }
             break;
         }
