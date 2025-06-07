@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <utility>
 
-Map::Map(const std::string& name, int tile_size): name(name), tile_size(tile_size) {}
+Map::Map(const std::string& name, int max_players): name(name), max_players(max_players) {}
 
 void Map::validate() const {
     if (tiles.empty()) {
@@ -18,7 +18,9 @@ void Map::validate() const {
     }
 }
 
-int Map::get_tile_size() const { return tile_size; }
+int Map::get_max_players() const { return max_players; }
+
+const std::vector<Tile>& Map::get_tiles() const { return tiles; }
 
 void Map::add_tile(MapTileType type, Vector2D&& grid_pos) {
     tiles.emplace_back(type, std::move(grid_pos));
@@ -36,7 +38,15 @@ Vector2D Map::random_spawn_ct_pos() const { return random_spawn_pos(spawns_cts);
 
 Vector2D Map::random_spawn_pos(const std::vector<Vector2D>& spawns) const {
     int rand_idx = std::rand() % spawns.size();
-    return spawns.at(rand_idx) * tile_size;
+    return spawns.at(rand_idx);
+}
+
+bool Map::is_spawn_tt_pos(const Vector2D& pos) const { return is_pos_in_vector(pos, spawns_tts); }
+
+bool Map::is_spawn_ct_pos(const Vector2D& pos) const { return is_pos_in_vector(pos, spawns_cts); }
+
+bool Map::is_pos_in_vector(const Vector2D& pos, const std::vector<Vector2D>& vector) const {
+    return std::any_of(vector.begin(), vector.end(), [&](const Vector2D& p) { return p == pos; });
 }
 
 Map::~Map() {}

@@ -203,7 +203,7 @@ void hudDisplay::renderBullets() {
                                    .at(player_name)
                                    .get_inventory()
                                    .get_guns()
-                                   .at(state.get_players().at(player_name).get_current_weapon())
+                                   .at(state.get_players().at(player_name).get_equipped_item())
                                    .get_mag_ammo());
     int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 40 - layout.padding * 2;
     int y = SCREEN_HEIGHT - iconHeight * 3;

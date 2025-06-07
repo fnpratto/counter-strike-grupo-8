@@ -1,11 +1,17 @@
 #pragma once
 
+#include <optional>
+
 #include "common/models.h"
+#include "common/utils/vector_2d.h"
 
-#include "utility.h"
-#include "weapons_config.h"
+class Bomb {
+private:
+    std::optional<Vector2D> planted_pos;
+    // TODO: Time remaining
 
-class Bomb: public Utility {
 public:
-    Bomb(): Utility(UtilityType::C4, BombConfig::damage) {}
+    Bomb() {}
+
+    bool is_planted() { return planted_pos.has_value(); }
 };

@@ -1,3 +1,6 @@
+#include <algorithm>
+#include <vector>
+
 #include <gtest/gtest.h>
 
 #include "common/models.h"
@@ -29,17 +32,20 @@ TEST_F(TestPlayer, PlayerStartWithDefaultInventory) {
     InventoryUpdate i_inv = Inventory().get_full_update();
     InventoryUpdate p_inv = player.get_full_update().get_inventory();
 
-    GunUpdate i_sec_weapon = i_inv.get_guns().at(WeaponSlot::Secondary);
-    GunUpdate p_sec_weapon = p_inv.get_guns().at(WeaponSlot::Secondary);
+    GunUpdate i_sec_weapon = i_inv.get_guns().at(ItemSlot::Secondary);
+    GunUpdate p_sec_weapon = p_inv.get_guns().at(ItemSlot::Secondary);
     EXPECT_EQ(i_sec_weapon.get_gun(), p_sec_weapon.get_gun());
     EXPECT_EQ(i_sec_weapon.get_bullets_per_mag(), p_sec_weapon.get_bullets_per_mag());
     EXPECT_EQ(i_sec_weapon.get_mag_ammo(), p_sec_weapon.get_mag_ammo());
     EXPECT_EQ(i_sec_weapon.get_reserve_ammo(), p_sec_weapon.get_reserve_ammo());
 
-    UtilityUpdate i_melee = i_inv.get_utilities().at(WeaponSlot::Melee);
-    UtilityUpdate p_melee = p_inv.get_utilities().at(WeaponSlot::Melee);
-    EXPECT_EQ(i_melee.get_type(), p_melee.get_type());
-
-    EXPECT_THROW({ p_inv.get_guns().at(WeaponSlot::Primary); }, std::out_of_range);
-    EXPECT_THROW({ p_inv.get_guns().at(WeaponSlot::Bomb); }, std::out_of_range);
+    std::vector<ItemSlot> weapons_added = p_inv.get_weapons_added();
+    EXPECT_TRUE(std::find(weapons_added.begin(), weapons_added.end(), ItemSlot::Melee) !=
+                weapons_added.end());
+    EXPECT_TRUE(std::find(weapons_added.begin(), weapons_added.end(), ItemSlot::Secondary) !=
+                weapons_added.end());
+    EXPECT_FALSE(std::find(weapons_added.begin(), weapons_added.end(), ItemSlot::Bomb) !=
+                 weapons_added.end());
+    EXPECT_FALSE(std::find(weapons_added.begin(), weapons_added.end(), ItemSlot::Primary) !=
+                 weapons_added.end());
 }

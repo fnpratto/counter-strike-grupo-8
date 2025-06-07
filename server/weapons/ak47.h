@@ -1,9 +1,11 @@
 #pragma once
 
+#include <memory>
 #include <utility>
 #include <vector>
 
 #include "common/models.h"
+#include "server/attack_effects/gun_attack.h"
 
 #include "gun.h"
 #include "weapons_config.h"
@@ -14,24 +16,24 @@ public:
             Gun(GunType::AK47, Ak47Config::bullets_per_mag, Ak47Config::init_mag_ammo,
                 Ak47Config::init_reserve_ammo) {}
 
-    std::vector<Bullet> shoot(const Vector2D& origin, const Vector2D& dest,
-                              TimePoint now) override {
-        std::vector<Bullet> bullets;
-        if (!can_shoot(Ak47Config::fire_rate, now))
-            return bullets;
+    std::vector<std::unique_ptr<AttackEffect>> attack(const Vector2D& dir, TimePoint now) override {
+        std::vector<std::unique_ptr<AttackEffect>> effects;
+        if (!has_ammo() || !can_attack(Ak47Config::attack_rate, now))
+            return effects;
 
         for (int i = 0; i < Ak47Config::burst_bullets; i++) {
             int damage =
                     get_random_damage(Ak47BulletConfig::min_damage, Ak47BulletConfig::max_damage);
-            Vector2D dir = get_bullet_dir(origin, dest);
-            float delay = i * Ak47Config::burst_frec;
-            Bullet bullet(origin, dir, damage, Ak47BulletConfig::precision, delay);
+            // TODO: This is not needed now. We have to handle burst_frec differently
+            // float delay = i * Ak47Config::burst_frec;
 
-            bullets.push_back(std::move(bullet));
+            auto effect = std::make_unique<GunAttack>(damage, dir, Ak47BulletConfig::precision);
+            effects.push_back(std::move(effect));
 
             decrease_mag_ammo();
+            time_last_attack = now;
         }
 
-        return bullets;
+        return effects;
     }
 };
