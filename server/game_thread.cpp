@@ -9,12 +9,11 @@
 
 GameThread::GameThread(const std::string& name):
         game(name, std::make_unique<RealClock>(),
-             std::move(MapBuilder("../tests/server/map/map.yaml").build())),
+             std::move(MapBuilder("./tests/server/map/map.yaml").build())),
         input_queue(std::make_shared<Queue<PlayerMessage>>()) {}
 
 // TODO: Tick rate
 void GameThread::run() {
-
     while (should_keep_running()) {
         std::vector<PlayerMessage> msgs;
         for (int i = 0; i < MSG_BATCH_SIZE; ++i) {
@@ -23,18 +22,25 @@ void GameThread::run() {
                 break;  // No more messages to process
             msgs.push_back(msg);
         }
-        GameUpdate update = game.tick(msgs);
+
+        GameUpdate update;
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+            update = game.tick(msgs);
+        }
+
         if (update.has_change()) {
             for (const auto& output_queue: output_queues) {
                 output_queue->push(Message(update));
             }
         }
+
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
 
-// FIXME: Race condition
 pipe_t GameThread::join_game(const std::string& player_name) {
+    std::lock_guard<std::mutex> lock(mtx);
     GameUpdate initial_state = game.join_player(player_name);
 
     auto output_queue = std::make_shared<Queue<Message>>();
@@ -49,6 +55,7 @@ pipe_t GameThread::join_game(const std::string& player_name) {
 }
 
 GameInfo GameThread::get_game_info() {
+    std::lock_guard<std::mutex> lock(mtx);
     return GameInfo(game.get_name(), game.get_player_count(), game.get_phase());
 }
 
