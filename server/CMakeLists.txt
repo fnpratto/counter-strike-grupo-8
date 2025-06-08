@@ -53,7 +53,9 @@ target_sources(taller_server
     # map
     map/map_builder.h
     map/map.h
-    map/tile.h
+    map/floor.h
+    map/wall.h
+    map/box.h
     # player
     player/player.h
     player/player_config.h

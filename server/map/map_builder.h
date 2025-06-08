@@ -35,7 +35,7 @@ public:
                 int x = tile_data["x"].as<int>();
                 int y = tile_data["y"].as<int>();
                 Vector2D tile_pos(x, y);
-                map.add_tile(MapTileType::Floor, std::move(tile_pos));
+                map.add_floor(std::move(tile_pos));
             }
         }
 
@@ -44,7 +44,7 @@ public:
                 int x = tile_data["x"].as<int>();
                 int y = tile_data["y"].as<int>();
                 Vector2D tile_pos(x, y);
-                map.add_tile(MapTileType::Wall, std::move(tile_pos));
+                map.add_wall(std::move(tile_pos));
             }
         }
 
@@ -53,7 +53,7 @@ public:
                 int x = tile_data["x"].as<int>();
                 int y = tile_data["y"].as<int>();
                 Vector2D tile_pos(x, y);
-                map.add_tile(MapTileType::Box, std::move(tile_pos));
+                map.add_box(std::move(tile_pos));
             }
         }
 

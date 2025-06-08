@@ -49,7 +49,9 @@ target_sources(taller_tests
     # map
     ../server/map/map_builder.h
     ../server/map/map.h
-    ../server/map/tile.h
+    ../server/map/floor.h
+    ../server/map/wall.h
+    ../server/map/box.h
     # player
     ../server/player/player.h
     ../server/player/player_config.h
