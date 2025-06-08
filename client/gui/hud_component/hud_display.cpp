@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <iostream>
 #include <vector>
 
 const std::string& BACKGROUND_PATH = "../assets/gfx/backgrounds/water1.jpg";
@@ -17,6 +18,7 @@ const std::string& PARALELO_BLUE_PATH = "../assets/gfx/hud/parallelogram_blue.xc
 const std::string& PARALELO_RED_O_PATH = "../assets/gfx/hud/parallelogram_red_op.xcf";
 const std::string& PARALELO_BLUE_O_PATH = "../assets/gfx/hud/parallelogram_blue_op.xcf";
 const std::string& HUD_NUMS_XCF = "../assets/gfx/fonts/hud_nums.xcf";
+const std::string& MUTE_ICON_PATH = "../assets/gfx/hud/hud_voice.xcf";
 
 
 hudDisplay::hudDisplay(SdlWindow& window, const GameUpdate& state, const std::string& player_name):
@@ -25,7 +27,6 @@ hudDisplay::hudDisplay(SdlWindow& window, const GameUpdate& state, const std::st
         window(window),
         SCREEN_WIDTH(window.getWidth()),
         SCREEN_HEIGHT(window.getHeight()),
-        back(BACKGROUND_PATH, window),
         pointer(POINTER_PATH, window),
         money(MONEY_PATH, window),
         money_amount(window.getRenderer(), HUD_NUMS_XCF),
@@ -37,15 +38,14 @@ hudDisplay::hudDisplay(SdlWindow& window, const GameUpdate& state, const std::st
         timer_dots(HUD_NUMS_XCF, window),
         roundText(FONT_PATH, 20, {150, 150, 150, 255}, window),
         gunNumber(FONT_PATH, 20, {150, 150, 150, 255}, window),
-        scoreText(FONT_PATH, 20, {255, 255, 255, 255}, window) {
+        scoreText(FONT_PATH, 20, {255, 255, 255, 255}, window),
+        muteIcon(MUTE_ICON_PATH, window) {
     float BASE_WIDTH = 800.0f;
     float BASE_HEIGHT = 600.0f;
 
     widthRatio = SCREEN_WIDTH / BASE_WIDTH;
     heightRatio = SCREEN_HEIGHT / BASE_HEIGHT;
     scaleRatio = std::min(widthRatio, heightRatio);
-
-
     layout.padding = static_cast<int>(10 * scaleRatio);
     layout.iconWidth = static_cast<int>(32 * scaleRatio);
     layout.size_width = static_cast<int>(62 * scaleRatio);
@@ -55,6 +55,7 @@ hudDisplay::hudDisplay(SdlWindow& window, const GameUpdate& state, const std::st
     layout.digitHeight = static_cast<int>(32 * scaleRatio);
     layout.scale = 0.5f * scaleRatio;
 }
+
 
 void hudDisplay::render() {
     renderBackground();
@@ -66,12 +67,31 @@ void hudDisplay::render() {
     renderRoundText();
     renderBullets();
     renderGunIcons();
+    renderMuteIcon(false);
+}
+
+void hudDisplay::renderMuteIcon(bool isMuted) {
+    int iconWidth = static_cast<int>(32 * scaleRatio);
+    int iconHeight = static_cast<int>(32 * scaleRatio);
+
+    if (isMuted) {
+
+        const Area sizeMuteIcon(0, 0, 64, 64);
+        const Area destMuteIcon(SCREEN_WIDTH - iconWidth - layout.padding * 4, iconHeight,
+                                iconWidth, iconHeight);
+        muteIcon.render(sizeMuteIcon, destMuteIcon);
+
+    } else {
+        const Area sizeMuteIcon(256, 0, 64, 64);
+        const Area destMuteIcon(SCREEN_WIDTH - iconWidth - layout.padding * 4, iconHeight,
+                                iconWidth, iconHeight);
+        muteIcon.render(sizeMuteIcon, destMuteIcon);
+    }
 }
 
 
 // Render background
 void hudDisplay::renderBackground() {
-    // back.render(sizeBackground, destBackground);
     SDL_Renderer* renderer = window.getRenderer();
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
@@ -120,6 +140,7 @@ void hudDisplay::renderTeamScores() {
 
 void hudDisplay::renderPointer() {
     const Area sizePointer(0, 0, 50, 50);
+    // std::cout << "Mouse moved to: (" << pointerX << ", " << pointerY << ")" << std::endl;
     const Area destPointer(pointerX - 25, pointerY - 25, 50, 50);
     pointer.render(sizePointer, destPointer);
 }
@@ -217,7 +238,7 @@ void hudDisplay::renderGunIcons() {
 
     static constexpr int spacing = 64;
 
-    renderGunIcon("../assets/gfx/guns/ak47_k.xcf", "1", x, y);
+    renderGunIcon("../assets/gfx/guns/knife_k.xcf", "1", x, y);
     y += spacing;
     renderGunIcon("../assets/gfx/guns/aug_k.xcf", "2", x, y);
     y += spacing;
@@ -247,6 +268,7 @@ void hudDisplay::renderDigits(const std::string& str, int x, int y, BitmapFont& 
 
 
 void hudDisplay::updatePointerPosition(int x, int y) {
+    std::cout << "Mouse moved to: (" << x << ", " << y << ")" << std::endl;
     pointerX = x;
     pointerY = y;
 }

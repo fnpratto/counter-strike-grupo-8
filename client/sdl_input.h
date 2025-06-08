@@ -12,12 +12,13 @@ class SDLInput: public Thread {
 private:
     std::atomic<bool>& quit_flag;
     Queue<Message>& queue;
-    MouseHandler mouseHandler{queue};
-    KeyboardHandler keyboardHandler{queue};
+    MouseHandler mouseHandler;
+    KeyboardHandler keyboardHandler;
 
 
 public:
-    SDLInput(Queue<Message>& queue, std::atomic<bool>& quit_flag);
+    SDLInput(Queue<Message>& queue, std::atomic<bool>& quit_flag, listTeams& listRef,
+             shopDisplay& shopRef, hudDisplay& hudRef);
 
     void run() override;
     void stop() override {
