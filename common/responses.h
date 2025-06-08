@@ -1,6 +1,8 @@
 #pragma once
 
+#include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "common/models.h"
@@ -25,4 +27,20 @@ public:
     explicit ListGamesResponse(const std::vector<GameInfo>& games): games_info(games) {}
 
     std::vector<GameInfo> get_games_info() const { return games_info; }
+};
+
+/**
+ * @class ShopPricesResponse
+ * @brief Response containing the prices of guns and ammo in the shop.
+ */
+class ShopPricesResponse {
+    std::map<GunType, int> gun_prices;
+    std::map<GunType, int> ammo_prices;
+
+public:
+    ShopPricesResponse(std::map<GunType, int> gun_prices, std::map<GunType, int> ammo_prices):
+            gun_prices(std::move(gun_prices)), ammo_prices(std::move(ammo_prices)) {}
+
+    std::map<GunType, int> get_gun_prices() const { return gun_prices; }
+    std::map<GunType, int> get_ammo_prices() const { return ammo_prices; }
 };

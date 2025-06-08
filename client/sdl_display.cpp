@@ -54,7 +54,7 @@ void SDLDisplay::run() {
     SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
     hudDisplay hud_display(window, state, player_name);
     shopDisplay shop_display(window);
-    Map map(window, player_name);
+    Map map(window, player_name, state);
     listTeams list_teams(window);
 
     input_handler = std::make_unique<SDLInput>(output_queue, quit_flag, list_teams, shop_display,
@@ -68,9 +68,6 @@ void SDLDisplay::run() {
         // Update game state and display
         update_state();
         window.fill();
-        // update_display(hud_display);
-        map.update(state);
-
         map.render();
         hud_display.render();
         window.render();

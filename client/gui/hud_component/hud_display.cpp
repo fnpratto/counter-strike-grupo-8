@@ -140,7 +140,7 @@ void hudDisplay::renderTeamScores() {
 
 void hudDisplay::renderPointer() {
     const Area sizePointer(0, 0, 50, 50);
-    std::cout << "Mouse moved to: (" << pointerX << ", " << pointerY << ")" << std::endl;
+    // std::cout << "Mouse moved to: (" << pointerX << ", " << pointerY << ")" << std::endl;
     const Area destPointer(pointerX - 25, pointerY - 25, 50, 50);
     pointer.render(sizePointer, destPointer);
 }

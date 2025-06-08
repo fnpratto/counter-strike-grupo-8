@@ -16,7 +16,7 @@ const int total_map_width = 640;   // TODO
 const int total_map_height = 640;  // TODO
 
 
-Map::Map(SdlWindow& window, const std::string& name):
+Map::Map(SdlWindow& window, const std::string& name, const GameUpdate& state):
         window(window),
         background(BACKGROUND2_PATH, window),
         tiles_area(TILES_PATH, window),
@@ -24,9 +24,9 @@ Map::Map(SdlWindow& window, const std::string& name):
         yaml_map_data(YAML::LoadFile(MAP_PATH)),
         DISPLAY_WIDTH(window.getWidth()),
         DISPLAY_HEIGHT(window.getHeight()),
-        map_data({Vector2D(100, 100)}),
         camera(DISPLAY_WIDTH, DISPLAY_HEIGHT),  // Define total map size in pixels,
-        player_name(name) {
+        player_name(name),
+        game_state(state) {
 
     // TODO load_map(0); segun id del yaml
     character_x = -1;
@@ -92,8 +92,6 @@ void Map::render_map() {
             int id_x = id % 5;  // Calculate the x position in the 5x10 grid
             int id_y = id / 5;  // Calculate the y position in the 5x10 grid
 
-            // TODO: store or render based on x, y, id
-            // Source area in tileset: shift horizontally by id * tile_width
 
             Area screen_dest((x * tile_size) - camera.get_offset().get_x(),
                              (y * tile_size) - camera.get_offset().get_y(), tile_size, tile_size);
@@ -106,40 +104,43 @@ void Map::render_map() {
     }
 }
 
-void Map::update_character(int x, int y) {
-    x = x * tile_size;
-    y = y * tile_size;
+void Map::update_character_direction() {
+    int x = game_state.get_players().at(player_name).get_pos().get_x();
+    int y = game_state.get_players().at(player_name).get_pos().get_y();
+
     if (x > character_x && y > character_y) {
         current_direction = Direction::DIR_DOWN_RIGHT;
+        animation_frame = (animation_frame + 1) % 6;
     } else if (x > character_x && y < character_y) {
         current_direction = Direction::DIR_UP_RIGHT;
+        animation_frame = (animation_frame + 1) % 6;
     } else if (x < character_x && y > character_y) {
         current_direction = Direction::DIR_DOWN_LEFT;
+        animation_frame = (animation_frame + 1) % 6;
     } else if (x < character_x && y < character_y) {
         current_direction = Direction::DIR_UP_LEFT;
+        animation_frame = (animation_frame + 1) % 6;
     } else if (x > character_x) {
         current_direction = Direction::DIR_RIGHT;
+        animation_frame = (animation_frame + 1) % 6;
     } else if (x < character_x) {
         current_direction = Direction::DIR_LEFT;
+        animation_frame = (animation_frame + 1) % 6;
     } else if (y > character_y) {
         current_direction = Direction::DIR_DOWN;
+        animation_frame = (animation_frame + 1) % 6;
     } else if (y < character_y) {
         current_direction = Direction::DIR_UP;
+        animation_frame = (animation_frame + 1) % 6;
     }
 
-    // Advance animation frame
-    animation_frame = (animation_frame + 1) % 6;
     character_x = x;
     character_y = y;
 }
 
-void Map::update(GameUpdate state) {
-    update_character(map_data.position.get_x(), map_data.position.get_y());
-    map_data.position = state.get_players().at(player_name).get_pos();
-}
-
 
 void Map::render() {
+    update_character_direction();
     switch (current_direction) {  // todo diagonales
         case Direction::DIR_DOWN:
             currentClip = &walkDownClips[animation_frame];
@@ -161,16 +162,24 @@ void Map::render() {
             break;
     }
 
-    camera.center(map_data.position);
+    camera.center(game_state.get_players().at(player_name).get_pos());
     render_map();
 
-    /*for*/
-    std::cout << "Rendering character at tile (" << map_data.position.get_x() << ", "
-              << map_data.position.get_y() << ")" << std::endl;
     Area iconSrc(currentClip->x, currentClip->y, currentClip->w, currentClip->h);
     Area iconDest(character_x - camera.get_offset().get_x(),
                   character_y - camera.get_offset().get_y(), currentClip->w * 1.5,
                   currentClip->h * 1.5);
+    std::cout << "Rendering character at tile ("
+              << game_state.get_players().at(player_name).get_pos().get_x() -
+                         camera.get_offset().get_x()
+              << ", "
+              << game_state.get_players().at(player_name).get_pos().get_y() -
+                         camera.get_offset().get_y()
+              << ")" << std::endl;
+    std::cout << "Rendering character at tile (" << character_x - camera.get_offset().get_x()
+              << ", " << character_y - camera.get_offset().get_y() << ")" << std::endl;
+
+    // TODO RENDERIZAR JUGADORES QUE ESTEN A LA VISTA
 
     character.render(iconSrc, iconDest);
 }

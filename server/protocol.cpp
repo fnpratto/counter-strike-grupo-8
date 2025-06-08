@@ -30,6 +30,19 @@ payload_t ServerProtocol::serialize_msg(const ListGamesResponse& response) const
     return serialize(response.get_games_info());
 }
 
+template <>
+payload_t ServerProtocol::serialize_msg(const ShopPricesResponse& response) const {
+    payload_t payload;
+    payload_t gun_prices_payload = serialize_map(response.get_gun_prices());
+    payload_t ammo_prices_payload = serialize_map(response.get_ammo_prices());
+
+    payload.reserve(gun_prices_payload.size() + ammo_prices_payload.size());
+    payload.insert(payload.end(), gun_prices_payload.begin(), gun_prices_payload.end());
+    payload.insert(payload.end(), ammo_prices_payload.begin(), ammo_prices_payload.end());
+
+    return payload;
+}
+
 #define X_SERIALIZE_UPDATE(type, attr)                                               \
     payload.push_back(update.has_##attr##_changed());                                \
     if (update.has_##attr##_changed()) {                                             \
@@ -70,6 +83,10 @@ payload_t ServerProtocol::serialize_message(const Message& message) const {
     switch (message.get_type()) {
         case MessageType::LIST_GAMES_RESP: {
             const auto& response = message.get_content<ListGamesResponse>();
+            return serialize_msg(response);
+        }
+        case MessageType::SHOP_PRICES_RESP: {
+            const auto& response = message.get_content<ShopPricesResponse>();
             return serialize_msg(response);
         }
         case MessageType::GAME_UPDATE: {
@@ -178,6 +195,13 @@ PickUpItemCommand ServerProtocol::deserialize_msg<PickUpItemCommand>(payload_t& 
 }
 
 template <>
+GetShopPricesCommand ServerProtocol::deserialize_msg<GetShopPricesCommand>(
+        payload_t& payload) const {
+    (void)payload;
+    return GetShopPricesCommand();
+}
+
+template <>
 LeaveGameCommand ServerProtocol::deserialize_msg<LeaveGameCommand>(payload_t& payload) const {
     (void)payload;
     return LeaveGameCommand();
@@ -215,6 +239,8 @@ Message ServerProtocol::deserialize_message(const MessageType& msg_type, payload
             return Message(deserialize_msg<DefuseBombCommand>(payload));
         case MessageType::PICK_UP_ITEM_CMD:
             return Message(deserialize_msg<PickUpItemCommand>(payload));
+        case MessageType::GET_SHOP_PRICES_CMD:
+            return Message(deserialize_msg<GetShopPricesCommand>(payload));
         case MessageType::LEAVE_GAME_CMD:
             return Message(deserialize_msg<LeaveGameCommand>(payload));
 

@@ -55,7 +55,6 @@ class hudDisplay {
 public:
     explicit hudDisplay(SdlWindow& window, const GameUpdate& state, const std::string& player_name);
     void render();
-    void update(int currentClockTick, bool isMuted);
     void updatePointerPosition(int x, int y);
 
 private:

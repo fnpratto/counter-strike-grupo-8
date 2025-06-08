@@ -18,10 +18,6 @@
 
 #include "camera.h"
 
-struct MapData {
-    Vector2D position;
-};
-
 enum Direction {
     DIR_UP,
     DIR_DOWN,
@@ -35,12 +31,9 @@ enum Direction {
 
 class Map {
 public:
-    explicit Map(SdlWindow& window, const std::string& name);
-
-
+    explicit Map(SdlWindow& window, const std::string& name, const GameUpdate& state);
     void render();
 
-    void update(GameUpdate state);
 
 private:
     SdlWindow& window;
@@ -58,11 +51,11 @@ private:
     SDL_Rect walkUpClips[6];
     SDL_Rect walkLeftClips[6];
     SDL_Rect walkRightClips[6];
-    MapData map_data;
     SDL_Rect* currentClip;
     Camera camera;
     const std::string& player_name;
-    void update_character(int x, int y /*, Direction dir*/);
+    const GameUpdate& game_state;
+    void update_character_direction();
     void render_map();
     int camera_x_px;
     int camera_y_px;
