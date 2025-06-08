@@ -25,6 +25,8 @@ target_sources(taller_server
     states/player_state.cpp
     states/inventory_state.cpp
     states/knife_state.cpp
+    # weapons
+    weapons/gun.cpp
 
     PUBLIC
     acceptor.h
@@ -67,10 +69,6 @@ target_sources(taller_server
     # weapons
     weapons/weapons_config.h
     weapons/gun.h
-    weapons/m3.h
     weapons/knife.h
     weapons/bomb.h
-    weapons/glock.h
-    weapons/awp.h
-    weapons/ak47.h
 )

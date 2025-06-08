@@ -22,6 +22,8 @@ target_sources(taller_tests
     ../server/states/player_state.cpp
     ../server/states/inventory_state.cpp
     ../server/states/knife_state.cpp
+    # weapons
+    ../server/weapons/gun.cpp
 
     PUBLIC
     ../common/updates/state_update.h
@@ -63,12 +65,8 @@ target_sources(taller_tests
     # weapons
     ../server/weapons/weapons_config.h
     ../server/weapons/gun.h
-    ../server/weapons/m3.h
     ../server/weapons/knife.h
     ../server/weapons/bomb.h
-    ../server/weapons/glock.h
-    ../server/weapons/awp.h
-    ../server/weapons/ak47.h
     # utils
     ../common/utils/vector_2d.h
     ../common/utils/random_float_generator.h

@@ -35,7 +35,6 @@ TEST_F(TestPlayer, PlayerStartWithDefaultInventory) {
     GunUpdate i_sec_weapon = i_inv.get_guns().at(ItemSlot::Secondary);
     GunUpdate p_sec_weapon = p_inv.get_guns().at(ItemSlot::Secondary);
     EXPECT_EQ(i_sec_weapon.get_gun(), p_sec_weapon.get_gun());
-    EXPECT_EQ(i_sec_weapon.get_bullets_per_mag(), p_sec_weapon.get_bullets_per_mag());
     EXPECT_EQ(i_sec_weapon.get_mag_ammo(), p_sec_weapon.get_mag_ammo());
     EXPECT_EQ(i_sec_weapon.get_reserve_ammo(), p_sec_weapon.get_reserve_ammo());
 

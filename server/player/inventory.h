@@ -9,7 +9,6 @@
 #include "server/logic.h"
 #include "server/player/player_config.h"
 #include "server/states/inventory_state.h"
-#include "server/weapons/glock.h"
 #include "server/weapons/gun.h"
 #include "server/weapons/knife.h"
 
@@ -17,7 +16,7 @@ class Inventory: public Logic<InventoryState, InventoryUpdate> {
 public:
     Inventory():
             Logic<InventoryState, InventoryUpdate>(InventoryState(PlayerConfig::initial_money)) {
-        state.set_gun(ItemSlot::Secondary, std::make_unique<Glock>());
+        state.set_gun(ItemSlot::Secondary, Gun::glock());
     }
 
     // TODO is this needed?
