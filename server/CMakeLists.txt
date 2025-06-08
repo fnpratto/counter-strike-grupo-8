@@ -24,6 +24,7 @@ target_sources(taller_server
     states/phase_state.cpp
     states/player_state.cpp
     states/inventory_state.cpp
+    states/knife_state.cpp
 
     PUBLIC
     acceptor.h
@@ -62,6 +63,7 @@ target_sources(taller_server
     states/phase_state.h
     states/player_state.h
     states/inventory_state.h
+    states/knife_state.h
     # weapons
     weapons/weapons_config.h
     weapons/gun.h

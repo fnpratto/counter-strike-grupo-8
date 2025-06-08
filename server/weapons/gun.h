@@ -30,6 +30,8 @@ public:
         state.set_reserve_ammo(state.get_reserve_ammo() + state.get_bullets_per_mag());
     }
 
+    void start_attacking() { state.set_is_attacking(true); }
+
     void decrease_mag_ammo() {
         if (state.get_mag_ammo() > 0)
             state.set_mag_ammo(state.get_mag_ammo() - 1);

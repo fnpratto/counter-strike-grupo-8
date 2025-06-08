@@ -4,16 +4,18 @@
 #include <vector>
 
 #include "common/models.h"
-#include "server/attack_effects/attack_effect.h"
 #include "server/attack_effects/melee_attack.h"
 #include "server/logic.h"
+#include "server/states/knife_state.h"
 
 #include "weapon.h"
 #include "weapons_config.h"
 
-class Knife: public Weapon {
+class Knife: public Logic<KnifeState, KnifeUpdate>, public Weapon {
 public:
-    Knife() {}
+    Knife(): Logic<KnifeState, KnifeUpdate>(KnifeState()) {}
+
+    void start_attacking() { state.set_is_attacking(true); }
 
     std::vector<std::unique_ptr<AttackEffect>> attack(const Vector2D& dir, TimePoint now) override {
         (void)dir;

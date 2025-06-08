@@ -9,9 +9,11 @@
 
 class Weapon {
 protected:
-    TimePoint time_last_attack = TimePoint{};
+    TimePoint time_last_attack;
 
 public:
+    Weapon(): time_last_attack(TimePoint::min()) {}
+
     // TODO: If the weapon is shooting, being able to attack depends
     //       on burst_frec
     bool can_attack(const float fire_rate, TimePoint now) {

@@ -177,7 +177,8 @@ void Game::handle<AttackCommand>(const std::string& player_name,
                                  [[maybe_unused]] const AttackCommand& msg) {
     if (!state.get_phase().is_playing_phase())
         return;
-    (void)player_name;
+    auto& player = state.get_player(player_name);
+    player->start_attacking();
     // TODO:
     //      - Current weapon of Player should be set in attacking
     //      - We could keep a reference of the "attacking weapons"

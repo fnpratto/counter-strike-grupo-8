@@ -48,6 +48,18 @@ void Player::move_to_pos(Vector2D new_pos) { state.set_pos(new_pos); }
 
 void Player::aim(const Vector2D& direction) { state.set_aim_direction(direction); }
 
+void Player::start_attacking() {
+    ItemSlot slot = state.get_equipped_item();
+    if (slot == ItemSlot::Melee) {
+        auto& knife = state.get_inventory().get_knife();
+        return knife.start_attacking();
+    }
+    if (slot == ItemSlot::Primary || slot == ItemSlot::Secondary) {
+        auto& gun = state.get_inventory().get_gun(slot);
+        return gun->start_attacking();
+    }
+}
+
 std::vector<std::unique_ptr<AttackEffect>> Player::attack(TimePoint now) {
     ItemSlot slot = state.get_equipped_item();
     if (slot == ItemSlot::Melee) {

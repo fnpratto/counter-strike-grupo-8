@@ -42,6 +42,7 @@ public:
 
     void aim(const Vector2D& direction);
 
+    void start_attacking();
     std::vector<std::unique_ptr<AttackEffect>> attack(TimePoint now);
 
     void equip_item(ItemSlot slot);

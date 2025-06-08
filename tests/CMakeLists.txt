@@ -21,6 +21,7 @@ target_sources(taller_tests
     ../server/states/phase_state.cpp
     ../server/states/player_state.cpp
     ../server/states/inventory_state.cpp
+    ../server/states/knife_state.cpp
 
     PUBLIC
     ../common/updates/state_update.h
@@ -29,6 +30,7 @@ target_sources(taller_tests
     ../common/updates/player_update.h
     ../common/updates/inventory_update.h
     ../common/updates/gun_update.h
+    ../common/updates/knife_update.h
     ../server/errors.h
     # attack_effects
     ../server/attack_effects/attack_effect.h
@@ -57,6 +59,7 @@ target_sources(taller_tests
     ../server/states/phase_state.h
     ../server/states/player_state.h
     ../server/states/inventory_state.h
+    ../server/states/knife_state.h
     # weapons
     ../server/weapons/weapons_config.h
     ../server/weapons/gun.h
