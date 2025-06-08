@@ -8,8 +8,11 @@ private:
     float cone_max_angle;
 
 public:
-    MeleeAttack(int damage, int radius, float cone_max_angle):
-            AttackEffect(damage), radius(radius), cone_max_angle(cone_max_angle) {}
+    MeleeAttack(const Player& player_origin, int damage, const Vector2D& dir, int radius,
+                float cone_max_angle):
+            AttackEffect(player_origin, damage, dir),
+            radius(radius),
+            cone_max_angle(cone_max_angle) {}
 
     int compute_damage(int distance) const override {
         (void)distance;

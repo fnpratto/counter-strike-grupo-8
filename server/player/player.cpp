@@ -64,11 +64,11 @@ std::vector<std::unique_ptr<AttackEffect>> Player::attack(TimePoint now) {
     ItemSlot slot = state.get_equipped_item();
     if (slot == ItemSlot::Melee) {
         auto& knife = state.get_inventory().get_knife();
-        return knife.attack(state.get_aim_direction(), now);
+        return knife.attack(*this, state.get_aim_direction(), now);
     }
     if (slot == ItemSlot::Primary || slot == ItemSlot::Secondary) {
         auto& gun = state.get_inventory().get_gun(slot);
-        return gun->attack(state.get_aim_direction(), now);
+        return gun->attack(*this, state.get_aim_direction(), now);
     }
     return {};
 }

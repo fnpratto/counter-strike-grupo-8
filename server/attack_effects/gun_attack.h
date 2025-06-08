@@ -4,15 +4,11 @@
 
 class GunAttack: public AttackEffect {
 protected:
-    const Vector2D& dir;
     float precision;
 
 public:
-    // TODO: Instead of passing dir, we shoul take it from player reference
-    GunAttack(int damage, const Vector2D& dir, float precision):
-            AttackEffect(damage), dir(dir), precision(precision) {}
-
-    Vector2D get_dir() const { return dir; }
+    GunAttack(const Player& player_origin, int damage, const Vector2D& dir, float precision):
+            AttackEffect(player_origin, damage, dir), precision(precision) {}
 
     int compute_damage(int distance) const override {
         // TODO: Implement falloff for GunAttack

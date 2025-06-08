@@ -7,6 +7,9 @@
 #include "server/attack_effects/attack_effect.h"
 #include "server/clock/clock.h"
 
+// Forward declaration
+class Player;
+
 class Weapon {
 protected:
     TimePoint time_last_attack;
@@ -23,7 +26,8 @@ public:
         return true;
     }
 
-    virtual std::vector<std::unique_ptr<AttackEffect>> attack(const Vector2D& dir,
+    virtual std::vector<std::unique_ptr<AttackEffect>> attack(const Player& player_origin,
+                                                              const Vector2D& dir,
                                                               TimePoint now) = 0;
 
     virtual ~Weapon() = default;

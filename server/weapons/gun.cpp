@@ -45,7 +45,8 @@ void Gun::reload() {
 }
 
 // TODO: Handle burst_interval
-std::vector<std::unique_ptr<AttackEffect>> Gun::attack(const Vector2D& dir, TimePoint now) {
+std::vector<std::unique_ptr<AttackEffect>> Gun::attack(const Player& player_origin,
+                                                       const Vector2D& dir, TimePoint now) {
     GunConfig gun_config = state.get_gun_config();
     std::vector<std::unique_ptr<AttackEffect>> effects;
     if (!state.get_is_attacking() || !has_ammo() || !can_attack(gun_config.attack_rate, now))
@@ -55,7 +56,8 @@ std::vector<std::unique_ptr<AttackEffect>> Gun::attack(const Vector2D& dir, Time
         int damage = get_random_damage(gun_config.min_damage, gun_config.max_damage);
         Vector2D varied_dir = dir.varied_dir_in_cone(gun_config.dir_variation_angle);
 
-        auto effect = std::make_unique<GunAttack>(damage, varied_dir, gun_config.precision);
+        auto effect = std::make_unique<GunAttack>(player_origin, damage, varied_dir,
+                                                  gun_config.precision);
         effects.push_back(std::move(effect));
 
         decrease_mag_ammo();

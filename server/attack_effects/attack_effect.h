@@ -2,17 +2,22 @@
 
 #include "common/utils/vector_2d.h"
 
+// Forward declaration
+class Player;
+
 class AttackEffect {
 protected:
-    // TODO: const Player& origin;
+    const Player& player_origin;
     int damage;
+    Vector2D dir;
 
     virtual int compute_damage(int distance) const = 0;
 
     virtual bool is_target_hit() const = 0;
 
 public:
-    explicit AttackEffect(int damage): damage(damage) {}
+    AttackEffect(const Player& player_origin, int damage, const Vector2D& dir):
+            player_origin(player_origin), damage(damage), dir(dir) {}
 
     // TODO: void apply(const Player& player) {}
     // When applied:
