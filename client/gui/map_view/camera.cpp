@@ -9,11 +9,6 @@ void Camera::center(const Vector2D& target_pos) {
     int x = target_pos.get_x() - screen_width / 2;
     int y = target_pos.get_y() - screen_height / 2;
 
-    /*if (x < 0)
-        x = 0;
-    if (y < 0)
-        y = 0;*/
-
     offset = Vector2D(x, y);
 }
 
