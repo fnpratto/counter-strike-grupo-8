@@ -6,9 +6,11 @@ target_sources(taller_common
     resolver.cpp
     resolvererror.cpp
     socket.cpp
+    utils/rate_controller.cpp
     PUBLIC
     # .h files
     utils/vector_2d.h
+    utils/rate_controller.h
     commands.h
     updates/state_update.h
     updates/game_update.h
