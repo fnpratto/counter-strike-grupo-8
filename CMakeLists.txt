@@ -148,6 +148,7 @@ if(TALLER_CLIENT)
         SDL2_image::SDL2_image
         SDL2_mixer::SDL2_mixer
         SDL2_ttf::SDL2_ttf
+        yaml-cpp::yaml-cpp
     )
 
     # Add UI_TYPE definition
@@ -155,6 +156,8 @@ if(TALLER_CLIENT)
         target_compile_definitions(taller_client PRIVATE UI_TYPE_GUI)
     elseif(UI_TYPE STREQUAL "tui")
         target_compile_definitions(taller_client PRIVATE UI_TYPE_TUI)
+
+
     endif()
 endif()
 

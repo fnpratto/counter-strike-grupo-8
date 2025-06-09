@@ -109,16 +109,16 @@ void Client::wait_for_game_start(std::string& player_name) {
         switch (msg.get_type()) {
             case MessageType::CREATE_GAME_CMD:
                 player_name = msg.get_content<CreateGameCommand>().get_player_name();
-                break;
+                display_queue.push(Message(true));
+                return;  // Exit the loop when CREATE_GAME_CMD is received
             case MessageType::JOIN_GAME_CMD:
                 player_name = msg.get_content<JoinGameCommand>().get_player_name();
-                break;
+                display_queue.push(Message(true));
+                return;  // Exit the loop when JOIN_GAME_CMD is received
             default:
                 continue;
         }
     }
-
-    display_queue.push(Message(true));
 }
 
 void Client::switch_display([[maybe_unused]] const std::string& player_name) {

@@ -22,8 +22,8 @@
 #include "sdl_input.h"
 
 class SDLDisplay: public Display {
-    GameUpdate state;
     std::string player_name;
+    GameUpdate state;
 
     std::atomic<bool> quit_flag;
 
@@ -41,7 +41,8 @@ public:
 private:
     void setup();
 
-    void update_display(hudDisplay& hud_display);
+    void update_display(SdlWindow window, hudDisplay hud_display, shopDisplay shop_display, Map map,
+                        listTeams list_teams);
     void framerated(std::function<bool()> draw);
 
     GameUpdate get_initial_state();

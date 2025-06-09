@@ -14,21 +14,21 @@ void MouseHandler::sendNormalizedCoordinates(int x, int y) {
     // Optional: Clamp values between 0 and 1 just in case
     norm_x = std::max(0.0f, std::min(1.0f, norm_x));
     norm_y = std::max(0.0f, std::min(1.0f, norm_y));
-    // output_queue.push(Message(AimCommand(norm_x, norm_y)));
+    // output_queue.push(Message(AimCommand(norm_x, norm_y))); //TODO_ADD SERVER
 }
 
-void MouseHandler::handleEvent(const SDL_Event& event /*, bool shop, bool list_teams*/) {
+void MouseHandler::handleEvent(const SDL_Event& event, bool shop, bool list_teams) {
     int x, y;
     if (event.type == SDL_MOUSEBUTTONDOWN) {
         switch (event.button.button) {
             case SDL_BUTTON_LEFT:
                 std::cout << "MOUSE_PRESS_LEFT" << std::endl;
                 SDL_GetMouseState(&x, &y);
-                /*if (shop) {
+                if (shop) {
                     std::optional<Message> maybe_message =
                             shopDisplayRef.updatePointerPosition(x, y);
                     if (maybe_message.has_value()) {
-                        inputQueue.push(maybe_message.value());
+                        output_queue.push(maybe_message.value());
                         std::cout << "Sent shop-related command." << std::endl;
                     }
                     return;
@@ -36,12 +36,12 @@ void MouseHandler::handleEvent(const SDL_Event& event /*, bool shop, bool list_t
                 if (list_teams) {
                     std::optional<Team> team_choosen = listTeamsRef.updatePointerPosition(x, y);
                     if (team_choosen.has_value()) {
-                        inputQueue.push(Message(SelectTeamCommand(team_choosen.value())));
+                        output_queue.push(Message(SelectTeamCommand(team_choosen.value())));
                         std::cout << "Selected team" << std::endl;
                     }
                     return;
-                }*/
-                // output_queue.push(Message(ShootCommand()));
+                }
+                // output_queue.push(Message(ShootCommand())); //TODO_ADD SERVER
                 std::cout << "ShootCommand sent with coordinates: (" << x << ", " << y << ")"
                           << std::endl;
                 break;
@@ -52,6 +52,6 @@ void MouseHandler::handleEvent(const SDL_Event& event /*, bool shop, bool list_t
     } else if (event.type == SDL_MOUSEMOTION) {
         SDL_GetMouseState(&x, &y);
         sendNormalizedCoordinates(x, y);
-        // hudDisplayRef.updatePointerPosition(x, y);
+        hudDisplayRef.updatePointerPosition(x, y);  // TODO_ADD SERVER
     }
 }

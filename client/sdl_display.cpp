@@ -10,17 +10,19 @@
 #include <SDL_events.h>
 #include <unistd.h>
 
-#include "display.h"
 #include "sdl_input.h"
 
 
 SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue,
                        const std::string& player_name):
         Display(input_queue, output_queue),
-        state(get_initial_state()),
         player_name(player_name),
+        state(get_initial_state()),
         quit_flag(false),
-        input_handler(std::make_unique<SDLInput>(output_queue, quit_flag)) {}
+        input_handler(nullptr) {
+    std::cout << "SDLDisplay initialized with player: " << player_name << std::endl;
+}
+
 
 void SDLDisplay::setup() {
     char* basePath = SDL_GetBasePath();
@@ -32,8 +34,6 @@ void SDLDisplay::setup() {
     } else {
         std::cerr << "SDL_GetBasePath failed: " << SDL_GetError() << std::endl;
     }
-
-    input_handler->start();
 
     // FOR FULL SIZE
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -51,22 +51,25 @@ void SDLDisplay::setup() {
 
 void SDLDisplay::run() {
     setup();
-
     SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
     hudDisplay hud_display(window, state, player_name);
     shopDisplay shop_display(window);
-    // Map map(window);
+    Map map(window, player_name, state);
     listTeams list_teams(window);
 
-    // bool shop = false;
-    //  bool list_teams = true;
-    // int clock = 0;  // por ahora
+    input_handler = std::make_unique<SDLInput>(output_queue, quit_flag, list_teams, shop_display,
+                                               hud_display);
+
+    input_handler->start();
+
+    update_state();
 
     framerated([&]() {
         // Update game state and display
         update_state();
         window.fill();
-        update_display(hud_display);
+        map.render();
+        hud_display.render();
         window.render();
         return !quit_flag;
     });
@@ -78,6 +81,7 @@ void SDLDisplay::framerated(std::function<bool()> draw) {
     const std::chrono::milliseconds frame_duration(1000 / target_fps);
 
     auto next_frame_time = std::chrono::steady_clock::now();
+
 
     while (true) {
         auto now = std::chrono::steady_clock::now();
@@ -134,23 +138,4 @@ void SDLDisplay::update_state() {
         state = state.merged(update);
         std::cout << "Applied GameUpdate" << std::endl;
     }
-}
-
-void SDLDisplay::update_display(hudDisplay& hud_display) {
-    hud_display.render();
-    // map.update(state);
-
-    // listTeams.update(state);
-
-    // if (clock > 20) {
-    // hudDisplay.update(clock);
-    //  map.render();
-    /*if (shop) {
-        shopDisplay.render();
-    }*/
-    // list_teams = false;
-    //} else {
-
-    // listTeams.update(clock);
-    //}
 }

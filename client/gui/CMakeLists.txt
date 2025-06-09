@@ -1,4 +1,3 @@
-
 add_subdirectory(hud_component)
 add_subdirectory(window_elements)
 add_subdirectory(shop_view)

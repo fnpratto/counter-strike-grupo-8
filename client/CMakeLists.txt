@@ -1,6 +1,5 @@
 # Adding sources
 add_subdirectory(gui)
-
 target_sources(taller_client
     PRIVATE
     # .cpp files
