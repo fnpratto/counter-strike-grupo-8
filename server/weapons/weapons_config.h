@@ -21,8 +21,8 @@ constexpr GunConfig GlockConfig = {.bullets_per_mag = 20,
                                    .dir_variation_angle = 0,
                                    .bullets_per_attack = 1,
                                    .burst_interval = 0,
-                                   .min_damage = 20,
-                                   .max_damage = 30,
+                                   .min_damage = 40,
+                                   .max_damage = 50,
                                    .precision = 0.85f,
                                    .max_range = 10};
 
