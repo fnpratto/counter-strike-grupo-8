@@ -5,6 +5,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <SDL.h>
 #include <SDL_events.h>
@@ -103,10 +104,19 @@ GameUpdate SDLDisplay::get_initial_state() {
 }
 
 void SDLDisplay::update_state() {
-    Message msg;
-    if (input_queue.try_pop(msg)) {
-        const GameUpdate& update = msg.get_content<GameUpdate>();
-        state = state.merged(update);
-        std::cout << "Applied GameUpdate" << std::endl;
+    std::vector<Message> msgs;
+    for (int i = 0; i < 10; ++i) {
+        Message msg;
+        if (!input_queue.try_pop(msg))
+            break;  // No more messages to process
+        msgs.push_back(msg);
+    }
+
+    for (const auto& msg: msgs) {
+        if (msg.get_type() == MessageType::GAME_UPDATE) {
+            const GameUpdate& update = msg.get_content<GameUpdate>();
+            state = state.merged(update);
+            std::cout << "Applied GameUpdate" << std::endl;
+        }
     }
 }
