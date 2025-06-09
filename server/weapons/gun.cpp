@@ -29,31 +29,20 @@ void Gun::add_mag() {
 
 void Gun::start_attacking() { state.set_is_attacking(true); }
 
-void Gun::decrease_mag_ammo() {
-    if (state.get_mag_ammo() > 0)
-        state.set_mag_ammo(state.get_mag_ammo() - 1);
-}
-
-int Gun::get_random_damage(const int min_dam, const int max_dam) {
-    RandomFloatGenerator rfg(min_dam, max_dam);
-    return rfg.generate();
-}
-
 void Gun::reload() {
     int bullets_to_reload = state.get_gun_config().bullets_per_mag - state.get_mag_ammo();
     state.set_mag_ammo(state.get_mag_ammo() + bullets_to_reload);
     state.set_reserve_ammo(state.get_reserve_ammo() - bullets_to_reload);
 }
 
-// TODO: Handle burst_interval
 std::vector<std::unique_ptr<AttackEffect>> Gun::attack(Player& player_origin, const Vector2D& dir,
                                                        TimePoint now) {
     GunConfig gun_config = state.get_gun_config();
     std::vector<std::unique_ptr<AttackEffect>> effects;
-    if (!state.get_is_attacking() || !has_ammo() || !can_attack(gun_config.attack_rate, now))
+    if (!has_ammo() || !can_attack(gun_config.attack_rate, now))
         return effects;
 
-    int bullets = std::min(gun_config.bullets_per_attack, state.get_mag_ammo());
+    int bullets = get_bullets_ready_to_fire(now);
     for (int i = 0; i < bullets; i++) {
         int damage = get_random_damage(gun_config.min_damage, gun_config.max_damage);
         Vector2D varied_dir = dir.varied_dir_in_cone(gun_config.dir_variation_angle);
@@ -63,8 +52,45 @@ std::vector<std::unique_ptr<AttackEffect>> Gun::attack(Player& player_origin, co
         effects.push_back(std::move(effect));
 
         decrease_mag_ammo();
-        time_last_attack = now;
+        burst_bullets_fired++;
+    }
+
+    if (burst_bullets_fired == gun_config.bullets_per_attack) {
+        state.set_is_attacking(false);
+        burst_bullets_fired = 0;
     }
 
     return effects;
+}
+
+int Gun::get_bullets_ready_to_fire(TimePoint now) {
+    GunConfig gun_config = state.get_gun_config();
+    int available_bullets = 0;
+
+    auto burst_interval_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::duration<float>(gun_config.burst_interval));
+
+    int burst_remaining_bullets = gun_config.bullets_per_attack - burst_bullets_fired;
+    for (int i = 0; i < burst_remaining_bullets && state.get_mag_ammo(); ++i) {
+        auto time_since_last_attack = now - time_last_attack;
+        auto required_interval = burst_interval_ns * (i + 1);
+        if (time_since_last_attack >= required_interval) {
+            available_bullets++;
+            time_last_attack = now;
+        } else {
+            break;
+        }
+    }
+
+    return available_bullets;
+}
+
+int Gun::get_random_damage(const int min_dam, const int max_dam) {
+    RandomFloatGenerator rfg(min_dam, max_dam);
+    return rfg.generate();
+}
+
+void Gun::decrease_mag_ammo() {
+    if (state.get_mag_ammo() > 0)
+        state.set_mag_ammo(state.get_mag_ammo() - 1);
 }

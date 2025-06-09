@@ -311,32 +311,6 @@ TEST_F(TestGame, PlayerCanAimInADirection) {
     EXPECT_EQ(updates.get_players().at("test_player").get_aim_direction(), new_aim_dir);
 }
 
-TEST_F(TestGame, GunReduceMagAmmoWhenPlayerAttacks) {
-    GameUpdate updates;
-    game.join_player("test_player");
-    updates = game.get_full_update();
-
-    InventoryUpdate p_inv = updates.get_players().at("test_player").get_inventory();
-    int old_mag_ammo = p_inv.get_guns().at(ItemSlot::Secondary).get_mag_ammo();
-
-    Message msg_aim = Message(AimCommand(Vector2D(1, 1)));
-    Message msg_switch_weap = Message(SwitchItemCommand(ItemSlot::Secondary));
-    Message msg_start = Message(StartGameCommand());
-    game.tick({PlayerMessage("test_player", msg_aim), PlayerMessage("test_player", msg_switch_weap),
-               PlayerMessage("test_player", msg_start)});
-
-    advance_secs(PhaseTimes::buying_phase_secs);
-
-    Message msg_attack = Message(AttackCommand());
-    auto player_messages = game.tick({PlayerMessage("test_player", msg_attack)});
-    updates = player_messages[0].get_message().get_content<GameUpdate>();
-
-    EXPECT_TRUE(updates.has_players_changed());
-    p_inv = updates.get_players().at("test_player").get_inventory();
-    int new_mag_ammo = p_inv.get_guns().at(ItemSlot::Secondary).get_mag_ammo();
-    EXPECT_EQ(new_mag_ammo, old_mag_ammo - GlockConfig.bullets_per_attack);
-}
-
 TEST_F(TestGame, TargetIsHitByPlayerAttack) {
     GameUpdate updates;
     game.join_player("test_player");

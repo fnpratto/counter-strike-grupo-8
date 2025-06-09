@@ -13,6 +13,14 @@
 #include "weapon.h"
 
 class Gun: public Logic<GunState, GunUpdate>, public Weapon {
+    int burst_bullets_fired = 0;
+
+    int get_bullets_ready_to_fire(TimePoint now);
+
+    int get_random_damage(const int min_dam, const int max_dam);
+
+    void decrease_mag_ammo();
+
 public:
     Gun(GunType gun, GunConfig initial_config);
 
@@ -30,10 +38,6 @@ public:
     void add_mag();
 
     void start_attacking();
-
-    void decrease_mag_ammo();
-
-    int get_random_damage(const int min_dam, const int max_dam);
 
     void reload();
 
