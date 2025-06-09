@@ -22,8 +22,9 @@ public:
         std::vector<std::unique_ptr<AttackEffect>> effects;
         if (!can_attack(KnifeConfig::attack_rate, now))
             return effects;
-        effects.push_back(std::make_unique<MeleeAttack>(player_origin, KnifeConfig::damage, dir,
-                                                        KnifeConfig::max_range));
+        int damage = get_random_damage(KnifeConfig::min_damage, KnifeConfig::max_damage);
+        effects.push_back(
+                std::make_unique<MeleeAttack>(player_origin, damage, dir, KnifeConfig::max_range));
         time_last_attack = now;
         return effects;
     }

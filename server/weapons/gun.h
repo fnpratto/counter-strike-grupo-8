@@ -17,8 +17,6 @@ class Gun: public Logic<GunState, GunUpdate>, public Weapon {
 
     int get_bullets_ready_to_fire(TimePoint now);
 
-    int get_random_damage(const int min_dam, const int max_dam);
-
     void decrease_mag_ammo();
 
 public:

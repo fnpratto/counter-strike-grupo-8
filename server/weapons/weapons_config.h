@@ -63,7 +63,8 @@ constexpr GunConfig AwpConfig = {.bullets_per_mag = 10,
                                  .max_range = 100};
 
 namespace KnifeConfig {
-const int damage = 50;
+const int min_damage = 10;
+const int max_damage = 20;
 const float attack_rate = 5.0;
 const int attack_radius = 2;
 const int max_range = 1;

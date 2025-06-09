@@ -85,11 +85,6 @@ int Gun::get_bullets_ready_to_fire(TimePoint now) {
     return available_bullets;
 }
 
-int Gun::get_random_damage(const int min_dam, const int max_dam) {
-    RandomFloatGenerator rfg(min_dam, max_dam);
-    return rfg.generate();
-}
-
 void Gun::decrease_mag_ammo() {
     if (state.get_mag_ammo() > 0)
         state.set_mag_ammo(state.get_mag_ammo() - 1);
