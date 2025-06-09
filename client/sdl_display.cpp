@@ -10,6 +10,8 @@
 #include <SDL_events.h>
 #include <unistd.h>
 
+#include "../common/utils/rate_controller.h"
+
 #include "sdl_input.h"
 
 
@@ -64,7 +66,8 @@ void SDLDisplay::run() {
 
     update_state();
 
-    framerated([&]() {
+    RateController rate_controller(60);  // 60 FPS
+    rate_controller.run_at_rate([&]() {
         // Update game state and display
         update_state();
         window.fill();
@@ -73,38 +76,6 @@ void SDLDisplay::run() {
         window.render();
         return !quit_flag;
     });
-}
-
-
-void SDLDisplay::framerated(std::function<bool()> draw) {
-    const int target_fps = 60;
-    const std::chrono::milliseconds frame_duration(1000 / target_fps);
-
-    auto next_frame_time = std::chrono::steady_clock::now();
-
-
-    while (true) {
-        auto now = std::chrono::steady_clock::now();
-
-        if (now >= next_frame_time) {
-            // We're at or past the time for the next frame
-            // Call draw(), if it returns false, exit loop
-            if (!draw())
-                break;
-
-            // Schedule next frame (even if we’re late)
-            next_frame_time += frame_duration;
-
-            // If we are significantly behind (e.g. > 5 frames), skip ahead
-            auto max_lag = 5 * frame_duration;
-            if (now - next_frame_time > max_lag) {
-                next_frame_time = now;
-            }
-        } else {
-            // We're ahead of schedule: sleep to limit framerate
-            std::this_thread::sleep_until(next_frame_time);
-        }
-    }
 }
 
 void SDLDisplay::stop() {
