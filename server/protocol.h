@@ -76,6 +76,8 @@ private:
 
             payload.insert(payload.end(), value_payload.begin(), value_payload.end());
         }
+        return payload;
+    }
 
     template <typename T>
     payload_t serialize_vector(const std::vector<T>& vector) const {
