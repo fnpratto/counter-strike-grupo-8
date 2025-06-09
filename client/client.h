@@ -14,6 +14,7 @@
 #include "common/thread.h"
 
 #include "display.h"
+#include "lobby_display.h"
 #include "receiver.h"
 #include "sender.h"
 
@@ -25,14 +26,12 @@ private:
     Queue<Message> ingame_queue;
     Queue<Message> display_queue;
 
+    std::unique_ptr<LobbyDisplay> lobby_display;
     std::unique_ptr<Display> display;
 
     std::unique_ptr<ClientSender> sender;
     std::unique_ptr<ClientReceiver> receiver;
 
-    bool connect_to_server();
-    void setup_communication();
-    void wait_for_game_start(std::string& player_name);
     void switch_display(const std::string& player_name);
     void cleanup();
 
