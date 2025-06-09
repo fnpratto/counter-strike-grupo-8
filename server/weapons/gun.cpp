@@ -47,8 +47,9 @@ std::vector<std::unique_ptr<AttackEffect>> Gun::attack(Player& player_origin, co
         int damage = get_random_damage(gun_config.min_damage, gun_config.max_damage);
         Vector2D varied_dir = dir.varied_dir_in_cone(gun_config.dir_variation_angle);
 
-        auto effect = std::make_unique<GunAttack>(player_origin, damage, varied_dir,
-                                                  gun_config.precision, gun_config.max_range);
+        auto effect =
+                std::make_unique<GunAttack>(player_origin, damage, varied_dir, gun_config.max_range,
+                                            gun_config.precision, gun_config.falloff);
         effects.push_back(std::move(effect));
 
         decrease_mag_ammo();

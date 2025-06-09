@@ -23,7 +23,7 @@ public:
     Vector2D get_dir() const;
     int get_max_range() const;
 
-    bool apply(const std::unique_ptr<Player>& player);
+    bool apply(const std::unique_ptr<Player>& player, int distance);
 
     virtual ~AttackEffect() = default;
 };

@@ -12,6 +12,7 @@ struct GunConfig {
     int max_damage;
     float precision;
     int max_range;
+    float falloff;
 };
 
 constexpr GunConfig GlockConfig = {.bullets_per_mag = 20,
@@ -24,7 +25,8 @@ constexpr GunConfig GlockConfig = {.bullets_per_mag = 20,
                                    .min_damage = 40,
                                    .max_damage = 50,
                                    .precision = 0.85f,
-                                   .max_range = 10};
+                                   .max_range = 10,
+                                   .falloff = 0.5f};
 
 constexpr GunConfig Ak47Config = {.bullets_per_mag = 30,
                                   .init_mag_ammo = 30,
@@ -36,7 +38,8 @@ constexpr GunConfig Ak47Config = {.bullets_per_mag = 30,
                                   .min_damage = 30,
                                   .max_damage = 40,
                                   .precision = 0.70f,
-                                  .max_range = 20};
+                                  .max_range = 20,
+                                  .falloff = 0.3f};
 
 constexpr GunConfig M3Config = {.bullets_per_mag = 1,
                                 .init_mag_ammo = 8,
@@ -48,7 +51,8 @@ constexpr GunConfig M3Config = {.bullets_per_mag = 1,
                                 .min_damage = 8,
                                 .max_damage = 12,
                                 .precision = 0.30f,
-                                .max_range = 5};
+                                .max_range = 5,
+                                .falloff = 0};
 
 constexpr GunConfig AwpConfig = {.bullets_per_mag = 10,
                                  .init_mag_ammo = 10,
@@ -60,7 +64,8 @@ constexpr GunConfig AwpConfig = {.bullets_per_mag = 10,
                                  .min_damage = 100,
                                  .max_damage = 100,
                                  .precision = 1.0f,
-                                 .max_range = 100};
+                                 .max_range = 100,
+                                 .falloff = 0};
 
 namespace KnifeConfig {
 const int min_damage = 10;

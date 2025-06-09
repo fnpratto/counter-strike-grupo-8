@@ -22,11 +22,6 @@ private:
     const std::map<std::string, std::unique_ptr<Player>>& players;
 
     template <typename T>
-    T unit_to_meter(const T& v) const;
-    template <typename T>
-    T meter_to_unit(const T& v) const;
-
-    template <typename T>
     std::optional<Target> get_closest_tile(const std::string& origin_p_name, const Vector2D& dir,
                                            const std::vector<T>& vector);
     std::optional<Target> get_closest_player(const std::string& origin_p_name, const Vector2D& dir);
@@ -37,6 +32,15 @@ private:
 
 public:
     PhysicsSystem(Map&& map, const std::map<std::string, std::unique_ptr<Player>>& players);
+
+    template <typename T>
+    T unit_to_meter(const T& v) const {
+        return v * METER_SIZE;
+    }
+    template <typename T>
+    T meter_to_unit(const T& v) const {
+        return v / METER_SIZE;
+    }
 
     Vector2D random_spawn_tt_pos() const;
     Vector2D random_spawn_ct_pos() const;

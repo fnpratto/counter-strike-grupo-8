@@ -31,16 +31,6 @@ Vector2D PhysicsSystem::calculate_step(const Vector2D& dir) const {
     return dir.normalized(METER_SIZE) * GameConfig::player_speed * tick_duration;
 }
 
-template <typename T>
-T PhysicsSystem::unit_to_meter(const T& v) const {
-    return v * METER_SIZE;
-}
-
-template <typename T>
-T PhysicsSystem::meter_to_unit(const T& v) const {
-    return v / METER_SIZE;
-}
-
 std::optional<Target> PhysicsSystem::get_closest_target(const std::string& origin_p_name,
                                                         const Vector2D& dir, int max_range) {
     auto closest_wall = get_closest_tile<Wall>(origin_p_name, dir, map.get_walls());
