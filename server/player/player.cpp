@@ -32,7 +32,7 @@ void Player::set_ready() { state.set_ready(true); }
 
 void Player::take_damage(int damage) {
     int health = state.get_health();
-    if (damage <= health) {
+    if (damage < health) {
         state.set_health(health - damage);
     } else {
         state.set_health(0);
