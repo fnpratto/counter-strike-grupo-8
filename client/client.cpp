@@ -29,111 +29,53 @@
 #include "text_display.h"
 #endif
 
+#include "connection_handler.h"
 #include "receiver.h"
 #include "sender.h"
 
 Client::Client():
 #ifdef UI_TYPE_GUI
-        display(std::make_unique<QtDisplay>(display_queue, pregame_queue)),
+        lobby_display(std::make_unique<QtDisplay>(display_queue, pregame_queue)),
 #elif defined(UI_TYPE_TUI)
-        display(std::make_unique<TextDisplay>(display_queue, pregame_queue)),
+        lobby_display(std::make_unique<TextDisplay>(display_queue,
+                                                    pregame_queue)),  // TODO esto no compila
 #endif
         sender(nullptr),
         receiver(nullptr) {
-    display->start();
 }
 
 void Client::run() {
-    if (connect_to_server()) {
-        std::string player_name;
-        setup_communication();
-        wait_for_game_start(player_name);
-        switch_display(player_name);
+    std::string player_name;
+    {
+        ConnectionHandler connection_handler(pregame_queue, ingame_queue, display_queue);
+        connection_handler.start();
+
+        lobby_display->run();
+        lobby_display = nullptr;  // Lobby display finished, no longer needed
+
+        connection_handler.stop();
+        connection_handler.join();
+
+        sender = connection_handler.get_sender();
+        receiver = connection_handler.get_receiver();
+        player_name = connection_handler.get_player_name();  // cppcheck-suppress[unreadVariable]
+    }
+
+    if (protocol) {
+#ifdef UI_TYPE_GUI
+        display = std::make_unique<SDLDisplay>(display_queue, ingame_queue, player_name);
+        display->start();
+        std::cout << "Started SDLDisplay" << std::endl;
+#elif defined(UI_TYPE_TUI)
+        display = std::make_unique<TextDisplay>(display_queue, ingame_queue);
+        display->start();
+#endif
 
         while (display->is_alive() && sender->is_alive() && receiver->is_alive())
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     cleanup();
-}
-
-bool Client::connect_to_server() {
-    Message msg;
-    while (true) {
-        msg = pregame_queue.pop();
-
-        if (msg.get_type() != MessageType::CONN_REQ) {
-            if (!display->is_alive()) {
-                display->stop();
-                display->join();
-                return false;
-            }
-            continue;
-        }
-
-        auto conn_req = msg.get_content<ConnectionRequest>();
-
-        try {
-            protocol = std::make_shared<ClientProtocol>(
-                    Socket(conn_req.get_ip().c_str(), conn_req.get_port().c_str()));
-        } catch (const std::exception& e) {
-            std::cerr << "Error: " << e.what() << std::endl;
-            display_queue.push(Message(false));
-            continue;
-        }
-
-        display_queue.push(Message(true));
-        break;
-    }
-
-    std::cout << "Connected to server" << std::endl;
-    return true;
-}
-
-void Client::setup_communication() {
-    // Feed the input queue to the sender
-    sender = std::make_unique<ClientSender>(protocol, ingame_queue);
-    sender->start();
-
-    // Feed the receiver queue to the display
-    receiver = std::make_unique<ClientReceiver>(protocol, display_queue);
-    receiver->start();
-}
-
-void Client::wait_for_game_start(std::string& player_name) {
-    Message msg;
-    while (true) {
-        msg = pregame_queue.pop();
-        ingame_queue.push(msg);
-
-        switch (msg.get_type()) {
-            case MessageType::CREATE_GAME_CMD:
-                player_name = msg.get_content<CreateGameCommand>().get_player_name();
-                display_queue.push(Message(true));
-                return;  // Exit the loop when CREATE_GAME_CMD is received
-            case MessageType::JOIN_GAME_CMD:
-                player_name = msg.get_content<JoinGameCommand>().get_player_name();
-                display_queue.push(Message(true));
-                return;  // Exit the loop when JOIN_GAME_CMD is received
-            default:
-                continue;
-        }
-    }
-}
-
-void Client::switch_display([[maybe_unused]] const std::string& player_name) {
-#ifdef UI_TYPE_GUI
-    display->stop();
-    display->join();
-    display = std::make_unique<SDLDisplay>(display_queue, ingame_queue, player_name);
-    display->start();
-    std::cout << "Switched to SDLDisplay" << std::endl;
-#elif defined(UI_TYPE_TUI)
-    display->stop();
-    display->join();
-    display = std::make_unique<TextDisplay>(display_queue, ingame_queue);
-    display->start();
-#endif
 }
 
 void Client::cleanup() {
