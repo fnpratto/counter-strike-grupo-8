@@ -59,11 +59,16 @@ shopDisplay::shopDisplay(SdlWindow& window):
 
 
     gun_buy = -1;
+    active = false;
 }
+void shopDisplay::updateShopState(bool state) { active = state; }
 
 void shopDisplay::render() {
-    renderSlots();
-    renderItem();
+    if (active) {
+        renderSlots();
+        renderItem();
+        return;
+    }
 }
 
 void shopDisplay::renderSlots() {

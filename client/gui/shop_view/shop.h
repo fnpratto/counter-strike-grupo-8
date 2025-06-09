@@ -17,6 +17,7 @@ public:
     explicit shopDisplay(SdlWindow& window);
     void render();
     std::optional<Message> updatePointerPosition(int x, int y);
+    void updateShopState(bool state);
 
 private:
     SdlWindow& window;
@@ -33,6 +34,7 @@ private:
     int size_guns_h;
     int size_slots_w;
     int size_slots_h;
+    bool active;
     void renderSlots();
     void renderItem();
     void renderblokedSlots();

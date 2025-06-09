@@ -42,8 +42,6 @@ void MouseHandler::handleEvent(const SDL_Event& event, bool shop, bool list_team
                     return;
                 }
                 // output_queue.push(Message(ShootCommand())); //TODO_ADD SERVER
-                std::cout << "ShootCommand sent with coordinates: (" << x << ", " << y << ")"
-                          << std::endl;
                 break;
             case SDL_BUTTON_RIGHT:
                 std::cout << "MOUSE_PRESS_RIGHT" << std::endl;

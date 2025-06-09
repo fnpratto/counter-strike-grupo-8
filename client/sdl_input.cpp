@@ -10,7 +10,7 @@ SDLInput::SDLInput(Queue<Message>& queue, std::atomic<bool>& quit_flag, listTeam
         quit_flag(quit_flag),
         queue(queue),
         mouseHandler(queue, listRef, shopRef, hudRef),
-        keyboardHandler(queue) {}
+        keyboardHandler(queue, shopRef) {}
 
 
 void SDLInput::run() {

@@ -70,6 +70,7 @@ void SDLDisplay::run() {
         window.fill();
         map.render();
         hud_display.render();
+        shop_display.render();
         window.render();
         return !quit_flag;
     });
