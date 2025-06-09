@@ -2,6 +2,7 @@
 
 #include "common/updates/bomb_update.h"
 #include "common/utils/vector_2d.h"
+
 #include "state.h"
 
 class BombState: public State<BombUpdate> {

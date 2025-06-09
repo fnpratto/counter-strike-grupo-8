@@ -82,7 +82,6 @@ TEST_F(TestGame, PlayerCanSelectTeam) {
 }
 
 TEST_F(TestGame, PlayerCannotJoinFullTeam) {
-    // Fill the Terrorist team
     Message msg_select_team = Message(SelectTeamCommand(Team::TT));
     int max_team_players = max_players / 2;
     for (int i = 1; i <= max_team_players; i++) {
@@ -93,14 +92,11 @@ TEST_F(TestGame, PlayerCannotJoinFullTeam) {
     GameUpdate update = game.get_full_update();
     EXPECT_EQ(static_cast<int>(update.get_players().size()), max_team_players + 1);
 
-    // Try to select Terrorist team
     auto player_messages = game.tick({PlayerMessage("extra_player", msg_select_team)});
     GameUpdate updates;
 
-    for (const auto& msg: player_messages) {
-        updates = msg.get_message().get_content<GameUpdate>();
-        EXPECT_EQ(updates.get_players().at("extra_player").get_team(), Team::CT);
-    }
+    updates = player_messages[0].get_message().get_content<GameUpdate>();
+    EXPECT_EQ(updates.get_players().at("extra_player").get_team(), Team::CT);
 }
 
 TEST_F(TestGame, CannotStartAnAlreadyStartedGame) {
@@ -190,10 +186,10 @@ TEST_F(TestGame, OneTerroristHasBombWhenGameStarted) {
 
     if (player_updates.find("test_player") != player_updates.end()) {
         InventoryUpdate inv_updates = player_updates.at("test_player").get_inventory();
-        EXPECT_TRUE(inv_updates.has_weapons_added_changed());
+        EXPECT_TRUE(inv_updates.has_bomb_changed());
     } else if (player_updates.find("another_player") != player_updates.end()) {
         InventoryUpdate inv_updates = player_updates.at("another_player").get_inventory();
-        EXPECT_TRUE(inv_updates.has_weapons_added_changed());
+        EXPECT_TRUE(inv_updates.has_bomb_changed());
     } else {
         FAIL();
     }
@@ -212,7 +208,7 @@ TEST_F(TestGame, CounterTerroristDoesNotHaveBombWhenGameStarted) {
 
     PlayerUpdate player_updates = updates.get_players().at("test_player");
 
-    EXPECT_FALSE(player_updates.has_inventory_changed());
+    EXPECT_FALSE(player_updates.get_inventory().has_bomb_changed());
 }
 
 TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {

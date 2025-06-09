@@ -22,6 +22,7 @@ target_sources(taller_tests
     ../server/states/player_state.cpp
     ../server/states/inventory_state.cpp
     ../server/states/knife_state.cpp
+    ../server/states/bomb_state.cpp
     # weapons
     ../server/weapons/gun.cpp
 
@@ -64,6 +65,7 @@ target_sources(taller_tests
     ../server/states/player_state.h
     ../server/states/inventory_state.h
     ../server/states/knife_state.h
+    ../server/states/bomb_state.h
     # weapons
     ../server/weapons/weapons_config.h
     ../server/weapons/gun.h

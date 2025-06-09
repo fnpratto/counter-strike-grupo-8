@@ -32,7 +32,7 @@ InventoryUpdate InventoryState::get_updates() const {
     if (bomb.has_value())
         update.set_bomb(bomb->get_updates());
     else
-        update.set_bomb(std::nullopt);
+        update.set_bomb(std::optional<BombUpdate>());
     return update;
 }
 
@@ -47,7 +47,7 @@ InventoryUpdate InventoryState::get_full_update() const {
     if (bomb.has_value())
         full_update.set_bomb(bomb->get_full_update());
     else
-        full_update.set_bomb(std::nullopt);
+        full_update.set_bomb(std::optional<BombUpdate>());
 
     return full_update;
 }

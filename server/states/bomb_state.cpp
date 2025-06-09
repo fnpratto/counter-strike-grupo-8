@@ -1,8 +1,6 @@
 #include "bomb_state.h"
 
-BombState::BombState() { 
-    updates = get_full_update(); 
-}
+BombState::BombState() { updates = get_full_update(); }
 
 bool BombState::is_planted() const { return planted_pos.has_value(); }
 

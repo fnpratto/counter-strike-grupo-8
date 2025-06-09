@@ -61,15 +61,21 @@ payload_t ServerProtocol::serialize_msg(const ShopPricesResponse& response) cons
         payload_t attr##_payload = serialize_update(update.get_##attr());            \
         payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end()); \
     }
+#define O_SERIALIZE_UPDATE(type, attr)                                               \
+    payload.push_back(update.has_##attr##_changed());                                \
+    if (update.has_##attr##_changed()) {                                             \
+        payload_t attr##_payload = serialize_optional(update.get_##attr());          \
+        payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end()); \
+    }
 
-#define SERIALIZE_UPDATE(CLASS, ATTRS)                                      \
-    template <>                                                             \
-    payload_t ServerProtocol::serialize_update(const CLASS& update) const { \
-        payload_t payload;                                                  \
-                                                                            \
-        ATTRS(X_SERIALIZE_UPDATE, M_SERIALIZE_UPDATE, U_SERIALIZE_UPDATE)   \
-                                                                            \
-        return payload;                                                     \
+#define SERIALIZE_UPDATE(CLASS, ATTRS)                                                        \
+    template <>                                                                               \
+    payload_t ServerProtocol::serialize_update(const CLASS& update) const {                   \
+        payload_t payload;                                                                    \
+                                                                                              \
+        ATTRS(X_SERIALIZE_UPDATE, M_SERIALIZE_UPDATE, U_SERIALIZE_UPDATE, O_SERIALIZE_UPDATE) \
+                                                                                              \
+        return payload;                                                                       \
     }
 
 SERIALIZE_UPDATE(BombUpdate, BOMB_ATTRS)

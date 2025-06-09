@@ -25,6 +25,7 @@ target_sources(taller_server
     states/player_state.cpp
     states/inventory_state.cpp
     states/knife_state.cpp
+    states/bomb_state.cpp
     # weapons
     weapons/gun.cpp
 
@@ -68,6 +69,7 @@ target_sources(taller_server
     states/player_state.h
     states/inventory_state.h
     states/knife_state.h
+    states/bomb_state.h
     # weapons
     weapons/weapons_config.h
     weapons/gun.h

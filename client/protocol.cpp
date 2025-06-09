@@ -206,13 +206,19 @@ ShopPricesResponse ClientProtocol::deserialize_msg<ShopPricesResponse>(payload_t
         type attr = deserialize_update<type>(payload); \
         result.set_##attr(attr);                       \
     }
+#define O_DESERIALIZE_UPDATE(type, attr)                                \
+    if (deserialize<bool>(payload)) {                                   \
+        std::optional<type> attr = deserialize_optional<type>(payload); \
+        result.set_##attr(attr);                                        \
+    }
 
 #define DESERIALIZE_UPDATE(CLASS, ATTRS)                                         \
     template <>                                                                  \
     CLASS ClientProtocol::deserialize_update<CLASS>(payload_t & payload) const { \
         CLASS result;                                                            \
                                                                                  \
-        ATTRS(X_DESERIALIZE_UPDATE, M_DESERIALIZE_UPDATE, U_DESERIALIZE_UPDATE)  \
+        ATTRS(X_DESERIALIZE_UPDATE, M_DESERIALIZE_UPDATE, U_DESERIALIZE_UPDATE,  \
+              O_DESERIALIZE_UPDATE)                                              \
                                                                                  \
         return result;                                                           \
     }

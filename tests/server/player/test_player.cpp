@@ -38,13 +38,8 @@ TEST_F(TestPlayer, PlayerStartWithDefaultInventory) {
     EXPECT_EQ(i_sec_weapon.get_mag_ammo(), p_sec_weapon.get_mag_ammo());
     EXPECT_EQ(i_sec_weapon.get_reserve_ammo(), p_sec_weapon.get_reserve_ammo());
 
-    std::vector<ItemSlot> weapons_added = p_inv.get_weapons_added();
-    EXPECT_TRUE(std::find(weapons_added.begin(), weapons_added.end(), ItemSlot::Melee) !=
-                weapons_added.end());
-    EXPECT_TRUE(std::find(weapons_added.begin(), weapons_added.end(), ItemSlot::Secondary) !=
-                weapons_added.end());
-    EXPECT_FALSE(std::find(weapons_added.begin(), weapons_added.end(), ItemSlot::Bomb) !=
-                 weapons_added.end());
-    EXPECT_FALSE(std::find(weapons_added.begin(), weapons_added.end(), ItemSlot::Primary) !=
-                 weapons_added.end());
+    EXPECT_TRUE(p_inv.get_guns().find(ItemSlot::Secondary) != p_inv.get_guns().end());
+    EXPECT_FALSE(p_inv.get_guns().find(ItemSlot::Primary) != p_inv.get_guns().end());
+    EXPECT_TRUE(p_inv.get_knife().has_change());
+    EXPECT_FALSE(p_inv.get_bomb().has_value());
 }
