@@ -88,7 +88,4 @@ void ConnectionHandler::wait_for_game_start() {
     }
 }
 
-void ConnectionHandler::stop() {
-    Thread::stop();
-    ingame_queue.close();
-}
+void ConnectionHandler::stop() { Thread::stop(); }

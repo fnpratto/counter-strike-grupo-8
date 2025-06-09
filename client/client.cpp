@@ -61,19 +61,17 @@ void Client::run() {
         player_name = connection_handler.get_player_name();  // cppcheck-suppress[unreadVariable]
     }
 
-    if (protocol) {
 #ifdef UI_TYPE_GUI
-        display = std::make_unique<SDLDisplay>(display_queue, ingame_queue, player_name);
-        display->start();
-        std::cout << "Started SDLDisplay" << std::endl;
+    display = std::make_unique<SDLDisplay>(display_queue, ingame_queue, player_name);
+    display->start();
+    std::cout << "Started SDLDisplay" << std::endl;
 #elif defined(UI_TYPE_TUI)
-        display = std::make_unique<TextDisplay>(display_queue, ingame_queue);
-        display->start();
+    display = std::make_unique<TextDisplay>(display_queue, ingame_queue);
+    display->start();
 #endif
 
-        while (display->is_alive() && sender->is_alive() && receiver->is_alive())
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
+    while (display->is_alive() && sender->is_alive() && receiver->is_alive())
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     cleanup();
 }
