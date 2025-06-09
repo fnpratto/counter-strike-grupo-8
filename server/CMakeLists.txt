@@ -12,6 +12,7 @@ target_sources(taller_server
     # attack_effects
     attack_effects/attack_effect.cpp
     attack_effects/melee_attack.cpp
+    attack_effects/gun_attack.cpp
     # game
     game/game.cpp
     game/game_phase.cpp

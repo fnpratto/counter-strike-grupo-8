@@ -384,3 +384,33 @@ TEST_F(TestGame, PlayerIsDeadAfterTakingAllHealthDamage) {
     EXPECT_EQ(health, 0);
     EXPECT_EQ(updates.get_players().at("target_player").get_deaths(), 1);
 }
+
+TEST_F(TestGame, WeaponDoesNotMakeDamageWhenTargetIsOutOfRange) {
+    GameUpdate updates;
+    game.join_player("test_player");
+    game.join_player("target_player");
+
+    updates = game.get_full_update();
+    Vector2D player_pos = updates.get_players().at("test_player").get_pos();
+    Vector2D target_pos = updates.get_players().at("target_player").get_pos();
+    int old_health = updates.get_players().at("target_player").get_health();
+
+    Message msg_select_team = Message(SelectTeamCommand(Team::TT));
+    game.tick({PlayerMessage("test_player", msg_select_team)});
+    msg_select_team = Message(SelectTeamCommand(Team::CT));
+    game.tick({PlayerMessage("target_player", msg_select_team)});
+
+    Message msg_aim = Message(AimCommand(target_pos - player_pos));
+    Message msg_switch_weap = Message(SwitchItemCommand(ItemSlot::Melee));
+    Message msg_start = Message(StartGameCommand());
+    game.tick({PlayerMessage("test_player", msg_aim), PlayerMessage("test_player", msg_switch_weap),
+               PlayerMessage("test_player", msg_start), PlayerMessage("target_player", msg_start)});
+
+    advance_secs(PhaseTimes::buying_phase_secs);
+
+    Message msg_attack = Message(AttackCommand());
+    game.tick({PlayerMessage("test_player", msg_attack)});
+
+    updates = game.get_full_update();
+    EXPECT_EQ(updates.get_players().at("target_player").get_health(), old_health);
+}

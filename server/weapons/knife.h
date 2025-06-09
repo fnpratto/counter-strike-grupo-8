@@ -23,7 +23,7 @@ public:
         if (!can_attack(KnifeConfig::attack_rate, now))
             return effects;
         effects.push_back(std::make_unique<MeleeAttack>(player_origin, KnifeConfig::damage, dir,
-                                                        KnifeConfig::attack_radius));
+                                                        KnifeConfig::max_range));
         time_last_attack = now;
         return effects;
     }

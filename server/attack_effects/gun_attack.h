@@ -7,18 +7,10 @@ protected:
     float precision;
 
 public:
-    GunAttack(Player& player_origin, int damage, const Vector2D& dir, float precision):
-            AttackEffect(player_origin, damage, dir), precision(precision) {}
+    GunAttack(Player& player_origin, int damage, const Vector2D& dir, float precision,
+              int max_range);
 
-    int compute_damage(int distance) const override {
-        // TODO: Implement falloff for GunAttack
-        (void)distance;
-        return damage;
-    }
+    int compute_damage(int distance) const override;
 
-    // TODO: Check max range
-    bool is_target_hit(const Vector2D& target_pos) const override {
-        (void)target_pos;
-        return RandomFloatGenerator(0.0f, 1.0f).generate() <= precision;
-    }
+    bool is_target_hit() const override;
 };

@@ -11,6 +11,7 @@ struct GunConfig {
     int min_damage;
     int max_damage;
     float precision;
+    int max_range;
 };
 
 constexpr GunConfig GlockConfig = {.bullets_per_mag = 20,
@@ -22,7 +23,8 @@ constexpr GunConfig GlockConfig = {.bullets_per_mag = 20,
                                    .burst_interval = 0,
                                    .min_damage = 20,
                                    .max_damage = 30,
-                                   .precision = 0.85f};
+                                   .precision = 0.85f,
+                                   .max_range = 10};
 
 constexpr GunConfig Ak47Config = {.bullets_per_mag = 30,
                                   .init_mag_ammo = 30,
@@ -33,7 +35,8 @@ constexpr GunConfig Ak47Config = {.bullets_per_mag = 30,
                                   .burst_interval = 0.4f,
                                   .min_damage = 30,
                                   .max_damage = 40,
-                                  .precision = 0.70f};
+                                  .precision = 0.70f,
+                                  .max_range = 20};
 
 constexpr GunConfig M3Config = {.bullets_per_mag = 1,
                                 .init_mag_ammo = 8,
@@ -44,7 +47,8 @@ constexpr GunConfig M3Config = {.bullets_per_mag = 1,
                                 .burst_interval = 0,
                                 .min_damage = 8,
                                 .max_damage = 12,
-                                .precision = 0.30f};
+                                .precision = 0.30f,
+                                .max_range = 5};
 
 constexpr GunConfig AwpConfig = {.bullets_per_mag = 10,
                                  .init_mag_ammo = 10,
@@ -55,12 +59,14 @@ constexpr GunConfig AwpConfig = {.bullets_per_mag = 10,
                                  .burst_interval = 0,
                                  .min_damage = 100,
                                  .max_damage = 100,
-                                 .precision = 1.0f};
+                                 .precision = 1.0f,
+                                 .max_range = 100};
 
 namespace KnifeConfig {
 const int damage = 50;
 const float attack_rate = 5.0;
 const int attack_radius = 2;
+const int max_range = 1;
 };  // namespace KnifeConfig
 
 namespace BombConfig {

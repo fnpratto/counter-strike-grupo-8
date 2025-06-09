@@ -16,8 +16,6 @@ protected:
 public:
     Weapon() {}
 
-    // TODO: If the weapon is attacking, being able to attack depends
-    //       on burst_frec
     bool can_attack(const float attack_rate, TimePoint now) {
         std::chrono::duration<float> time_since_last_attack = now - time_last_attack;
         float min_time_between_attacks = 1.0f / attack_rate;

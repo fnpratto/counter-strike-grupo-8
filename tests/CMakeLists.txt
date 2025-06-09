@@ -9,6 +9,7 @@ target_sources(taller_tests
     # attack_effects
     ../server/attack_effects/attack_effect.cpp
     ../server/attack_effects/melee_attack.cpp
+    ../server/attack_effects/gun_attack.cpp
     # game
     ../server/game/game.cpp
     ../server/game/game_phase.cpp

@@ -44,5 +44,6 @@ public:
 
     Vector2D calculate_step(const Vector2D& dir) const;
 
-    std::optional<Target> get_closest_target(const std::string& origin_p_name, const Vector2D& dir);
+    std::optional<Target> get_closest_target(const std::string& origin_p_name, const Vector2D& dir,
+                                             int max_range);
 };

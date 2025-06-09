@@ -73,7 +73,8 @@ void Game::perform_attacks() {
             continue;
 
         for (const auto& effect: effects) {
-            auto closest_target = physics_system.get_closest_target(player_name, effect->get_dir());
+            auto closest_target = physics_system.get_closest_target(player_name, effect->get_dir(),
+                                                                    effect->get_max_range());
             if (!closest_target.has_value())
                 continue;
 

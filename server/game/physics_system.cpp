@@ -42,7 +42,7 @@ T PhysicsSystem::meter_to_unit(const T& v) const {
 }
 
 std::optional<Target> PhysicsSystem::get_closest_target(const std::string& origin_p_name,
-                                                        const Vector2D& dir) {
+                                                        const Vector2D& dir, int max_range) {
     auto closest_wall = get_closest_tile<Wall>(origin_p_name, dir, map.get_walls());
     auto closest_box = get_closest_tile<Box>(origin_p_name, dir, map.get_boxes());
     auto closest_player = get_closest_player(origin_p_name, dir);
@@ -61,6 +61,11 @@ std::optional<Target> PhysicsSystem::get_closest_target(const std::string& origi
             closest_target = t;
         }
     }
+
+    if (closest_target.has_value() && min_distance > unit_to_meter<int>(max_range)) {
+        return std::optional<Target>{};
+    }
+
     return closest_target;
 }
 
