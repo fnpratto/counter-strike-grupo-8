@@ -1,5 +1,6 @@
 #include "gun.h"
 
+#include <algorithm>
 #include <utility>
 
 #include "common/utils/random_float_generator.h"
@@ -45,14 +46,15 @@ void Gun::reload() {
 }
 
 // TODO: Handle burst_interval
-std::vector<std::unique_ptr<AttackEffect>> Gun::attack(const Player& player_origin,
-                                                       const Vector2D& dir, TimePoint now) {
+std::vector<std::unique_ptr<AttackEffect>> Gun::attack(Player& player_origin, const Vector2D& dir,
+                                                       TimePoint now) {
     GunConfig gun_config = state.get_gun_config();
     std::vector<std::unique_ptr<AttackEffect>> effects;
     if (!state.get_is_attacking() || !has_ammo() || !can_attack(gun_config.attack_rate, now))
         return effects;
 
-    for (int i = 0; i < gun_config.bullets_per_attack; i++) {
+    int bullets = std::min(gun_config.bullets_per_attack, state.get_mag_ammo());
+    for (int i = 0; i < bullets; i++) {
         int damage = get_random_damage(gun_config.min_damage, gun_config.max_damage);
         Vector2D varied_dir = dir.varied_dir_in_cone(gun_config.dir_variation_angle);
 

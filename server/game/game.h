@@ -53,5 +53,5 @@ private:
 
     void advance_round_logic();
     void advance_players_movement();
-    void process_attacks();
+    void perform_attacks();
 };

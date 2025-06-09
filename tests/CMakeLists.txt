@@ -6,6 +6,8 @@ target_sources(taller_tests
     server/game/test_game_phase.cpp
     server/player/test_inventory.cpp
     server/player/test_player.cpp
+    # attack_effects
+    ../server/attack_effects/attack_effect.cpp
     # game
     ../server/game/game.cpp
     ../server/game/game_phase.cpp
@@ -47,6 +49,7 @@ target_sources(taller_tests
     ../server/game/game_phase.h
     ../server/game/physics_system.h
     ../server/game/game_config.h
+    ../server/game/target_type.h
     # map
     ../server/map/map_builder.h
     ../server/map/map.h

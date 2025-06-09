@@ -20,6 +20,8 @@ bool Player::is_ct() const { return state.get_team() == Team::CT; }
 
 bool Player::is_moving() const { return state.get_velocity() != Vector2D(0.0f, 0.0f); }
 
+bool Player::is_dead() const { return state.get_health() == 0; }
+
 Vector2D Player::get_pos() const { return state.get_pos(); }
 
 Vector2D Player::get_move_dir() const { return state.get_velocity(); }
@@ -30,10 +32,12 @@ void Player::set_ready() { state.set_ready(true); }
 
 void Player::take_damage(int damage) {
     int health = state.get_health();
-    if (damage <= health)
+    if (damage <= health) {
         state.set_health(health - damage);
-    else
+    } else {
         state.set_health(0);
+        state.increment_deaths();
+    }
 }
 
 void Player::pick_bomb(Bomb&& bomb) { state.add_bomb(std::move(bomb)); }
@@ -87,3 +91,5 @@ void Player::reload() {
     auto& gun = state.get_inventory().get_gun(slot);
     gun->reload();
 }
+
+void Player::increment_kills() { state.increment_kills(); }

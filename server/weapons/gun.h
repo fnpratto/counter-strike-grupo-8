@@ -37,6 +37,6 @@ public:
 
     void reload();
 
-    std::vector<std::unique_ptr<AttackEffect>> attack(const Player& player_origin,
-                                                      const Vector2D& dir, TimePoint now) override;
+    std::vector<std::unique_ptr<AttackEffect>> attack(Player& player_origin, const Vector2D& dir,
+                                                      TimePoint now) override;
 };

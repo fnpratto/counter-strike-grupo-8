@@ -17,8 +17,8 @@ public:
 
     void start_attacking() { state.set_is_attacking(true); }
 
-    std::vector<std::unique_ptr<AttackEffect>> attack(const Player& player_origin,
-                                                      const Vector2D& dir, TimePoint now) override {
+    std::vector<std::unique_ptr<AttackEffect>> attack(Player& player_origin, const Vector2D& dir,
+                                                      TimePoint now) override {
         std::vector<std::unique_ptr<AttackEffect>> effects;
         if (!can_attack(KnifeConfig::attack_rate, now))
             return effects;

@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "common/models.h"
+#include "common/utils/vector_2d.h"
 
 struct GameInfo {
     std::string name;
@@ -43,4 +44,24 @@ public:
 
     std::map<GunType, int> get_gun_prices() const { return gun_prices; }
     std::map<GunType, int> get_ammo_prices() const { return ammo_prices; }
+};
+
+/**
+ * @class HitResponse
+ * @brief Response containing the origin and hit position and direction of a hit.
+ */
+class HitResponse {
+    Vector2D origin;
+    Vector2D hit_pos;
+    Vector2D hit_dir;
+    bool hit;
+
+public:
+    HitResponse(const Vector2D& origin, const Vector2D& hit_pos, const Vector2D& dir, bool hit):
+            origin(origin), hit_pos(hit_pos), hit_dir(dir), hit(hit) {}
+
+    Vector2D get_origin() const { return origin; }
+    Vector2D get_hit_pos() const { return hit_pos; }
+    Vector2D get_hit_dir() const { return hit_dir; }
+    bool is_hit() const { return hit; }
 };

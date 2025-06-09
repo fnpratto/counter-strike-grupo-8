@@ -19,6 +19,7 @@
     F(ConnectionRequest, CONN_REQ)                     \
     F(ListGamesResponse, LIST_GAMES_RESP)              \
     F(ShopPricesResponse, SHOP_PRICES_RESP)            \
+    F(HitResponse, HIT_RESP)                           \
     F(CreateGameCommand, CREATE_GAME_CMD) /*Commands*/ \
     F(JoinGameCommand, JOIN_GAME_CMD)                  \
     F(ListGamesCommand, LIST_GAMES_CMD)                \

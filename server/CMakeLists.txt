@@ -9,6 +9,8 @@ target_sources(taller_server
     receiver.cpp
     sender.cpp
     main.cpp
+    # attack_effects
+    attack_effects/attack_effect.cpp
     # game
     game/game.cpp
     game/game_phase.cpp
@@ -51,6 +53,7 @@ target_sources(taller_server
     game/game_phase.h
     game/physics_system.h
     game/game_config.h
+    game/target_type.h
     # map
     map/map_builder.h
     map/map.h

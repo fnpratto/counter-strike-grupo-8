@@ -7,7 +7,7 @@ protected:
     float precision;
 
 public:
-    GunAttack(const Player& player_origin, int damage, const Vector2D& dir, float precision):
+    GunAttack(Player& player_origin, int damage, const Vector2D& dir, float precision):
             AttackEffect(player_origin, damage, dir), precision(precision) {}
 
     int compute_damage(int distance) const override {
@@ -17,6 +17,6 @@ public:
     }
 
     bool is_target_hit() const override {
-        return RandomFloatGenerator(0, 100).generate() <= precision;
+        return RandomFloatGenerator(0.0f, 1.0f).generate() <= precision;
     }
 };

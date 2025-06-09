@@ -38,10 +38,69 @@ Vector2D PhysicsSystem::map_to_physics_pos(const Vector2D& pos) const { return p
 
 Vector2D PhysicsSystem::physics_to_map_pos(const Vector2D& pos) const { return pos / TILE_SIZE; }
 
-// TODO: get_closest()
-//          - Take an origin position (Vector2D) and a direction (Vector2D)
-//          - Return std::optional<std::variant<const std::reference_wrapper<Wall>,
-//          std::reference_wrapper<std::unique_ptr<Player>>>>
+std::optional<Target> PhysicsSystem::get_closest_target(const std::string& origin_p_name,
+                                                        const Vector2D& dir) {
+    auto closest_wall = get_closest_tile<Wall>(origin_p_name, dir, map.get_walls());
+    auto closest_box = get_closest_tile<Box>(origin_p_name, dir, map.get_boxes());
+    auto closest_player = get_closest_player(origin_p_name, dir);
+
+    std::vector<std::optional<Target>> closests = {closest_wall, closest_box, closest_player};
+
+    float min_distance = std::numeric_limits<float>::max();
+    std::optional<Target> closest_target;
+    for (const auto& t: closests) {
+        if (!t.has_value())
+            continue;
+        Vector2D origin = players.at(origin_p_name)->get_pos();
+        float distance = (t->get_pos() - origin).length();
+        if (distance < min_distance) {
+            min_distance = distance;
+            closest_target = t;
+        }
+    }
+    return closest_target;
+}
+
+template <typename T>
+std::optional<Target> PhysicsSystem::get_closest_tile(const std::string& origin_p_name,
+                                                      const Vector2D& dir,
+                                                      const std::vector<T>& vector) {
+    std::optional<Target> closest_target;
+    Vector2D origin = players.at(origin_p_name)->get_pos();
+    float min_distance = std::numeric_limits<float>::max();
+    for (const T& t: vector) {
+        Vector2D target_pos = t.get_pos();
+        if (is_in_same_cuadrant(target_pos, origin, dir) && tile_is_hit(target_pos, origin, dir)) {
+            float distance = (target_pos - origin).length();
+            if (distance < min_distance) {
+                min_distance = distance;
+                closest_target = t;
+            }
+        }
+    }
+    return closest_target;
+}
+
+std::optional<Target> PhysicsSystem::get_closest_player(const std::string& origin_p_name,
+                                                        const Vector2D& dir) {
+    std::optional<Target> closest_target;
+    Vector2D origin = players.at(origin_p_name)->get_pos();
+    float min_distance = std::numeric_limits<float>::max();
+    for (const auto& [p_name, p]: players) {
+        if (origin_p_name == p_name)
+            continue;
+        Vector2D target_pos = p->get_pos();
+        if (is_in_same_cuadrant(target_pos, origin, dir) &&
+            player_is_hit(target_pos, origin, dir)) {
+            float distance = (target_pos - origin).length();
+            if (distance < min_distance) {
+                min_distance = distance;
+                closest_target = PlayerRef(p);
+            }
+        }
+    }
+    return closest_target;
+}
 
 bool PhysicsSystem::is_in_same_cuadrant(Vector2D target_pos, Vector2D player_pos,
                                         Vector2D aim_dir) {
@@ -55,7 +114,7 @@ bool PhysicsSystem::player_is_hit(Vector2D target_pos, Vector2D player_pos, Vect
     return orthogonal_distance <= HITBOX_RADIUS;
 }
 
-bool PhysicsSystem::wall_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir) {
+bool PhysicsSystem::tile_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir) {
     // AABB bounds
     float tile_size = TILE_SIZE;
     float minX = target_pos.get_x() - tile_size;

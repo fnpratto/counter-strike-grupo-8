@@ -4,7 +4,7 @@ GunState::GunState(GunType gun_type, GunConfig gun_config):
         gun(gun_type),
         gun_config(gun_config),
         mag_ammo(gun_config.init_mag_ammo),
-        reserve_ammo(gun_config.init_mag_ammo),
+        reserve_ammo(gun_config.init_reserve_ammo),
         is_attacking(false) {
     updates = get_full_update();
 }

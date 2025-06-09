@@ -23,6 +23,7 @@ public:
     bool is_tt() const;
     bool is_ct() const;
     bool is_moving() const;
+    bool is_dead() const;
 
     Vector2D get_pos() const;
     Vector2D get_move_dir() const;
@@ -48,4 +49,6 @@ public:
     void equip_item(ItemSlot slot);
 
     void reload();
+
+    void increment_kills();
 };

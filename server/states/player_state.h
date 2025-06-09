@@ -20,6 +20,10 @@ class PlayerState: public State<PlayerUpdate> {
     ItemSlot equipped_item;
     Inventory inventory;
 
+    // TODO: Refactor to use a scoreboard entry class
+    int kills;
+    int deaths;
+
 public:
     PlayerState(Team team, Vector2D pos, Vector2D aim_direction, Vector2D velocity, bool ready,
                 int health, ItemSlot equipped_item);
@@ -40,6 +44,8 @@ public:
     void set_ready(bool new_ready);
     void set_health(int new_health);
     void set_equipped_item(ItemSlot new_equipped_item);
+    void increment_kills();
+    void increment_deaths();
 
     void add_bomb(Bomb&& bomb);
 

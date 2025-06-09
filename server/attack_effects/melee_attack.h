@@ -8,7 +8,7 @@ private:
     float cone_max_angle;
 
 public:
-    MeleeAttack(const Player& player_origin, int damage, const Vector2D& dir, int radius,
+    MeleeAttack(Player& player_origin, int damage, const Vector2D& dir, int radius,
                 float cone_max_angle):
             AttackEffect(player_origin, damage, dir),
             radius(radius),

@@ -5,6 +5,7 @@
 #include "random_float_generator.h"
 
 class Vector2D {
+    // TODO: meter_size should be defined in physics_system
     static constexpr int meter_size = 64;  // 1 meter = 32 game world units
 
 private:
@@ -53,8 +54,9 @@ public:
         float angle_offset = rfg.generate();
 
         float varied_angle = base_angle + angle_offset;
+        float len = this->length();
 
-        return Vector2D(std::cos(varied_angle), std::sin(varied_angle));
+        return Vector2D(std::cos(varied_angle) * len, std::sin(varied_angle) * len);
     }
 
     ~Vector2D() {}
