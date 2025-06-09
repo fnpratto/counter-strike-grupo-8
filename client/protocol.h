@@ -60,6 +60,21 @@ public:
     }
 
     template <typename T>
+    std::optional<T> deserialize_optional(payload_t& payload) const {
+        bool has_value = deserialize<bool>(payload);
+
+        if (has_value) {
+            if constexpr (std::is_base_of_v<StateUpdate, T>) {
+                return deserialize_update<T>(payload);
+            } else {
+                return deserialize<T>(payload);
+            }
+        }
+
+        return std::optional<T>{};
+    }
+
+    template <typename T>
     std::vector<T> deserialize_vector(payload_t& payload) const {
         uint16_t length = deserialize<uint16_t>(payload);
 

@@ -58,6 +58,28 @@ private:
         return result;
     }
 
+    template <typename T>
+    payload_t serialize_optional(const std::optional<T>& v) const {
+        payload_t payload;
+        bool has_value = v.has_value();
+        payload_t has_value_payload = serialize(has_value);
+        payload.insert(payload.end(), has_value_payload.begin(), has_value_payload.end());
+
+        if (has_value) {
+            payload_t value_payload;
+
+            if constexpr (std::is_base_of_v<StateUpdate, T>) {
+                value_payload = serialize_update(v.value());
+            } else {
+                value_payload = serialize(v.value());
+            }
+
+            payload.insert(payload.end(), value_payload.begin(), value_payload.end());
+        }
+
+        return payload;
+    }
+
     Message deserialize_message(const MessageType& type, payload_t& payload) const override;
 
     /**
