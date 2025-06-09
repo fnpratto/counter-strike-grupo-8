@@ -14,12 +14,17 @@
 #include "target_type.h"
 
 class PhysicsSystem {
+    static constexpr int METER_SIZE = 64;
+    static constexpr int HITBOX_RADIUS = METER_SIZE / 2;
+
 private:
     Map map;
     const std::map<std::string, std::unique_ptr<Player>>& players;
 
-    Vector2D map_to_physics_pos(const Vector2D& pos) const;
-    Vector2D physics_to_map_pos(const Vector2D& pos) const;
+    template <typename T>
+    T unit_to_meter(const T& v) const;
+    template <typename T>
+    T meter_to_unit(const T& v) const;
 
     template <typename T>
     std::optional<Target> get_closest_tile(const std::string& origin_p_name, const Vector2D& dir,

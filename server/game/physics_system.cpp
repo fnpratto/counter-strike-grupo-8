@@ -7,36 +7,39 @@
 
 #include "game_config.h"
 
-#define TILE_SIZE 32.0      // TODO: Change name (related to meters, so we can use ints)
-#define HITBOX_RADIUS 16.0  // TODO: Set this value as a fraction of tile_size
-
 PhysicsSystem::PhysicsSystem(Map&& map,
                              const std::map<std::string, std::unique_ptr<Player>>& players):
         map(std::move(map)), players(players) {}
 
 Vector2D PhysicsSystem::random_spawn_tt_pos() const {
-    return map_to_physics_pos(map.random_spawn_tt_pos());
+    return unit_to_meter<Vector2D>(map.random_spawn_tt_pos());
 }
 
 Vector2D PhysicsSystem::random_spawn_ct_pos() const {
-    return map_to_physics_pos(map.random_spawn_ct_pos());
+    return unit_to_meter<Vector2D>(map.random_spawn_ct_pos());
 }
 
 bool PhysicsSystem::player_in_spawn(const std::string& player_name) const {
     const std::unique_ptr<Player>& player = players.at(player_name);
     if (player->is_tt())
-        return map.is_spawn_tt_pos(physics_to_map_pos(player->get_pos()));
-    return map.is_spawn_ct_pos(physics_to_map_pos(player->get_pos()));
+        return map.is_spawn_tt_pos(meter_to_unit<Vector2D>(player->get_pos()));
+    return map.is_spawn_ct_pos(meter_to_unit<Vector2D>(player->get_pos()));
 }
 
 Vector2D PhysicsSystem::calculate_step(const Vector2D& dir) const {
     float tick_duration = 1.0f / GameConfig::tickrate;  // TODO use clock
-    return dir.normalized() * GameConfig::player_speed * tick_duration;
+    return dir.normalized(METER_SIZE) * GameConfig::player_speed * tick_duration;
 }
 
-Vector2D PhysicsSystem::map_to_physics_pos(const Vector2D& pos) const { return pos * TILE_SIZE; }
+template <typename T>
+T PhysicsSystem::unit_to_meter(const T& v) const {
+    return v * METER_SIZE;
+}
 
-Vector2D PhysicsSystem::physics_to_map_pos(const Vector2D& pos) const { return pos / TILE_SIZE; }
+template <typename T>
+T PhysicsSystem::meter_to_unit(const T& v) const {
+    return v / METER_SIZE;
+}
 
 std::optional<Target> PhysicsSystem::get_closest_target(const std::string& origin_p_name,
                                                         const Vector2D& dir) {
@@ -116,7 +119,7 @@ bool PhysicsSystem::player_is_hit(Vector2D target_pos, Vector2D player_pos, Vect
 
 bool PhysicsSystem::tile_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir) {
     // AABB bounds
-    float tile_size = TILE_SIZE;
+    float tile_size = METER_SIZE;
     float minX = target_pos.get_x() - tile_size;
     float maxX = target_pos.get_x() + tile_size;
     float minY = target_pos.get_y() - tile_size;

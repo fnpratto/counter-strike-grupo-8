@@ -5,9 +5,6 @@
 #include "random_float_generator.h"
 
 class Vector2D {
-    // TODO: meter_size should be defined in physics_system
-    static constexpr int meter_size = 64;  // 1 meter = 32 game world units
-
 private:
     int x;
     int y;
@@ -38,12 +35,11 @@ public:
 
     float length() const { return std::sqrt(x * x + y * y); }
 
-    // Normalize the vector to 1 meter_size
-    Vector2D normalized() const {
+    Vector2D normalized(int n) const {
         float norm = std::sqrt(x * x + y * y);
         if (norm == 0)
             return Vector2D(0, 0);
-        return Vector2D((x / norm) * meter_size, (y / norm) * meter_size);
+        return Vector2D((x / norm) * n, (y / norm) * n);
     }
 
     Vector2D varied_dir_in_cone(float cone_max_angle_deg) const {
