@@ -11,9 +11,9 @@
 #include "player_update.h"
 #include "state_update.h"
 
-#define GAME_ATTRS(X, M, U, V) \
-    U(PhaseUpdate, phase)      \
-    X(int, num_rounds)         \
+#define GAME_ATTRS(X, M, U) \
+    U(PhaseUpdate, phase)   \
+    X(int, num_rounds)      \
     M(std::string, PlayerUpdate, players)
 
 DEFINE_UPDATE(GameUpdate, GAME_ATTRS)

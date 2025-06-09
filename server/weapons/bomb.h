@@ -4,14 +4,9 @@
 
 #include "common/models.h"
 #include "common/utils/vector_2d.h"
+#include "server/states/bomb_state.h"
 
-class Bomb {
-private:
-    std::optional<Vector2D> planted_pos;
-    // TODO: Time remaining
-
+class Bomb: public Logic<BombState, BombUpdate> {
 public:
-    Bomb() {}
-
-    bool is_planted() { return planted_pos.has_value(); }
+    Bomb(): Logic<BombState, BombUpdate>(BombState()) {}
 };

@@ -11,9 +11,11 @@
 #include "common/message.h"
 #include "common/responses.h"
 #include "common/socket.h"
+#include "common/updates/bomb_update.h"
 #include "common/updates/game_update.h"
 #include "common/updates/gun_update.h"
 #include "common/updates/inventory_update.h"
+#include "common/updates/knife_update.h"
 #include "common/updates/phase_update.h"
 #include "common/updates/player_update.h"
 
@@ -204,23 +206,19 @@ ShopPricesResponse ClientProtocol::deserialize_msg<ShopPricesResponse>(payload_t
         type attr = deserialize_update<type>(payload); \
         result.set_##attr(attr);                       \
     }
-#define V_DESERIALIZE_UPDATE(type, attr)                            \
-    if (deserialize<bool>(payload)) {                               \
-        std::vector<type> attr = deserialize_vector<type>(payload); \
-        result.set_##attr(attr);                                    \
-    }
 
 #define DESERIALIZE_UPDATE(CLASS, ATTRS)                                         \
     template <>                                                                  \
     CLASS ClientProtocol::deserialize_update<CLASS>(payload_t & payload) const { \
         CLASS result;                                                            \
                                                                                  \
-        ATTRS(X_DESERIALIZE_UPDATE, M_DESERIALIZE_UPDATE, U_DESERIALIZE_UPDATE,  \
-              V_DESERIALIZE_UPDATE)                                              \
+        ATTRS(X_DESERIALIZE_UPDATE, M_DESERIALIZE_UPDATE, U_DESERIALIZE_UPDATE)  \
                                                                                  \
         return result;                                                           \
     }
 
+DESERIALIZE_UPDATE(BombUpdate, BOMB_ATTRS)
+DESERIALIZE_UPDATE(KnifeUpdate, KNIFE_ATTRS)
 DESERIALIZE_UPDATE(GunUpdate, GUN_ATTRS)
 DESERIALIZE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)
 DESERIALIZE_UPDATE(PlayerUpdate, PLAYER_ATTRS)

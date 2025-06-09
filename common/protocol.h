@@ -210,6 +210,14 @@ protected:
     }
 
     template <typename T>
+    payload_t serialize(const std::optional<T>& v) const {
+        // TODO: Implement
+        payload_t payload;
+        (void)v;
+        return payload;
+    }
+
+    template <typename T>
     typename std::enable_if<!std::is_enum<T>::value, T>::type deserialize(payload_t& payload) const;
 
     template <typename T>
