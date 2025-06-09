@@ -8,7 +8,7 @@ AttackEffect::AttackEffect(Player& player_origin, int damage, const Vector2D& di
 Vector2D AttackEffect::get_dir() const { return dir; }
 
 bool AttackEffect::apply(const std::unique_ptr<Player>& player) {
-    if (!is_target_hit())
+    if (!is_target_hit(player->get_pos()))
         return false;
     int distance = (player->get_pos() - player_origin.get_pos()).length();
     int final_damage = compute_damage(distance);

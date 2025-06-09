@@ -16,7 +16,9 @@ public:
         return damage;
     }
 
-    bool is_target_hit() const override {
+    // TODO: Check max range
+    bool is_target_hit(const Vector2D& target_pos) const override {
+        (void)target_pos;
         return RandomFloatGenerator(0.0f, 1.0f).generate() <= precision;
     }
 };

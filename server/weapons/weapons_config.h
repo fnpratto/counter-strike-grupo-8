@@ -61,7 +61,6 @@ namespace KnifeConfig {
 const int damage = 50;
 const float attack_rate = 5.0;
 const int attack_radius = 2;
-const float cone_max_angle = 30.0f;
 };  // namespace KnifeConfig
 
 namespace BombConfig {
