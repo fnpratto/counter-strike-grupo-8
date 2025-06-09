@@ -60,9 +60,15 @@ private:
 
     template <typename T>
     payload_t serialize_vector(const std::vector<T>& vector) const {
-        // TODO: Implement
-        (void)vector;
-        return payload_t{};
+        payload_t payload;
+
+        payload_t length = serialize(static_cast<uint16_t>(vector.size()));
+        payload.insert(payload.end(), length.begin(), length.end());
+        for (const auto& item: vector) {
+            auto serialized_item = serialize(item);
+            payload.insert(payload.end(), serialized_item.begin(), serialized_item.end());
+        }
+        return payload;
     }
 
     Message deserialize_message(const MessageType& type, payload_t& payload) const override;

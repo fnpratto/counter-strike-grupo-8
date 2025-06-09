@@ -6,7 +6,13 @@
 void ClientSender::run() {
     try {
         while (should_keep_running()) {
-            Message message = queue.pop();
+            Message message;
+            try {
+                message = queue.pop();
+            } catch (const ClosedQueue&) {
+                std::cerr << "ClientSender: Input queue closed, stopping." << std::endl;
+                return;  // Exit if the queue is closed
+            }
 
             if (message.get_type() != MessageType::NONE)
                 protocol->send(message);

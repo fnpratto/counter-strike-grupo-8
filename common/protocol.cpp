@@ -119,7 +119,14 @@ Message BaseProtocol::recv() {
     payload_t content(length);
     socket.recvall(content.data(), length);
 
-    return deserialize_message(msg_type, content);
+    Message message = deserialize_message(msg_type, content);
+
+    if (content.size() > 0) {
+        throw std::runtime_error("BaseProtocol::recv: Not all data was consumed, remaining size: " +
+                                 std::to_string(content.size()));
+    }
+
+    return message;
 }
 
 void BaseProtocol::close() {
