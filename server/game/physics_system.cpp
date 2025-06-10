@@ -6,29 +6,27 @@
 #include <memory>
 
 #include "game_config.h"
+#include "physics_system_config.h"
 
 PhysicsSystem::PhysicsSystem(Map&& map,
                              const std::map<std::string, std::unique_ptr<Player>>& players):
         map(std::move(map)), players(players) {}
 
-Vector2D PhysicsSystem::random_spawn_tt_pos() const {
-    return unit_to_meter<Vector2D>(map.random_spawn_tt_pos());
-}
+Vector2D PhysicsSystem::random_spawn_tt_pos() const { return map.random_spawn_tt_pos(); }
 
-Vector2D PhysicsSystem::random_spawn_ct_pos() const {
-    return unit_to_meter<Vector2D>(map.random_spawn_ct_pos());
-}
+Vector2D PhysicsSystem::random_spawn_ct_pos() const { return map.random_spawn_ct_pos(); }
 
 bool PhysicsSystem::player_in_spawn(const std::string& player_name) const {
     const std::unique_ptr<Player>& player = players.at(player_name);
     if (player->is_tt())
-        return map.is_spawn_tt_pos(meter_to_unit<Vector2D>(player->get_pos()));
-    return map.is_spawn_ct_pos(meter_to_unit<Vector2D>(player->get_pos()));
+        return map.is_spawn_tt_pos(player->get_pos());
+    return map.is_spawn_ct_pos(player->get_pos());
 }
 
 Vector2D PhysicsSystem::calculate_step(const Vector2D& dir) const {
     float tick_duration = 1.0f / GameConfig::tickrate;  // TODO use clock
-    return dir.normalized(METER_SIZE) * GameConfig::player_speed * tick_duration;
+    return dir.normalized(PhysicsSystemConfig::meter_size) * GameConfig::player_speed *
+           tick_duration;
 }
 
 std::optional<Target> PhysicsSystem::get_closest_target(const std::string& origin_p_name,
@@ -52,9 +50,8 @@ std::optional<Target> PhysicsSystem::get_closest_target(const std::string& origi
         }
     }
 
-    if (closest_target.has_value() && min_distance > unit_to_meter<int>(max_range)) {
+    if (closest_target.has_value() && min_distance > max_range)
         return std::optional<Target>{};
-    }
 
     return closest_target;
 }
@@ -109,16 +106,15 @@ bool PhysicsSystem::is_in_same_cuadrant(Vector2D target_pos, Vector2D player_pos
 bool PhysicsSystem::player_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir) {
     Vector2D target_distance = target_pos - player_pos;
     float orthogonal_distance = std::abs(target_distance.cross(aim_dir));
-    return orthogonal_distance <= HITBOX_RADIUS;
+    return orthogonal_distance <= PhysicsSystemConfig::player_hitbox_radius;
 }
 
 bool PhysicsSystem::tile_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir) {
     // AABB bounds
-    float tile_size = METER_SIZE;
-    float minX = target_pos.get_x() - tile_size;
-    float maxX = target_pos.get_x() + tile_size;
-    float minY = target_pos.get_y() - tile_size;
-    float maxY = target_pos.get_y() + tile_size;
+    float minX = target_pos.get_x();
+    float maxX = target_pos.get_x();
+    float minY = target_pos.get_y();
+    float maxY = target_pos.get_y();
 
     // Ray direction
     float aim_x = aim_dir.get_x();

@@ -56,6 +56,7 @@ target_sources(taller_server
     game/physics_system.h
     game/game_config.h
     game/target_type.h
+    game/physics_system_config.h
     # map
     map/map_builder.h
     map/map.h

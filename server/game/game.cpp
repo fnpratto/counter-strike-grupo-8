@@ -79,11 +79,8 @@ void Game::perform_attacks() {
                 continue;
 
             bool is_hit = false;
-            if (closest_target.value().is_player()) {
-                int distance = (closest_target.value().get_pos() - player->get_pos()).length();
-                is_hit = effect->apply(closest_target.value().get_player().get(),
-                                       physics_system.meter_to_unit<int>(distance));
-            }
+            if (closest_target.value().is_player())
+                is_hit = effect->apply(closest_target.value().get_player().get());
 
             HitResponse hit_response(player->get_pos(), closest_target.value().get_pos(),
                                      effect->get_dir(), is_hit);

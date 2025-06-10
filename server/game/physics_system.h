@@ -14,9 +14,6 @@
 #include "target_type.h"
 
 class PhysicsSystem {
-    static constexpr int METER_SIZE = 64;
-    static constexpr int HITBOX_RADIUS = METER_SIZE / 2;
-
 private:
     Map map;
     const std::map<std::string, std::unique_ptr<Player>>& players;
@@ -32,15 +29,6 @@ private:
 
 public:
     PhysicsSystem(Map&& map, const std::map<std::string, std::unique_ptr<Player>>& players);
-
-    template <typename T>
-    T unit_to_meter(const T& v) const {
-        return v * METER_SIZE;
-    }
-    template <typename T>
-    T meter_to_unit(const T& v) const {
-        return v / METER_SIZE;
-    }
 
     Vector2D random_spawn_tt_pos() const;
     Vector2D random_spawn_ct_pos() const;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "server/game/physics_system_config.h"
+
 struct GunConfig {
     int bullets_per_mag;
     int init_mag_ammo;
@@ -25,7 +27,7 @@ constexpr GunConfig GlockConfig = {.bullets_per_mag = 20,
                                    .min_damage = 40,
                                    .max_damage = 50,
                                    .precision = 0.85f,
-                                   .max_range = 10,
+                                   .max_range = 10 * PhysicsSystemConfig::meter_size,
                                    .falloff = 0.5f};
 
 constexpr GunConfig Ak47Config = {.bullets_per_mag = 30,
@@ -38,7 +40,7 @@ constexpr GunConfig Ak47Config = {.bullets_per_mag = 30,
                                   .min_damage = 30,
                                   .max_damage = 40,
                                   .precision = 0.70f,
-                                  .max_range = 20,
+                                  .max_range = 20 * PhysicsSystemConfig::meter_size,
                                   .falloff = 0.3f};
 
 constexpr GunConfig M3Config = {.bullets_per_mag = 1,
@@ -51,7 +53,7 @@ constexpr GunConfig M3Config = {.bullets_per_mag = 1,
                                 .min_damage = 8,
                                 .max_damage = 12,
                                 .precision = 0.30f,
-                                .max_range = 5,
+                                .max_range = 5 * PhysicsSystemConfig::meter_size,
                                 .falloff = 0};
 
 constexpr GunConfig AwpConfig = {.bullets_per_mag = 10,
@@ -64,15 +66,14 @@ constexpr GunConfig AwpConfig = {.bullets_per_mag = 10,
                                  .min_damage = 100,
                                  .max_damage = 100,
                                  .precision = 1.0f,
-                                 .max_range = 100,
+                                 .max_range = 100 * PhysicsSystemConfig::meter_size,
                                  .falloff = 0};
 
 namespace KnifeConfig {
 const int min_damage = 10;
 const int max_damage = 20;
 const float attack_rate = 5.0;
-const int attack_radius = 2;
-const int max_range = 1;
+const int max_range = 1 * PhysicsSystemConfig::meter_size;
 };  // namespace KnifeConfig
 
 namespace BombConfig {
