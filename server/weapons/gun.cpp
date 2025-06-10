@@ -9,13 +9,15 @@
 Gun::Gun(GunType gun, GunConfig initial_config):
         Logic<GunState, GunUpdate>(GunState(gun, initial_config)) {}
 
-std::unique_ptr<Gun> Gun::glock() { return std::make_unique<Gun>(GunType::Glock, GlockConfig); }
+std::unique_ptr<Gun> Gun::make_glock() {
+    return std::make_unique<Gun>(GunType::Glock, GlockConfig);
+}
 
-std::unique_ptr<Gun> Gun::ak47() { return std::make_unique<Gun>(GunType::AK47, Ak47Config); }
+std::unique_ptr<Gun> Gun::make_ak47() { return std::make_unique<Gun>(GunType::AK47, Ak47Config); }
 
-std::unique_ptr<Gun> Gun::awp() { return std::make_unique<Gun>(GunType::AWP, AwpConfig); }
+std::unique_ptr<Gun> Gun::make_awp() { return std::make_unique<Gun>(GunType::AWP, AwpConfig); }
 
-std::unique_ptr<Gun> Gun::m3() { return std::make_unique<Gun>(GunType::M3, M3Config); }
+std::unique_ptr<Gun> Gun::make_m3() { return std::make_unique<Gun>(GunType::M3, M3Config); }
 
 bool Gun::has_ammo() { return state.get_mag_ammo() > 0; }
 

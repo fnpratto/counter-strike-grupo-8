@@ -16,7 +16,7 @@ class Inventory: public Logic<InventoryState, InventoryUpdate> {
 public:
     Inventory():
             Logic<InventoryState, InventoryUpdate>(InventoryState(PlayerConfig::initial_money)) {
-        state.set_gun(ItemSlot::Secondary, Gun::glock());
+        state.set_gun(ItemSlot::Secondary, Gun::make_glock());
     }
 
     // TODO is this needed?
