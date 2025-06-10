@@ -180,7 +180,7 @@ if(TALLER_EDITOR)
     add_executable(taller_editor)
 
     # Make them depend on taller_common lib
-    add_dependencies(taller_editor taller_common SDL2pp::SDL2pp)
+    add_dependencies(taller_editor taller_common)
 
     # Add source files and enable warnings
     # HEY!! TODO XXX: add more subfolders here
@@ -194,7 +194,6 @@ if(TALLER_EDITOR)
     # Link the taller_common lib target
     target_link_libraries(taller_editor
         taller_common
-        SDL2pp::SDL2pp
         Qt5::Core
         Qt5::Widgets
         Qt5::Gui

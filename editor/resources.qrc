@@ -1,0 +1,9 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource>
+        <file alias="resources/counter_strike.ttf">../assets/gfx/fonts/counter_strike.ttf</file>
+        <file alias="resources/cs2d.bmp">../assets/gfx/cs2d.bmp</file>
+        <file alias="resources/dust.bmp">../assets/gfx/tiles/dust.bmp</file>
+        <file alias="resources/default_aztec.png">../assets/gfx/tiles/default_aztec.png</file>
+    </qresource>
+</RCC>

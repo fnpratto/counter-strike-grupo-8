@@ -7,7 +7,7 @@
 #include <QPushButton>
 #include <string>
 
-#include "constants.h"
+#include "common/qt/constants.h"
 
 #define WINDOW_WIDTH 416
 #define WINDOW_HEIGHT 307
