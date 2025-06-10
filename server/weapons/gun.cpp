@@ -45,7 +45,7 @@ std::vector<std::unique_ptr<AttackEffect>> Gun::attack(Player& player_origin, co
     int bullets = get_bullets_ready_to_fire(now);
     for (int i = 0; i < bullets; i++) {
         int damage = get_random_damage(gun_config.min_damage, gun_config.max_damage);
-        Vector2D varied_dir = dir.varied_dir_in_cone(gun_config.dir_variation_angle);
+        Vector2D varied_dir = dir.randomized_within_angle(gun_config.dir_variation_angle);
 
         auto effect =
                 std::make_unique<GunAttack>(player_origin, damage, varied_dir, gun_config.max_range,

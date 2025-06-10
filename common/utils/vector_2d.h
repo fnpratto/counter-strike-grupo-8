@@ -42,11 +42,11 @@ public:
         return Vector2D((x / norm) * n, (y / norm) * n);
     }
 
-    Vector2D varied_dir_in_cone(float cone_max_angle_deg) const {
+    Vector2D randomized_within_angle(float max_angle_deg) const {
         float base_angle = std::atan2(y, x);
 
-        float cone_max_angle_rad = cone_max_angle_deg * M_PI / 180.0f;
-        RandomFloatGenerator rfg(-cone_max_angle_rad, cone_max_angle_rad);
+        float max_angle_rad = max_angle_deg * M_PI / 180.0f;
+        RandomFloatGenerator rfg(-max_angle_rad, max_angle_rad);
         float angle_offset = rfg.generate();
 
         float varied_angle = base_angle + angle_offset;
