@@ -14,12 +14,10 @@ KeyboardHandler::KeyboardHandler(Queue<Message>& output_queue, shopDisplay& shop
 void KeyboardHandler::handleEvent(const SDL_Event& event /*, bool& shop*/) {
     if (event.type == SDL_KEYDOWN) {
         switch (event.key.keysym.sym) {
-            case SDLK_SPACE:
-                std::cout << "KEY_PRESS_SPACE" << std::endl;
+            case SDLK_ESCAPE:
                 shopRef.updateShopState(false);
                 break;
             case SDLK_b:
-                std::cout << "KEY_PRESS_B" << std::endl;
                 output_queue.push(Message(GetShopPricesCommand()));
                 shopRef.updateShopState(true);
                 break;
@@ -59,6 +57,5 @@ void KeyboardHandler::update_direction() {
     if (!no_movement) {
         no_movement = true;
         output_queue.push(Message(StopPlayerCommand()));
-        std::cout << "stop command" << std::endl;
     }
 }
