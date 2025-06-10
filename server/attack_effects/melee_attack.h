@@ -8,5 +8,5 @@ public:
 
     int compute_damage(int distance) const override;
 
-    bool is_target_hit() const override;
+    bool is_target_hit(int distance) const override;
 };

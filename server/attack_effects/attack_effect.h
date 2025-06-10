@@ -15,7 +15,7 @@ protected:
 
     virtual int compute_damage(int distance) const = 0;
 
-    virtual bool is_target_hit() const = 0;
+    virtual bool is_target_hit(int distance) const = 0;
 
 public:
     AttackEffect(Player& player_origin, int damage, const Vector2D& dir, int max_range);

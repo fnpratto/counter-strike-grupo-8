@@ -10,4 +10,7 @@ int MeleeAttack::compute_damage(int distance) const {
     return damage;
 }
 
-bool MeleeAttack::is_target_hit() const { return true; }
+bool MeleeAttack::is_target_hit(int distance) const {
+    (void)distance;
+    return true;
+}
