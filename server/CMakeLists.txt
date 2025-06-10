@@ -9,6 +9,10 @@ target_sources(taller_server
     receiver.cpp
     sender.cpp
     main.cpp
+    # attack_effects
+    attack_effects/attack_effect.cpp
+    attack_effects/melee_attack.cpp
+    attack_effects/gun_attack.cpp
     # game
     game/game.cpp
     game/game_phase.cpp
@@ -18,13 +22,18 @@ target_sources(taller_server
     # player
     player/player.cpp
     player/inventory.cpp
+    # states
+    states/game_state.cpp
+    states/gun_state.cpp
+    states/phase_state.cpp
+    states/player_state.cpp
+    states/inventory_state.cpp
+    states/knife_state.cpp
+    states/bomb_state.cpp
+    # weapons
+    weapons/gun.cpp
 
     PUBLIC
-    states/game_state.h
-    states/phase_state.h
-    states/player_state.h
-    states/inventory_state.h
-    states/utility_state.h
     acceptor.h
     client_handler.h
     game_thread.h
@@ -32,6 +41,10 @@ target_sources(taller_server
     protocol.h
     receiver.h
     errors.h
+    # attack_effects
+    attack_effects/attack_effect.h
+    attack_effects/gun_attack.h
+    attack_effects/melee_attack.h
     # clock
     clock/clock.h
     clock/mock_clock.h
@@ -42,23 +55,30 @@ target_sources(taller_server
     game/game_phase.h
     game/physics_system.h
     game/game_config.h
+    game/target_type.h
+    game/physics_system_config.h
     # map
     map/map_builder.h
     map/map.h
-    map/tile.h
+    map/floor.h
+    map/wall.h
+    map/box.h
     # player
     player/player.h
     player/player_config.h
     player/inventory.h
+    # states
+    states/state.h
+    states/game_state.h
+    states/gun_state.h
+    states/phase_state.h
+    states/player_state.h
+    states/inventory_state.h
+    states/knife_state.h
+    states/bomb_state.h
     # weapons
     weapons/weapons_config.h
     weapons/gun.h
-    weapons/utility.h
-    weapons/m3.h
     weapons/knife.h
-    weapons/glock.h
     weapons/bomb.h
-    weapons/awp.h
-    weapons/ak47.h
-    weapons/bullet.h
 )

@@ -1,11 +1,13 @@
 #pragma once
 
+#include <optional>
+
 #include "common/models.h"
+#include "common/utils/vector_2d.h"
+#include "server/logic.h"
+#include "server/states/bomb_state.h"
 
-#include "utility.h"
-#include "weapons_config.h"
-
-class Bomb: public Utility {
+class Bomb: public Logic<BombState, BombUpdate> {
 public:
-    Bomb(): Utility(UtilityType::C4, BombConfig::damage) {}
+    Bomb(): Logic<BombState, BombUpdate>(BombState()) {}
 };

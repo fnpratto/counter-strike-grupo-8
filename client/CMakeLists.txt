@@ -1,6 +1,5 @@
 # Adding sources
 add_subdirectory(gui)
-
 target_sources(taller_client
     PRIVATE
     # .cpp files
@@ -18,6 +17,7 @@ target_sources(taller_client
     qt/lobby_window.cpp
     qt/log_in_window.cpp
     qt/resources.qrc
+    connection_handler.cpp
 
     PUBLIC
     # .h files
@@ -35,4 +35,5 @@ target_sources(taller_client
     qt/game_list_table.h
     qt/lobby_window.h
     qt/log_in_window.h
+    connection_handler.h
 )

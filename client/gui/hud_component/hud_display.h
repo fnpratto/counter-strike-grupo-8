@@ -23,7 +23,6 @@ struct HudLayout {
     int padding;
     float scale;
 };
-
 class hudDisplay {
     const GameUpdate& state;
     const std::string& player_name;
@@ -31,7 +30,6 @@ class hudDisplay {
 
     int SCREEN_WIDTH;
     int SCREEN_HEIGHT;
-    SdlTexture back;
     SdlTexture pointer;
     SdlTexture money;
     BitmapFont money_amount;
@@ -44,12 +42,15 @@ class hudDisplay {
     SdlText roundText;
     SdlText gunNumber;
     SdlText scoreText;
+
+    SdlTexture muteIcon;
     int pointerX = SCREEN_WIDTH / 2;
     int pointerY = SCREEN_HEIGHT / 2;
     float widthRatio;
     float heightRatio;
     float scaleRatio;
     HudLayout layout;
+
 
 public:
     explicit hudDisplay(SdlWindow& window, const GameUpdate& state, const std::string& player_name);
@@ -66,6 +67,7 @@ private:
     void renderRoundText();
     void renderBullets();
     void renderGunIcons();
+    void renderMuteIcon(bool isMuted);
 
     void renderGunIcon(const std::string& path, const std::string& number, int x, int y);
     void renderDigits(const std::string& str, int x, int y, BitmapFont& texture);

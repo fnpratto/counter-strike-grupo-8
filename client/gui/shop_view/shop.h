@@ -11,17 +11,20 @@
 #include "../window_elements/sdl_window.h"
 #include "common/message.h"
 
+
 class shopDisplay {
 public:
     explicit shopDisplay(SdlWindow& window);
     void render();
     std::optional<Message> updatePointerPosition(int x, int y);
+    void updateShopState(bool state);
 
 private:
     SdlWindow& window;
     int DISPLAY_WIDTH;
     int DISPLAY_HEIGHT;
-    std::vector<SdlTexture> gun_icons;
+    SdlTexture gun_icons;
+    SdlTexture ammo_icons;
     SdlText cost_money;
     SdlTexture back;
     SdlTexture back_chosen;
@@ -31,9 +34,9 @@ private:
     int size_guns_h;
     int size_slots_w;
     int size_slots_h;
+    bool active;
     void renderSlots();
     void renderItem();
-    void renderblokedSlots();
 };
 
 #endif  // SHOP_DISPLAY_H

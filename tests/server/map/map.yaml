@@ -1,5 +1,5 @@
 name: test_map
-tile_size: 16
+max_players: 10
 tiles:
   floors:
     - x: 1
@@ -53,7 +53,7 @@ tiles:
       y: 4
   boxes:
     - x: 2
-      y: 1
+      y: 3
 spawns_tts:
   - x: 1
     y: 1

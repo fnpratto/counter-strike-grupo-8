@@ -1,64 +1,80 @@
 #pragma once
 
-namespace GlockConfig {
-const int bullets_per_mag = 20;
-const int init_mag_ammo = 20;
-const int init_reserve_ammo = 120;
-const float fire_rate = 6.6;
-};  // namespace GlockConfig
+#include "server/game/physics_system_config.h"
 
-namespace GlockBulletConfig {
-const int min_damage = 20;
-const int max_damage = 30;
-const float precision = 0.85f;  // probability of hitting de target
-};                              // namespace GlockBulletConfig
+struct GunConfig {
+    int bullets_per_mag;
+    int init_mag_ammo;
+    int init_reserve_ammo;
+    float attack_rate;
+    float dir_variation_angle;
+    int bullets_per_attack;
+    float burst_interval;
+    int min_damage;
+    int max_damage;
+    float precision;
+    int max_range;
+    float falloff;
+};
 
-namespace Ak47Config {
-const int burst_bullets = 3;
-const float burst_frec = 0.4f;  // bullets per second
-const int bullets_per_mag = 30;
-const int init_mag_ammo = 30;
-const int init_reserve_ammo = 90;
-const float fire_rate = 10;
-};  // namespace Ak47Config
+constexpr GunConfig GlockConfig = {.bullets_per_mag = 20,
+                                   .init_mag_ammo = 20,
+                                   .init_reserve_ammo = 120,
+                                   .attack_rate = 6.6,
+                                   .dir_variation_angle = 0,
+                                   .bullets_per_attack = 1,
+                                   .burst_interval = 0,
+                                   .min_damage = 40,
+                                   .max_damage = 50,
+                                   .precision = 0.85f,
+                                   .max_range = 10 * PhysicsSystemConfig::meter_size,
+                                   .falloff = 0.5f};
 
-namespace Ak47BulletConfig {
-const int min_damage = 30;
-const int max_damage = 40;
-const float precision = 0.70f;
-};  // namespace Ak47BulletConfig
+constexpr GunConfig Ak47Config = {.bullets_per_mag = 30,
+                                  .init_mag_ammo = 30,
+                                  .init_reserve_ammo = 90,
+                                  .attack_rate = 10,
+                                  .dir_variation_angle = 0,
+                                  .bullets_per_attack = 3,
+                                  .burst_interval = 0.4f,
+                                  .min_damage = 30,
+                                  .max_damage = 40,
+                                  .precision = 0.70f,
+                                  .max_range = 20 * PhysicsSystemConfig::meter_size,
+                                  .falloff = 0.3f};
 
-namespace M3Config {
-const int burst_bullets = 5;
-const float burst_frec = 0;
-const int bullets_per_mag = 1;
-const int init_mag_ammo = 8;
-const int init_reserve_ammo = 32;
-const float fire_rate = 1.1;
-const float cone_max_angle = 30.0f;
-};  // namespace M3Config
+constexpr GunConfig M3Config = {.bullets_per_mag = 1,
+                                .init_mag_ammo = 8,
+                                .init_reserve_ammo = 32,
+                                .attack_rate = 1.1,
+                                .dir_variation_angle = 30.0f,
+                                .bullets_per_attack = 5,
+                                .burst_interval = 0,
+                                .min_damage = 8,
+                                .max_damage = 12,
+                                .precision = 0.30f,
+                                .max_range = 5 * PhysicsSystemConfig::meter_size,
+                                .falloff = 0};
 
-namespace M3BulletConfig {
-const int min_damage = 8;
-const int max_damage = 12;
-const float precision = 0.30f;
-};  // namespace M3BulletConfig
-
-namespace AwpConfig {
-const int bullets_per_mag = 10;
-const int init_mag_ammo = 10;
-const int init_reserve_ammo = 30;
-const float fire_rate = 0.68;
-};  // namespace AwpConfig
-
-namespace AwpBulletConfig {
-const int damage = 100;
-const float precision = 1.0f;
-};  // namespace AwpBulletConfig
+constexpr GunConfig AwpConfig = {.bullets_per_mag = 10,
+                                 .init_mag_ammo = 10,
+                                 .init_reserve_ammo = 30,
+                                 .attack_rate = 0.68,
+                                 .dir_variation_angle = 0,
+                                 .bullets_per_attack = 1,
+                                 .burst_interval = 0,
+                                 .min_damage = 100,
+                                 .max_damage = 100,
+                                 .precision = 1.0f,
+                                 .max_range = 100 * PhysicsSystemConfig::meter_size,
+                                 .falloff = 0};
 
 namespace KnifeConfig {
-const int damage = 50;
-};
+const int min_damage = 10;
+const int max_damage = 20;
+const float attack_rate = 5.0;
+const int max_range = 1 * PhysicsSystemConfig::meter_size;
+};  // namespace KnifeConfig
 
 namespace BombConfig {
 const int damage = 100;

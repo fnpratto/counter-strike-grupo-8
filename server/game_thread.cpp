@@ -3,6 +3,7 @@
 #include <utility>
 
 #include "clock/real_clock.h"
+#include "common/utils/rate_controller.h"
 #include "map/map.h"
 #include "map/map_builder.h"
 #include "server/player_message.h"
@@ -12,9 +13,9 @@ GameThread::GameThread(const std::string& name):
              std::move(MapBuilder("./tests/server/map/map.yaml").build())),
         input_queue(std::make_shared<Queue<PlayerMessage>>()) {}
 
-// TODO: Tick rate
 void GameThread::run() {
-    while (should_keep_running()) {
+    RateController rate_controller(GameConfig::tickrate);
+    rate_controller.run_at_rate([this]() {
         std::vector<PlayerMessage> msgs;
         for (int i = 0; i < MSG_BATCH_SIZE; ++i) {
             PlayerMessage msg;
@@ -23,35 +24,28 @@ void GameThread::run() {
             msgs.push_back(msg);
         }
 
-        GameUpdate update;
+        std::vector<PlayerMessage> out_msgs;
         {
             std::lock_guard<std::mutex> lock(mtx);
-            update = game.tick(msgs);
+            out_msgs = game.tick(msgs);
         }
 
-        if (update.has_change()) {
-            for (const auto& output_queue: output_queues) {
-                output_queue->push(Message(update));
-            }
+        for (const auto& out_msg: out_msgs) {
+            auto q = output_queues.at(out_msg.get_player_name());
+            q->push(out_msg.get_message());
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    }
+        return should_keep_running();
+    });
 }
 
 pipe_t GameThread::join_game(const std::string& player_name) {
     std::lock_guard<std::mutex> lock(mtx);
-    GameUpdate initial_state = game.join_player(player_name);
+    game.join_player(player_name);
 
-    auto output_queue = std::make_shared<Queue<Message>>();
-    output_queues.push_back(output_queue);
+    output_queues[player_name] = std::make_shared<Queue<Message>>();
 
-    // Awful hack to ensure that the other players receive the joined player's state
-    for (const auto& q: output_queues) {
-        q->push(Message(initial_state));
-    }
-
-    return {input_queue, output_queue};
+    return {input_queue, output_queues[player_name]};
 }
 
 GameInfo GameThread::get_game_info() {

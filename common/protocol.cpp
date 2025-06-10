@@ -113,6 +113,16 @@ GameInfo BaseProtocol::deserialize<GameInfo>(payload_t& payload) const {
     return GameInfo(name, players_count, phase);
 }
 
+template <>
+std::optional<Vector2D> BaseProtocol::deserialize<std::optional<Vector2D>>(
+        payload_t& payload) const {
+    bool has_value = deserialize<bool>(payload);
+    if (has_value) {
+        return deserialize<Vector2D>(payload);
+    }
+    return std::nullopt;
+}
+
 Message BaseProtocol::recv() {
     payload_t header(sizeof(uint8_t) + sizeof(uint16_t));
     socket->recvall(header.data(), sizeof(uint8_t) + sizeof(uint16_t));
@@ -123,7 +133,14 @@ Message BaseProtocol::recv() {
     payload_t content(length);
     socket->recvall(content.data(), length);
 
-    return deserialize_message(msg_type, content);
+    Message message = deserialize_message(msg_type, content);
+
+    if (content.size() > 0) {
+        throw std::runtime_error("BaseProtocol::recv: Not all data was consumed, remaining size: " +
+                                 std::to_string(content.size()));
+    }
+
+    return message;
 }
 
 void BaseProtocol::close() {

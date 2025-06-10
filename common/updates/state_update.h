@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <map>
 #include <optional>
 #include <stdexcept>
@@ -22,6 +23,10 @@ protected:
     template <typename T>
     std::optional<T> merge(const std::optional<T>& a, const std::optional<T>& b) const {
         if (b.has_value()) {
+            if (a.has_value()) {
+                if constexpr (std::is_base_of_v<StateUpdate, T>)
+                    return a.value().merged(b.value());
+            }
             return b;
         }
         return a;
@@ -45,18 +50,30 @@ protected:
 
         return merged;
     }
+
+    template <typename T>
+    std::optional<std::optional<T>> merge(const std::optional<std::optional<T>>& a,
+                                          const std::optional<std::optional<T>>& b) const {
+        if (b.has_value()) {
+            if (!a.has_value())
+                return b;
+            return merge(a.value(), b.value());
+        }
+        return a;
+    }
 };
 
 #define X_DEFINE_MEMBER(type, attr) std::optional<type> attr;
 #define M_DEFINE_MEMBER(key_type, value_type, attr) std::map<key_type, value_type> attr;
 #define U_DEFINE_MEMBER(type, attr) type attr;
+#define O_DEFINE_MEMBER(type, attr) std::optional<std::optional<type>> attr;
 
 #define X_SETTER(type, attr)                                                \
     void set_##attr(const type& value) { attr = value; }                    \
     const std::optional<type>& get_optional_##attr() const { return attr; } \
     const type& get_##attr() const {                                        \
         if (!attr.has_value())                                              \
-            throw std::runtime_error("Error: " #attr " not set");           \
+            throw std::runtime_error(#attr " not set");                     \
         return attr.value();                                                \
     }
 #define M_SETTER(key_type, value_type, attr)                                 \
@@ -72,7 +89,14 @@ protected:
 #define U_SETTER(type, attr)                                          \
     void set_##attr(const type& value) { attr = attr.merged(value); } \
     const type& get_##attr() const { return attr; }
-
+#define O_SETTER(type, attr)                                                               \
+    void set_##attr(const std::optional<type>& value) { attr = value; }                    \
+    const std::optional<std::optional<type>>& get_optional_##attr() const { return attr; } \
+    const std::optional<type>& get_##attr() const {                                        \
+        if (!attr.has_value())                                                             \
+            throw std::runtime_error(#attr " not set");                                    \
+        return attr.value();                                                               \
+    }
 
 #define X_MERGER(type, attr)                                                        \
     auto merged_##attr = merge(get_optional_##attr(), other.get_optional_##attr()); \
@@ -81,6 +105,11 @@ protected:
     }
 #define M_MERGER(key_type, value_type, attr) merged.set_##attr(merge(attr, other.get_##attr()));
 #define U_MERGER(type, attr) merged.set_##attr(attr.merged(other.get_##attr()));
+#define O_MERGER(type, attr)                                                        \
+    auto merged_##attr = merge(get_optional_##attr(), other.get_optional_##attr()); \
+    if (merged_##attr.has_value()) {                                                \
+        merged.set_##attr(merged_##attr.value());                                   \
+    }
 
 #define X_CHANGED(type, attr) \
     bool has_##attr##_changed() const { return attr.has_value(); }
@@ -88,6 +117,8 @@ protected:
     bool has_##attr##_changed() const { return !attr.empty(); }
 #define U_CHANGED(type, attr) \
     bool has_##attr##_changed() const { return attr.has_change(); }
+#define O_CHANGED(type, attr) \
+    bool has_##attr##_changed() const { return attr.has_value() && attr.value().has_value(); }
 
 #define X_HAS_CHANGE(type, attr) \
     if (attr.has_value())        \
@@ -98,34 +129,37 @@ protected:
 #define U_HAS_CHANGE(type, attr) \
     if (attr.has_change())       \
         return true;
-
+#define O_HAS_CHANGE(type, attr) \
+    if (attr.has_value())        \
+        return true;
 
 #define X_CLEAR(type, attr) attr.reset();
 #define M_CLEAR(key_type, value_type, attr) attr.clear();
 #define U_CLEAR(type, attr) attr.clear();
+#define O_CLEAR(type, attr) attr.reset();
 
-#define DEFINE_UPDATE(CLASS, ATTRS)                                \
-    class CLASS: public StateUpdate {                              \
-        ATTRS(X_DEFINE_MEMBER, M_DEFINE_MEMBER, U_DEFINE_MEMBER)   \
-                                                                   \
-    public:                                                        \
-        ATTRS(X_SETTER, M_SETTER, U_SETTER)                        \
-                                                                   \
-        CLASS merged(const CLASS& other) const {                   \
-            CLASS merged;                                          \
-                                                                   \
-            ATTRS(X_MERGER, M_MERGER, U_MERGER)                    \
-                                                                   \
-            return merged;                                         \
-        }                                                          \
-                                                                   \
-        ATTRS(X_CHANGED, M_CHANGED, U_CHANGED)                     \
-                                                                   \
-        bool has_change() const override {                         \
-            ATTRS(X_HAS_CHANGE, M_HAS_CHANGE, U_HAS_CHANGE)        \
-                                                                   \
-            return false;                                          \
-        }                                                          \
-                                                                   \
-        void clear() override { ATTRS(X_CLEAR, M_CLEAR, U_CLEAR) } \
+#define DEFINE_UPDATE(CLASS, ATTRS)                                               \
+    class CLASS: public StateUpdate {                                             \
+        ATTRS(X_DEFINE_MEMBER, M_DEFINE_MEMBER, U_DEFINE_MEMBER, O_DEFINE_MEMBER) \
+                                                                                  \
+    public:                                                                       \
+        ATTRS(X_SETTER, M_SETTER, U_SETTER, O_SETTER)                             \
+                                                                                  \
+        CLASS merged(const CLASS& other) const {                                  \
+            CLASS merged;                                                         \
+                                                                                  \
+            ATTRS(X_MERGER, M_MERGER, U_MERGER, O_MERGER)                         \
+                                                                                  \
+            return merged;                                                        \
+        }                                                                         \
+                                                                                  \
+        ATTRS(X_CHANGED, M_CHANGED, U_CHANGED, O_CHANGED)                         \
+                                                                                  \
+        bool has_change() const override {                                        \
+            ATTRS(X_HAS_CHANGE, M_HAS_CHANGE, U_HAS_CHANGE, O_HAS_CHANGE)         \
+                                                                                  \
+            return false;                                                         \
+        }                                                                         \
+                                                                                  \
+        void clear() override { ATTRS(X_CLEAR, M_CLEAR, U_CLEAR, O_CLEAR) }       \
     };

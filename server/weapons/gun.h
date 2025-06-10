@@ -4,65 +4,42 @@
 #include <vector>
 
 #include "common/models.h"
-#include "common/utils/random_float_generator.h"
 #include "common/utils/vector_2d.h"
+#include "server/attack_effects/attack_effect.h"
 #include "server/clock/clock.h"
 #include "server/logic.h"
-#include "server/map/map.h"
 #include "server/states/gun_state.h"
 
-#include "bullet.h"
+#include "weapon.h"
 
-class Gun: public Logic<GunState, GunUpdate> {
-protected:
-    TimePoint time_last_shoot = TimePoint{};
+class Gun: public Logic<GunState, GunUpdate>, public Weapon {
+    int burst_bullets_fired = 0;
+
+    int get_bullets_ready_to_fire(TimePoint now);
+    Vector2D get_varied_direction(const Vector2D& dir, float max_angle_deg);
+
+    void decrease_mag_ammo();
 
 public:
-    Gun(GunType gun, int bullets_per_mag, int mag_ammo, int reserve_ammo):
-            Logic<GunState, GunUpdate>(GunState(gun, bullets_per_mag, mag_ammo, reserve_ammo)) {}
+    Gun(GunType gun, GunConfig initial_config);
 
-    bool can_shoot(const float fire_rate, TimePoint now) {
-        if (state.get_mag_ammo() == 0)
-            return false;
-        std::chrono::duration<float> secs_btw_shoots = now - time_last_shoot;
-        if (secs_btw_shoots.count() < (1.0f / fire_rate))
-            return false;
-        return true;
-    }
+    static std::unique_ptr<Gun> make_glock();
+    static std::unique_ptr<Gun> make_ak47();
+    static std::unique_ptr<Gun> make_awp();
+    static std::unique_ptr<Gun> make_m3();
 
-    GunType get_type() const { return state.get_gun(); }
-    int get_bullets_per_mag() const { return state.get_bullets_per_mag(); }
-    int get_mag_ammo() const { return state.get_mag_ammo(); }
-    int get_reserve_ammo() const { return state.get_reserve_ammo(); }
+    bool has_ammo();
 
-    void add_mag() {
-        // TODO bullets per mag could be a constant per gun type
-        state.set_reserve_ammo(state.get_reserve_ammo() + state.get_bullets_per_mag());
-    }
+    GunType get_type() const;
+    int get_mag_ammo() const;
+    int get_reserve_ammo() const;
 
-    void decrease_mag_ammo() {
-        if (state.get_mag_ammo() > 0)
-            state.set_mag_ammo(state.get_mag_ammo() - 1);
-    }
+    void add_mag();
 
-    int get_random_damage(const int min_dam, const int max_dam) {
-        RandomFloatGenerator rfg(min_dam, max_dam);
-        return rfg.generate();
-    }
+    void start_attacking();
 
-    Vector2D get_bullet_dir(const Vector2D& origin, const Vector2D& dest) {
-        Vector2D dir(origin, dest);
-        return dir.normalized();
-    }
+    void reload();
 
-    virtual std::vector<Bullet> shoot(const Vector2D& origin, const Vector2D& dest,
-                                      TimePoint now) = 0;
-
-    void reload() {
-        int bullets_to_reload = state.get_bullets_per_mag() - state.get_mag_ammo();
-        state.set_mag_ammo(state.get_mag_ammo() + bullets_to_reload);
-        state.set_reserve_ammo(state.get_reserve_ammo() - bullets_to_reload);
-    }
-
-    virtual ~Gun() = default;
+    std::vector<std::unique_ptr<AttackEffect>> attack(Player& player_origin, const Vector2D& dir,
+                                                      TimePoint now) override;
 };

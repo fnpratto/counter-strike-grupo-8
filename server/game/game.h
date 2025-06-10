@@ -26,14 +26,16 @@ private:
     Shop shop;
     PhysicsSystem physics_system;
 
+    std::vector<PlayerMessage> output_messages;
+
 public:
     Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map);
 
     bool is_full() const;
 
-    GameUpdate join_player(const std::string& player_name);
+    void join_player(const std::string& player_name);
 
-    GameUpdate tick(const std::vector<PlayerMessage>& msgs);
+    std::vector<PlayerMessage> tick(const std::vector<PlayerMessage>& msgs);
 
     std::string get_name() const;
     int get_player_count() const;
@@ -42,31 +44,15 @@ public:
     ~Game();
 
 private:
-    bool player_is_in_game(const std::string& player_name) const;
-    bool team_is_full(const Team& team) const;
-    bool all_players_ready() const;
-
     void give_bomb_to_random_tt();
-
-    void swap_teams();
+    void move_player_to_spawn(const std::string& player_name);
 
     void handle_msg(const Message& msg, const std::string& player_name);
-    void handle_select_team_msg(const std::string& player_name, Team team);
-    void handle_start_game_msg(const std::string& player_name);
-    void handle_buy_gun_msg(const std::string& player_name, GunType gun);
-    void handle_buy_ammo_msg(const std::string& player_name, GunType gun);
-    void handle_move_msg(const std::string& player_name, const Vector2D& direction);
-    void handle_stop_player_msg(const std::string& player_name);
-    void handle_aim_msg(const std::string& player_name, float x, float y);
 
-    // TODO: implement shoot command
-    // void handle_shoot_msg(const std::string& player_name, int x, int y);
+    template <typename T>
+    void handle(const std::string& player_name, const T& msg);
 
-    void handle_switch_weapon_msg(const std::string& player_name, WeaponSlot slot);
-    void handle_reload_msg(const std::string& player_name);
-
-
-    void advance_players_movement();
     void advance_round_logic();
-    void advance_round();
+    void advance_players_movement();
+    void perform_attacks();
 };

@@ -18,6 +18,21 @@
 
 #include "requests.h"
 
+std::ostream& operator<<(std::ostream& os, const GunType& type) {
+    switch (type) {
+        case GunType::Glock:
+            return os << "Glock";
+        case GunType::AK47:
+            return os << "AK-47";
+        case GunType::M3:
+            return os << "M3";
+        case GunType::AWP:
+            return os << "AWP";
+        default:
+            return os << "Unknown Gun";
+    }
+}
+
 TextDisplay::TextDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue):
         Display(input_queue, output_queue) {
 // Set stdin to non-blocking
@@ -73,10 +88,10 @@ void TextDisplay::draw(const Message& message) {
 
             std::cout << "Game Update:" << std::endl;
             std::string phase_str =
-                    (state.get_phase().get_phase() == PhaseType::Buying)        ? "Buying" :
-                    (state.get_phase().get_phase() == PhaseType::Playing)       ? "Playing" :
-                    (state.get_phase().get_phase() == PhaseType::RoundFinished) ? "Round Finished" :
-                                                                                  "Warm Up";
+                    (state.get_phase().get_phase() == PhaseType::Buying)  ? "Buying" :
+                    (state.get_phase().get_phase() == PhaseType::Playing) ? "Playing" :
+                    (state.get_phase().get_phase() == PhaseType::End)     ? "Round Finished" :
+                                                                            "Warm Up";
             std::cout << "Phase: " << phase_str << std::endl;
             std::cout << "Players:" << std::endl;
             for (const auto& [player_name, player]:  // cppcheck-suppress[unassignedVariable]
@@ -87,13 +102,23 @@ void TextDisplay::draw(const Message& message) {
             }
             break;
         }
-        case MessageType::BOOL: {
-            bool success = message.get_content<bool>();
-            if (success) {
-                std::cout << "Command executed successfully." << std::endl;
-            } else {
-                std::cout << "Command execution failed." << std::endl;
+        case MessageType::SHOP_PRICES_RESP: {
+            const auto& prices = message.get_content<ShopPricesResponse>().get_gun_prices();
+            std::cout << "Shop:\n";
+            std::cout << "Gun Prices:\n";
+            for (const auto& [gun, price]: prices) {  // cppcheck-suppress[unassignedVariable]
+                std::cout << " - " << gun << ": $" << price << std::endl;
             }
+            std::cout << "Ammo Prices:\n";
+            const auto& ammo_prices = message.get_content<ShopPricesResponse>().get_ammo_prices();
+            for (const auto& [gun, price]: ammo_prices) {  // cppcheck-suppress[unassignedVariable]
+                std::cout << " - " << gun << ": $" << price << std::endl;
+            }
+            break;
+        }
+        case MessageType::BOOL: {
+            bool result = message.get_content<bool>();
+            std::cout << "Operation result: " << (result ? "Success" : "Failure") << std::endl;
             break;
         }
         default:
@@ -238,12 +263,12 @@ template <>
 Message TextDisplay::build_message<AimCommand>(std::istringstream& iss) {
     float x, y;
     iss >> x >> y;
-    return Message(AimCommand(x, y));
+    return Message(AimCommand(Vector2D(x, y)));
 }
 
 template <>
-Message TextDisplay::build_message<ShootCommand>([[maybe_unused]] std::istringstream& iss) {
-    return Message(ShootCommand());
+Message TextDisplay::build_message<AttackCommand>([[maybe_unused]] std::istringstream& iss) {
+    return Message(AttackCommand());
 }
 
 template <>
@@ -252,24 +277,24 @@ Message TextDisplay::build_message<ReloadCommand>([[maybe_unused]] std::istrings
 }
 
 template <>
-Message TextDisplay::build_message<SwitchWeaponCommand>(std::istringstream& iss) {
+Message TextDisplay::build_message<SwitchItemCommand>(std::istringstream& iss) {
     std::string slot_str;
     iss >> slot_str;
 
-    WeaponSlot slot;
+    ItemSlot slot;
     if (slot_str == "primary") {
-        slot = WeaponSlot::Primary;
+        slot = ItemSlot::Primary;
     } else if (slot_str == "secondary") {
-        slot = WeaponSlot::Secondary;
+        slot = ItemSlot::Secondary;
     } else if (slot_str == "melee") {
-        slot = WeaponSlot::Melee;
+        slot = ItemSlot::Melee;
     } else if (slot_str == "bomb") {
-        slot = WeaponSlot::Bomb;
+        slot = ItemSlot::Bomb;
     } else {
         throw std::invalid_argument("Invalid gun slot: " + slot_str);
     }
 
-    return Message(SwitchWeaponCommand(slot));
+    return Message(SwitchItemCommand(slot));
 }
 
 template <>
@@ -285,6 +310,10 @@ Message TextDisplay::build_message<DefuseBombCommand>([[maybe_unused]] std::istr
 template <>
 Message TextDisplay::build_message<PickUpItemCommand>([[maybe_unused]] std::istringstream& iss) {
     return Message(PickUpItemCommand());
+}
+template <>
+Message TextDisplay::build_message<GetShopPricesCommand>([[maybe_unused]] std::istringstream& iss) {
+    return Message(GetShopPricesCommand());
 }
 
 template <>
@@ -320,13 +349,11 @@ Message TextDisplay::parse_line(const std::string& line) {
              [this](std::istringstream& is) { return this->build_message<StopPlayerCommand>(is); }},
             {"aim", [this](std::istringstream& is) { return this->build_message<AimCommand>(is); }},
             {"shoot",
-             [this](std::istringstream& is) { return this->build_message<ShootCommand>(is); }},
+             [this](std::istringstream& is) { return this->build_message<AttackCommand>(is); }},
             {"reload",
              [this](std::istringstream& is) { return this->build_message<ReloadCommand>(is); }},
             {"switch",
-             [this](std::istringstream& is) {
-                 return this->build_message<SwitchWeaponCommand>(is);
-             }},
+             [this](std::istringstream& is) { return this->build_message<SwitchItemCommand>(is); }},
             {"plant",
              [this](std::istringstream& is) { return this->build_message<PlantBombCommand>(is); }},
             {"defuse",
@@ -334,7 +361,12 @@ Message TextDisplay::parse_line(const std::string& line) {
             {"pickup",
              [this](std::istringstream& is) { return this->build_message<PickUpItemCommand>(is); }},
             {"leave",
-             [this](std::istringstream& is) { return this->build_message<LeaveGameCommand>(is); }}};
+             [this](std::istringstream& is) { return this->build_message<LeaveGameCommand>(is); }},
+            {"shop",
+             [this](std::istringstream& is) {
+                 return this->build_message<GetShopPricesCommand>(is);
+             }},
+    };
 
     auto it = command_map.find(command);
     if (it != command_map.end())

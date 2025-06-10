@@ -8,17 +8,18 @@
 
 #include <arpa/inet.h>
 
+#include "common/errors.h"
 #include "common/message.h"
 #include "common/responses.h"
 #include "common/socket.h"
+#include "common/updates/bomb_update.h"
 #include "common/updates/game_update.h"
 #include "common/updates/gun_update.h"
 #include "common/updates/inventory_update.h"
+#include "common/updates/knife_update.h"
 #include "common/updates/phase_update.h"
 #include "common/updates/player_update.h"
-#include "common/updates/utility_update.h"
 
-#include "errors.h"
 #include "protocol.h"
 
 // === Serialization ===
@@ -60,6 +61,16 @@ payload_t ClientProtocol::serialize_msg(const SelectTeamCommand& cmd) const {
 }
 
 template <>
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const GetCharactersCommand& cmd) const {
+    return payload_t();
+}
+
+template <>
+payload_t ClientProtocol::serialize_msg(const SelectCharacterCommand& cmd) const {
+    return serialize(static_cast<uint8_t>(cmd.get_character_type()));
+}
+
+template <>
 payload_t ClientProtocol::serialize_msg([[maybe_unused]] const StartGameCommand& cmd) const {
     return payload_t();
 }
@@ -84,8 +95,8 @@ payload_t ClientProtocol::serialize_msg(const AimCommand& cmd) const {
     payload_t payload;
     payload.reserve(2 * sizeof(float));
 
-    payload_t x = serialize(cmd.get_x());
-    payload_t y = serialize(cmd.get_y());
+    payload_t x = serialize(cmd.get_direction().get_x());
+    payload_t y = serialize(cmd.get_direction().get_y());
 
     payload.reserve(x.size() + y.size());
     payload.insert(payload.end(), x.begin(), x.end());
@@ -95,7 +106,7 @@ payload_t ClientProtocol::serialize_msg(const AimCommand& cmd) const {
 }
 
 template <>
-payload_t ClientProtocol::serialize_msg([[maybe_unused]] const ShootCommand& cmd) const {
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const AttackCommand& cmd) const {
     return payload_t();
 }
 
@@ -105,7 +116,7 @@ payload_t ClientProtocol::serialize_msg([[maybe_unused]] const ReloadCommand& cm
 }
 
 template <>
-payload_t ClientProtocol::serialize_msg(const SwitchWeaponCommand& cmd) const {
+payload_t ClientProtocol::serialize_msg(const SwitchItemCommand& cmd) const {
     return serialize(static_cast<uint8_t>(cmd.get_slot()));
 }
 
@@ -125,6 +136,11 @@ payload_t ClientProtocol::serialize_msg([[maybe_unused]] const PickUpItemCommand
 }
 
 template <>
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const GetShopPricesCommand& cmd) const {
+    return payload_t();
+}
+
+template <>
 payload_t ClientProtocol::serialize_msg([[maybe_unused]] const LeaveGameCommand& cmd) const {
     return payload_t();
 }
@@ -139,6 +155,10 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
             return serialize_msg(message.get_content<ListGamesCommand>());
         case MessageType::SELECT_TEAM_CMD:
             return serialize_msg(message.get_content<SelectTeamCommand>());
+        case MessageType::GET_CHARACTERS_CMD:
+            return serialize_msg(message.get_content<GetCharactersCommand>());
+        case MessageType::SELECT_CHARACTER_CMD:
+            return serialize_msg(message.get_content<SelectCharacterCommand>());
         case MessageType::START_GAME_CMD:
             return serialize_msg(message.get_content<StartGameCommand>());
         case MessageType::BUY_GUN_CMD:
@@ -149,18 +169,20 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
             return serialize_msg(message.get_content<StopPlayerCommand>());
         case MessageType::AIM_CMD:
             return serialize_msg(message.get_content<AimCommand>());
-        case MessageType::SHOOT_CMD:
-            return serialize_msg(message.get_content<ShootCommand>());
+        case MessageType::ATTACK_CMD:
+            return serialize_msg(message.get_content<AttackCommand>());
         case MessageType::RELOAD_CMD:
             return serialize_msg(message.get_content<ReloadCommand>());
-        case MessageType::SWITCH_WEAPON_CMD:
-            return serialize_msg(message.get_content<SwitchWeaponCommand>());
+        case MessageType::SWITCH_ITEM_CMD:
+            return serialize_msg(message.get_content<SwitchItemCommand>());
         case MessageType::PLANT_BOMB_CMD:
             return serialize_msg(message.get_content<PlantBombCommand>());
         case MessageType::DEFUSE_BOMB_CMD:
             return serialize_msg(message.get_content<DefuseBombCommand>());
         case MessageType::PICK_UP_ITEM_CMD:
             return serialize_msg(message.get_content<PickUpItemCommand>());
+        case MessageType::GET_SHOP_PRICES_CMD:
+            return serialize_msg(message.get_content<GetShopPricesCommand>());
         case MessageType::LEAVE_GAME_CMD:
             return serialize_msg(message.get_content<LeaveGameCommand>());
         default:
@@ -169,6 +191,24 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
 }
 
 // === Deserialization ===
+
+template <>
+ListGamesResponse ClientProtocol::deserialize_msg<ListGamesResponse>(payload_t& payload) const {
+    return ListGamesResponse(deserialize_vector<GameInfo>(payload));
+}
+
+template <>
+CharactersResponse ClientProtocol::deserialize_msg<CharactersResponse>(payload_t& payload) const {
+    return CharactersResponse(deserialize_vector<CharacterType>(payload));
+}
+
+template <>
+ShopPricesResponse ClientProtocol::deserialize_msg<ShopPricesResponse>(payload_t& payload) const {
+    auto gun_prices = deserialize_map<GunType, int>(payload);
+    auto ammo_prices = deserialize_map<GunType, int>(payload);
+
+    return ShopPricesResponse(gun_prices, ammo_prices);
+}
 
 #define X_DESERIALIZE_UPDATE(type, attr)        \
     if (deserialize<bool>(payload)) {           \
@@ -185,18 +225,25 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
         type attr = deserialize_update<type>(payload); \
         result.set_##attr(attr);                       \
     }
+#define O_DESERIALIZE_UPDATE(type, attr)                                \
+    if (deserialize<bool>(payload)) {                                   \
+        std::optional<type> attr = deserialize_optional<type>(payload); \
+        result.set_##attr(attr);                                        \
+    }
 
 #define DESERIALIZE_UPDATE(CLASS, ATTRS)                                         \
     template <>                                                                  \
     CLASS ClientProtocol::deserialize_update<CLASS>(payload_t & payload) const { \
         CLASS result;                                                            \
                                                                                  \
-        ATTRS(X_DESERIALIZE_UPDATE, M_DESERIALIZE_UPDATE, U_DESERIALIZE_UPDATE)  \
+        ATTRS(X_DESERIALIZE_UPDATE, M_DESERIALIZE_UPDATE, U_DESERIALIZE_UPDATE,  \
+              O_DESERIALIZE_UPDATE)                                              \
                                                                                  \
         return result;                                                           \
     }
 
-DESERIALIZE_UPDATE(UtilityUpdate, UTILITY_ATTRS)
+DESERIALIZE_UPDATE(BombUpdate, BOMB_ATTRS)
+DESERIALIZE_UPDATE(KnifeUpdate, KNIFE_ATTRS)
 DESERIALIZE_UPDATE(GunUpdate, GUN_ATTRS)
 DESERIALIZE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)
 DESERIALIZE_UPDATE(PlayerUpdate, PLAYER_ATTRS)
@@ -208,15 +255,16 @@ GameUpdate ClientProtocol::deserialize_msg<GameUpdate>(payload_t& payload) const
     return deserialize_update<GameUpdate>(payload);
 }
 
-template <>
-ListGamesResponse ClientProtocol::deserialize_msg<ListGamesResponse>(payload_t& payload) const {
-    return ListGamesResponse(deserialize_vector<GameInfo>(payload));
-}
-
 Message ClientProtocol::deserialize_message(const MessageType& type, payload_t& payload) const {
     switch (type) {
         case MessageType::LIST_GAMES_RESP: {
             return Message(deserialize_msg<ListGamesResponse>(payload));
+        }
+        case MessageType::CHARACTERS_RESP: {
+            return Message(deserialize_msg<CharactersResponse>(payload));
+        }
+        case MessageType::SHOP_PRICES_RESP: {
+            return Message(deserialize_msg<ShopPricesResponse>(payload));
         }
         case MessageType::GAME_UPDATE: {
             return Message(deserialize_msg<GameUpdate>(payload));
