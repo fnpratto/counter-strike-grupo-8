@@ -226,6 +226,7 @@ void hudDisplay::renderBullets() {
                                    .get_guns()
                                    .at(state.get_players().at(player_name).get_equipped_item())
                                    .get_mag_ammo());
+    // TODO agregfar numero
     int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 40 - layout.padding * 2;
     int y = SCREEN_HEIGHT - iconHeight * 3;
     renderDigits(bulletsStr, x, y, equipedBulletsAmount);

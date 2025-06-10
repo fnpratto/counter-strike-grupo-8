@@ -14,13 +14,15 @@
 
 class shopDisplay {
 public:
-    explicit shopDisplay(SdlWindow& window);
+    explicit shopDisplay(SdlWindow& window, const GameUpdate& state);
     void render();
     std::optional<Message> updatePointerPosition(int x, int y);
     void updateShopState(bool state);
+    void getShopInfo();
 
 private:
     SdlWindow& window;
+    const GameUpdate& game_state;
     int DISPLAY_WIDTH;
     int DISPLAY_HEIGHT;
     SdlTexture gun_icons;

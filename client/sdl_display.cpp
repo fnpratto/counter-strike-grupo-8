@@ -62,7 +62,7 @@ void SDLDisplay::run() {
     setup();
     SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
     hudDisplay hud_display(window, state, player_name);
-    shopDisplay shop_display(window);
+    shopDisplay shop_display(window, state);
     Map map(window, player_name, state);
     listTeams list_teams(window, state, player_name);
     skinSelect list_skins(window, state, player_name);

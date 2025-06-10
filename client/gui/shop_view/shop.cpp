@@ -33,8 +33,9 @@ std::vector<GunInfo> guns = {{"1", "", "1000"},  // gun at (0,0)
                              {"4", "", ""},     {"5", "", "2000"}, {"6", "", "10"},
                              {"7", "", "30"},   {"8", "", ""}};
 
-shopDisplay::shopDisplay(SdlWindow& window):
+shopDisplay::shopDisplay(SdlWindow& window, const GameUpdate& state):
         window(window),
+        game_state(state),
         DISPLAY_WIDTH(window.getWidth()),
         DISPLAY_HEIGHT(window.getHeight()),
         gun_icons(GUNS_PATH, window),
@@ -57,11 +58,13 @@ shopDisplay::shopDisplay(SdlWindow& window):
     size_slots_w = (scale_w == 1) ? size_guns_w * scale_w : size_guns_w * scale_w / 2;
     size_slots_h = size_guns_h * scale_h;
 
-
     gun_buy = -1;
     active = false;
 }
 void shopDisplay::updateShopState(bool state) { active = state; }
+
+
+void shopDisplay::getShopInfo() {}
 
 void shopDisplay::render() {
     if (active) {

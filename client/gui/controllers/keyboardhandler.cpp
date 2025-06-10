@@ -35,22 +35,21 @@ void KeyboardHandler::update_direction() {
     int dx = 0;
     int dy = 0;
 
-    if (keystate[SDL_SCANCODE_UP]) {
+    if (keystate[SDL_SCANCODE_W]) {
         dy = -1;
     }
-    if (keystate[SDL_SCANCODE_DOWN]) {
+    if (keystate[SDL_SCANCODE_S]) {
         dy = 1;
     }
-    if (keystate[SDL_SCANCODE_LEFT]) {
+    if (keystate[SDL_SCANCODE_A]) {
         dx = -1;
     }
-    if (keystate[SDL_SCANCODE_RIGHT]) {
+    if (keystate[SDL_SCANCODE_D]) {
         dx = 1;
     }
 
     if (dx != 0 || dy != 0) {
         output_queue.push(Message(MoveCommand(Vector2D(dx, dy))));
-        std::cout << "KEY_PRESS_MOVE: dx=" << dx << ", dy=" << dy << std::endl;
         no_movement = false;
         return;
     }

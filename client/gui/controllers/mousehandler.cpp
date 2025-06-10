@@ -60,8 +60,7 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
                     }
                     return;
                 }
-                return;
-                // output_queue.push(Message(ShootCommand()));  // TODO_ADD SERVER
+                output_queue.push(Message(AttackCommand()));
                 break;
             case SDL_BUTTON_RIGHT:
                 std::cout << "MOUSE_PRESS_RIGHT" << std::endl;
