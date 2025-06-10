@@ -22,17 +22,14 @@ class SdlPlayer {
     SdlWindow& window;
 
     static constexpr const char* CHARACTER_PATH = "../assets/gfx/player/ct2.xcf";
-    static constexpr const char* TEST_PATH = "../assets/gfx/tiles/default_aztec.png";
     static constexpr int WIDTH = 32;
     static constexpr int HEIGHT = 32;
 
-    SdlTexture test_texture;
     SdlAnimation walk_animation;
 
 public:
     explicit SdlPlayer(SdlWindow& window):
             window(window),
-            test_texture(TEST_PATH, window, WIDTH, HEIGHT),
             walk_animation(SdlTexture(CHARACTER_PATH, window, WIDTH, HEIGHT),
                            // TODO This could be changed with a strip of sprites instead of this
                            // mosaic and simply iterated over x
@@ -61,15 +58,7 @@ public:
             // (or any default direction, here we assume 0 degrees is right)
             angle = 0.0f;  // Default angle if no aim direction is provided
         }
-        (void)angle;
 
-        Area area_src(32, 32, 32, 32);
-        Area area_dest(position_from_cam.get_x(), position_from_cam.get_y(), 32, 32);
-
-        test_texture.render(area_src, area_dest);
-
-
-        // walk_animation.render(position_from_cam.get_x(), position_from_cam.get_y());
-        // walk_animation.render(position_from_cam.get_x(), position_from_cam.get_y(), angle);
+        walk_animation.render(position_from_cam.get_x(), position_from_cam.get_y(), angle);
     }
 };

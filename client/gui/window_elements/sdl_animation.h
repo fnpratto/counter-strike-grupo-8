@@ -27,17 +27,8 @@ public:
     void reset() { animation_frame = 0; }
 
     // TODO animations should be independent of the framerate
-    void render(int x, int y) {
-        Area area_src(0, 0, 32, 32);
-        Area area_dest(x, y, 32, 32);
-
-        texture.render(area_src, area_dest);
+    void render(int x, int y, double angle = 0) {
+        texture.render(x, y, &clips[animation_frame], angle, nullptr, SDL_FLIP_NONE);
         animation_frame = (animation_frame + 1) % clips.size();
     }
-
-    // TODO animations should be independent of the framerate
-    // void render(int x, int y, double angle = 0) {
-    //     texture.render(x, y, &clips[animation_frame], angle, nullptr, SDL_FLIP_NONE);
-    //     animation_frame = (animation_frame + 1) % clips.size();
-    // }
 };
