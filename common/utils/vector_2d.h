@@ -2,8 +2,6 @@
 
 #include <cmath>
 
-#include "random_float_generator.h"
-
 class Vector2D {
 private:
     int x;
@@ -42,17 +40,12 @@ public:
         return Vector2D((x / norm) * n, (y / norm) * n);
     }
 
-    Vector2D randomized_within_angle(float max_angle_deg) const {
+    Vector2D rotated(float angle_deg) const {
+        float angle_rad = angle_deg * M_PI / 180.0f;
         float base_angle = std::atan2(y, x);
-
-        float max_angle_rad = max_angle_deg * M_PI / 180.0f;
-        RandomFloatGenerator rfg(-max_angle_rad, max_angle_rad);
-        float angle_offset = rfg.generate();
-
-        float varied_angle = base_angle + angle_offset;
+        float rotated_angle = base_angle + angle_rad;
         float len = this->length();
-
-        return Vector2D(std::cos(varied_angle) * len, std::sin(varied_angle) * len);
+        return Vector2D(std::cos(rotated_angle) * len, std::sin(rotated_angle) * len);
     }
 
     ~Vector2D() {}

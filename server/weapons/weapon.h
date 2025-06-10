@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "common/utils/random_float_generator.h"
 #include "common/utils/vector_2d.h"
 #include "server/attack_effects/attack_effect.h"
 #include "server/clock/clock.h"

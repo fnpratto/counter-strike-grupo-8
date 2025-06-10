@@ -16,6 +16,7 @@ class Gun: public Logic<GunState, GunUpdate>, public Weapon {
     int burst_bullets_fired = 0;
 
     int get_bullets_ready_to_fire(TimePoint now);
+    Vector2D get_varied_direction(const Vector2D& dir, float max_angle_deg);
 
     void decrease_mag_ammo();
 

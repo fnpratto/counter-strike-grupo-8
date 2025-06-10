@@ -47,7 +47,7 @@ std::vector<std::unique_ptr<AttackEffect>> Gun::attack(Player& player_origin, co
     int bullets = get_bullets_ready_to_fire(now);
     for (int i = 0; i < bullets; i++) {
         int damage = get_random_damage(gun_config.min_damage, gun_config.max_damage);
-        Vector2D varied_dir = dir.randomized_within_angle(gun_config.dir_variation_angle);
+        Vector2D varied_dir = get_varied_direction(dir, gun_config.dir_variation_angle);
 
         auto effect =
                 std::make_unique<GunAttack>(player_origin, damage, varied_dir, gun_config.max_range,
@@ -86,6 +86,12 @@ int Gun::get_bullets_ready_to_fire(TimePoint now) {
     }
 
     return available_bullets;
+}
+
+Vector2D Gun::get_varied_direction(const Vector2D& dir, float max_angle_deg) {
+    RandomFloatGenerator rfg(-max_angle_deg, max_angle_deg);
+    float angle_offset_deg = rfg.generate();
+    return dir.rotated(angle_offset_deg);
 }
 
 void Gun::decrease_mag_ammo() {
