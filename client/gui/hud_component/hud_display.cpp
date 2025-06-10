@@ -140,7 +140,6 @@ void hudDisplay::renderTeamScores() {
 
 void hudDisplay::renderPointer() {
     const Area sizePointer(0, 0, 50, 50);
-    // std::cout << "Mouse moved to: (" << pointerX << ", " << pointerY << ")" << std::endl;
     const Area destPointer(pointerX - 25, pointerY - 25, 50, 50);
     pointer.render(sizePointer, destPointer);
 }
@@ -239,12 +238,14 @@ void hudDisplay::renderBullets() {
     int y = SCREEN_HEIGHT - iconHeight * 3;
     renderDigits(bulletsStr, x, y, equipedBulletsAmount);
 
-    x += layout.digitSpacing * bulletsStr.size();  // Adjust position for the second number
+    x += layout.digitSpacing * bulletsStr.size();
     renderDigits(bulletsReserve, x, y, equipedBulletsAmount);
 }
 
 
 void hudDisplay::renderGunIcons() {
+
+    // const auto& guns = state.get_players().at(player_name).get_inventory().get_guns();
     int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 20;
     int y = SCREEN_HEIGHT / 2;
 

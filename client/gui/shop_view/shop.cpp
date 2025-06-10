@@ -1,6 +1,7 @@
 #include "shop.h"
 
 #include <iostream>
+#include <map>
 #include <optional>
 
 #include "common/commands.h"
@@ -19,12 +20,15 @@ const std::string& GUNS_PATH_AMMO1 = "../assets/gfx/guns/ammo.xcf";
 const std::string& GUNS_PATH_AMMO2 = "../assets/gfx/guns/ammo1.xcf";
 
 struct GunInfo {
-    std::string name;
+    std::string id;
     std::string name_2;
     std::string price;
 };
 
+std::map<int, GunType> gunIndexMap = {
+        {0, GunType::AK47}, {1, GunType::M3}, {2, GunType::AWP}, {3, GunType::Glock}};
 
+std::map<int, ItemSlot> ammoIndexMap = {{4, ItemSlot::Primary}, {5, ItemSlot::Secondary}};
 // std::vector<int> render_order = {0, 2, 1, 5, 4, 6, 3, 7};
 
 std::vector<GunInfo> guns = {{"1", "", "1000"},  // gun at (0,0)
@@ -112,7 +116,7 @@ void shopDisplay::renderItem() {
         Area iconDest(x + 30, y, size_guns_w - 30, size_guns_h + 10);
         gun_icons.render(src, iconDest);
 
-        gunNumber.setTextString(guns[i].name);
+        gunNumber.setTextString(guns[i].id);
         Area numDest(x, y - 10, 15, 15);
         gunNumber.render(numDest);
 
@@ -128,10 +132,9 @@ void shopDisplay::renderItem() {
 
 std::optional<Message> shopDisplay::updatePointerPosition(int x, int y) {
     if (!active) {
-        std::cerr << "Shop is not active." << std::endl;
         return std::nullopt;
     }
-    for (size_t i = 0; i < guns.size() / 2; ++i) {
+    for (size_t i = 0; i < 6 / 2; ++i) {
         if (x >= DISPLAY_WIDTH / 2 - size_slots_w * 2 &&
             x <= DISPLAY_WIDTH / 2 + size_slots_w * 2 &&
             y >= DISPLAY_HEIGHT / 2 - size_slots_h * 2 &&
@@ -153,18 +156,11 @@ std::optional<Message> shopDisplay::updatePointerPosition(int x, int y) {
         if (x >= base_x && x < base_x + slot_width * 2 && y >= base_y &&
             y < base_y + slot_height * static_cast<int>(guns.size() / 2)) {
             int slot_index = row * 2 + column;
-            if (slot_index >= 0 && slot_index < VALID_SLOTS) {
-                std::cerr << "Mouse is over slot: " << slot_index + 1
-                          << " (Gun: " << guns[slot_index].name << ")" << std::endl;
-                gun_buy = slot_index;
-                return Message(BuyGunCommand(static_cast<GunType>(slot_index)));
-            } else {
-                std::cerr << "Mouse is over an invalid slot." << std::endl;
+            if (gunIndexMap.count(slot_index)) {
+                return std::nullopt;
+            } else if (ammoIndexMap.count(slot_index)) {
                 return std::nullopt;
             }
-        } else {
-            std::cerr << "Mouse is outside the shop display area." << std::endl;
-            return std::nullopt;
         }
     }
     return std::nullopt;
