@@ -18,4 +18,3 @@ enum class CharacterType {
     UK_SAS,
     French_GIGN
 };
-

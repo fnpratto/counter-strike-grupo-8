@@ -110,7 +110,6 @@ GameInfo BaseProtocol::deserialize<GameInfo>(payload_t& payload) const {
 }
 
 template <>
-
 std::optional<Vector2D> BaseProtocol::deserialize<std::optional<Vector2D>>(
         payload_t& payload) const {
     bool has_value = deserialize<bool>(payload);
@@ -118,10 +117,6 @@ std::optional<Vector2D> BaseProtocol::deserialize<std::optional<Vector2D>>(
         return deserialize<Vector2D>(payload);
     }
     return std::nullopt;
-
-CharacterType BaseProtocol::deserialize<CharacterType>(payload_t& payload) const {
-    uint8_t character_type = deserialize<uint8_t>(payload);
-    return static_cast<CharacterType>(character_type);
 }
 
 Message BaseProtocol::recv() {
