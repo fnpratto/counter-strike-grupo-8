@@ -31,6 +31,11 @@ payload_t ServerProtocol::serialize_msg(const ListGamesResponse& response) const
 }
 
 template <>
+payload_t ServerProtocol::serialize_msg(const CharactersResponse& response) const {
+    return serialize(response.get_characters());
+}
+
+template <>
 payload_t ServerProtocol::serialize_msg(const ShopPricesResponse& response) const {
     payload_t payload;
     payload_t gun_prices_payload = serialize_map(response.get_gun_prices());
@@ -88,6 +93,10 @@ payload_t ServerProtocol::serialize_message(const Message& message) const {
     switch (message.get_type()) {
         case MessageType::LIST_GAMES_RESP: {
             const auto& response = message.get_content<ListGamesResponse>();
+            return serialize_msg(response);
+        }
+        case MessageType::CHARACTERS_RESP: {
+            const auto& response = message.get_content<CharactersResponse>();
             return serialize_msg(response);
         }
         case MessageType::SHOP_PRICES_RESP: {
