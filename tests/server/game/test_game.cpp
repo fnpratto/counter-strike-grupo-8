@@ -179,19 +179,12 @@ TEST_F(TestGame, OneTerroristHasBombWhenGameStarted) {
     Message msg_start = Message(StartGameCommand());
     game.tick({PlayerMessage("test_player", msg_start)});
     auto player_messages = game.tick({PlayerMessage("another_player", msg_start)});
-    GameUpdate updates = player_messages[0].get_message().get_content<GameUpdate>();
+    GameUpdate updates = player_messages[1].get_message().get_content<GameUpdate>();
 
     std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
 
-    if (player_updates.find("test_player") != player_updates.end()) {
-        InventoryUpdate inv_updates = player_updates.at("test_player").get_inventory();
-        EXPECT_TRUE(inv_updates.has_bomb_changed());
-    } else if (player_updates.find("another_player") != player_updates.end()) {
-        InventoryUpdate inv_updates = player_updates.at("another_player").get_inventory();
-        EXPECT_TRUE(inv_updates.has_bomb_changed());
-    } else {
-        FAIL();
-    }
+    EXPECT_TRUE(player_updates.at("test_player").get_inventory().has_bomb_changed() ||
+                player_updates.at("another_player").get_inventory().has_bomb_changed());
 }
 
 TEST_F(TestGame, CounterTerroristDoesNotHaveBombWhenGameStarted) {

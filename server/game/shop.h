@@ -46,6 +46,8 @@ public:
     }
 
     void buy_ammo(Inventory& inventory, const ItemSlot& slot) const {
+        if (slot != ItemSlot::Primary && slot != ItemSlot::Secondary)
+            return;
         auto& gun = inventory.get_gun(slot);
         GunType gun_type = gun->get_type();
         int price = ammo_prices.at(gun_type);
