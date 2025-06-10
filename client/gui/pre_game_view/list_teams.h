@@ -18,13 +18,15 @@
 
 class listTeams {
 public:
-    explicit listTeams(SdlWindow& window);
+    explicit listTeams(SdlWindow& window, const GameUpdate& state, const std::string& player_name);
     void render();
     std::optional<Team> updatePointerPosition(int x, int y);
     bool isActive();
 
 private:
     SdlWindow& window;
+    const GameUpdate& game_state;
+    const std::string& player_name;
     int DISPLAY_WIDTH;
     int DISPLAY_HEIGHT;
     int size_slots_w;
@@ -40,7 +42,6 @@ private:
     SdlTexture counter_terrorist;
     BitmapFont timer_amount;
     SdlTexture timer_dots;
-    bool selected_team;
     int heightRatio;
     int size_height;
     int widthRatio;

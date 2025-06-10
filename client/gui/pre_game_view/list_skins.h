@@ -15,7 +15,7 @@
 
 class skinSelect {
 public:
-    explicit skinSelect(SdlWindow& window);
+    explicit skinSelect(SdlWindow& window, const GameUpdate& state, const std::string& player_name);
     void render();
     bool isActive();
     std::optional<int> updatePointerPosition(int x, int y);  // returns skin indx
@@ -26,12 +26,15 @@ private:
     void renderButton();
 
     SdlWindow& window;
+    const GameUpdate& game_state;
+    const std::string& player_name;
     int DISPLAY_WIDTH;
     int DISPLAY_HEIGHT;
 
     SdlText text;
     SdlTexture background;
-    std::vector<SdlTexture> skins;
+    SdlTexture skins_tt;
+    SdlTexture skins_ct;
 
     float widthRatio, heightRatio, scaleRatio;
     float slot_width, slot_height;

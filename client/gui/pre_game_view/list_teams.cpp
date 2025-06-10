@@ -13,8 +13,10 @@ const std::string& COUNTER_TERRORIST_PATH = "../assets/gfx/listTeams/counter-ter
 const std::string& SMALLER_TEXT_PATH = "../assets/gfx/fonts/HeadingNowTrial-03Book.ttf";
 
 
-listTeams::listTeams(SdlWindow& window):
+listTeams::listTeams(SdlWindow& window, const GameUpdate& state, const std::string& player_name):
         window(window),
+        game_state(state),
+        player_name(player_name),
         DISPLAY_WIDTH(window.getWidth()),
         DISPLAY_HEIGHT(window.getHeight()),
         text(TEXT_PATH, 100, {255, 255, 255, 255}, window),
@@ -24,8 +26,7 @@ listTeams::listTeams(SdlWindow& window):
         terrorist(TERRORIST_PATH, window),
         counter_terrorist(COUNTER_TERRORIST_PATH, window),
         timer_amount(window.getRenderer(), "../assets/gfx/fonts/hud_nums.xcf"),
-        timer_dots("../assets/gfx/fonts/hud_nums.xcf", window),
-        selected_team(0) {
+        timer_dots("../assets/gfx/fonts/hud_nums.xcf", window) {
     float BASE_WIDTH = 800.0f;
     float BASE_HEIGHT = 600.0f;
     widthRatio = DISPLAY_WIDTH / BASE_WIDTH;
@@ -56,7 +57,6 @@ listTeams::listTeams(SdlWindow& window):
 }
 
 void listTeams::render() {
-    std::cout << "before pick" << active << std::endl;
     if (active) {
         Area src(0, 0, 250, 250);
         Area dest(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
@@ -122,7 +122,9 @@ void listTeams::renderSlots() {
     int text_terrorist_x = terrorist_x + (size_slots_w) / 4;
     int text_counter_terrorist_x = counter_terrorist_x + (size_slots_w) / 4;
 
-    if (selected_team == 1) {
+    std::optional<Team> team_choosen = game_state.get_players().at(player_name).get_optional_team();
+
+    if (team_choosen == Team::TT) {
         smaller_text.setTextString("Plant the bomb and defend it until ");
         Area terrorist_text_dest_1(text_terrorist_x + padding, text_terrorist_y, 400 * scale, 50);
         smaller_text.render(terrorist_text_dest_1);
@@ -159,23 +161,18 @@ std::optional<Team> listTeams::updatePointerPosition(int x, int y) {
 
     if (x >= select_skin_x && x <= select_skin_x + select_skin_width && y >= select_skin_y &&
         y <= select_skin_y + select_skin_height) {
-        std::cout << "Seleccionar Skin clicked!" << std::endl;
         active = false;
     }
 
     // Check if the pointer is over the terrorist slot
     if (x >= terrorist_x && x <= terrorist_x + slot_width && y >= terrorist_y &&
         y <= terrorist_y + slot_height) {
-        std::cerr << "Mouse is over Terrorist slot." << std::endl;
-        selected_team = 1;  // terrorist
         return Team::TT;
     }
 
     // Check if the pointer is over the counter-terrorist slot
     if (x >= counter_terrorist_x && x <= counter_terrorist_x + slot_width &&
         y >= counter_terrorist_y && y <= counter_terrorist_y + slot_height) {
-        selected_team = 0;  // counter
-        std::cout << "after pick" << active << std::endl;
         return Team::CT;
     }
     return std::nullopt;

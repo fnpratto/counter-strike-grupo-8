@@ -64,8 +64,8 @@ void SDLDisplay::run() {
     hudDisplay hud_display(window, state, player_name);
     shopDisplay shop_display(window);
     Map map(window, player_name, state);
-    listTeams list_teams(window);
-    skinSelect list_skins(window);
+    listTeams list_teams(window, state, player_name);
+    skinSelect list_skins(window, state, player_name);
 
     input_handler = std::make_unique<SDLInput>(output_queue, quit_flag, list_teams, shop_display,
                                                hud_display, list_skins);
