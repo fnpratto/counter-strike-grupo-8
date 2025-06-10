@@ -179,14 +179,11 @@ void hudDisplay::renderLife() {
 
 
 void hudDisplay::renderTimer() {
-
-    int totalSeconds = std::chrono::duration_cast<std::chrono::seconds>(
-                               state.get_phase().get_time().time_since_epoch())
-                               .count();
-    int minutesIdx = totalSeconds / 60;
-    int seconds = totalSeconds % 60;
-    int secondsIdxH = seconds / 10;
-    int secondsIdxL = seconds % 10;
+    int secsRemaining = state.get_phase().get_secs_remaining();
+    int minutesIdx = secsRemaining / 60;
+    int secondsIdx = secsRemaining % 60;
+    int secondsIdxH = secondsIdx / 10;
+    int secondsIdxL = secondsIdx % 10;
 
     int totalTimerWidth = layout.digitSpacing * 4 + 10;
     int x = SCREEN_WIDTH / 2 - totalTimerWidth / 2;
