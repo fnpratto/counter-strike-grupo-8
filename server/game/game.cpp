@@ -125,6 +125,7 @@ void Game::handle<SelectTeamCommand>(const std::string& player_name, const Selec
 
     auto& player = state.get_player(player_name);
     player->select_team(msg.get_team());
+    change_player_position(player_name);
 }
 
 template <>
@@ -309,6 +310,14 @@ void Game::give_bomb_to_random_tt() {
     std::string player_name = tt_names[random_index];
     auto& player = state.get_player(player_name);
     player->pick_bomb(Bomb());
+}
+
+void Game::change_player_position(const std::string& player_name) {
+    auto& player = state.get_player(player_name);
+    if (player->is_tt())
+        player->move_to_pos(physics_system.random_spawn_tt_pos());
+    else
+        player->move_to_pos(physics_system.random_spawn_ct_pos());
 }
 
 Game::~Game() {}
