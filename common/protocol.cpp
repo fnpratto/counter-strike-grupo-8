@@ -109,6 +109,12 @@ GameInfo BaseProtocol::deserialize<GameInfo>(payload_t& payload) const {
     return GameInfo(name, players_count, phase);
 }
 
+template <>
+CharacterType BaseProtocol::deserialize<CharacterType>(payload_t& payload) const {
+    uint8_t character_type = deserialize<uint8_t>(payload);
+    return static_cast<CharacterType>(character_type);
+}
+
 Message BaseProtocol::recv() {
     payload_t header(sizeof(uint8_t) + sizeof(uint16_t));
     socket.recvall(header.data(), sizeof(uint8_t) + sizeof(uint16_t));

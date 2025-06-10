@@ -59,6 +59,16 @@ payload_t ClientProtocol::serialize_msg(const SelectTeamCommand& cmd) const {
 }
 
 template <>
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const GetCharactersCommand& cmd) const {
+    return payload_t();
+}
+
+template <>
+payload_t ClientProtocol::serialize_msg(const SelectCharacterCommand& cmd) const {
+    return serialize(static_cast<uint8_t>(cmd.get_character_type()));
+}
+
+template <>
 payload_t ClientProtocol::serialize_msg([[maybe_unused]] const StartGameCommand& cmd) const {
     return payload_t();
 }
@@ -143,6 +153,10 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
             return serialize_msg(message.get_content<ListGamesCommand>());
         case MessageType::SELECT_TEAM_CMD:
             return serialize_msg(message.get_content<SelectTeamCommand>());
+        case MessageType::GET_CHARACTERS_CMD:
+            return serialize_msg(message.get_content<GetCharactersCommand>());
+        case MessageType::SELECT_CHARACTER_CMD:
+            return serialize_msg(message.get_content<SelectCharacterCommand>());
         case MessageType::START_GAME_CMD:
             return serialize_msg(message.get_content<StartGameCommand>());
         case MessageType::BUY_GUN_CMD:
@@ -179,6 +193,11 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
 template <>
 ListGamesResponse ClientProtocol::deserialize_msg<ListGamesResponse>(payload_t& payload) const {
     return ListGamesResponse(deserialize_vector<GameInfo>(payload));
+}
+
+template <>
+CharactersResponse ClientProtocol::deserialize_msg<CharactersResponse>(payload_t& payload) const {
+    return CharactersResponse(deserialize_vector<CharacterType>(payload));
 }
 
 template <>
@@ -232,6 +251,9 @@ Message ClientProtocol::deserialize_message(const MessageType& type, payload_t& 
     switch (type) {
         case MessageType::LIST_GAMES_RESP: {
             return Message(deserialize_msg<ListGamesResponse>(payload));
+        }
+        case MessageType::CHARACTERS_RESP: {
+            return Message(deserialize_msg<CharactersResponse>(payload));
         }
         case MessageType::SHOP_PRICES_RESP: {
             return Message(deserialize_msg<ShopPricesResponse>(payload));

@@ -11,14 +11,15 @@
 #include "inventory_update.h"
 #include "state_update.h"
 
-#define PLAYER_ATTRS(X, M, U, V) \
-    X(Team, team)                \
-    X(Vector2D, pos)             \
-    X(Vector2D, aim_direction)   \
-    X(Vector2D, velocity)        \
-    X(bool, ready)               \
-    X(int, health)               \
-    X(ItemSlot, equipped_item)   \
+#define PLAYER_ATTRS(X, M, U, V)     \
+    X(Team, team)                    \
+    X(CharacterType, character_type) \
+    X(Vector2D, pos)                 \
+    X(Vector2D, aim_direction)       \
+    X(Vector2D, velocity)            \
+    X(bool, ready)                   \
+    X(int, health)                   \
+    X(ItemSlot, equipped_item)       \
     U(InventoryUpdate, inventory)
 
 DEFINE_UPDATE(PlayerUpdate, PLAYER_ATTRS)

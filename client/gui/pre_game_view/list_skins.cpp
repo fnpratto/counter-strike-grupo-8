@@ -118,15 +118,9 @@ void skinSelect::renderButton() {
 
 bool skinSelect::isActive() { return active; }
 
-std::optional<int> skinSelect::updatePointerPosition(int x, int y) {
+std::optional<CharacterType> skinSelect::updatePointerPosition(int x, int y) {
     // Button clicked
-    if (x >= select_skin_x && x <= select_skin_x + select_skin_width && y >= select_skin_y &&
-        y <= select_skin_y + select_skin_height) {
-        std::cout << "Join Warm-Up: " << selected_skin << std::endl;
-        active = false;
-        return selected_skin;
-    }
-
+    std::optional<Team> team_choosen = game_state.get_players().at(player_name).get_optional_team();
     // Check skin slots
     for (int i = 0; i < 4; ++i) {
         float slot_x = base_x + i * (slot_width + padding);
@@ -134,9 +128,40 @@ std::optional<int> skinSelect::updatePointerPosition(int x, int y) {
 
         if (x >= slot_x && x <= slot_x + slot_width && y >= slot_y && y <= slot_y + slot_height) {
             selected_skin = i;
-            return selected_skin;
+            if (team_choosen == Team::CT) {
+                switch (i) {
+                    case 0:
+                        return CharacterType::Seal_Force;
+                    case 1:
+                        return CharacterType::German_GSG_9;
+                    case 2:
+                        return CharacterType::UK_SAS;
+                    case 3:
+                        return CharacterType::French_GIGN;
+                }
+            } else if (team_choosen.value() == Team::TT) {
+                switch (i) {
+                    case 0:
+                        return CharacterType::Pheonix;
+                    case 1:
+                        return CharacterType::L337_Krew;
+                    case 2:
+                        return CharacterType::Artic_Avenger;
+                    case 3:
+                        return CharacterType::Guerrilla;
+                }
+            }
         }
     }
 
+    return std::nullopt;
+}
+
+std::optional<bool> skinSelect::updateFinishPreGame(int x, int y) {
+    if (x >= select_skin_x && x <= select_skin_x + select_skin_width && y >= select_skin_y &&
+        y <= select_skin_y + select_skin_height) {
+        active = false;
+        return true;
+    }
     return std::nullopt;
 }
