@@ -25,7 +25,8 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
         SDL_GetMouseState(&x, &y);
         std::optional<Message> maybe_message;
         std::optional<Team> team_choosen;
-        std::optional<int> id_skin;
+        std::optional<CharacterType> id_skin;
+        std::optional<bool> pre_game_finished;
 
         switch (event.button.button) {
             case SDL_BUTTON_LEFT:
@@ -49,10 +50,15 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
                 if (skinSelectRef.isActive()) {
                     id_skin = skinSelectRef.updatePointerPosition(x, y);
                     if (id_skin.has_value()) {
-                        // output_queue.push(Message(SelectSkinCommand(id_skin.value()))); TODO
-                        std::cout << "Selected skin: " << id_skin.value() << std::endl;
+                        output_queue.push(Message(SelectCharacterCommand(id_skin.value())));
                         return;
                     }
+                    pre_game_finished = skinSelectRef.updateFinishPreGame(x, y);
+                    if (pre_game_finished) {
+                        output_queue.push(Message(StartGameCommand()));
+                        return;
+                    }
+                    return;
                 }
                 return;
                 // output_queue.push(Message(ShootCommand()));  // TODO_ADD SERVER

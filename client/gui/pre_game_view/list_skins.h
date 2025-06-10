@@ -18,7 +18,8 @@ public:
     explicit skinSelect(SdlWindow& window, const GameUpdate& state, const std::string& player_name);
     void render();
     bool isActive();
-    std::optional<int> updatePointerPosition(int x, int y);  // returns skin indx
+    std::optional<CharacterType> updatePointerPosition(int x, int y);
+    std::optional<bool> updateFinishPreGame(int x, int y);
     void activate() { active = true; }
 
 private:
