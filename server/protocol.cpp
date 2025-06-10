@@ -66,12 +66,7 @@ payload_t ServerProtocol::serialize_msg(const ShopPricesResponse& response) cons
         payload_t attr##_payload = serialize_update(update.get_##attr());            \
         payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end()); \
     }
-#define V_SERIALIZE_UPDATE(type, attr)                                               \
-    payload.push_back(update.has_##attr##_changed());                                \
-    if (update.has_##attr##_changed()) {                                             \
-        payload_t attr##_payload = serialize_vector(update.get_##attr());            \
-        payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end()); \
-    }
+#define V_SERIALIZE_UPDATE(type, attr)
 
 #define SERIALIZE_UPDATE(CLASS, ATTRS)                                                        \
     template <>                                                                               \
