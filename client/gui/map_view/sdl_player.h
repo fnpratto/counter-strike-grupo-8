@@ -40,8 +40,6 @@ public:
                                                   {0, 64, WIDTH, HEIGHT},
                                                   {32, 64, WIDTH, HEIGHT}})) {}
 
-    void reset() { walk_animation.reset(); }
-
     void render(const SdlCamera& camera, const PlayerUpdate& state) {
         if (state.get_velocity() == Vector2D(0, 0)) {
             walk_animation.reset();
