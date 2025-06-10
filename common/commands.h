@@ -195,13 +195,13 @@ class LeaveGameCommand: public Command {};
 class GetCharactersCommand: public Command {};
 
 /**
- * @class ChooseCharacterCommand
+ * @class SelectCharacterCommand
  * @brief Command to choose a character for the player.
  */
-class ChooseCharacterCommand: public Command {
+class SelectCharacterCommand: public Command {
     CharacterType character;
 
 public:
-    explicit ChooseCharacterCommand(CharacterType character): character(character) {}
+    explicit SelectCharacterCommand(CharacterType character): character(character) {}
     CharacterType get_character() const { return character; }
 };
