@@ -226,10 +226,21 @@ void hudDisplay::renderBullets() {
                                    .get_guns()
                                    .at(state.get_players().at(player_name).get_equipped_item())
                                    .get_mag_ammo());
-    // TODO agregfar numero
-    int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 40 - layout.padding * 2;
+
+    std::string bulletsReserve =
+            std::to_string(state.get_players()
+                                   .at(player_name)
+                                   .get_inventory()
+                                   .get_guns()
+                                   .at(state.get_players().at(player_name).get_equipped_item())
+                                   .get_reserve_ammo());
+
+    int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 40 - layout.padding * 8;
     int y = SCREEN_HEIGHT - iconHeight * 3;
     renderDigits(bulletsStr, x, y, equipedBulletsAmount);
+
+    x += layout.digitSpacing * bulletsStr.size();  // Adjust position for the second number
+    renderDigits(bulletsReserve, x, y, equipedBulletsAmount);
 }
 
 

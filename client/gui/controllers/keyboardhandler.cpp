@@ -24,6 +24,9 @@ void KeyboardHandler::handleEvent(const SDL_Event& event /*, bool& shop*/) {
             case SDLK_m:
                 // Toggle mute functionality //TODO_ADD SERVER
                 break;
+            case SDLK_r:
+                output_queue.push(Message(ReloadCommand()));
+                break;
         }
     }
     update_direction();
