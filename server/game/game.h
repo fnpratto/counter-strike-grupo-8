@@ -45,6 +45,7 @@ public:
 
 private:
     void give_bomb_to_random_tt();
+    void move_player_to_spawn(const std::string& player_name);
 
     void handle_msg(const Message& msg, const std::string& player_name);
 

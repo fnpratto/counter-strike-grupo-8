@@ -11,6 +11,6 @@
 
 #define PHASE_ATTRS(X, M, U, O) \
     X(PhaseType, phase)         \
-    X(TimePoint, time)
+    X(int, secs_remaining)
 
 DEFINE_UPDATE(PhaseUpdate, PHASE_ATTRS)

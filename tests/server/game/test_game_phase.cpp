@@ -58,7 +58,7 @@ TEST_F(TestGamePhase, StartAnotherRoundAfterRoundFinishedDuration) {
     game_phase.advance();
     advance_secs(PhaseTimes::playing_phase_secs);
     game_phase.advance();
-    advance_secs(PhaseTimes::round_finished_phase_secs);
+    advance_secs(PhaseTimes::end_phase_secs);
     game_phase.advance();
 
     PhaseUpdate updates = game_phase.get_updates();

@@ -160,7 +160,7 @@ TEST_F(TestGame, NumberOfRoundsIncrementCorrectly) {
         game.tick({});
         advance_secs(PhaseTimes::playing_phase_secs);
         for (int j = 0; j < 10; j++) game.tick({});
-        advance_secs(PhaseTimes::round_finished_phase_secs);
+        advance_secs(PhaseTimes::end_phase_secs);
         auto player_messages = game.tick({});
         updates = player_messages[0].get_message().get_content<GameUpdate>();
     }
@@ -179,19 +179,12 @@ TEST_F(TestGame, OneTerroristHasBombWhenGameStarted) {
     Message msg_start = Message(StartGameCommand());
     game.tick({PlayerMessage("test_player", msg_start)});
     auto player_messages = game.tick({PlayerMessage("another_player", msg_start)});
-    GameUpdate updates = player_messages[0].get_message().get_content<GameUpdate>();
+    GameUpdate updates = player_messages[1].get_message().get_content<GameUpdate>();
 
     std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
 
-    if (player_updates.find("test_player") != player_updates.end()) {
-        InventoryUpdate inv_updates = player_updates.at("test_player").get_inventory();
-        EXPECT_TRUE(inv_updates.has_bomb_changed());
-    } else if (player_updates.find("another_player") != player_updates.end()) {
-        InventoryUpdate inv_updates = player_updates.at("another_player").get_inventory();
-        EXPECT_TRUE(inv_updates.has_bomb_changed());
-    } else {
-        FAIL();
-    }
+    EXPECT_TRUE(player_updates.at("test_player").get_inventory().has_bomb_changed() ||
+                player_updates.at("another_player").get_inventory().has_bomb_changed());
 }
 
 TEST_F(TestGame, CounterTerroristDoesNotHaveBombWhenGameStarted) {
@@ -232,7 +225,7 @@ TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
         auto player_messages = game.tick({});
         updates = player_messages[0].get_message().get_content<GameUpdate>();
         EXPECT_EQ(updates.get_phase().get_phase(), PhaseType::End);
-        advance_secs(PhaseTimes::round_finished_phase_secs);
+        advance_secs(PhaseTimes::end_phase_secs);
         player_messages = game.tick({});
         updates = player_messages[0].get_message().get_content<GameUpdate>();
         EXPECT_EQ(updates.get_num_rounds(), i + 1);

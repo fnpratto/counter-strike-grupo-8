@@ -6,7 +6,7 @@
 #include "game_config.h"
 
 GamePhase::GamePhase(std::shared_ptr<Clock>&& game_clock):
-        Logic<PhaseState, PhaseUpdate>(PhaseState(PhaseType::WarmUp, TimePoint::min())),
+        Logic<PhaseState, PhaseUpdate>(PhaseState(PhaseType::WarmUp)),
         game_clock(std::move(game_clock)),
         round_finished(false) {
     phase_start = this->game_clock->now();
@@ -31,31 +31,44 @@ void GamePhase::start_buying_phase() {
 
 void GamePhase::advance() {
     auto now = game_clock->now();
-    state.set_time(now);
     round_finished = false;
     auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - phase_start);
+    if (state.get_phase() != PhaseType::WarmUp && elapsed >= get_current_phase_secs()) {
+        state.set_phase(get_next_phase());
+        phase_start = now;
+        if (state.get_phase() == PhaseType::Buying)
+            round_finished = true;
+    }
 
+    if (state.get_phase() == PhaseType::WarmUp)
+        state.set_secs_remaining(0);
+    else
+        state.set_secs_remaining(
+                std::chrono::duration<int>(get_current_phase_secs() - elapsed).count());
+}
+
+std::chrono::seconds GamePhase::get_current_phase_secs() const {
     switch (state.get_phase()) {
         case PhaseType::Buying:
-            if (elapsed >= std::chrono::seconds(PhaseTimes::buying_phase_secs)) {
-                state.set_phase(PhaseType::Playing);
-                phase_start = now;
-            }
-            break;
+            return std::chrono::seconds(PhaseTimes::buying_phase_secs);
         case PhaseType::Playing:
-            if (elapsed >= std::chrono::seconds(PhaseTimes::playing_phase_secs)) {
-                state.set_phase(PhaseType::End);
-                phase_start = now;
-            }
-            break;
+            return std::chrono::seconds(PhaseTimes::playing_phase_secs);
         case PhaseType::End:
-            if (elapsed >= std::chrono::seconds(PhaseTimes::round_finished_phase_secs)) {
-                state.set_phase(PhaseType::Buying);
-                round_finished = true;
-                phase_start = now;
-            }
-            break;
+            return std::chrono::seconds(PhaseTimes::end_phase_secs);
         default:
-            break;
+            throw std::runtime_error("Invalid phase type");
+    }
+}
+
+PhaseType GamePhase::get_next_phase() const {
+    switch (state.get_phase()) {
+        case PhaseType::Buying:
+            return PhaseType::Playing;
+        case PhaseType::Playing:
+            return PhaseType::End;
+        case PhaseType::End:
+            return PhaseType::Buying;
+        default:
+            throw std::runtime_error("Invalid phase type");
     }
 }

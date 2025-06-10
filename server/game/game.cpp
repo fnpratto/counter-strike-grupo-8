@@ -44,9 +44,10 @@ void Game::advance_round_logic() {
 
     phase.advance();
 
-    if (phase.round_has_finished())
+    if (phase.round_has_finished()) {
         state.advance_round();
-
+        for (const auto& [p_name, _]: state.get_players()) move_player_to_spawn(p_name);
+    }
     if (state.get_num_rounds() == GameConfig::max_rounds / 2)
         state.swap_players_teams();
 }
@@ -125,6 +126,7 @@ void Game::handle<SelectTeamCommand>(const std::string& player_name, const Selec
 
     auto& player = state.get_player(player_name);
     player->select_team(msg.get_team());
+    move_player_to_spawn(player_name);
 }
 
 template <>
@@ -163,6 +165,7 @@ void Game::handle<StartGameCommand>(const std::string& player_name,
     if (state.all_players_ready()) {
         give_bomb_to_random_tt();
         state.get_phase().start_buying_phase();
+        for (const auto& [p_name, _]: state.get_players()) move_player_to_spawn(p_name);
     }
 }
 
@@ -309,6 +312,14 @@ void Game::give_bomb_to_random_tt() {
     std::string player_name = tt_names[random_index];
     auto& player = state.get_player(player_name);
     player->pick_bomb(Bomb());
+}
+
+void Game::move_player_to_spawn(const std::string& player_name) {
+    auto& player = state.get_player(player_name);
+    if (player->is_tt())
+        player->move_to_pos(physics_system.random_spawn_tt_pos());
+    else
+        player->move_to_pos(physics_system.random_spawn_ct_pos());
 }
 
 Game::~Game() {}

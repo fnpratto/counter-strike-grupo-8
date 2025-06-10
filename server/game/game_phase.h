@@ -13,6 +13,9 @@ private:
     TimePoint phase_start;
     bool round_finished;
 
+    std::chrono::seconds get_current_phase_secs() const;
+    PhaseType get_next_phase() const;
+
 public:
     explicit GamePhase(std::shared_ptr<Clock>&& game_clock);
 
