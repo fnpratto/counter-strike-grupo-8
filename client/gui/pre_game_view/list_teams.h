@@ -1,6 +1,7 @@
 #ifndef LIST_TEAMS_H
 #define LIST_TEAMS_H
 
+#include <atomic>
 #include <optional>
 #include <string>
 #include <vector>
@@ -18,8 +19,9 @@
 class listTeams {
 public:
     explicit listTeams(SdlWindow& window);
-    void update(int currentClockTick);
+    void render();
     std::optional<Team> updatePointerPosition(int x, int y);
+    bool isActive();
 
 private:
     SdlWindow& window;
@@ -45,7 +47,16 @@ private:
     int scaleRatio;
     int digitSpacing;
     float scale;
-    void render_timer(int currentClockTick);
+    std::atomic<bool> active;
+    float terrorist_x, terrorist_y;
+    float counter_terrorist_x, counter_terrorist_y;
+    float slot_width, slot_height;
+    int select_skin_x;
+    int select_skin_y;
+    int select_skin_width;
+    int select_skin_height;
+
+    void render_button();
     void renderSlots();
     void renderItem();
 };

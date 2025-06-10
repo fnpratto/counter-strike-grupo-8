@@ -27,8 +27,6 @@ class SDLDisplay: public Display {
 
     std::atomic<bool> quit_flag;
 
-    static constexpr int SCREEN_WIDTH = 800;
-    static constexpr int SCREEN_HEIGHT = 600;
 
     std::unique_ptr<SDLInput> input_handler;
 
@@ -39,6 +37,8 @@ public:
     void stop() override;
 
 private:
+    int SCREEN_WIDTH;
+    int SCREEN_HEIGHT;
     void setup();
 
     void update_display(SdlWindow window, hudDisplay hud_display, shopDisplay shop_display, Map map,

@@ -24,7 +24,7 @@ void SDLInput::run() {
                 quit_flag = true;
             }
             keyboardHandler.handleEvent(e);
-            mouseHandler.handleEvent(e, false, false);  // TODO: shop and list_teams flags
+            mouseHandler.handleEvent(e);  // TODO: shop and list_teams flags
         }
     }
     std::cout << "SDLInput thread stopped\n";

@@ -37,7 +37,6 @@ private:
     bool active;
     void renderSlots();
     void renderItem();
-    void renderblokedSlots();
 };
 
 #endif  // SHOP_DISPLAY_H

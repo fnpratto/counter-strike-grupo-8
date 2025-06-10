@@ -124,7 +124,10 @@ void shopDisplay::renderItem() {
 }
 
 std::optional<Message> shopDisplay::updatePointerPosition(int x, int y) {
-
+    if (!active) {
+        std::cerr << "Shop is not active." << std::endl;
+        return std::nullopt;
+    }
     for (size_t i = 0; i < guns.size() / 2; ++i) {
         if (x >= DISPLAY_WIDTH / 2 - size_slots_w * 2 &&
             x <= DISPLAY_WIDTH / 2 + size_slots_w * 2 &&

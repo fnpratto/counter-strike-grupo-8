@@ -22,8 +22,9 @@ void KeyboardHandler::handleEvent(const SDL_Event& event /*, bool& shop*/) {
                 break;
             case SDLK_b:
                 std::cout << "KEY_PRESS_B" << std::endl;
-                // inputQueue.push(Message(Request Store); //TODO_ADD SERVER
+                // output_queue.push(Message(Request Store); //TODO_ADD SERVER
                 // shop = true;
+                // bool isActive() const { return active; }
                 // output_queue.push(Message(GetShopPricesCommand()));
                 shopRef.updateShopState(true);
                 break;

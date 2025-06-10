@@ -10,6 +10,8 @@
 #include <SDL_events.h>
 #include <unistd.h>
 
+#include "common/models.h"
+
 #include "sdl_input.h"
 
 
@@ -21,6 +23,8 @@ SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue
         quit_flag(false),
         input_handler(nullptr) {
     std::cout << "SDLDisplay initialized with player: " << player_name << std::endl;
+    SCREEN_WIDTH = 800;
+    SCREEN_HEIGHT = 600;
 }
 
 
@@ -47,6 +51,9 @@ void SDLDisplay::setup() {
         SDL_Quit();
         exit(1);
     }
+
+    SCREEN_WIDTH = displayMode.w;
+    SCREEN_HEIGHT = displayMode.h - 150;
 }
 
 void SDLDisplay::run() {
@@ -59,7 +66,6 @@ void SDLDisplay::run() {
 
     input_handler = std::make_unique<SDLInput>(output_queue, quit_flag, list_teams, shop_display,
                                                hud_display);
-
     input_handler->start();
 
     update_state();
@@ -68,9 +74,13 @@ void SDLDisplay::run() {
         // Update game state and display
         update_state();
         window.fill();
-        map.render();
-        hud_display.render();
-        shop_display.render();
+        if (list_teams.isActive()) {
+            list_teams.render();
+        } else {
+            map.render();
+            hud_display.render();
+            shop_display.render();
+        }
         window.render();
         return !quit_flag;
     });
