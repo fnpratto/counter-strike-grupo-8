@@ -13,6 +13,7 @@
 
 #define PLAYER_ATTRS(X, M, U, O)  \
     X(Team, team)                 \
+    X(CharacterType, character_type) \
     X(Vector2D, pos)              \
     X(Vector2D, aim_direction)    \
     X(Vector2D, velocity)         \

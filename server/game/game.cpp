@@ -128,6 +128,32 @@ void Game::handle<SelectTeamCommand>(const std::string& player_name, const Selec
 }
 
 template <>
+void Game::handle<GetCharactersCommand>(const std::string& player_name,
+                                        [[maybe_unused]] const GetCharactersCommand& msg) {
+    auto& player = state.get_player(player_name);
+    std::vector<CharacterType> characters;
+    if (player->is_ct()) {
+        characters = {CharacterType::Seal_Force, CharacterType::German_GSG_9, CharacterType::UK_SAS,
+                      CharacterType::French_GIGN};
+    } else if (player->is_tt()) {
+        characters = {CharacterType::Pheonix, CharacterType::L337_Krew,
+                      CharacterType::Artic_Avenger, CharacterType::Guerrilla};
+    }
+    output_messages.emplace_back(player_name, Message(CharactersResponse(std::move(characters))));
+}
+
+template <>
+void Game::handle<SelectCharacterCommand>(const std::string& player_name,
+                                          const SelectCharacterCommand& msg) {
+    if (state.get_phase().is_started())
+        // throw SelectCharacterError();
+        return;  // TODO: Error response
+
+    auto& player = state.get_player(player_name);
+    player->select_character(msg.get_character_type());
+}
+
+template <>
 void Game::handle<StartGameCommand>(const std::string& player_name,
                                     [[maybe_unused]] const StartGameCommand& msg) {
     if (state.get_phase().is_started())
@@ -223,6 +249,12 @@ void Game::handle_msg(const Message& msg, const std::string& player_name) {
     switch (msg_type) {
         case MessageType::SELECT_TEAM_CMD:
             handle(player_name, msg.get_content<SelectTeamCommand>());
+            break;
+        case MessageType::GET_CHARACTERS_CMD:
+            handle(player_name, msg.get_content<GetCharactersCommand>());
+            break;
+        case MessageType::SELECT_CHARACTER_CMD:
+            handle(player_name, msg.get_content<SelectCharacterCommand>());
             break;
         case MessageType::START_GAME_CMD:
             handle(player_name, msg.get_content<StartGameCommand>());

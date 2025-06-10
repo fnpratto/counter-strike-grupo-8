@@ -31,6 +31,19 @@ public:
 };
 
 /**
+ * @class CharactersResponse
+ * @brief Response containing the characters information.
+ */
+class CharactersResponse {
+    std::vector<CharacterType> characters;
+
+public:
+    explicit CharactersResponse(std::vector<CharacterType> chars): characters(std::move(chars)) {}
+
+    std::vector<CharacterType> get_characters() const { return characters; }
+};
+
+/**
  * @class ShopPricesResponse
  * @brief Response containing the prices of guns and ammo in the shop.
  */

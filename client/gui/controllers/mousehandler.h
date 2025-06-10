@@ -6,6 +6,7 @@
 #include <SDL2/SDL.h>
 
 #include "client/gui/hud_component/hud_display.h"
+#include "client/gui/pre_game_view/list_skins.h"
 #include "client/gui/pre_game_view/list_teams.h"
 #include "client/gui/shop_view/shop.h"
 #include "common/message.h"
@@ -16,22 +17,24 @@
 class MouseHandler {
 public:
     explicit MouseHandler(Queue<Message>& output_queue, listTeams& listRef, shopDisplay& shopRef,
-                          hudDisplay& hudRef):
+                          hudDisplay& hudRef, skinSelect& skinRef):
 
             output_queue(output_queue),
             shopDisplayRef(shopRef),
             listTeamsRef(listRef),
-            hudDisplayRef(hudRef) {}
-    void handleEvent(const SDL_Event& event, bool shop, bool list_teams);
+            hudDisplayRef(hudRef),
+            skinSelectRef(skinRef) {}
+    void handleEvent(const SDL_Event& event);
 
 
 private:
     Queue<Message>& output_queue;
 
     void sendNormalizedCoordinates(int x, int y);
-    shopDisplay shopDisplayRef;
-    listTeams listTeamsRef;
-    hudDisplay hudDisplayRef;
+    shopDisplay& shopDisplayRef;
+    listTeams& listTeamsRef;
+    hudDisplay& hudDisplayRef;
+    skinSelect& skinSelectRef;
 };
 
 #endif  // MOUSEHANDLER_H

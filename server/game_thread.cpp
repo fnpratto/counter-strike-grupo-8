@@ -14,7 +14,7 @@ GameThread::GameThread(const std::string& name):
         input_queue(std::make_shared<Queue<PlayerMessage>>()) {}
 
 void GameThread::run() {
-    RateController rate_controller(128);  // 128 TPS
+    RateController rate_controller(GameConfig::tickrate);
     rate_controller.run_at_rate([this]() {
         std::vector<PlayerMessage> msgs;
         for (int i = 0; i < MSG_BATCH_SIZE; ++i) {

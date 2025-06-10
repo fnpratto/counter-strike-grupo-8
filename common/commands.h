@@ -187,3 +187,21 @@ class GetShopPricesCommand: public Command {};
  * @brief Command to leave the current game.
  */
 class LeaveGameCommand: public Command {};
+
+/**
+ * @class GetCharacterCommand
+ * @brief Command to get the character information.
+ */
+class GetCharactersCommand: public Command {};
+
+/**
+ * @class SelectCharacterCommand
+ * @brief Command to choose a character for the player.
+ */
+class SelectCharacterCommand: public Command {
+    CharacterType character_type;
+
+public:
+    explicit SelectCharacterCommand(CharacterType character_type): character_type(character_type) {}
+    CharacterType get_character_type() const { return character_type; }
+};

@@ -1,7 +1,7 @@
 #pragma once
 
 namespace GameConfig {
-static constexpr int tickrate = 60;
+static constexpr int tickrate = 30;
 static constexpr int player_speed = 2;  // m/s
 static constexpr int max_rounds = 10;
 };  // namespace GameConfig

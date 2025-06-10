@@ -20,10 +20,13 @@
     F(ListGamesResponse, LIST_GAMES_RESP)              \
     F(ShopPricesResponse, SHOP_PRICES_RESP)            \
     F(HitResponse, HIT_RESP)                           \
+    F(CharactersResponse, CHARACTERS_RESP)             \
     F(CreateGameCommand, CREATE_GAME_CMD) /*Commands*/ \
     F(JoinGameCommand, JOIN_GAME_CMD)                  \
     F(ListGamesCommand, LIST_GAMES_CMD)                \
     F(SelectTeamCommand, SELECT_TEAM_CMD)              \
+    F(GetCharactersCommand, GET_CHARACTERS_CMD)        \
+    F(SelectCharacterCommand, SELECT_CHARACTER_CMD)    \
     F(StartGameCommand, START_GAME_CMD)                \
     F(BuyGunCommand, BUY_GUN_CMD)                      \
     F(BuyAmmoCommand, BUY_AMMO_CMD)                    \
