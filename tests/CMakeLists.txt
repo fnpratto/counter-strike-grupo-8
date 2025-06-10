@@ -11,7 +11,7 @@ target_sources(taller_tests
     ../server/game/game_phase.cpp
     ../server/game/physics_system.cpp
     # map
-    ../server/map/map.cpp
+    ../common/map/map.cpp
     # player
     ../server/player/player.cpp
     ../server/player/inventory.cpp
@@ -44,8 +44,8 @@ target_sources(taller_tests
     ../server/game/game_config.h
     # map
     ../server/map/map_builder.h
-    ../server/map/map.h
-    ../server/map/tile.h
+    ../common/map/map.h
+    ../common/map/tile.h
     # player
     ../server/player/player.h
     ../server/player/player_config.h

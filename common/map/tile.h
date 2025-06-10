@@ -5,6 +5,8 @@
 #include "common/models.h"
 #include "common/utils/vector_2d.h"
 
+enum class MapTileType { Floor, Wall, Box };
+
 class Tile {
 private:
     MapTileType tile;

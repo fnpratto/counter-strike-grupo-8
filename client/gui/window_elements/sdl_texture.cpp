@@ -13,7 +13,7 @@ SdlTexture::SdlTexture(const std::string& filename, const SdlWindow& window):
 }
 
 SdlTexture::SdlTexture(const std::string& filename, const SdlWindow& window, int width, int height):
-        width(width), height(height), renderer(window.getRenderer()) {
+        renderer(window.getRenderer()), width(width), height(height) {
     this->texture = loadTexture(filename);
 }
 

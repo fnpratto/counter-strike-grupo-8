@@ -18,10 +18,13 @@ target_sources(taller_client
     qt/log_in_window.cpp
     qt/resources.qrc
     connection_handler.cpp
+    ../common/map/map.cpp
 
     PUBLIC
     # .h files
     ../common/utils/vector_2d.h
+    ../common/map/map.h
+    ../common/map/tile.h
     client.h
     display.h
     protocol.h

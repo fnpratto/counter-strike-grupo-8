@@ -1,6 +1,8 @@
-#ifndef __SDL_TEXTURE_H__
-#define __SDL_TEXTURE_H__
+#pragma once
+
 #include <string>
+
+#include <SDL.h>
 
 class SDL_Texture;
 class SDL_Renderer;
@@ -27,13 +29,11 @@ public:
      * Renderiza la textura cargada
      **/
     int render(const Area& src, const Area& dest) const;
-    void render(int x, int y, SDL_Rect* clip, double angle = 0, SDL_Point* center = nullptr,
-                SDL_RendererFlip flip = SDL_FLIP_NONE);
+    void render(int x, int y, SDL_Rect* clip = nullptr, double angle = 0,
+                SDL_Point* center = nullptr, SDL_RendererFlip flip = SDL_FLIP_NONE);
 
     SDL_Texture* getTexture() const { return texture; }
 
 private:
     SDL_Texture* loadTexture(const std::string& filename);
 };
-
-#endif

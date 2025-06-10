@@ -3,7 +3,6 @@
 
 #include <SDL2/SDL.h>
 
-#include "../map_view/map_view.h"
 #include "common/commands.h"
 #include "common/message.h"
 #include "common/queue.h"
@@ -17,7 +16,6 @@ public:
 private:
     Queue<Message>& output_queue;
     void update_direction();
-    // bool isMuted = false;  // TODO sacar
     bool no_movement = false;  // TODO sacar
 };
 

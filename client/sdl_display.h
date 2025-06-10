@@ -10,10 +10,8 @@
 #include "../common/updates/game_update.h"
 #include "../common/updates/player_update.h"
 #include "common/message.h"
-#include "gui/controllers/keyboardhandler.h"
 #include "gui/controllers/mousehandler.h"
 #include "gui/hud_component/hud_display.h"
-#include "gui/map_view/map_view.h"
 #include "gui/pre_game_view/list_teams.h"
 #include "gui/shop_view/shop.h"
 #include "gui/window_elements/sdl_window.h"
@@ -40,9 +38,6 @@ public:
 
 private:
     void setup();
-
-    void update_display(SdlWindow window, hudDisplay hud_display, shopDisplay shop_display, Map map,
-                        listTeams list_teams);
 
     GameUpdate get_initial_state();
     void update_state();

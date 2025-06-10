@@ -5,7 +5,6 @@
 #include <iostream>
 #include <vector>
 
-const std::string& BACKGROUND_PATH = "../assets/gfx/backgrounds/water1.jpg";
 const std::string& POINTER_PATH = "../assets/gfx/hud/pointer.xcf";
 const std::string& MONEY_PATH = "../assets/gfx/hud/hud_symbols.xcf";
 const std::string& LIFE_PATH = "../assets/gfx/hud/hud_symbols.xcf";

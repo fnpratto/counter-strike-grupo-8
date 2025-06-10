@@ -11,7 +11,8 @@
 #include <SDL_events.h>
 #include <unistd.h>
 
-#include "../common/utils/rate_controller.h"
+#include "client/gui/map_view/sdl_world.h"
+#include "common/utils/rate_controller.h"
 
 #include "sdl_input.h"
 
@@ -57,7 +58,7 @@ void SDLDisplay::run() {
     SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
     hudDisplay hud_display(window, state, player_name);
     shopDisplay shop_display(window);
-    Map map(window, player_name, state);
+    SdlWorld world(window, state, player_name);
     listTeams list_teams(window);
 
     input_handler = std::make_unique<SDLInput>(output_queue, quit_flag, list_teams, shop_display,
@@ -72,7 +73,7 @@ void SDLDisplay::run() {
         // Update game state and display
         update_state();
         window.fill();
-        map.render();
+        world.render();
         hud_display.render();
         window.render();
         return !quit_flag;

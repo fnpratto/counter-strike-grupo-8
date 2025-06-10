@@ -6,9 +6,9 @@
 #include <utility>
 #include <vector>
 
+#include "common/map/map.h"
 #include "common/utils/vector_2d.h"
 #include "server/attack_effects/attack_effect.h"
-#include "server/map/map.h"
 #include "server/player/player.h"
 
 class PhysicsSystem {
@@ -19,12 +19,9 @@ private:
     Vector2D map_to_physics_pos(const Vector2D& pos) const;
     Vector2D physics_to_map_pos(const Vector2D& pos) const;
 
-    bool is_in_same_cuadrant  // cppcheck-suppress[unusedPrivateFunction]
-            (Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir);
-    bool player_is_hit  // cppcheck-suppress[unusedPrivateFunction]
-            (Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir);
-    bool wall_is_hit  // cppcheck-suppress[unusedPrivateFunction]
-            (Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir);
+    bool is_in_same_cuadrant(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir);
+    bool player_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir);
+    bool wall_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir);
 
 public:
     PhysicsSystem(Map&& map, const std::map<std::string, std::unique_ptr<Player>>& players);

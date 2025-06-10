@@ -14,7 +14,7 @@ target_sources(taller_server
     game/game_phase.cpp
     game/physics_system.cpp
     # map
-    map/map.cpp
+    ../common/map/map.cpp
     # player
     player/player.cpp
     player/inventory.cpp
@@ -49,8 +49,8 @@ target_sources(taller_server
     game/game_config.h
     # map
     map/map_builder.h
-    map/map.h
-    map/tile.h
+    ../common/map/map.h
+    ../common/map/tile.h
     # player
     player/player.h
     player/player_config.h

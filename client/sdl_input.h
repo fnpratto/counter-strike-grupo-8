@@ -4,7 +4,6 @@
 #include "gui/controllers/keyboardhandler.h"
 #include "gui/controllers/mousehandler.h"
 #include "gui/hud_component/hud_display.h"
-#include "gui/map_view/map_view.h"
 #include "gui/pre_game_view/list_teams.h"
 #include "gui/shop_view/shop.h"
 
