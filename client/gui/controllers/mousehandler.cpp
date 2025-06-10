@@ -23,6 +23,7 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
         SDL_GetMouseState(&x, &y);
         std::optional<Message> maybe_message;
         std::optional<Team> team_choosen;
+        std::optional<int> id_skin;
 
         switch (event.button.button) {
             case SDL_BUTTON_LEFT:
@@ -34,14 +35,23 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
                     std::cout << "Sent shop-related command." << std::endl;
                     return;
                 }
-
-                team_choosen = listTeamsRef.updatePointerPosition(x, y);
-                if (team_choosen.has_value()) {
-                    // output_queue.push(Message(SelectTeamCommand(team_choosen.value())));
-                    std::cout << "Selected team" << std::endl;
+                if (listTeamsRef.isActive()) {
+                    team_choosen = listTeamsRef.updatePointerPosition(x, y);
+                    if (team_choosen.has_value()) {
+                        // output_queue.push(Message(SelectTeamCommand(team_choosen.value())));
+                        std::cout << "Selected team" << std::endl;
+                        return;
+                    }
+                }
+                if (listTeamsRef.isActive()) {
+                    id_skin = skinSelectRef.updatePointerPosition(x, y);
+                    if (id_skin.has_value()) {
+                        // output_queue.push(Message(SelectSkinCommand(id_skin.value())));
+                        std::cout << "Selected skin: " << id_skin.value() << std::endl;
+                        return;
+                    }
                 }
                 return;
-
                 // output_queue.push(Message(ShootCommand())); //TODO_ADD SERVER
                 break;
             case SDL_BUTTON_RIGHT:

@@ -63,9 +63,10 @@ void SDLDisplay::run() {
     shopDisplay shop_display(window);
     Map map(window, player_name, state);
     listTeams list_teams(window);
+    skinSelect list_skins(window);
 
     input_handler = std::make_unique<SDLInput>(output_queue, quit_flag, list_teams, shop_display,
-                                               hud_display);
+                                               hud_display, list_skins);
     input_handler->start();
 
     update_state();
@@ -77,9 +78,10 @@ void SDLDisplay::run() {
         if (list_teams.isActive()) {
             list_teams.render();
         } else {
-            map.render();
-            hud_display.render();
-            shop_display.render();
+            list_skins.render();
+            // map.render();
+            // hud_display.render();
+            // shop_display.render();
         }
         window.render();
         return !quit_flag;
