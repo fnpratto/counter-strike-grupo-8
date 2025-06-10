@@ -44,3 +44,16 @@ public:
     std::map<GunType, int> get_gun_prices() const { return gun_prices; }
     std::map<GunType, int> get_ammo_prices() const { return ammo_prices; }
 };
+
+/**
+ * @class CharactersResponse
+ * @brief Response containing the characters information.
+ */
+class CharactersResponse {
+    std::vector<CharacterType> characters;
+
+public:
+    explicit CharactersResponse(std::vector<CharacterType> chars): characters(std::move(chars)) {}
+
+    std::vector<CharacterType> get_characters() const { return characters; }
+};
