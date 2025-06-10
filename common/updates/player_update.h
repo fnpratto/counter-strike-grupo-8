@@ -11,7 +11,7 @@
 #include "inventory_update.h"
 #include "state_update.h"
 
-#define PLAYER_ATTRS(X, M, U, V)     \
+#define PLAYER_ATTRS(X, M, U, O)     \
     X(Team, team)                    \
     X(CharacterType, character_type) \
     X(Vector2D, pos)                 \
@@ -20,6 +20,8 @@
     X(bool, ready)                   \
     X(int, health)                   \
     X(ItemSlot, equipped_item)       \
-    U(InventoryUpdate, inventory)
+    U(InventoryUpdate, inventory)    \
+    X(int, kills)                    \
+    X(int, deaths)
 
 DEFINE_UPDATE(PlayerUpdate, PLAYER_ATTRS)

@@ -1,11 +1,14 @@
 #include "game.h"
 
+#include <optional>
 #include <utility>
 
 #include "server/attack_effects/attack_effect.h"
 #include "server/errors.h"
 #include "server/player_message.h"
 #include "server/weapons/bomb.h"
+
+#include "target_type.h"
 
 Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map):
         Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.get_max_players())),
@@ -16,9 +19,10 @@ bool Game::is_full() const { return state.game_is_full(); }
 
 std::vector<PlayerMessage> Game::tick(const std::vector<PlayerMessage>& msgs) {
     state.clear_updates();
+
     advance_round_logic();
     for (const PlayerMessage& msg: msgs) handle_msg(msg.get_message(), msg.get_player_name());
-    process_attacks();
+    perform_attacks();
     advance_players_movement();
 
     GameUpdate update = state.get_updates();
@@ -60,14 +64,31 @@ void Game::advance_players_movement() {
     }
 }
 
-// TODO: process_attacks()
-//      - Access to weapons actually attacking
-//      - perform attack
-//      - if we have an AttackEffect, then:
-//              closest = physics_system.get_closest()
-//              if we have a closest player, then:
-//                      - effect.apply(closest player);
-void Game::process_attacks() {}
+void Game::perform_attacks() {
+    if (!state.get_phase().is_playing_phase())
+        return;
+    for (const auto& [player_name, player]: state.get_players()) {
+        auto effects = player->attack(state.get_phase().get_time_now());
+        if (effects.empty())
+            continue;
+
+        for (const auto& effect: effects) {
+            auto closest_target = physics_system.get_closest_target(player_name, effect->get_dir(),
+                                                                    effect->get_max_range());
+            if (!closest_target.has_value())
+                continue;
+
+            bool is_hit = false;
+            if (closest_target.value().is_player())
+                is_hit = effect->apply(closest_target.value().get_player().get());
+
+            HitResponse hit_response(player->get_pos(), closest_target.value().get_pos(),
+                                     effect->get_dir(), is_hit);
+            for (const auto& [p_name, _]: state.get_players())
+                output_messages.emplace_back(p_name, Message(hit_response));
+        }
+    }
+}
 
 void Game::join_player(const std::string& player_name) {
     if (player_name.empty())
@@ -201,13 +222,8 @@ void Game::handle<GetShopPricesCommand>(const std::string& player_name,
 template <>
 void Game::handle<AttackCommand>(const std::string& player_name,
                                  [[maybe_unused]] const AttackCommand& msg) {
-    if (!state.get_phase().is_playing_phase())
-        return;
-    (void)player_name;
-    // TODO:
-    //      - Current weapon of Player should be set in attacking
-    //      - We could keep a reference of the "attacking weapons"
-    //        in Game (to access later un process_attacks)
+    auto& player = state.get_player(player_name);
+    player->start_attacking();
 }
 
 template <>
@@ -225,6 +241,8 @@ void Game::handle<ReloadCommand>(const std::string& player_name,
 
 // TODO function map
 void Game::handle_msg(const Message& msg, const std::string& player_name) {
+    if (state.get_player(player_name)->is_dead())
+        return;
     MessageType msg_type = msg.get_type();
     std::cout << "Game::handle_msg: Received message of type: " << static_cast<int>(msg_type)
               << " from player: " << player_name << "\n";

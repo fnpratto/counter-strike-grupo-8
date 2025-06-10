@@ -2,11 +2,7 @@
 
 #include <cmath>
 
-#include "random_float_generator.h"
-
 class Vector2D {
-    static constexpr int meter_size = 64;  // 1 meter = 32 game world units
-
 private:
     int x;
     int y;
@@ -37,24 +33,19 @@ public:
 
     float length() const { return std::sqrt(x * x + y * y); }
 
-    // Normalize the vector to 1 meter_size
-    Vector2D normalized() const {
+    Vector2D normalized(int n) const {
         float norm = std::sqrt(x * x + y * y);
         if (norm == 0)
             return Vector2D(0, 0);
-        return Vector2D((x / norm) * meter_size, (y / norm) * meter_size);
+        return Vector2D((x / norm) * n, (y / norm) * n);
     }
 
-    Vector2D varied_dir_in_cone(float cone_max_angle_deg) const {
+    Vector2D rotated(float angle_deg) const {
+        float angle_rad = angle_deg * M_PI / 180.0f;
         float base_angle = std::atan2(y, x);
-
-        float cone_max_angle_rad = cone_max_angle_deg * M_PI / 180.0f;
-        RandomFloatGenerator rfg(-cone_max_angle_rad, cone_max_angle_rad);
-        float angle_offset = rfg.generate();
-
-        float varied_angle = base_angle + angle_offset;
-
-        return Vector2D(std::cos(varied_angle), std::sin(varied_angle));
+        float rotated_angle = base_angle + angle_rad;
+        float len = this->length();
+        return Vector2D(std::cos(rotated_angle) * len, std::sin(rotated_angle) * len);
     }
 
     ~Vector2D() {}

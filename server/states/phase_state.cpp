@@ -9,6 +9,8 @@ PhaseType PhaseState::get_phase() const { return phase; }
 TimePoint PhaseState::get_time() const { return time; }
 
 void PhaseState::set_phase(PhaseType new_phase) {
+    if (phase == new_phase)
+        return;
     phase = new_phase;
     updates.set_phase(new_phase);
 }

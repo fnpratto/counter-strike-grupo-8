@@ -9,7 +9,7 @@
 
 #include "state_update.h"
 
-#define PHASE_ATTRS(X, M, U, V) \
+#define PHASE_ATTRS(X, M, U, O) \
     X(PhaseType, phase)         \
     X(TimePoint, time)
 
