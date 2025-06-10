@@ -13,9 +13,13 @@
 #include "server/states/player_state.h"
 
 #include "inventory.h"
+#include "scoreboard_entry.h"
 
 
 class Player: public Logic<PlayerState, PlayerUpdate> {
+private:
+    ScoreboardEntry scoreboard_entry;
+
 public:
     Player(Team team, Vector2D pos);
 

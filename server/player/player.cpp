@@ -36,7 +36,7 @@ void Player::take_damage(int damage) {
         state.set_health(health - damage);
     } else {
         state.set_health(0);
-        state.increment_deaths();
+        scoreboard_entry.deaths++;
     }
 }
 
@@ -96,4 +96,4 @@ void Player::reload() {
     gun->reload();
 }
 
-void Player::increment_kills() { state.increment_kills(); }
+void Player::increment_kills() { scoreboard_entry.kills++; }
