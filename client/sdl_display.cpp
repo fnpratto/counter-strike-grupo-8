@@ -77,11 +77,12 @@ void SDLDisplay::run() {
         window.fill();
         if (list_teams.isActive()) {
             list_teams.render();
-        } else {
+        } else if (list_skins.isActive()) {
             list_skins.render();
-            // map.render();
-            // hud_display.render();
-            // shop_display.render();
+        } else {
+            map.render();
+            hud_display.render();
+            shop_display.render();
         }
         window.render();
         return !quit_flag;

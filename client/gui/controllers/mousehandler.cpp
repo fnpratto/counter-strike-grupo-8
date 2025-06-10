@@ -42,8 +42,9 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
                         std::cout << "Selected team" << std::endl;
                         return;
                     }
+                    return;
                 }
-                if (listTeamsRef.isActive()) {
+                if (skinSelectRef.isActive()) {
                     id_skin = skinSelectRef.updatePointerPosition(x, y);
                     if (id_skin.has_value()) {
                         // output_queue.push(Message(SelectSkinCommand(id_skin.value())));
