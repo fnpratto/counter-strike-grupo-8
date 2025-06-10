@@ -7,7 +7,7 @@ TEST(YamlTest, LoadMap) {
     YAML::Node data = YAML::LoadFile("./tests/server/map/map.yaml");
 
     ASSERT_TRUE(data["name"]);
-    ASSERT_TRUE(data["tile_size"]);
+    ASSERT_TRUE(data["max_players"]);
     EXPECT_NO_THROW(data["name"].as<std::string>());
-    EXPECT_NO_THROW(data["tile_size"].as<int>());
+    EXPECT_NO_THROW(data["max_players"].as<int>());
 }

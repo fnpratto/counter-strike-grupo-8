@@ -192,7 +192,6 @@ protected:
     template <typename T>
     typename std::enable_if<std::is_enum<T>::value, payload_t>::type serialize(
             const T& enum_value) const {
-
         return serialize(static_cast<uint8_t>(enum_value));
     }
 

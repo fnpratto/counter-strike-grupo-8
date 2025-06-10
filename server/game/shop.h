@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 
 #include "common/models.h"
 #include "server/errors.h"
@@ -44,14 +45,15 @@ public:
         inventory.set_money(inventory.get_money() - price);
     }
 
-    void buy_ammo(Inventory& inventory, const WeaponSlot& slot) const {
-        GunType gun_type = inventory.get_gun(slot)->get_type();
+    void buy_ammo(Inventory& inventory, const ItemSlot& slot) const {
+        auto& gun = inventory.get_gun(slot);
+        GunType gun_type = gun->get_type();
         int price = ammo_prices.at(gun_type);
 
         if (inventory.get_money() < price)
             throw BuyAmmoError();
 
-        inventory.get_gun(slot)->add_mag();
+        gun->add_mag();
         inventory.set_money(inventory.get_money() - price);
     }
 

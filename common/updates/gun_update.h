@@ -7,10 +7,10 @@
 
 #include "state_update.h"
 
-#define GUN_ATTRS(X, M, U)  \
-    X(GunType, gun)         \
-    X(int, bullets_per_mag) \
-    X(int, mag_ammo)        \
+#define GUN_ATTRS(X, M, U, V) \
+    X(GunType, gun)           \
+    X(int, bullets_per_mag)   \
+    X(int, mag_ammo)          \
     X(int, reserve_ammo)
 
 DEFINE_UPDATE(GunUpdate, GUN_ATTRS)

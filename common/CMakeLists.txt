@@ -6,22 +6,22 @@ target_sources(taller_common
     resolver.cpp
     resolvererror.cpp
     socket.cpp
+    utils/rate_controller.cpp
     PUBLIC
     # .h files
     utils/vector_2d.h
+    utils/rate_controller.h
     commands.h
     updates/state_update.h
     updates/game_update.h
     updates/phase_update.h
     updates/player_update.h
     updates/inventory_update.h
-    updates/utility_update.h
     updates/gun_update.h
     ../server/states/state.h
     ../server/states/game_state.h
     ../server/states/gun_state.h
     ../server/states/inventory_state.h
-    ../server/states/utility_state.h
     ../server/states/phase_state.h
     ../server/states/player_state.h
     liberror.h

@@ -1,16 +1,16 @@
 #pragma once
 
+#include <memory>
 #include <utility>
+#include <vector>
 
 #include "common/models.h"
 #include "common/updates/player_update.h"
 #include "common/utils/vector_2d.h"
+#include "server/attack_effects/attack_effect.h"
 #include "server/clock/clock.h"
 #include "server/logic.h"
 #include "server/states/player_state.h"
-#include "server/weapons/bomb.h"
-#include "server/weapons/bullet.h"
-#include "server/weapons/knife.h"
 
 #include "inventory.h"
 
@@ -26,23 +26,25 @@ public:
 
     Vector2D get_pos() const;
     Vector2D get_move_dir() const;
+    Inventory& get_inventory();
 
     void set_ready();
 
+    void take_damage(int damage);
+
     void select_team(Team team);
 
-    // TODO: Player gain money after round finished
-    void gain_money(int amount);
-    void pick_bomb();
+    void pick_bomb(Bomb&& bomb);
 
     void start_moving(Vector2D velocity);
     void stop_moving();
     void move_to_pos(Vector2D new_pos);
 
-    void aim(float x, float y);
-    void equip_weapon(WeaponSlot slot);
+    void aim(const Vector2D& direction);
 
-    Inventory& get_inventory();
+    std::vector<std::unique_ptr<AttackEffect>> attack(TimePoint now);
+
+    void equip_item(ItemSlot slot);
 
     void reload();
 };

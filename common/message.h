@@ -29,9 +29,9 @@
     F(MoveCommand, MOVE_CMD)                           \
     F(StopPlayerCommand, STOP_PLAYER_CMD)              \
     F(AimCommand, AIM_CMD)                             \
-    F(ShootCommand, SHOOT_CMD)                         \
+    F(AttackCommand, ATTACK_CMD)                       \
     F(ReloadCommand, RELOAD_CMD)                       \
-    F(SwitchWeaponCommand, SWITCH_WEAPON_CMD)          \
+    F(SwitchItemCommand, SWITCH_ITEM_CMD)              \
     F(PlantBombCommand, PLANT_BOMB_CMD)                \
     F(DefuseBombCommand, DEFUSE_BOMB_CMD)              \
     F(PickUpItemCommand, PICK_UP_ITEM_CMD)             \

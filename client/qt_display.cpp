@@ -1,6 +1,5 @@
 #include "qt_display.h"
 
-#include <QApplication>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -11,9 +10,9 @@
 #include "display.h"
 
 QtDisplay::QtDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue):
-        Display(input_queue, output_queue) {}
-void QtDisplay::run() {
+        LobbyDisplay(input_queue, output_queue) {}
 
+void QtDisplay::run() {
     /*int argc = 0;
     QApplication app(argc, nullptr);
 
@@ -26,4 +25,4 @@ void QtDisplay::run() {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
-void QtDisplay::stop() { Thread::stop(); }
+void QtDisplay::stop() { app.quit(); }

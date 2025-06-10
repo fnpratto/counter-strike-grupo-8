@@ -6,29 +6,19 @@
 #include "common/models.h"
 #include "common/utils/random_float_generator.h"
 #include "common/utils/vector_2d.h"
+#include "server/attack_effects/attack_effect.h"
 #include "server/clock/clock.h"
 #include "server/logic.h"
-#include "server/map/map.h"
 #include "server/states/gun_state.h"
 
-#include "bullet.h"
+#include "weapon.h"
 
-class Gun: public Logic<GunState, GunUpdate> {
-protected:
-    TimePoint time_last_shoot = TimePoint{};
-
+class Gun: public Logic<GunState, GunUpdate>, public Weapon {
 public:
     Gun(GunType gun, int bullets_per_mag, int mag_ammo, int reserve_ammo):
             Logic<GunState, GunUpdate>(GunState(gun, bullets_per_mag, mag_ammo, reserve_ammo)) {}
 
-    bool can_shoot(const float fire_rate, TimePoint now) {
-        if (state.get_mag_ammo() == 0)
-            return false;
-        std::chrono::duration<float> secs_btw_shoots = now - time_last_shoot;
-        if (secs_btw_shoots.count() < (1.0f / fire_rate))
-            return false;
-        return true;
-    }
+    bool has_ammo() { return state.get_mag_ammo() > 0; }
 
     GunType get_type() const { return state.get_gun(); }
     int get_bullets_per_mag() const { return state.get_bullets_per_mag(); }
@@ -49,14 +39,6 @@ public:
         RandomFloatGenerator rfg(min_dam, max_dam);
         return rfg.generate();
     }
-
-    Vector2D get_bullet_dir(const Vector2D& origin, const Vector2D& dest) {
-        Vector2D dir(origin, dest);
-        return dir.normalized();
-    }
-
-    virtual std::vector<Bullet> shoot(const Vector2D& origin, const Vector2D& dest,
-                                      TimePoint now) = 0;
 
     void reload() {
         int bullets_to_reload = state.get_bullets_per_mag() - state.get_mag_ammo();

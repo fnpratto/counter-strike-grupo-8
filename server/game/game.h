@@ -44,20 +44,14 @@ public:
     ~Game();
 
 private:
-    bool player_is_in_game(const std::string& player_name) const;
-    bool team_is_full(const Team& team) const;
-    bool all_players_ready() const;
-
     void give_bomb_to_random_tt();
-
-    void swap_teams();
 
     void handle_msg(const Message& msg, const std::string& player_name);
 
     template <typename T>
     void handle(const std::string& player_name, const T& msg);
 
-    void advance_players_movement();
     void advance_round_logic();
-    void advance_round();
+    void advance_players_movement();
+    void process_attacks();
 };
