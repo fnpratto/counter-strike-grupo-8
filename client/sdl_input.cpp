@@ -6,11 +6,11 @@
 #include "gui/controllers/mousehandler.h"
 
 SDLInput::SDLInput(Queue<Message>& queue, std::atomic<bool>& quit_flag, listTeams& listRef,
-                   shopDisplay& shopRef, hudDisplay& hudRef):
+                   shopDisplay& shopRef, hudDisplay& hudRef, skinSelect& skinSelectRef):
         quit_flag(quit_flag),
         queue(queue),
-        mouseHandler(queue, listRef, shopRef, hudRef),
-        keyboardHandler(queue) {}
+        mouseHandler(queue, listRef, shopRef, hudRef, skinSelectRef),
+        keyboardHandler(queue, shopRef) {}
 
 
 void SDLInput::run() {
@@ -24,7 +24,7 @@ void SDLInput::run() {
                 quit_flag = true;
             }
             keyboardHandler.handleEvent(e);
-            mouseHandler.handleEvent(e, false, false);  // TODO: shop and list_teams flags
+            mouseHandler.handleEvent(e);  // TODO: shop and list_teams flags
         }
     }
     std::cout << "SDLInput thread stopped\n";

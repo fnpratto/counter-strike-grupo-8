@@ -5,6 +5,7 @@
 #include "gui/controllers/mousehandler.h"
 #include "gui/hud_component/hud_display.h"
 #include "gui/map_view/map_view.h"
+#include "gui/pre_game_view/list_skins.h"
 #include "gui/pre_game_view/list_teams.h"
 #include "gui/shop_view/shop.h"
 
@@ -18,7 +19,7 @@ private:
 
 public:
     SDLInput(Queue<Message>& queue, std::atomic<bool>& quit_flag, listTeams& listRef,
-             shopDisplay& shopRef, hudDisplay& hudRef);
+             shopDisplay& shopRef, hudDisplay& hudRef, skinSelect& skinSelectRef);
 
     void run() override;
     void stop() override {

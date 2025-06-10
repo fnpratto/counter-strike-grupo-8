@@ -169,15 +169,6 @@ void Map::render() {
     Area iconDest(character_x - camera.get_offset().get_x(),
                   character_y - camera.get_offset().get_y(), currentClip->w * 1.5,
                   currentClip->h * 1.5);
-    std::cout << "Rendering character at tile ("
-              << game_state.get_players().at(player_name).get_pos().get_x() -
-                         camera.get_offset().get_x()
-              << ", "
-              << game_state.get_players().at(player_name).get_pos().get_y() -
-                         camera.get_offset().get_y()
-              << ")" << std::endl;
-    std::cout << "Rendering character at tile (" << character_x - camera.get_offset().get_x()
-              << ", " << character_y - camera.get_offset().get_y() << ")" << std::endl;
 
     // TODO RENDERIZAR JUGADORES QUE ESTEN A LA VISTA
 
