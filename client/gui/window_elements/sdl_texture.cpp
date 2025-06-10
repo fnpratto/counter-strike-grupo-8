@@ -12,6 +12,11 @@ SdlTexture::SdlTexture(const std::string& filename, const SdlWindow& window):
     this->texture = loadTexture(filename);
 }
 
+SdlTexture::SdlTexture(const std::string& filename, const SdlWindow& window, int width, int height):
+        width(width), height(height), renderer(window.getRenderer()) {
+    this->texture = loadTexture(filename);
+}
+
 SdlTexture::~SdlTexture() { SDL_DestroyTexture(this->texture); }
 
 SDL_Texture* SdlTexture::loadTexture(const std::string& filename) {
@@ -27,4 +32,19 @@ int SdlTexture::render(const Area& src, const Area& dest) const {
     SDL_Rect sdlDest = {dest.getX(), dest.getY(), dest.getWidth(), dest.getHeight()};
 
     return SDL_RenderCopy(this->renderer, this->texture, &sdlSrc, &sdlDest);
+}
+
+void SdlTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center,
+                        SDL_RendererFlip flip) {
+    // Set rendering space and render to screen
+    SDL_Rect renderQuad = {x, y, width, height};
+
+    // Set clip rendering dimensions
+    if (clip != NULL) {
+        renderQuad.w = clip->w;
+        renderQuad.h = clip->h;
+    }
+
+    // Render to screen
+    SDL_RenderCopyEx(renderer, texture, clip, &renderQuad, angle, center, flip);
 }

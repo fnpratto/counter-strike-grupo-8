@@ -27,7 +27,12 @@ private:
 public:
     Camera(int screen_width, int screen_height);
     void center(const Vector2D& target_pos);
-    Vector2D get_offset() const;
+    bool can_see(const Vector2D& target_pos) const {
+        return target_pos.get_x() >= offset.get_x() &&
+               target_pos.get_x() <= offset.get_x() + screen_width &&
+               target_pos.get_y() >= offset.get_y() &&
+               target_pos.get_y() <= offset.get_y() + screen_height;
+    }
     ~Camera();
 };
 

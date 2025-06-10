@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -17,17 +18,7 @@
 #include "common/updates/game_update.h"
 
 #include "camera.h"
-
-enum Direction {
-    DIR_UP,
-    DIR_DOWN,
-    DIR_LEFT,
-    DIR_RIGHT,
-    DIR_UP_LEFT,
-    DIR_UP_RIGHT,
-    DIR_DOWN_LEFT,
-    DIR_DOWN_RIGHT
-};
+#include "character.h"
 
 class Map {
 public:
@@ -39,19 +30,10 @@ private:
     SdlWindow& window;
     SdlTexture background;
     SdlTexture tiles_area;
-    SdlTexture character;
     YAML::Node yaml_map_data;
     const int DISPLAY_WIDTH;
     const int DISPLAY_HEIGHT;
-    int character_x;
-    int character_y;
-    Direction current_direction;
-    int animation_frame = 0;
-    SDL_Rect walkDownClips[6];
-    SDL_Rect walkUpClips[6];
-    SDL_Rect walkLeftClips[6];
-    SDL_Rect walkRightClips[6];
-    SDL_Rect* currentClip;
+    std::map<std::string, Character> characters;
     Camera camera;
     const std::string& player_name;
     const GameUpdate& game_state;
