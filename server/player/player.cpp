@@ -28,6 +28,8 @@ Vector2D Player::get_move_dir() const { return state.get_velocity(); }
 
 Inventory& Player::get_inventory() { return state.get_inventory(); }
 
+ScoreboardEntry Player::get_scoreboard_entry() const { return scoreboard_entry; }
+
 void Player::set_ready() { state.set_ready(true); }
 
 void Player::take_damage(int damage) {

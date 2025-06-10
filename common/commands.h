@@ -205,3 +205,9 @@ public:
     explicit SelectCharacterCommand(CharacterType character_type): character_type(character_type) {}
     CharacterType get_character_type() const { return character_type; }
 };
+
+/**
+ * @class GetScoreboardCommand
+ * @brief Command to request the scoreboard information.
+ */
+class GetScoreboardCommand: public Command {};

@@ -3,6 +3,7 @@
 #include <optional>
 #include <utility>
 
+#include "common/scoreboard/scoreboard_entry.h"
 #include "server/attack_effects/attack_effect.h"
 #include "server/errors.h"
 #include "server/player_message.h"
@@ -242,6 +243,15 @@ void Game::handle<ReloadCommand>(const std::string& player_name,
     player->reload();
 }
 
+template <>
+void Game::handle<GetScoreboardCommand>(const std::string& player_name,
+                                        [[maybe_unused]] const GetScoreboardCommand& msg) {
+    std::map<std::string, ScoreboardEntry> scoreboard;
+    for (const auto& [p_name, player]: state.get_players())
+        scoreboard.emplace(p_name, player->get_scoreboard_entry());
+    output_messages.emplace_back(player_name, Message(ScoreboardResponse(std::move(scoreboard))));
+}
+
 // TODO function map
 void Game::handle_msg(const Message& msg, const std::string& player_name) {
     if (state.get_player(player_name)->is_dead())
@@ -288,6 +298,9 @@ void Game::handle_msg(const Message& msg, const std::string& player_name) {
             break;
         case MessageType::GET_SHOP_PRICES_CMD:
             handle(player_name, msg.get_content<GetShopPricesCommand>());
+            break;
+        case MessageType::GET_SCOREBOARD_CMD:
+            handle(player_name, msg.get_content<GetScoreboardCommand>());
             break;
         default:
             throw std::runtime_error("Invalid message type: " +

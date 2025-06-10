@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "common/models.h"
+#include "common/scoreboard/scoreboard_entry.h"
 #include "common/updates/player_update.h"
 #include "common/utils/vector_2d.h"
 #include "server/attack_effects/attack_effect.h"
@@ -13,7 +14,6 @@
 #include "server/states/player_state.h"
 
 #include "inventory.h"
-#include "scoreboard_entry.h"
 
 
 class Player: public Logic<PlayerState, PlayerUpdate> {
@@ -32,6 +32,7 @@ public:
     Vector2D get_pos() const;
     Vector2D get_move_dir() const;
     Inventory& get_inventory();
+    ScoreboardEntry get_scoreboard_entry() const;
 
     void set_ready();
 
