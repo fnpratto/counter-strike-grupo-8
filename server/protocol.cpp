@@ -132,6 +132,20 @@ SelectTeamCommand ServerProtocol::deserialize_msg<SelectTeamCommand>(payload_t& 
 }
 
 template <>
+GetCharactersCommand ServerProtocol::deserialize_msg<GetCharactersCommand>(
+        payload_t& payload) const {
+    (void)payload;
+    return GetCharactersCommand();
+}
+
+template <>
+SelectCharacterCommand ServerProtocol::deserialize_msg<SelectCharacterCommand>(
+        payload_t& payload) const {
+    uint8_t character_type = deserialize<uint8_t>(payload);
+    return SelectCharacterCommand(static_cast<CharacterType>(character_type));
+}
+
+template <>
 StartGameCommand ServerProtocol::deserialize_msg<StartGameCommand>(payload_t& payload) const {
     (void)payload;
     return StartGameCommand();
@@ -222,6 +236,10 @@ Message ServerProtocol::deserialize_message(const MessageType& msg_type, payload
             return Message(deserialize_msg<JoinGameCommand>(payload));
         case MessageType::SELECT_TEAM_CMD:
             return Message(deserialize_msg<SelectTeamCommand>(payload));
+        case MessageType::GET_CHARACTERS_CMD:
+            return Message(deserialize_msg<GetCharactersCommand>(payload));
+        case MessageType::SELECT_CHARACTER_CMD:
+            return Message(deserialize_msg<SelectCharacterCommand>(payload));
         case MessageType::START_GAME_CMD:
             return Message(deserialize_msg<StartGameCommand>(payload));
         case MessageType::BUY_GUN_CMD:

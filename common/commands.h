@@ -199,9 +199,9 @@ class GetCharactersCommand: public Command {};
  * @brief Command to choose a character for the player.
  */
 class SelectCharacterCommand: public Command {
-    CharacterType character;
+    CharacterType character_type;
 
 public:
-    explicit SelectCharacterCommand(CharacterType character): character(character) {}
-    CharacterType get_character() const { return character; }
+    explicit SelectCharacterCommand(CharacterType character_type): character_type(character_type) {}
+    CharacterType get_character_type() const { return character_type; }
 };

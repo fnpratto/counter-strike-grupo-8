@@ -34,6 +34,8 @@ public:
 
     void select_team(Team team);
 
+    void select_character(CharacterType character_type);
+
     void pick_bomb(Bomb&& bomb);
 
     void start_moving(Vector2D velocity);

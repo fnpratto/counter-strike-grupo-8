@@ -37,6 +37,13 @@ void PlayerState::set_team(Team new_team) {
     updates.set_team(new_team);
 }
 
+void PlayerState::set_character_type(CharacterType new_character_type) {
+    if (character_type == new_character_type)
+        return;
+    character_type = new_character_type;
+    updates.set_character_type(new_character_type);
+}
+
 void PlayerState::set_pos(Vector2D new_pos) {
     if (pos == new_pos)
         return;

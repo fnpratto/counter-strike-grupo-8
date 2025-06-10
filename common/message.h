@@ -24,6 +24,8 @@
     F(JoinGameCommand, JOIN_GAME_CMD)                  \
     F(ListGamesCommand, LIST_GAMES_CMD)                \
     F(SelectTeamCommand, SELECT_TEAM_CMD)              \
+    F(GetCharactersCommand, GET_CHARACTERS_CMD)        \
+    F(SelectCharacterCommand, SELECT_CHARACTER_CMD)    \
     F(StartGameCommand, START_GAME_CMD)                \
     F(BuyGunCommand, BUY_GUN_CMD)                      \
     F(BuyAmmoCommand, BUY_AMMO_CMD)                    \
@@ -37,8 +39,6 @@
     F(DefuseBombCommand, DEFUSE_BOMB_CMD)              \
     F(PickUpItemCommand, PICK_UP_ITEM_CMD)             \
     F(GetShopPricesCommand, GET_SHOP_PRICES_CMD)       \
-    F(GetCharactersCommand, GET_CHARACTERS_CMD)        \
-    F(SelectCharacterCommand, SELECT_CHARACTER_CMD)    \
     F(LeaveGameCommand, LEAVE_GAME_CMD)                \
     F(GameUpdate, GAME_UPDATE)
 #define MESSAGE_TYPE_MAP_LAST(F) F(std::nullptr_t, NONE)

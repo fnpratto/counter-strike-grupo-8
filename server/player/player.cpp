@@ -40,6 +40,10 @@ void Player::pick_bomb(Bomb&& bomb) { state.add_bomb(std::move(bomb)); }
 
 void Player::select_team(Team team) { state.set_team(team); }
 
+void Player::select_character(CharacterType character_type) {
+    state.set_character_type(character_type);
+}
+
 void Player::start_moving(Vector2D velocity) { state.set_velocity(velocity); }
 
 void Player::stop_moving() { state.set_velocity(Vector2D(0.0f, 0.0f)); }
