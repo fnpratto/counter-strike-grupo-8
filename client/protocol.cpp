@@ -22,6 +22,8 @@
 #include "errors.h"
 #include "protocol.h"
 
+#define ATTR(...) __VA_ARGS__
+
 // === Serialization ===
 
 template <>
@@ -230,10 +232,10 @@ ShopPricesResponse ClientProtocol::deserialize_msg<ShopPricesResponse>(payload_t
         std::optional<type> attr = deserialize_optional<type>(payload); \
         result.set_##attr(attr);                                        \
     }
-#define V_DESERIALIZE_UPDATE(type, attr)                            \
-    if (deserialize<bool>(payload)) {                               \
-        std::vector<type> attr = deserialize_vector<type>(payload); \
-        result.set_##attr(attr);                                    \
+#define V_DESERIALIZE_UPDATE(type, attr)                                      \
+    if (deserialize<bool>(payload)) {                                         \
+        std::vector<ATTR type> attr = deserialize_vector<ATTR type>(payload); \
+        result.set_##attr(attr);                                              \
     }
 
 #define DESERIALIZE_UPDATE(CLASS, ATTRS)                                         \
