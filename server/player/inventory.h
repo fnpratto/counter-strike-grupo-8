@@ -19,14 +19,13 @@ public:
         state.set_gun(ItemSlot::Secondary, Gun::make_glock());
     }
 
-    // TODO is this needed?
-    // Delete copy constructor and copy assignment operator
     Inventory(const Inventory&) = delete;
     Inventory& operator=(const Inventory&) = delete;
 
-    // Enable move constructor and move assignment operator
     Inventory(Inventory&&) = default;
     Inventory& operator=(Inventory&&) = default;
+
+    bool has_gun_in_slot(ItemSlot slot);
 
     int get_money() const { return state.get_money(); }
     std::unique_ptr<Gun>& get_gun(const ItemSlot& slot);
@@ -35,5 +34,6 @@ public:
 
     void set_money(int new_money) { state.set_money(new_money); }
     void add_primary_weapon(const GunType& weapon_type);
+    std::unique_ptr<Gun> remove_primary_weapon();
     void add_bomb(Bomb&& bomb);
 };

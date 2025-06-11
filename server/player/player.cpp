@@ -107,3 +107,10 @@ void Player::add_rewards(int score, int bonification) {
     state.get_inventory().set_money(old_money + bonification);
     scoreboard_entry.money = state.get_inventory().get_money();
 }
+
+std::optional<std::unique_ptr<Gun>> Player::drop_primary_weapon() {
+    if (!state.get_inventory().has_gun_in_slot(ItemSlot::Primary))
+        return std::optional<std::unique_ptr<Gun>>();
+    auto gun = state.get_inventory().remove_primary_weapon();
+    return gun;
+}

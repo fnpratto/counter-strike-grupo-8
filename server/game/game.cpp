@@ -183,8 +183,11 @@ void Game::handle<BuyGunCommand>(const std::string& player_name, const BuyGunCom
     if (!physics_system.player_in_spawn(player_name))
         return;
 
-
     auto& player = state.get_player(player_name);
+    auto gun = player->drop_primary_weapon();
+    if (gun.has_value())
+        state.add_dropped_gun(std::move(gun.value()), player->get_pos());
+
     shop.buy_gun(player->get_inventory(), msg.get_gun());
 }
 

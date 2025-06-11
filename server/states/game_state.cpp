@@ -84,6 +84,10 @@ void GameState::add_player(const std::string& player_name, std::unique_ptr<Playe
     players[player_name] = std::move(player);
 }
 
+void GameState::add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos) {
+    dropped_guns.emplace_back(std::move(gun), pos);
+}
+
 void GameState::clear_updates() {
     State<GameUpdate>::clear_updates();
     phase.clear_updates();

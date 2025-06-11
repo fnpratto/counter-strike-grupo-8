@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -60,4 +61,6 @@ public:
     void add_kill();
 
     void add_rewards(int score, int bonification);
+
+    std::optional<std::unique_ptr<Gun>> drop_primary_weapon();
 };
