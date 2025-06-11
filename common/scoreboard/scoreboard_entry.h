@@ -1,10 +1,10 @@
 #pragma once
 
 struct ScoreboardEntry {
+    int money;
     int kills;
     int deaths;
-    // TODO: mvp
     int score;
 
-    ScoreboardEntry(): kills(0), deaths(0), score(0) {}
+    explicit ScoreboardEntry(int money): money(money), kills(0), deaths(0), score(0) {}
 };

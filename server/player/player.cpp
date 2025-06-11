@@ -10,7 +10,8 @@
 Player::Player(Team team, Vector2D pos):
         Logic<PlayerState, PlayerUpdate>(
                 PlayerState(team, pos, Vector2D(0.0f, 0.0f), Vector2D(0.0f, 0.0f), false,
-                            PlayerConfig::full_health, ItemSlot::Secondary)) {}
+                            PlayerConfig::full_health, ItemSlot::Secondary)),
+        scoreboard_entry(state.get_inventory().get_money()) {}
 
 bool Player::is_ready() const { return state.get_ready(); }
 
@@ -104,4 +105,5 @@ void Player::add_rewards(int score, int bonification) {
     scoreboard_entry.score += score;
     int old_money = state.get_inventory().get_money();
     state.get_inventory().set_money(old_money + bonification);
+    scoreboard_entry.money = state.get_inventory().get_money();
 }
