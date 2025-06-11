@@ -39,7 +39,8 @@ public:
     void buy_gun(Inventory& inventory, const GunType& gun_type) const {
         int price = gun_prices.at(gun_type);
         if (inventory.get_money() < price)
-            throw BuyGunError();
+            // TODO: Error response
+            return;
 
         inventory.add_primary_weapon(gun_type);
         inventory.set_money(inventory.get_money() - price);

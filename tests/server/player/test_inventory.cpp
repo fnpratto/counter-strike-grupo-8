@@ -49,7 +49,7 @@ TEST_F(TestInventory, CannotBuyWeaponIfNotEnoughMoney) {
         initial_money = inventory.get_updates().get_money();
     }
 
-    EXPECT_THROW({ shop.buy_gun(inventory, gun); }, BuyGunError);
+    shop.buy_gun(inventory, gun);
     EXPECT_EQ(inventory.get_full_update().get_money(), initial_money);
 }
 
