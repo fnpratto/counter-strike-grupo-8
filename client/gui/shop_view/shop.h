@@ -18,6 +18,8 @@ public:
     void render();
     std::optional<Message> updatePointerPosition(int x, int y);
     void updateShopState(bool state);
+    void updatePrices(const ShopPricesResponse& response);
+    ItemSlot get_ammo_type(int id_slot);
     void getShopInfo();
 
 private:
@@ -39,6 +41,7 @@ private:
     bool active;
     void renderSlots();
     void renderItem();
+    void get_item_slots(int id_slot);
 };
 
 #endif  // SHOP_DISPLAY_H

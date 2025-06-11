@@ -40,10 +40,8 @@ public:
 private:
     int SCREEN_WIDTH;
     int SCREEN_HEIGHT;
+    std::unique_ptr<shopDisplay> shop_display;
     void setup();
-
-    void update_display(SdlWindow window, hudDisplay hud_display, shopDisplay shop_display, Map map,
-                        listTeams list_teams);
 
     GameUpdate get_initial_state();
     void update_state();

@@ -17,9 +17,8 @@ void QtDisplay::run() {
     login_window.show();
     app.exec();*/
 
-    output_queue.push(Message(ConnectionRequest("localhost", "2030")));
+    output_queue.push(Message(ConnectionRequest("localhost", "2031")));
     output_queue.push(Message(CreateGameCommand("TestGame", "Player1")));
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 void QtDisplay::stop() { app.quit(); }

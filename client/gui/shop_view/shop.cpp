@@ -15,27 +15,33 @@ const std::string& HUD_SLOT_PATH = "../assets/gfx/shop/hud_slot.xcf";
 const std::string& HUD_SLOT_CLICKED_PATH = "../assets/gfx/shop/hud_slot_clicked.xcf";
 const std::string& HUD_SLOT_BLOCKED_PATH = "../assets/gfx/shop/hud_slot_blocked.xcf";
 const std::string& FONT_PAT = "../assets/gfx/fonts/joystix_monospace.otf";
-const std::string& AMMO_PATH = "../assets/gfx/guns/AMMO.xcf";
-const std::string& GUNS_PATH_AMMO1 = "../assets/gfx/guns/ammo.xcf";
-const std::string& GUNS_PATH_AMMO2 = "../assets/gfx/guns/ammo1.xcf";
-
+const std::string& AMMO_PATH = "../assets/gfx/guns/ammo.xcf";
 struct GunInfo {
     std::string id;
     std::string name_2;
     std::string price;
 };
 
-std::map<int, GunType> gunIndexMap = {
-        {0, GunType::AK47}, {1, GunType::M3}, {2, GunType::AWP}, {3, GunType::Glock}};
+struct AmmoInfo {
+    std::string id;
+    std::string name_2;
+    std::string price;
+};
 
-std::map<int, ItemSlot> ammoIndexMap = {{4, ItemSlot::Primary}, {5, ItemSlot::Secondary}};
-// std::vector<int> render_order = {0, 2, 1, 5, 4, 6, 3, 7};
+std::map<int, GunType> gunIndexMap = {{0, GunType::AK47}, {1, GunType::M3}, {2, GunType::AWP}};
+
+std::map<int, GunType> ammoIndexMap = {
+        {4, GunType::AK47}, {5, GunType::M3}, {6, GunType::AWP}, {7, GunType::Glock}};
 
 std::vector<GunInfo> guns = {{"1", "", "1000"},  // gun at (0,0)
                              {"2", "", "1500"},  // gun at (64,0)
-                             {"3", "", "20"},    // gun at (128,0)
-                             {"4", "", ""},     {"5", "", "2000"}, {"6", "", "10"},
-                             {"7", "", "30"},   {"8", "", ""}};
+                             {"3", "", "20"}};   // gun at (192,0)
+
+std::vector<AmmoInfo> ammo = {{"4", "", "200"},  // ammo at (0,64)
+                              {"5", "", "300"},  // ammo at (64,64)
+                              {"6", "", "400"},  // ammo at (128,64)
+                              {"7", "", "500"},
+                              {"8", "", ""}};  // ammo at (192,64)
 
 shopDisplay::shopDisplay(SdlWindow& window, const GameUpdate& state):
         window(window),
@@ -50,12 +56,10 @@ shopDisplay::shopDisplay(SdlWindow& window, const GameUpdate& state):
         gunNumber(FONT_PAT, 20, {255, 255, 255, 255}, window),
         gun_buy(-1) {
 
-
     float BASE_WIDTH = 800.0f;
     float BASE_HEIGHT = 600.0f;
     float scale_w = DISPLAY_WIDTH / BASE_WIDTH;
     float scale_h = DISPLAY_HEIGHT / BASE_HEIGHT;
-
 
     size_guns_w = 150 * scale_w;
     size_guns_h = 40 * scale_h;
@@ -67,8 +71,69 @@ shopDisplay::shopDisplay(SdlWindow& window, const GameUpdate& state):
 }
 void shopDisplay::updateShopState(bool state) { active = state; }
 
+void shopDisplay::updatePrices(const ShopPricesResponse& response) {
+    auto gun_prices = response.get_gun_prices();
+    for (const auto& [gun_type, price]: gun_prices) {
+        // match gun_type to your guns[i] index
+        switch (gun_type) {
+            case GunType::AK47:
+                guns[0].price = std::to_string(price);
+                guns[0].id = "1";
+                break;
+            case GunType::M3:
+                guns[1].price = std::to_string(price);
+                guns[1].id = "2";
+                break;
+            case GunType::AWP:
+                guns[2].price = std::to_string(price);
+                guns[2].id = "3";
+                break;
+            default:
+                break;
+        }
+    }
 
-void shopDisplay::getShopInfo() {}
+    /*
+       ammo_prices[GunType::AK47] = PRICE_MAG_AK47;
+       ammo_prices[GunType::M3] = PRICE_MAG_M3;
+       ammo_prices[GunType::AWP] = PRICE_MAG_AWP;
+       ammo_prices[GunType::Glock] = PRICE_MAG_GLOCK;
+    */
+    auto ammo_prices = response.get_ammo_prices();
+    std::cerr << "Ammo prices received: " << ammo_prices.size() << std::endl;
+    std::cout << "Ammo prices: " << std::endl;
+    for (const auto& [ammo_type, price]: ammo_prices) {
+        std::cout << "Gun Type: " << static_cast<int>(ammo_type) << ", Price: " << price
+                  << std::endl;
+        switch (ammo_type) {
+            case GunType::AK47:
+                ammo[0].price = std::to_string(price);
+                ammo[0].id = "4";
+                break;
+            case GunType::M3:
+                ammo[1].price = std::to_string(price);
+                ammo[1].id = "5";
+                break;
+            case GunType::AWP:
+                ammo[2].price = std::to_string(price);
+                ammo[2].id = "6";
+                break;
+            case GunType::Glock:
+                ammo[3].price = std::to_string(price);
+                ammo[3].id = "7";
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+ItemSlot shopDisplay::get_ammo_type(int id_slot) {
+    if (id_slot != 7) {
+        return ItemSlot::Secondary;
+    }
+    return ItemSlot::Primary;
+}
 
 void shopDisplay::render() {
     if (active) {
@@ -81,7 +146,7 @@ void shopDisplay::render() {
 void shopDisplay::renderSlots() {
     int base_x = DISPLAY_WIDTH / 2 - size_slots_w * 2;
     int base_y = DISPLAY_HEIGHT / 2 - size_slots_h * 2;
-    for (size_t i = 0; i < guns.size() / 2; ++i) {
+    for (size_t i = 0; i < (guns.size() + ammo.size()) / 2; ++i) {
         for (int j = 0; j < 2; ++j) {
             Area src(0, 0, size_guns_w, size_guns_h);
             Area dest(base_x + j * (size_guns_w * 2), base_y + i * (size_guns_h * 2),
@@ -96,14 +161,10 @@ void shopDisplay::renderSlots() {
 }
 
 void shopDisplay::renderItem() {
-    // Custom render order (flat)
-    std::vector<int> render_order = {0, 2, 1, 5, 4, 6, 3, 7};
 
-    for (size_t idx = 0; idx < render_order.size(); ++idx) {
-        int i = render_order[idx];
-
-        int row = idx / 2;
-        int col = idx % 2;
+    for (size_t i = 0; i < guns.size(); ++i) {
+        int row = i / 2;
+        int col = i % 2;
 
         int x = DISPLAY_WIDTH / 2 - size_slots_w * 2 + 10 + col * (size_guns_w * 2 + 10);
         int y = DISPLAY_HEIGHT / 2 - size_slots_h * 2 + 20 + row * (size_guns_h * 2);
@@ -128,40 +189,62 @@ void shopDisplay::renderItem() {
         Area priceDest(x + size_guns_w + 10, y, 100, 40);
         cost_money.render(priceDest);
     }
+    for (size_t i = 0; i < ammo.size(); ++i) {
+        int row = (guns.size() + i) / 2;
+        int col = (guns.size() + i) % 2;
+
+        int x = DISPLAY_WIDTH / 2 - size_slots_w * 2 + 10 + col * (size_guns_w * 2 + 10);
+        int y = DISPLAY_HEIGHT / 2 - size_slots_h * 2 + 20 + row * (size_guns_h * 2);
+
+        Area src(0, 0, 60, 30);
+        Area iconDest(x + 30, y, size_guns_w - 60, size_guns_h + 10);
+        ammo_icons.render(src, iconDest);
+
+        gunNumber.setTextString(ammo[i].id);
+        Area numDest(x, y - 10, 15, 15);
+        gunNumber.render(numDest);
+
+        if (ammo[i].price.empty()) {
+            cost_money.setTextString("Not Available");
+        } else {
+            cost_money.setTextString("$" + ammo[i].price);
+        }
+        Area priceDest(x + size_guns_w + 10, y, 100, 40);
+        cost_money.render(priceDest);
+    }
 }
 
 std::optional<Message> shopDisplay::updatePointerPosition(int x, int y) {
     if (!active) {
         return std::nullopt;
     }
-    for (size_t i = 0; i < 6 / 2; ++i) {
-        if (x >= DISPLAY_WIDTH / 2 - size_slots_w * 2 &&
-            x <= DISPLAY_WIDTH / 2 + size_slots_w * 2 &&
-            y >= DISPLAY_HEIGHT / 2 - size_slots_h * 2 &&
-            y <= DISPLAY_HEIGHT / 2 + size_slots_h * 2) {
-            std::cerr << "Mouse is inside the shop display area." << std::endl;
-        } else {
-            std::cerr << "Mouse is outside the shop display area." << std::endl;
-        }
+    int base_x = DISPLAY_WIDTH / 2 - size_slots_w * 2;
+    int base_y = DISPLAY_HEIGHT / 2 - size_slots_h * 2;
 
-        int base_x = DISPLAY_WIDTH / 2 - size_slots_w * 2;
-        int base_y = DISPLAY_HEIGHT / 2 - size_slots_h * 2;
+    int slot_width = size_guns_w * 2;
+    int slot_height = size_guns_h * 2;
 
-        int slot_width = size_guns_w * 2;
-        int slot_height = size_guns_h * 2;
-
-        int column = (x - base_x) / slot_width;
-        int row = (y - base_y) / slot_height;
-
-        if (x >= base_x && x < base_x + slot_width * 2 && y >= base_y &&
-            y < base_y + slot_height * static_cast<int>(guns.size() / 2)) {
-            int slot_index = row * 2 + column;
-            if (gunIndexMap.count(slot_index)) {
-                return std::nullopt;
-            } else if (ammoIndexMap.count(slot_index)) {
-                return std::nullopt;
-            }
-        }
+    if (x < base_x || x >= base_x + 2 * slot_width || y < base_y ||
+        y >= base_y + (static_cast<int>(guns.size() + ammo.size()) / 2) * slot_height) {
+        return std::nullopt;
     }
+
+    int col = (x - base_x) / slot_width;
+    int row = (y - base_y) / slot_height;
+
+    int slot_index = row * 2 + col;
+
+    if (gunIndexMap.count(slot_index)) {
+        gun_buy = slot_index;
+        return Message(BuyGunCommand(gunIndexMap.at(slot_index)));
+    } else if (ammoIndexMap.count(slot_index)) {
+        gun_buy = slot_index;
+        if (slot_index == 8) {
+            return std::nullopt;
+        }
+        ItemSlot get_type = get_ammo_type(slot_index);
+        return Message(BuyAmmoCommand(get_type));
+    }
+
     return std::nullopt;
 }

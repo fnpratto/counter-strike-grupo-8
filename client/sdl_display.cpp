@@ -23,7 +23,8 @@ SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue
         player_name(player_name),
         state(get_initial_state()),
         quit_flag(false),
-        input_handler(nullptr) {
+        input_handler(nullptr),
+        shop_display(nullptr) {
     std::cout << "SDLDisplay initialized with player: " << player_name << std::endl;
     SCREEN_WIDTH = 800;
     SCREEN_HEIGHT = 600;
@@ -62,12 +63,13 @@ void SDLDisplay::run() {
     setup();
     SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
     hudDisplay hud_display(window, state, player_name);
-    shopDisplay shop_display(window, state);
+    shop_display = std::make_unique<shopDisplay>(window, state);
     Map map(window, player_name, state);
     listTeams list_teams(window, state, player_name);
     skinSelect list_skins(window, state, player_name);
 
-    input_handler = std::make_unique<SDLInput>(output_queue, quit_flag, list_teams, shop_display,
+
+    input_handler = std::make_unique<SDLInput>(output_queue, quit_flag, list_teams, *shop_display,
                                                hud_display, list_skins);
     input_handler->start();
 
@@ -85,7 +87,7 @@ void SDLDisplay::run() {
         } else {
             map.render();
             hud_display.render();
-            shop_display.render();
+            shop_display->render();
         }
         window.render();
         return !quit_flag;
@@ -129,7 +131,14 @@ void SDLDisplay::update_state() {
         if (msg.get_type() == MessageType::GAME_UPDATE) {
             const GameUpdate& update = msg.get_content<GameUpdate>();
             state = state.merged(update);
-            std::cout << "Applied GameUpdate" << std::endl;
+        } else if (msg.get_type() == MessageType::SHOP_PRICES_RESP) {
+            const ShopPricesResponse& response = msg.get_content<ShopPricesResponse>();
+            shop_display->updateShopState(true);
+            shop_display->updatePrices(response);
+            std::cout << "Updated shop prices" << std::endl;
+        } else {
+            std::cerr << "Received unexpected message type: " << static_cast<int>(msg.get_type())
+                      << std::endl;
         }
     }
 }

@@ -19,7 +19,7 @@ void KeyboardHandler::handleEvent(const SDL_Event& event /*, bool& shop*/) {
                 break;
             case SDLK_b:
                 output_queue.push(Message(GetShopPricesCommand()));
-                shopRef.updateShopState(true);
+                // shopRef.updateShopState(true);
                 break;
             case SDLK_m:
                 // Toggle mute functionality //TODO_ADD SERVER

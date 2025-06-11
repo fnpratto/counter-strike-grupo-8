@@ -242,7 +242,6 @@ void hudDisplay::renderBullets() {
 
 void hudDisplay::renderGunIcons() {
 
-    // const auto& guns = state.get_players().at(player_name).get_inventory().get_guns();
     int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 20;
     int y = SCREEN_HEIGHT / 2;
 
