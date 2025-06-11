@@ -87,6 +87,11 @@ void Game::perform_attacks() {
                 if (target_player->is_dead()) {
                     player->add_kill();
                     player->add_rewards(ScoresConfig::kill, BonificationsConfig::kill);
+
+                    auto gun = target_player->drop_primary_weapon();
+                    if (gun.has_value())
+                        state.add_dropped_gun(std::move(gun.value()), target_player->get_pos());
+                    // TODO: target_player->drop_bomb();
                 }
             }
 
