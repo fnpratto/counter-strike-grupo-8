@@ -96,7 +96,7 @@ std::optional<Target> PhysicsSystem::get_closest_player(const std::string& origi
         if (origin_p_name == p_name)
             continue;
         Vector2D target_pos = p->get_pos();
-        if (is_in_same_cuadrant(target_pos, origin, dir) &&
+        if (!p->is_dead() && is_in_same_cuadrant(target_pos, origin, dir) &&
             player_is_hit(target_pos, origin, dir)) {
             float distance = (target_pos - origin).length();
             if (distance < min_distance) {

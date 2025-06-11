@@ -11,6 +11,7 @@
     F(ShopPricesResponse, SHOP_PRICES_RESP)                               \
     F(HitResponse, HIT_RESP)                                              \
     F(CharactersResponse, CHARACTERS_RESP)                                \
+    F(ScoreboardResponse, SCOREBOARD_RESP)                                \
     F(TriedToJoinFullTeamErrorResponse, TRIED_TO_JOIN_FULL_TEAM_ERR_RESP) \
     F(CannotBuyErrorResponse, CANNOT_BUY_ERR_RESP)
 
@@ -33,6 +34,7 @@
     F(AttackCommand, ATTACK_CMD)                    \
     F(SwitchItemCommand, SWITCH_ITEM_CMD)           \
     F(ReloadCommand, RELOAD_CMD)                    \
+    F(GetScoreboardCommand, GET_SCOREBOARD_CMD)     \
     F(PlantBombCommand, PLANT_BOMB_CMD)             \
     F(DefuseBombCommand, DEFUSE_BOMB_CMD)           \
     F(PickUpItemCommand, PICK_UP_ITEM_CMD)          \

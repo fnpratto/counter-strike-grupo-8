@@ -7,6 +7,7 @@
 
 #include "common/models.h"
 #include "common/utils/vector_2d.h"
+#include "scoreboard/scoreboard_entry.h"
 
 struct GameInfo {
     std::string name;
@@ -77,6 +78,20 @@ public:
     Vector2D get_hit_pos() const { return hit_pos; }
     Vector2D get_hit_dir() const { return hit_dir; }
     bool is_hit() const { return hit; }
+};
+
+/**
+ * @class ScoreboardResponse
+ * @brief Response containing the scoreboard information.
+ */
+class ScoreboardResponse {
+    std::map<std::string, ScoreboardEntry> scoreboard;
+
+public:
+    explicit ScoreboardResponse(std::map<std::string, ScoreboardEntry>&& scoreboard):
+            scoreboard(std::move(scoreboard)) {}
+
+    std::map<std::string, ScoreboardEntry> get_scoreboard() const { return scoreboard; }
 };
 
 /**

@@ -8,6 +8,7 @@
 
 #include <arpa/inet.h>
 
+#include "common/errors.h"
 #include "common/message.h"
 #include "common/responses.h"
 #include "common/socket.h"
@@ -19,7 +20,6 @@
 #include "common/updates/phase_update.h"
 #include "common/updates/player_update.h"
 
-#include "errors.h"
 #include "protocol.h"
 
 // === Serialization ===

@@ -3,24 +3,13 @@
 #include <exception>
 #include <string>
 
-class ServerError: public std::exception {
-    std::string message;
+#include "common/errors.h"
 
+class GameError: public Error {
 public:
-    explicit ServerError(const std::string& message): message(message) {}
-    const char* what() const noexcept override { return message.c_str(); }
-};
-
-class ServerDisconnectError: public ServerError {
-public:
-    ServerDisconnectError(): ServerError("client disconnected") {}
-};
-
-class GameError: public ServerError {
-public:
-    explicit GameError(const std::string& message): ServerError(message) {}
+    explicit GameError(const std::string& message): Error(message) {}
     const char* what() const noexcept override {
-        static std::string full_message = "Game Error: " + std::string(ServerError::what());
+        static std::string full_message = "Game Error: " + std::string(Error::what());
         return full_message.c_str();
     }
 };
@@ -45,20 +34,20 @@ public:
     SelectTeamError(): GameError("error at select team") {}
 };
 
-class PlayerError: public ServerError {
+class PlayerError: public Error {
 public:
-    explicit PlayerError(const std::string& message): ServerError(message) {}
+    explicit PlayerError(const std::string& message): Error(message) {}
     const char* what() const noexcept override {
-        static std::string full_message = "Player Error: " + std::string(ServerError::what());
+        static std::string full_message = "Player Error: " + std::string(Error::what());
         return full_message.c_str();
     }
 };
 
-class MapError: public ServerError {
+class MapError: public Error {
 public:
-    explicit MapError(const std::string& message): ServerError(message) {}
+    explicit MapError(const std::string& message): Error(message) {}
     const char* what() const noexcept override {
-        static std::string full_message = "Map Error: " + std::string(ServerError::what());
+        static std::string full_message = "Map Error: " + std::string(Error::what());
         return full_message.c_str();
     }
 };

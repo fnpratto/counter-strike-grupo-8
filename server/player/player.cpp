@@ -10,7 +10,8 @@
 Player::Player(Team team, Vector2D pos):
         Logic<PlayerState, PlayerUpdate>(
                 PlayerState(team, pos, Vector2D(0.0f, 0.0f), Vector2D(0.0f, 0.0f), false,
-                            PlayerConfig::full_health, ItemSlot::Secondary)) {}
+                            PlayerConfig::full_health, ItemSlot::Secondary)),
+        scoreboard_entry(state.get_inventory().get_money()) {}
 
 bool Player::is_ready() const { return state.get_ready(); }
 
@@ -28,6 +29,8 @@ Vector2D Player::get_move_dir() const { return state.get_velocity(); }
 
 Inventory& Player::get_inventory() { return state.get_inventory(); }
 
+ScoreboardEntry Player::get_scoreboard_entry() const { return scoreboard_entry; }
+
 void Player::set_ready() { state.set_ready(true); }
 
 void Player::take_damage(int damage) {
@@ -36,7 +39,7 @@ void Player::take_damage(int damage) {
         state.set_health(health - damage);
     } else {
         state.set_health(0);
-        state.increment_deaths();
+        scoreboard_entry.deaths++;
     }
 }
 
@@ -96,4 +99,11 @@ void Player::reload() {
     gun->reload();
 }
 
-void Player::increment_kills() { state.increment_kills(); }
+void Player::add_kill() { scoreboard_entry.kills++; }
+
+void Player::add_rewards(int score, int bonification) {
+    scoreboard_entry.score += score;
+    int old_money = state.get_inventory().get_money();
+    state.get_inventory().set_money(old_money + bonification);
+    scoreboard_entry.money = state.get_inventory().get_money();
+}

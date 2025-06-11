@@ -3,6 +3,7 @@
 #include <optional>
 #include <utility>
 
+#include "common/scoreboard/scoreboard_entry.h"
 #include "server/attack_effects/attack_effect.h"
 #include "server/errors.h"
 #include "server/physics/target_type.h"
@@ -79,8 +80,14 @@ void Game::perform_attacks() {
                 continue;
 
             bool is_hit = false;
-            if (closest_target.value().is_player())
-                is_hit = effect->apply(closest_target.value().get_player().get());
+            if (closest_target.value().is_player()) {
+                auto& target_player = closest_target.value().get_player().get();
+                is_hit = effect->apply(target_player);
+                if (target_player->is_dead()) {
+                    player->add_kill();
+                    player->add_rewards(ScoresConfig::kill, BonificationsConfig::kill);
+                }
+            }
 
             HitResponse hit_response(player->get_pos(), closest_target.value().get_pos(),
                                      effect->get_dir(), is_hit);
@@ -241,6 +248,15 @@ void Game::handle<ReloadCommand>(const std::string& player_name,
                                  [[maybe_unused]] const ReloadCommand& msg) {
     auto& player = state.get_player(player_name);
     player->reload();
+}
+
+template <>
+void Game::handle<GetScoreboardCommand>(const std::string& player_name,
+                                        [[maybe_unused]] const GetScoreboardCommand& msg) {
+    std::map<std::string, ScoreboardEntry> scoreboard;
+    for (const auto& [p_name, player]: state.get_players())
+        scoreboard.emplace(p_name, player->get_scoreboard_entry());
+    output_messages.emplace_back(player_name, Message(ScoreboardResponse(std::move(scoreboard))));
 }
 
 // TODO: Implement

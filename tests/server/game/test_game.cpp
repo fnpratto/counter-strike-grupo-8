@@ -343,6 +343,29 @@ TEST_F(TestGame, TargetIsHitByPlayerAttack) {
     }
 }
 
+TEST_F(TestGame, PlayerCanGetScoreboard) {
+    game.join_player("test_player");
+
+    Message msg_get_scoreboard = Message(GetScoreboardCommand());
+    auto player_messages = game.tick({PlayerMessage("test_player", msg_get_scoreboard)});
+
+    std::map<std::string, ScoreboardEntry> scoreboard;
+    bool scoreboard_send_correctly = false;
+    for (const auto& m: player_messages) {
+        if (m.get_message().get_type() == MessageType::SCOREBOARD_RESP) {
+            scoreboard = m.get_message().get_content<ScoreboardResponse>().get_scoreboard();
+            scoreboard_send_correctly = true;
+        }
+    }
+
+    EXPECT_TRUE(scoreboard_send_correctly);
+    EXPECT_EQ(scoreboard.size(), 1);
+    EXPECT_EQ(scoreboard.at("test_player").kills, 0);
+    EXPECT_EQ(scoreboard.at("test_player").deaths, 0);
+    EXPECT_EQ(scoreboard.at("test_player").score, 0);
+    EXPECT_EQ(scoreboard.at("test_player").money, PlayerConfig::initial_money);
+}
+
 TEST_F(TestGame, PlayerIsDeadAfterTakingAllHealthDamage) {
     GameUpdate updates;
     game.join_player("test_player");
@@ -367,9 +390,10 @@ TEST_F(TestGame, PlayerIsDeadAfterTakingAllHealthDamage) {
     advance_secs(PhaseTimes::buying_phase_secs);
 
     Message msg_attack = Message(AttackCommand());
+    std::vector<PlayerMessage> player_messages;
     while (health > 0) {
         advance_secs(1.0f / GlockConfig.attack_rate);
-        auto player_messages = game.tick({PlayerMessage("test_player", msg_attack)});
+        player_messages = game.tick({PlayerMessage("test_player", msg_attack)});
         auto hit_response = player_messages[0].get_message().get_content<HitResponse>();
         updates = player_messages[2].get_message().get_content<GameUpdate>();
         if (hit_response.is_hit())
@@ -378,7 +402,24 @@ TEST_F(TestGame, PlayerIsDeadAfterTakingAllHealthDamage) {
 
     EXPECT_TRUE(updates.has_players_changed());
     EXPECT_EQ(health, 0);
-    EXPECT_EQ(updates.get_players().at("target_player").get_deaths(), 1);
+
+    for (const auto& m: player_messages) {
+        if (m.get_message().get_type() ==
+            MessageType::SCOREBOARD_RESP) {  // cppcheck-suppress[useStlAlgorithm]
+            auto scoreboard = m.get_message().get_content<ScoreboardResponse>().get_scoreboard();
+            EXPECT_EQ(scoreboard.at("target_player").deaths, 1);
+            EXPECT_EQ(scoreboard.at("target_player").kills, 0);
+            EXPECT_EQ(scoreboard.at("test_player").score, 0);
+            EXPECT_EQ(scoreboard.at("test_player").money, PlayerConfig::initial_money);
+
+            EXPECT_EQ(scoreboard.at("test_player").kills, 1);
+            EXPECT_EQ(scoreboard.at("test_player").deaths, 0);
+            EXPECT_GT(scoreboard.at("test_player").score, ScoresConfig::kill);
+            EXPECT_EQ(scoreboard.at("test_player").money,
+                      PlayerConfig::initial_money + BonificationsConfig::kill);
+            break;
+        }
+    }
 }
 
 TEST_F(TestGame, WeaponDoesNotMakeDamageWhenTargetIsOutOfRange) {
