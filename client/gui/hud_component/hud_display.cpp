@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
+#include <map>
 #include <vector>
 
 const std::string& BACKGROUND_PATH = "../assets/gfx/backgrounds/water1.jpg";
@@ -19,7 +20,28 @@ const std::string& PARALELO_RED_O_PATH = "../assets/gfx/hud/parallelogram_red_op
 const std::string& PARALELO_BLUE_O_PATH = "../assets/gfx/hud/parallelogram_blue_op.xcf";
 const std::string& HUD_NUMS_XCF = "../assets/gfx/fonts/hud_nums.xcf";
 const std::string& MUTE_ICON_PATH = "../assets/gfx/hud/hud_voice.xcf";
+const std::string& GUNS_INVENTORY_PATH = "../assets/gfx/hud/guns_inventory.xcf";
 
+std::map<GunType, int> gunTypeToIndex = {
+        {GunType::AK47, 0}, {GunType::M3, 1}, {GunType::AWP, 2}, {GunType::Glock, 3}};
+
+std::map<std::string, int> offsetInventory = {{"mp", 0},    {"ak4", 1},   {"awp", 2}, {"m3", 3},
+                                              {"glock", 4}, {"knife", 5}, {"bomb", 6}};
+
+std::string gunTypeToStr(GunType type) {
+    switch (type) {
+        case GunType::AK47:
+            return "ak4";
+        case GunType::M3:
+            return "m3";
+        case GunType::AWP:
+            return "awp";
+        case GunType::Glock:
+            return "glock";
+        default:
+            return "";
+    }
+}
 
 hudDisplay::hudDisplay(SdlWindow& window, const GameUpdate& state, const std::string& player_name):
         state(state),
@@ -39,7 +61,8 @@ hudDisplay::hudDisplay(SdlWindow& window, const GameUpdate& state, const std::st
         roundText(FONT_PATH, 20, {150, 150, 150, 255}, window),
         gunNumber(FONT_PATH, 20, {150, 150, 150, 255}, window),
         scoreText(FONT_PATH, 20, {255, 255, 255, 255}, window),
-        muteIcon(MUTE_ICON_PATH, window) {
+        muteIcon(MUTE_ICON_PATH, window),
+        gunsInventoryTexture(GUNS_INVENTORY_PATH, window) {
     float BASE_WIDTH = 800.0f;
     float BASE_HEIGHT = 600.0f;
 
@@ -241,30 +264,49 @@ void hudDisplay::renderBullets() {
 
 
 void hudDisplay::renderGunIcons() {
+    const auto& guns = state.get_players().at(player_name).get_inventory().get_guns();
 
     int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 20;
     int y = SCREEN_HEIGHT / 2;
+    static constexpr int iconWidth = 40;  // Width of each icon in the sheet
+    static constexpr int iconHeight = 12;
 
     static constexpr int spacing = 64;
 
-    renderGunIcon("../assets/gfx/guns/knife_k.xcf", "1", x, y);
-    y += spacing;
-    renderGunIcon("../assets/gfx/guns/aug_k.xcf", "2", x, y);
-    y += spacing;
-    renderGunIcon("../assets/gfx/guns/elite_k.xcf", "3", x, y);
+    std::map<ItemSlot, std::string> slotToKey = {{ItemSlot::Primary, "1"},
+                                                 {ItemSlot::Secondary, "2"},
+                                                 {ItemSlot::Melee, "3"},
+                                                 {ItemSlot::Bomb, "4"}};
+
+    for (const auto& [slot, gun]: guns) {
+        GunType type = gun.get_gun();
+
+        int index = -1;
+
+        if (slot == ItemSlot::Primary || slot == ItemSlot::Secondary) {  // Primary or secondary
+            std::string key = gunTypeToStr(type);
+            if (offsetInventory.count(key)) {
+                index = offsetInventory[key];
+            }
+        } else if (slot == ItemSlot::Melee) {  // Melee
+            index = 5;
+        } else if (slot == ItemSlot::Bomb) {  // Bomb
+            index = 6;
+        }
+
+        if (index != -1) {
+            Area srcArea(index * iconWidth, 0, iconWidth, iconHeight);
+            Area destArea(x, y, SCREEN_WIDTH / 14, 34);
+
+            gunsInventoryTexture.render(srcArea, destArea);
+
+            gunNumber.setTextString(slotToKey[slot]);
+            gunNumber.render(Area(SCREEN_WIDTH - layout.padding * 2, y, 10, 20));
+
+            y += spacing;
+        }
+    }
 }
-
-
-void hudDisplay::renderGunIcon(const std::string& path, const std::string& number, int x, int y) {
-    SdlTexture gunTexture(path, window);
-    Area destArea(x, y, SCREEN_WIDTH / 14, 34);
-    gunTexture.render(
-            Area(0, 0, layout.size_width * 2 * layout.scale, layout.size_height * layout.scale),
-            destArea);
-    gunNumber.setTextString(number);
-    gunNumber.render(Area(SCREEN_WIDTH - layout.padding * 2, y, 10, 20));
-}
-
 
 void hudDisplay::renderDigits(const std::string& str, int x, int y, BitmapFont& texture) {
     for (char c: str) {

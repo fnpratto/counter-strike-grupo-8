@@ -44,6 +44,7 @@ class hudDisplay {
     SdlText scoreText;
 
     SdlTexture muteIcon;
+    SdlTexture gunsInventoryTexture;
     int pointerX = SCREEN_WIDTH / 2;
     int pointerY = SCREEN_HEIGHT / 2;
     float widthRatio;
