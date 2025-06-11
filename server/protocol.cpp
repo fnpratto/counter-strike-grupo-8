@@ -169,6 +169,13 @@ BuyGunCommand ServerProtocol::deserialize_msg<BuyGunCommand>(payload_t& payload)
 }
 
 template <>
+BuyAmmoCommand ServerProtocol::deserialize_msg<BuyAmmoCommand>(payload_t& payload) const {
+    uint8_t s = deserialize<uint8_t>(payload);
+    return BuyAmmoCommand(static_cast<ItemSlot>(s));
+}
+
+
+template <>
 MoveCommand ServerProtocol::deserialize_msg<MoveCommand>(payload_t& payload) const {
     Vector2D dir = deserialize<Vector2D>(payload);
     return MoveCommand(dir);
@@ -255,6 +262,8 @@ Message ServerProtocol::deserialize_message(const MessageType& msg_type, payload
             return Message(deserialize_msg<StartGameCommand>(payload));
         case MessageType::BUY_GUN_CMD:
             return Message(deserialize_msg<BuyGunCommand>(payload));
+        case MessageType::BUY_AMMO_CMD:
+            return Message(deserialize_msg<BuyAmmoCommand>(payload));
         case MessageType::MOVE_CMD:
             return Message(deserialize_msg<MoveCommand>(payload));
         case MessageType::STOP_PLAYER_CMD:

@@ -81,6 +81,11 @@ payload_t ClientProtocol::serialize_msg(const BuyGunCommand& cmd) const {
 }
 
 template <>
+payload_t ClientProtocol::serialize_msg(const BuyAmmoCommand& cmd) const {
+    return serialize(static_cast<uint8_t>(cmd.get_slot()));
+}
+
+template <>
 payload_t ClientProtocol::serialize_msg(const MoveCommand& cmd) const {
     return serialize(cmd.get_direction());
 }
@@ -163,6 +168,8 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
             return serialize_msg(message.get_content<StartGameCommand>());
         case MessageType::BUY_GUN_CMD:
             return serialize_msg(message.get_content<BuyGunCommand>());
+        case MessageType::BUY_AMMO_CMD:
+            return serialize_msg(message.get_content<BuyAmmoCommand>());
         case MessageType::MOVE_CMD:
             return serialize_msg(message.get_content<MoveCommand>());
         case MessageType::STOP_PLAYER_CMD:
