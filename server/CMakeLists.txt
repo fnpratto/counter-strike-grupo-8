@@ -16,7 +16,8 @@ target_sources(taller_server
     # game
     game/game.cpp
     game/game_phase.cpp
-    game/physics_system.cpp
+    # physics
+    physics/physics_system.cpp
     # map
     map/map.cpp
     # player
@@ -53,10 +54,11 @@ target_sources(taller_server
     game/shop.h
     game/game.h
     game/game_phase.h
-    game/physics_system.h
     game/game_config.h
-    game/target_type.h
-    game/physics_system_config.h
+    # physics
+    physics/physics_system.h
+    physics/target_type.h
+    physics/physics_config.h
     # map
     map/map_builder.h
     map/map.h

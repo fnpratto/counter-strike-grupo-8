@@ -5,8 +5,9 @@
 #include <limits>
 #include <memory>
 
-#include "game_config.h"
-#include "physics_system_config.h"
+#include "server/game/game_config.h"
+
+#include "physics_config.h"
 
 PhysicsSystem::PhysicsSystem(Map&& map,
                              const std::map<std::string, std::unique_ptr<Player>>& players):
@@ -25,8 +26,7 @@ bool PhysicsSystem::player_in_spawn(const std::string& player_name) const {
 
 Vector2D PhysicsSystem::calculate_step(const Vector2D& dir) const {
     float tick_duration = 1.0f / GameConfig::tickrate;  // TODO use clock
-    return dir.normalized(PhysicsSystemConfig::meter_size) * GameConfig::player_speed *
-           tick_duration;
+    return dir.normalized(PhysicsConfig::meter_size) * GameConfig::player_speed * tick_duration;
 }
 
 std::optional<Target> PhysicsSystem::get_closest_target(const std::string& origin_p_name,
@@ -106,7 +106,7 @@ bool PhysicsSystem::is_in_same_cuadrant(Vector2D target_pos, Vector2D player_pos
 bool PhysicsSystem::player_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir) {
     Vector2D target_distance = target_pos - player_pos;
     float orthogonal_distance = std::abs(target_distance.cross(aim_dir));
-    return orthogonal_distance <= PhysicsSystemConfig::player_hitbox_radius;
+    return orthogonal_distance <= PhysicsConfig::player_hitbox_radius;
 }
 
 bool PhysicsSystem::tile_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir) {

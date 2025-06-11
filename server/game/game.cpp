@@ -5,10 +5,9 @@
 
 #include "server/attack_effects/attack_effect.h"
 #include "server/errors.h"
+#include "server/physics/target_type.h"
 #include "server/player_message.h"
 #include "server/weapons/bomb.h"
-
-#include "target_type.h"
 
 Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map):
         Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.get_max_players())),

@@ -11,10 +11,10 @@
 #include "server/errors.h"
 #include "server/game/game.h"
 #include "server/game/game_config.h"
-#include "server/game/physics_system_config.h"
 #include "server/game/shop.h"
 #include "server/map/map.h"
 #include "server/map/map_builder.h"
+#include "server/physics/physics_config.h"
 #include "server/player_message.h"
 
 class TestGame: public ::testing::Test {
@@ -251,7 +251,7 @@ TEST_F(TestGame, PlayerCanMove) {
     game.tick({});
 
     // Check velocity
-    Vector2D dir = Vector2D(0, 1).normalized(PhysicsSystemConfig::meter_size);
+    Vector2D dir = Vector2D(0, 1).normalized(PhysicsConfig::meter_size);
     Message msg_move = Message(MoveCommand(dir));
     auto player_messages = game.tick({PlayerMessage("test_player", msg_move)});
     updates = player_messages[0].get_message().get_content<GameUpdate>();
@@ -278,7 +278,7 @@ TEST_F(TestGame, PlayerCanMoveInDiagonal) {
     advance_secs(PhaseTimes::buying_phase_secs);
     game.tick({});
 
-    Vector2D dir = Vector2D(1, 1).normalized(PhysicsSystemConfig::meter_size);
+    Vector2D dir = Vector2D(1, 1).normalized(PhysicsConfig::meter_size);
     Message msg_move = Message(MoveCommand(dir));
     auto player_messages = game.tick({PlayerMessage("test_player", msg_move)});
     updates = player_messages[0].get_message().get_content<GameUpdate>();
