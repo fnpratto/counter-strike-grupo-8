@@ -22,11 +22,8 @@ const std::string& HUD_NUMS_XCF = "../assets/gfx/fonts/hud_nums.xcf";
 const std::string& MUTE_ICON_PATH = "../assets/gfx/hud/hud_voice.xcf";
 const std::string& GUNS_INVENTORY_PATH = "../assets/gfx/hud/guns_inventory.xcf";
 
-std::map<GunType, int> gunTypeToIndex = {
-        {GunType::AK47, 0}, {GunType::M3, 1}, {GunType::AWP, 2}, {GunType::Glock, 3}};
-
-std::map<std::string, int> offsetInventory = {{"mp", 0},    {"ak4", 1},   {"awp", 2}, {"m3", 3},
-                                              {"glock", 4}, {"knife", 5}, {"bomb", 6}};
+std::map<std::string, int> offsetInventory = {{"awp", 0},   {"m3", 1},    {"ak4", 2},
+                                              {"glock", 3}, {"knife", 4}, {"bomb", 5}};
 
 std::string gunTypeToStr(GunType type) {
     switch (type) {
@@ -264,7 +261,9 @@ void hudDisplay::renderBullets() {
 
 
 void hudDisplay::renderGunIcons() {
-    const auto& guns = state.get_players().at(player_name).get_inventory().get_guns();
+    const auto& inventory = state.get_players().at(player_name).get_inventory();
+    const auto& guns = inventory.get_guns();
+    const auto& bomb = inventory.get_bomb();
 
     int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 20;
     int y = SCREEN_HEIGHT / 2;
@@ -278,20 +277,18 @@ void hudDisplay::renderGunIcons() {
                                                  {ItemSlot::Melee, "3"},
                                                  {ItemSlot::Bomb, "4"}};
 
+    std::cout << "Number of guns: " << guns.size() << std::endl;
     for (const auto& [slot, gun]: guns) {
         GunType type = gun.get_gun();
 
         int index = -1;
 
-        if (slot == ItemSlot::Primary || slot == ItemSlot::Secondary) {  // Primary or secondary
+
+        if (slot == ItemSlot::Primary || slot == ItemSlot::Secondary) {
             std::string key = gunTypeToStr(type);
             if (offsetInventory.count(key)) {
                 index = offsetInventory[key];
             }
-        } else if (slot == ItemSlot::Melee) {  // Melee
-            index = 5;
-        } else if (slot == ItemSlot::Bomb) {  // Bomb
-            index = 6;
         }
 
         if (index != -1) {
@@ -305,6 +302,29 @@ void hudDisplay::renderGunIcons() {
 
             y += spacing;
         }
+    }
+
+
+    int index = offsetInventory["knife"];
+    Area srcArea(index * iconWidth, 0, iconWidth, iconHeight);
+    Area destArea(x, y, SCREEN_WIDTH / 14, 34);
+
+    gunsInventoryTexture.render(srcArea, destArea);
+    gunNumber.setTextString(slotToKey[ItemSlot::Melee]);
+    gunNumber.render(Area(SCREEN_WIDTH - layout.padding * 2, y, 10, 20));
+
+    y += spacing;
+
+
+    // Render bomb if available
+    if (bomb.has_value()) {
+        int bombIndex = offsetInventory["bomb"];
+        Area bombSrcArea(bombIndex * iconWidth, 0, iconWidth, iconHeight);
+        Area bombDestArea(x, y, SCREEN_WIDTH / 14, 34);
+
+        gunsInventoryTexture.render(bombSrcArea, bombDestArea);
+        gunNumber.setTextString(slotToKey[ItemSlot::Bomb]);
+        gunNumber.render(Area(SCREEN_WIDTH - layout.padding * 2, y, 10, 20));
     }
 }
 
