@@ -263,13 +263,11 @@ void hudDisplay::renderBullets() {
 void hudDisplay::renderGunIcons() {
     const auto& inventory = state.get_players().at(player_name).get_inventory();
     const auto& guns = inventory.get_guns();
-    const auto& bomb = inventory.get_bomb();
 
     int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 20;
     int y = SCREEN_HEIGHT / 2;
-    static constexpr int iconWidth = 40;  // Width of each icon in the sheet
+    static constexpr int iconWidth = 40;
     static constexpr int iconHeight = 12;
-
     static constexpr int spacing = 64;
 
     std::map<ItemSlot, std::string> slotToKey = {{ItemSlot::Primary, "1"},
@@ -277,26 +275,22 @@ void hudDisplay::renderGunIcons() {
                                                  {ItemSlot::Melee, "3"},
                                                  {ItemSlot::Bomb, "4"}};
 
-    std::cout << "Number of guns: " << guns.size() << std::endl;
     for (const auto& [slot, gun]: guns) {
         GunType type = gun.get_gun();
 
-        int index = -1;
-
-
+        int iconIndex = -1;
         if (slot == ItemSlot::Primary || slot == ItemSlot::Secondary) {
             std::string key = gunTypeToStr(type);
             if (offsetInventory.count(key)) {
-                index = offsetInventory[key];
+                iconIndex = offsetInventory[key];
             }
         }
 
-        if (index != -1) {
-            Area srcArea(index * iconWidth, 0, iconWidth, iconHeight);
-            Area destArea(x, y, SCREEN_WIDTH / 14, 34);
+        if (iconIndex != -1) {
+            Area src(iconIndex * iconWidth, 0, iconWidth, iconHeight);
+            Area dest(x, y, SCREEN_WIDTH / 14, 34);
 
-            gunsInventoryTexture.render(srcArea, destArea);
-
+            gunsInventoryTexture.render(src, dest);
             gunNumber.setTextString(slotToKey[slot]);
             gunNumber.render(Area(SCREEN_WIDTH - layout.padding * 2, y, 10, 20));
 
@@ -304,29 +298,34 @@ void hudDisplay::renderGunIcons() {
         }
     }
 
-
-    int index = offsetInventory["knife"];
-    Area srcArea(index * iconWidth, 0, iconWidth, iconHeight);
-    Area destArea(x, y, SCREEN_WIDTH / 14, 34);
-
-    gunsInventoryTexture.render(srcArea, destArea);
+    // Render knife (always present)
+    int knifeIndex = offsetInventory["knife"];
+    Area knifeSrc(knifeIndex * iconWidth, 0, iconWidth, iconHeight);
+    Area knifeDest(x, y, SCREEN_WIDTH / 14, 34);
+    gunsInventoryTexture.render(knifeSrc, knifeDest);
     gunNumber.setTextString(slotToKey[ItemSlot::Melee]);
     gunNumber.render(Area(SCREEN_WIDTH - layout.padding * 2, y, 10, 20));
 
     y += spacing;
 
-
-    // Render bomb if available
-    if (bomb.has_value()) {
-        int bombIndex = offsetInventory["bomb"];
-        Area bombSrcArea(bombIndex * iconWidth, 0, iconWidth, iconHeight);
-        Area bombDestArea(x, y, SCREEN_WIDTH / 14, 34);
-
-        gunsInventoryTexture.render(bombSrcArea, bombDestArea);
-        gunNumber.setTextString(slotToKey[ItemSlot::Bomb]);
-        gunNumber.render(Area(SCREEN_WIDTH - layout.padding * 2, y, 10, 20));
+    // Only render bomb if it exists
+    try {
+        if (!inventory.get_bomb().has_value()) {
+            return;
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Error while checking bomb inventory: " << e.what() << std::endl;
+        return;
     }
+    int bombIndex = offsetInventory["bomb"];
+    Area bombSrc(bombIndex * iconWidth, 0, iconWidth, iconHeight);
+    Area bombDest(x, y, SCREEN_WIDTH / 14, 34);
+
+    gunsInventoryTexture.render(bombSrc, bombDest);
+    gunNumber.setTextString(slotToKey[ItemSlot::Bomb]);
+    gunNumber.render(Area(SCREEN_WIDTH - layout.padding * 2, y, 10, 20));
 }
+
 
 void hudDisplay::renderDigits(const std::string& str, int x, int y, BitmapFont& texture) {
     for (char c: str) {
@@ -339,7 +338,6 @@ void hudDisplay::renderDigits(const std::string& str, int x, int y, BitmapFont& 
 
 
 void hudDisplay::updatePointerPosition(int x, int y) {
-    std::cout << "Mouse moved to: (" << x << ", " << y << ")" << std::endl;
     pointerX = x;
     pointerY = y;
 }
