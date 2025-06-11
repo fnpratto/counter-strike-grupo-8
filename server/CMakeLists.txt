@@ -18,8 +18,6 @@ target_sources(taller_server
     game/game_phase.cpp
     # physics
     physics/physics_system.cpp
-    # map
-    map/map.cpp
     # player
     player/player.cpp
     player/inventory.cpp

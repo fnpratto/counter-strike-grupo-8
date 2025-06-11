@@ -10,7 +10,7 @@
 #include "server/weapons/bomb.h"
 
 Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map):
-        Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.get_max_players())),
+        Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.max_players)),
         name(name),
         physics_system(std::move(map), state.get_players()) {}
 

@@ -18,6 +18,9 @@ private:
     Map map;
     const std::map<std::string, std::unique_ptr<Player>>& players;
 
+    Vector2D rand_pos_in_vector(const std::vector<Vector2D>& vector) const;
+    bool is_pos_in_vector(const std::vector<Vector2D>& vector, const Vector2D& pos) const;
+
     template <typename T>
     std::optional<Target> get_closest_tile(const std::string& origin_p_name, const Vector2D& dir,
                                            const std::vector<T>& vector);

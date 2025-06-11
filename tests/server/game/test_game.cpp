@@ -27,7 +27,7 @@ protected:
     TestGame():
             clock(std::make_shared<MockClock>(std::chrono::steady_clock::now())),
             map(MapBuilder("./tests/server/map/map.yaml").build()),
-            max_players(map.get_max_players()),
+            max_players(map.max_players),
             game("test_game", clock, std::move(map)) {}
 
     void advance_secs(float secs) { clock->advance(std::chrono::duration<float>(secs)); }
