@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "common/models.h"
-#include "server/errors.h"
 #include "server/player/inventory.h"
 
 #define PRICE_AK47 2700
@@ -36,27 +35,29 @@ public:
     std::map<GunType, int> get_gun_prices() const { return gun_prices; }
     std::map<GunType, int> get_ammo_prices() const { return ammo_prices; }
 
-    void buy_gun(Inventory& inventory, const GunType& gun_type) const {
+    bool buy_gun(Inventory& inventory, const GunType& gun_type) const {
         int price = gun_prices.at(gun_type);
         if (inventory.get_money() < price)
-            throw BuyGunError();
+            return false;
 
         inventory.add_primary_weapon(gun_type);
         inventory.set_money(inventory.get_money() - price);
+        return true;
     }
 
-    void buy_ammo(Inventory& inventory, const ItemSlot& slot) const {
+    bool buy_ammo(Inventory& inventory, const ItemSlot& slot) const {
         if (slot != ItemSlot::Primary && slot != ItemSlot::Secondary)
-            return;
+            return false;
+
         auto& gun = inventory.get_gun(slot);
         GunType gun_type = gun->get_type();
         int price = ammo_prices.at(gun_type);
-
         if (inventory.get_money() < price)
-            throw BuyAmmoError();
+            return false;
 
         gun->add_mag();
         inventory.set_money(inventory.get_money() - price);
+        return true;
     }
 
     ~Shop() {}

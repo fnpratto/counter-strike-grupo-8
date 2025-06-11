@@ -8,14 +8,14 @@
 #include "server/player/player_config.h"
 #include "server/weapons/gun.h"
 
-class TestInventory: public ::testing::Test {
+class TestShop: public ::testing::Test {
 protected:
     Inventory inventory;
 
-    TestInventory(): inventory() {}
+    TestShop(): inventory() {}
 };
 
-TEST_F(TestInventory, CanBuyAnyPrimaryWeapon) {
+TEST_F(TestShop, CanBuyAnyPrimaryWeapon) {
     Shop shop;
     inventory.set_money(10000);
     int initial_money = inventory.get_full_update().get_money();
@@ -38,22 +38,22 @@ TEST_F(TestInventory, CanBuyAnyPrimaryWeapon) {
     }
 }
 
-TEST_F(TestInventory, CannotBuyWeaponIfNotEnoughMoney) {
+TEST_F(TestShop, CannotBuyWeaponIfNotEnoughMoney) {
     Shop shop;
     GunType gun = GunType::AK47;
     int initial_money = inventory.get_full_update().get_money();
     int gun_price = PRICE_AK47;
 
     while (gun_price <= initial_money) {
-        shop.buy_gun(inventory, gun);
+        EXPECT_TRUE(shop.buy_gun(inventory, gun));
         initial_money = inventory.get_updates().get_money();
     }
 
-    EXPECT_THROW({ shop.buy_gun(inventory, gun); }, BuyGunError);
+    EXPECT_FALSE(shop.buy_gun(inventory, gun));
     EXPECT_EQ(inventory.get_full_update().get_money(), initial_money);
 }
 
-TEST_F(TestInventory, BuyAmmo) {
+TEST_F(TestShop, BuyAmmo) {
     InventoryUpdate inventory_update;
 
     Shop shop;

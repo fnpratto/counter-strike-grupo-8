@@ -78,3 +78,15 @@ public:
     Vector2D get_hit_dir() const { return hit_dir; }
     bool is_hit() const { return hit; }
 };
+
+/**
+ * @class TriedToJoinFullTeamErrorResponse
+ * @brief Response sent when a player attempts to join a team that is already full.
+ */
+class TriedToJoinFullTeamErrorResponse {};
+
+/**
+ * @class CannotBuyErrorResponse
+ * @brief Response sent when a player attempts to make a purchase but is not allowed to.
+ */
+class CannotBuyErrorResponse {};

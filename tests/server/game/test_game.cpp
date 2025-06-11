@@ -41,13 +41,17 @@ TEST_F(TestGame, PlayerCanJoinGame) {
 
 TEST_F(TestGame, PlayerCannotJoinGameTwice) {
     game.join_player("test_player");
-    EXPECT_THROW({ game.join_player("test_player"); }, JoinGameError);
-    GameUpdate update = game.get_full_update();
-    EXPECT_EQ(static_cast<int>(update.get_players().size()), 1);
+    GameUpdate updates = game.get_full_update();
+    EXPECT_EQ(static_cast<int>(updates.get_players().size()), 1);
+    game.join_player("test_player");
+    updates = game.get_full_update();
+    EXPECT_EQ(static_cast<int>(updates.get_players().size()), 1);
 }
 
-TEST_F(TestGame, PlayerCannotJoinGameWithInvalidName) {
-    EXPECT_THROW({ game.join_player(""); }, InvalidPlayerNameError);
+TEST_F(TestGame, PlayerCannotJoinGameWithEmptyName) {
+    game.join_player("");
+    GameUpdate updates = game.get_full_update();
+    EXPECT_EQ(static_cast<int>(updates.get_players().size()), 0);
 }
 
 TEST_F(TestGame, PlayersCanJoinGameUntilItIsFull) {

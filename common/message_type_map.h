@@ -6,15 +6,13 @@
 
 #include "commands.h"
 
-#define REQUESTS_MAP(F) \
-    F(bool, BOOL)       \
-    F(ConnectionRequest, CONN_REQ)
-
-#define RESPONSES_MAP(F)                    \
-    F(ListGamesResponse, LIST_GAMES_RESP)   \
-    F(ShopPricesResponse, SHOP_PRICES_RESP) \
-    F(HitResponse, HIT_RESP)                \
-    F(CharactersResponse, CHARACTERS_RESP)
+#define RESPONSES_MAP(F)                                                  \
+    F(ListGamesResponse, LIST_GAMES_RESP)                                 \
+    F(ShopPricesResponse, SHOP_PRICES_RESP)                               \
+    F(HitResponse, HIT_RESP)                                              \
+    F(CharactersResponse, CHARACTERS_RESP)                                \
+    F(TriedToJoinFullTeamErrorResponse, TRIED_TO_JOIN_FULL_TEAM_ERR_RESP) \
+    F(CannotBuyErrorResponse, CANNOT_BUY_ERR_RESP)
 
 #define LOBBY_COMMANDS_MAP(F)             \
     F(CreateGameCommand, CREATE_GAME_CMD) \
@@ -42,11 +40,12 @@
 
 #define UPDATES_MAP(F) F(GameUpdate, GAME_UPDATE)
 
-#define MESSAGE_TYPE_MAP(F) \
-    REQUESTS_MAP(F)         \
-    RESPONSES_MAP(F)        \
-    LOBBY_COMMANDS_MAP(F)   \
-    GAME_COMMANDS_MAP(F)    \
+#define MESSAGE_TYPE_MAP(F)        \
+    F(bool, BOOL)                  \
+    F(ConnectionRequest, CONN_REQ) \
+    RESPONSES_MAP(F)               \
+    LOBBY_COMMANDS_MAP(F)          \
+    GAME_COMMANDS_MAP(F)           \
     UPDATES_MAP(F)
 
 #define MESSAGE_TYPE_MAP_LAST(F) F(std::nullptr_t, NONE)

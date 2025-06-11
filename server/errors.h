@@ -45,11 +45,6 @@ public:
     SelectTeamError(): GameError("error at select team") {}
 };
 
-class InvalidPlayerNameError: public GameError {
-public:
-    InvalidPlayerNameError(): GameError("invalid player name") {}
-};
-
 class PlayerError: public ServerError {
 public:
     explicit PlayerError(const std::string& message): ServerError(message) {}
@@ -57,16 +52,6 @@ public:
         static std::string full_message = "Player Error: " + std::string(ServerError::what());
         return full_message.c_str();
     }
-};
-
-class BuyGunError: public PlayerError {
-public:
-    BuyGunError(): PlayerError("could not buy gun") {}
-};
-
-class BuyAmmoError: public PlayerError {
-public:
-    BuyAmmoError(): PlayerError("could not buy ammo") {}
 };
 
 class MapError: public ServerError {

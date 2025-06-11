@@ -92,11 +92,8 @@ void Game::perform_attacks() {
 }
 
 void Game::join_player(const std::string& player_name) {
-    if (player_name.empty())
-        throw InvalidPlayerNameError();
-    if (state.player_is_in_game(player_name))
-        throw JoinGameError();
-    if (is_full() || state.get_phase().is_started())
+    if (player_name.empty() || state.player_is_in_game(player_name) || is_full() ||
+        state.get_phase().is_started())
         return;
 
     Team default_team = (state.get_num_tts() > state.get_num_cts()) ? Team::CT : Team::TT;
@@ -120,9 +117,10 @@ template <>
 void Game::handle<SelectTeamCommand>(const std::string& player_name, const SelectTeamCommand& msg) {
     if (state.get_phase().is_started())
         throw SelectTeamError();
-    if (state.team_is_full(msg.get_team()))
-        // TODO: Error response
+    if (state.team_is_full(msg.get_team())) {
+        output_messages.emplace_back(player_name, Message(TriedToJoinFullTeamErrorResponse()));
         return;
+    }
 
     auto& player = state.get_player(player_name);
     player->select_team(msg.get_team());
@@ -147,10 +145,6 @@ void Game::handle<GetCharactersCommand>(const std::string& player_name,
 template <>
 void Game::handle<SelectCharacterCommand>(const std::string& player_name,
                                           const SelectCharacterCommand& msg) {
-    if (state.get_phase().is_started())
-        // throw SelectCharacterError();
-        return;  // TODO: Error response
-
     auto& player = state.get_player(player_name);
     player->select_character(msg.get_character_type());
 }
@@ -178,25 +172,34 @@ void Game::handle<GetShopPricesCommand>(const std::string& player_name,
 
 template <>
 void Game::handle<BuyGunCommand>(const std::string& player_name, const BuyGunCommand& msg) {
-    if (!state.get_phase().is_buying_phase())
+    if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name)) {
+        output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
         return;
-    if (!physics_system.player_in_spawn(player_name))
-        return;
-
+    }
 
     auto& player = state.get_player(player_name);
-    shop.buy_gun(player->get_inventory(), msg.get_gun());
+    bool success = shop.buy_gun(player->get_inventory(), msg.get_gun());
+
+    if (!success) {
+        output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
+        return;
+    }
 }
 
 template <>
 void Game::handle<BuyAmmoCommand>(const std::string& player_name, const BuyAmmoCommand& msg) {
-    if (!state.get_phase().is_buying_phase())
+    if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name)) {
+        output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
         return;
-    if (!physics_system.player_in_spawn(player_name))
-        return;
+    }
 
     auto& player = state.get_player(player_name);
-    shop.buy_ammo(player->get_inventory(), msg.get_slot());
+    bool success = shop.buy_ammo(player->get_inventory(), msg.get_slot());
+
+    if (!success) {
+        output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
+        return;
+    }
 }
 
 template <>
@@ -205,7 +208,6 @@ void Game::handle<MoveCommand>(const std::string& player_name, const MoveCommand
         return;
 
     auto& player = state.get_player(player_name);
-
     player->start_moving(msg.get_direction());
 }
 

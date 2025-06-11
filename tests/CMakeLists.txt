@@ -4,7 +4,7 @@ target_sources(taller_tests
     server/map/test_map.cpp
     server/game/test_game.cpp
     server/game/test_game_phase.cpp
-    server/player/test_inventory.cpp
+    server/game/test_shop.cpp
     server/player/test_player.cpp
     # attack_effects
     ../server/attack_effects/attack_effect.cpp
