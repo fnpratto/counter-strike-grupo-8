@@ -314,7 +314,6 @@ void hudDisplay::renderGunIcons() {
             return;
         }
     } catch (const std::exception& e) {
-        std::cerr << "Error while checking bomb inventory: " << e.what() << std::endl;
         return;
     }
     int bombIndex = offsetInventory["bomb"];
