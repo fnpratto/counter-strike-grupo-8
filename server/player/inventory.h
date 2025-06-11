@@ -19,12 +19,9 @@ public:
         state.set_gun(ItemSlot::Secondary, Gun::make_glock());
     }
 
-    // TODO is this needed?
-    // Delete copy constructor and copy assignment operator
     Inventory(const Inventory&) = delete;
     Inventory& operator=(const Inventory&) = delete;
 
-    // Enable move constructor and move assignment operator
     Inventory(Inventory&&) = default;
     Inventory& operator=(Inventory&&) = default;
 

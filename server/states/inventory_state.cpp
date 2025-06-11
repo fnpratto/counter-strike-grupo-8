@@ -23,7 +23,7 @@ void InventoryState::set_gun(ItemSlot slot, std::unique_ptr<Gun>&& gun) {
     guns[slot] = std::move(gun);
 }
 
-void InventoryState::set_bomb(Bomb&& bomb) { this->bomb = bomb; }
+void InventoryState::set_bomb(Bomb&& bomb) { this->bomb = std::move(bomb); }
 
 InventoryUpdate InventoryState::get_updates() const {
     InventoryUpdate update = updates;

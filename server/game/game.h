@@ -31,6 +31,12 @@ private:
 public:
     Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map);
 
+    Game(const Game&) = delete;
+    Game& operator=(const Game&) = delete;
+
+    Game(Game&&) = delete;
+    Game& operator=(Game&&) = delete;
+
     bool is_full() const;
 
     void join_player(const std::string& player_name);

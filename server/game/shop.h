@@ -32,6 +32,12 @@ public:
         ammo_prices[GunType::Glock] = PRICE_MAG_GLOCK;
     }
 
+    Shop(const Shop&) = delete;
+    Shop& operator=(const Shop&) = delete;
+
+    Shop(Shop&&) = default;
+    Shop& operator=(Shop&&) = default;
+
     std::map<GunType, int> get_gun_prices() const { return gun_prices; }
     std::map<GunType, int> get_ammo_prices() const { return ammo_prices; }
 

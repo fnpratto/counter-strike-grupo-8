@@ -19,6 +19,12 @@ class Player: public Logic<PlayerState, PlayerUpdate> {
 public:
     Player(Team team, Vector2D pos);
 
+    Player(const Player&) = delete;
+    Player& operator=(const Player&) = delete;
+
+    Player(Player&&) = default;
+    Player& operator=(Player&&) = default;
+
     bool is_ready() const;
     bool is_tt() const;
     bool is_ct() const;

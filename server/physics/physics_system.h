@@ -30,6 +30,12 @@ private:
 public:
     PhysicsSystem(Map&& map, const std::map<std::string, std::unique_ptr<Player>>& players);
 
+    PhysicsSystem(const PhysicsSystem&) = delete;
+    PhysicsSystem& operator=(const PhysicsSystem&) = delete;
+
+    PhysicsSystem(PhysicsSystem&&) = delete;
+    PhysicsSystem& operator=(PhysicsSystem&&) = delete;
+
     Vector2D random_spawn_tt_pos() const;
     Vector2D random_spawn_ct_pos() const;
     bool player_in_spawn(const std::string& player_name) const;

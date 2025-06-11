@@ -19,6 +19,12 @@ private:
 public:
     explicit GamePhase(std::shared_ptr<Clock>&& game_clock);
 
+    GamePhase(const GamePhase&) = delete;
+    GamePhase& operator=(const GamePhase&) = delete;
+
+    GamePhase(GamePhase&&) = default;
+    GamePhase& operator=(GamePhase&&) = default;
+
     PhaseType get_type() const;
 
     bool is_started() const;
