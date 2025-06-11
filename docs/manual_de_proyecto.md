@@ -15,14 +15,13 @@ Este manual documenta el trabajo realizado por el equipo durante el desarrollo d
 - **Integrante 3**: Protocolo, arquitectura, server-client
 - **Integrante 4**: SDL y client
 
-
 ### **Plan Semanal**
 
-- **Semana 1**: 
-- **Semana 2**: 
-- **Semana 3**: 
-- **Semana 4**: 
-- **Semana 5**: 
+- **Semana 1**:
+- **Semana 2**:
+- **Semana 3**:
+- **Semana 4**:
+- **Semana 5**:
 
 ### **Diferencias con el Plan Inicial**
 
@@ -53,10 +52,7 @@ Este manual documenta el trabajo realizado por el equipo durante el desarrollo d
 
 ### **Puntos Problemáticos**
 
-
-
 ### **Errores Conocidos**
-
 
 ---
 
