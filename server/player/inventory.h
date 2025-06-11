@@ -36,4 +36,5 @@ public:
     void add_primary_weapon(const GunType& weapon_type);
     std::unique_ptr<Gun> remove_primary_weapon();
     void add_bomb(Bomb&& bomb);
+    Bomb remove_bomb();
 };

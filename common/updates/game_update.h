@@ -19,4 +19,6 @@
     M(std::string, PlayerUpdate, players) \
     V((std::pair<GunType, Vector2D>), dropped_guns)
 
+// TODO: Add dropped bomb update (with BombUpdate and pos)
+
 DEFINE_UPDATE(GameUpdate, GAME_ATTRS)

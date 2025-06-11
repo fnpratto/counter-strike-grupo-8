@@ -114,3 +114,10 @@ std::optional<std::unique_ptr<Gun>> Player::drop_primary_weapon() {
     auto gun = state.get_inventory().remove_primary_weapon();
     return gun;
 }
+
+std::optional<Bomb> Player::drop_bomb() {
+    if (!state.get_inventory().get_bomb().has_value())
+        return std::optional<Bomb>();
+    auto bomb = state.get_inventory().remove_bomb();
+    return bomb;
+}

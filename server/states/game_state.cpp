@@ -91,6 +91,10 @@ void GameState::add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos)
     dropped_guns.emplace_back(std::move(gun), pos);
 }
 
+void GameState::add_bomb(Bomb&& bomb, const Vector2D& pos) {
+    this->bomb = std::make_pair(std::move(bomb), pos);
+}
+
 void GameState::clear_updates() {
     State<GameUpdate>::clear_updates();
     phase.clear_updates();

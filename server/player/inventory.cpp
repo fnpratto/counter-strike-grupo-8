@@ -32,4 +32,10 @@ std::unique_ptr<Gun> Inventory::remove_primary_weapon() {
     return gun;
 }
 
+Bomb Inventory::remove_bomb() {
+    auto bomb = std::move(get_bomb().value());
+    state.get_bomb().reset();
+    return bomb;
+}
+
 void Inventory::add_bomb(Bomb&& bomb) { state.set_bomb(std::move(bomb)); }

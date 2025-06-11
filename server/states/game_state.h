@@ -18,7 +18,10 @@ class GameState: public State<GameUpdate> {
     int num_rounds = 0;
     int max_players;
     std::map<std::string, std::unique_ptr<Player>> players;
+
+    // TODO: Refactor to dropped_items to do class Drop
     std::vector<std::pair<std::unique_ptr<Gun>, Vector2D>> dropped_guns;
+    std::optional<std::pair<Bomb, Vector2D>> bomb;
 
 public:
     GameState(std::shared_ptr<Clock>&& game_clock, int max_players);
@@ -43,6 +46,7 @@ public:
 
     void add_player(const std::string& player_name, std::unique_ptr<Player> player);
     void add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos);
+    void add_bomb(Bomb&& bomb, const Vector2D& pos);
 
     GameUpdate get_updates() const override;
     GameUpdate get_full_update() const override;  // cppcheck-suppress[virtualCallInConstructor]

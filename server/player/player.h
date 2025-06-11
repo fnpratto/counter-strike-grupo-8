@@ -63,4 +63,5 @@ public:
     void add_rewards(int score, int bonification);
 
     std::optional<std::unique_ptr<Gun>> drop_primary_weapon();
+    std::optional<Bomb> drop_bomb();
 };

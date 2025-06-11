@@ -91,7 +91,9 @@ void Game::perform_attacks() {
                     auto gun = target_player->drop_primary_weapon();
                     if (gun.has_value())
                         state.add_dropped_gun(std::move(gun.value()), target_player->get_pos());
-                    // TODO: target_player->drop_bomb();
+                    auto bomb = target_player->drop_bomb();
+                    if (bomb.has_value())
+                        state.add_bomb(std::move(bomb.value()), target_player->get_pos());
                 }
             }
 
