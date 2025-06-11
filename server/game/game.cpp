@@ -170,6 +170,13 @@ void Game::handle<StartGameCommand>(const std::string& player_name,
 }
 
 template <>
+void Game::handle<GetShopPricesCommand>(const std::string& player_name,
+                                        [[maybe_unused]] const GetShopPricesCommand& msg) {
+    output_messages.emplace_back(player_name, Message(ShopPricesResponse(shop.get_gun_prices(),
+                                                                         shop.get_ammo_prices())));
+}
+
+template <>
 void Game::handle<BuyGunCommand>(const std::string& player_name, const BuyGunCommand& msg) {
     if (!state.get_phase().is_buying_phase())
         return;
@@ -216,13 +223,6 @@ void Game::handle<AimCommand>(const std::string& player_name, const AimCommand& 
 }
 
 template <>
-void Game::handle<GetShopPricesCommand>(const std::string& player_name,
-                                        [[maybe_unused]] const GetShopPricesCommand& msg) {
-    output_messages.emplace_back(player_name, Message(ShopPricesResponse(shop.get_gun_prices(),
-                                                                         shop.get_ammo_prices())));
-}
-
-template <>
 void Game::handle<AttackCommand>(const std::string& player_name,
                                  [[maybe_unused]] const AttackCommand& msg) {
     auto& player = state.get_player(player_name);
@@ -242,59 +242,52 @@ void Game::handle<ReloadCommand>(const std::string& player_name,
     player->reload();
 }
 
-// TODO function map
+// TODO: Implement
+template <>
+void Game::handle<PlantBombCommand>(const std::string& player_name,
+                                    [[maybe_unused]] const PlantBombCommand& msg) {
+    (void)player_name;
+}
+
+// TODO: Implement
+template <>
+void Game::handle<DefuseBombCommand>(const std::string& player_name,
+                                     [[maybe_unused]] const DefuseBombCommand& msg) {
+    (void)player_name;
+}
+
+// TODO: Implement
+template <>
+void Game::handle<PickUpItemCommand>(const std::string& player_name,
+                                     [[maybe_unused]] const PickUpItemCommand& msg) {
+    (void)player_name;
+}
+
+// TODO: Implement
+template <>
+void Game::handle<LeaveGameCommand>(const std::string& player_name,
+                                    [[maybe_unused]] const LeaveGameCommand& msg) {
+    (void)player_name;
+}
+
+#define HANDLE_MSG(command, msg_type)                    \
+    case MessageType::msg_type:                          \
+        handle(player_name, msg.get_content<command>()); \
+        break;
+
 void Game::handle_msg(const Message& msg, const std::string& player_name) {
     if (state.get_player(player_name)->is_dead())
         return;
     MessageType msg_type = msg.get_type();
-    std::cout << "Game::handle_msg: Received message of type: " << static_cast<int>(msg_type)
-              << " from player: " << player_name << "\n";
     switch (msg_type) {
-        case MessageType::SELECT_TEAM_CMD:
-            handle(player_name, msg.get_content<SelectTeamCommand>());
-            break;
-        case MessageType::GET_CHARACTERS_CMD:
-            handle(player_name, msg.get_content<GetCharactersCommand>());
-            break;
-        case MessageType::SELECT_CHARACTER_CMD:
-            handle(player_name, msg.get_content<SelectCharacterCommand>());
-            break;
-        case MessageType::START_GAME_CMD:
-            handle(player_name, msg.get_content<StartGameCommand>());
-            break;
-        case MessageType::BUY_GUN_CMD:
-            handle(player_name, msg.get_content<BuyGunCommand>());
-            break;
-        case MessageType::BUY_AMMO_CMD:
-            handle(player_name, msg.get_content<BuyAmmoCommand>());
-            break;
-        case MessageType::MOVE_CMD:
-            handle(player_name, msg.get_content<MoveCommand>());
-            break;
-        case MessageType::STOP_PLAYER_CMD:
-            handle(player_name, msg.get_content<StopPlayerCommand>());
-            break;
-        case MessageType::AIM_CMD:
-            handle(player_name, msg.get_content<AimCommand>());
-            break;
-        case MessageType::ATTACK_CMD:
-            handle(player_name, msg.get_content<AttackCommand>());
-            break;
-        case MessageType::SWITCH_ITEM_CMD:
-            handle(player_name, msg.get_content<SwitchItemCommand>());
-            break;
-        case MessageType::RELOAD_CMD:
-            handle(player_name, msg.get_content<ReloadCommand>());
-            break;
-        case MessageType::GET_SHOP_PRICES_CMD:
-            handle(player_name, msg.get_content<GetShopPricesCommand>());
-            break;
+        GAME_COMMANDS_MAP(HANDLE_MSG)
         default:
             throw std::runtime_error("Invalid message type: " +
                                      std::to_string(static_cast<int>(msg_type)));
-            break;
     }
 }
+
+#undef HANDLE_MSG
 
 void Game::give_bomb_to_random_tt() {
     if (state.get_num_tts() == 0)
