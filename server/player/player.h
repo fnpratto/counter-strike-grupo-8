@@ -15,7 +15,6 @@
 
 #include "inventory.h"
 
-
 class Player: public Logic<PlayerState, PlayerUpdate> {
 private:
     ScoreboardEntry scoreboard_entry;

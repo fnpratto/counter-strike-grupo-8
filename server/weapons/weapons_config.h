@@ -70,12 +70,12 @@ constexpr GunConfig AwpConfig = {.bullets_per_mag = 10,
                                  .falloff = 0};
 
 namespace KnifeConfig {
-const int min_damage = 10;
-const int max_damage = 20;
-const float attack_rate = 5.0;
-const int max_range = 1 * PhysicsConfig::meter_size;
+static constexpr int min_damage = 10;
+static constexpr int max_damage = 20;
+static constexpr float attack_rate = 5.0;
+static constexpr int max_range = 1 * PhysicsConfig::meter_size;
 };  // namespace KnifeConfig
 
 namespace BombConfig {
-const int damage = 100;
+static constexpr int damage = 100;
 };
