@@ -7,6 +7,6 @@
 
 #include "state_update.h"
 
-#define BOMB_ATTRS(X, M, U, O) O(Vector2D, planted_pos)
+#define BOMB_ATTRS(X, M, U, O, V) O(Vector2D, planted_pos)
 
 DEFINE_UPDATE(BombUpdate, BOMB_ATTRS)

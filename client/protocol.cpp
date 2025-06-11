@@ -230,6 +230,11 @@ ShopPricesResponse ClientProtocol::deserialize_msg<ShopPricesResponse>(payload_t
         std::optional<type> attr = deserialize_optional<type>(payload); \
         result.set_##attr(attr);                                        \
     }
+#define V_DESERIALIZE_UPDATE(type, attr)                            \
+    if (deserialize<bool>(payload)) {                               \
+        std::vector<type> attr = deserialize_vector<type>(payload); \
+        result.set_##attr(attr);                                    \
+    }
 
 #define DESERIALIZE_UPDATE(CLASS, ATTRS)                                         \
     template <>                                                                  \
@@ -237,7 +242,7 @@ ShopPricesResponse ClientProtocol::deserialize_msg<ShopPricesResponse>(payload_t
         CLASS result;                                                            \
                                                                                  \
         ATTRS(X_DESERIALIZE_UPDATE, M_DESERIALIZE_UPDATE, U_DESERIALIZE_UPDATE,  \
-              O_DESERIALIZE_UPDATE)                                              \
+              O_DESERIALIZE_UPDATE, V_DESERIALIZE_UPDATE)                        \
                                                                                  \
         return result;                                                           \
     }

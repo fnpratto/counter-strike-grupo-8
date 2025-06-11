@@ -11,7 +11,7 @@
 #include "inventory_update.h"
 #include "state_update.h"
 
-#define PLAYER_ATTRS(X, M, U, O)     \
+#define PLAYER_ATTRS(X, M, U, O, V)  \
     X(Team, team)                    \
     X(CharacterType, character_type) \
     X(Vector2D, pos)                 \

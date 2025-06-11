@@ -119,6 +119,14 @@ std::optional<Vector2D> BaseProtocol::deserialize<std::optional<Vector2D>>(
     return std::nullopt;
 }
 
+template <>
+std::pair<GunType, Vector2D> BaseProtocol::deserialize<std::pair<GunType, Vector2D>>(
+        payload_t& payload) const {
+    GunType gun_type = deserialize<GunType>(payload);
+    Vector2D pos = deserialize<Vector2D>(payload);
+    return std::make_pair(gun_type, pos);
+}
+
 Message BaseProtocol::recv() {
     payload_t header(sizeof(uint8_t) + sizeof(uint16_t));
     socket.recvall(header.data(), sizeof(uint8_t) + sizeof(uint16_t));

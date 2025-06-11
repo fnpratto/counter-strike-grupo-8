@@ -5,12 +5,15 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "common/models.h"
 #include "common/utils/vector_2d.h"
 #include "server/clock/clock.h"
 
 #define ATTR(...) __VA_ARGS__
+
+#define EXPAND_VECTOR(...) std::vector<__VA_ARGS__>
 
 class StateUpdate {
 public:
@@ -61,12 +64,22 @@ protected:
         }
         return a;
     }
+
+    template <typename T>
+    std::vector<T> merge(const std::vector<T>& a, const std::vector<T>& b) const {
+        std::vector<T> merged = a;
+        std::copy_if(a.begin(), a.end(), std::back_inserter(merged), [&b](const T& value) {
+            return std::find(b.begin(), b.end(), value) == b.end();
+        });
+        return merged;
+    }
 };
 
 #define X_DEFINE_MEMBER(type, attr) std::optional<type> attr;
 #define M_DEFINE_MEMBER(key_type, value_type, attr) std::map<key_type, value_type> attr;
 #define U_DEFINE_MEMBER(type, attr) type attr;
 #define O_DEFINE_MEMBER(type, attr) std::optional<std::optional<type>> attr;
+#define V_DEFINE_MEMBER(type, attr) EXPAND_VECTOR type attr;
 
 #define X_SETTER(type, attr)                                                \
     void set_##attr(const type& value) { attr = value; }                    \
@@ -97,6 +110,9 @@ protected:
             throw std::runtime_error(#attr " not set");                                    \
         return attr.value();                                                               \
     }
+#define V_SETTER(type, attr)                                           \
+    void set_##attr(const EXPAND_VECTOR type& value) { attr = value; } \
+    const EXPAND_VECTOR type& get_##attr() const { return attr; }
 
 #define X_MERGER(type, attr)                                                        \
     auto merged_##attr = merge(get_optional_##attr(), other.get_optional_##attr()); \
@@ -110,6 +126,7 @@ protected:
     if (merged_##attr.has_value()) {                                                \
         merged.set_##attr(merged_##attr.value());                                   \
     }
+#define V_MERGER(type, attr) merged.set_##attr(merge(attr, other.get_##attr()));
 
 #define X_CHANGED(type, attr) \
     bool has_##attr##_changed() const { return attr.has_value(); }
@@ -119,6 +136,8 @@ protected:
     bool has_##attr##_changed() const { return attr.has_change(); }
 #define O_CHANGED(type, attr) \
     bool has_##attr##_changed() const { return attr.has_value() && attr.value().has_value(); }
+#define V_CHANGED(type, attr) \
+    bool has_##attr##_changed() const { return !attr.empty(); }
 
 #define X_HAS_CHANGE(type, attr) \
     if (attr.has_value())        \
@@ -132,34 +151,38 @@ protected:
 #define O_HAS_CHANGE(type, attr) \
     if (attr.has_value())        \
         return true;
+#define V_HAS_CHANGE(type, attr) \
+    if (!attr.empty())           \
+        return true;
 
 #define X_CLEAR(type, attr) attr.reset();
 #define M_CLEAR(key_type, value_type, attr) attr.clear();
 #define U_CLEAR(type, attr) attr.clear();
 #define O_CLEAR(type, attr) attr.reset();
+#define V_CLEAR(type, attr) attr.clear();
 
-#define DEFINE_UPDATE(CLASS, ATTRS)                                               \
-    class CLASS: public StateUpdate {                                             \
-        ATTRS(X_DEFINE_MEMBER, M_DEFINE_MEMBER, U_DEFINE_MEMBER, O_DEFINE_MEMBER) \
-                                                                                  \
-    public:                                                                       \
-        ATTRS(X_SETTER, M_SETTER, U_SETTER, O_SETTER)                             \
-                                                                                  \
-        CLASS merged(const CLASS& other) const {                                  \
-            CLASS merged;                                                         \
-                                                                                  \
-            ATTRS(X_MERGER, M_MERGER, U_MERGER, O_MERGER)                         \
-                                                                                  \
-            return merged;                                                        \
-        }                                                                         \
-                                                                                  \
-        ATTRS(X_CHANGED, M_CHANGED, U_CHANGED, O_CHANGED)                         \
-                                                                                  \
-        bool has_change() const override {                                        \
-            ATTRS(X_HAS_CHANGE, M_HAS_CHANGE, U_HAS_CHANGE, O_HAS_CHANGE)         \
-                                                                                  \
-            return false;                                                         \
-        }                                                                         \
-                                                                                  \
-        void clear() override { ATTRS(X_CLEAR, M_CLEAR, U_CLEAR, O_CLEAR) }       \
+#define DEFINE_UPDATE(CLASS, ATTRS)                                                                \
+    class CLASS: public StateUpdate {                                                              \
+        ATTRS(X_DEFINE_MEMBER, M_DEFINE_MEMBER, U_DEFINE_MEMBER, O_DEFINE_MEMBER, V_DEFINE_MEMBER) \
+                                                                                                   \
+    public:                                                                                        \
+        ATTRS(X_SETTER, M_SETTER, U_SETTER, O_SETTER, V_SETTER)                                    \
+                                                                                                   \
+        CLASS merged(const CLASS& other) const {                                                   \
+            CLASS merged;                                                                          \
+                                                                                                   \
+            ATTRS(X_MERGER, M_MERGER, U_MERGER, O_MERGER, V_MERGER)                                \
+                                                                                                   \
+            return merged;                                                                         \
+        }                                                                                          \
+                                                                                                   \
+        ATTRS(X_CHANGED, M_CHANGED, U_CHANGED, O_CHANGED, V_CHANGED)                               \
+                                                                                                   \
+        bool has_change() const override {                                                         \
+            ATTRS(X_HAS_CHANGE, M_HAS_CHANGE, U_HAS_CHANGE, O_HAS_CHANGE, V_HAS_CHANGE)            \
+                                                                                                   \
+            return false;                                                                          \
+        }                                                                                          \
+                                                                                                   \
+        void clear() override { ATTRS(X_CLEAR, M_CLEAR, U_CLEAR, O_CLEAR, V_CLEAR) }               \
     };

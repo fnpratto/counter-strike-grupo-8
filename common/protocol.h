@@ -193,6 +193,18 @@ protected:
         return serialize(static_cast<uint8_t>(character_type));
     }
 
+    payload_t serialize(const std::pair<GunType, Vector2D>& dropped_gun) const {
+        payload_t payload;
+
+        payload_t gun_type_payload = serialize(dropped_gun.first);
+        payload_t pos_payload = serialize(dropped_gun.second);
+        payload.reserve(gun_type_payload.size() + pos_payload.size());
+        payload.insert(payload.end(), gun_type_payload.begin(), gun_type_payload.end());
+        payload.insert(payload.end(), pos_payload.begin(), pos_payload.end());
+
+        return payload;
+    }
+
     template <typename T>
     typename std::enable_if<std::is_enum<T>::value, payload_t>::type serialize(
             const T& enum_value) const {
