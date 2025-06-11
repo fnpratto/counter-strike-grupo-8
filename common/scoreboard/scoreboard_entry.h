@@ -4,7 +4,7 @@ struct ScoreboardEntry {
     int kills;
     int deaths;
     // TODO: mvp
-    // TODO: score?
+    int score;
 
-    ScoreboardEntry(): kills(0), deaths(0) {}
+    ScoreboardEntry(): kills(0), deaths(0), score(0) {}
 };

@@ -98,4 +98,10 @@ void Player::reload() {
     gun->reload();
 }
 
-void Player::increment_kills() { scoreboard_entry.kills++; }
+void Player::add_kill() { scoreboard_entry.kills++; }
+
+void Player::add_rewards(int score, int bonification) {
+    scoreboard_entry.score += score;
+    int old_money = state.get_inventory().get_money();
+    state.get_inventory().set_money(old_money + bonification);
+}

@@ -358,6 +358,7 @@ TEST_F(TestGame, PlayerCanGetScoreboard) {
     EXPECT_EQ(scoreboard.size(), 1);
     EXPECT_EQ(scoreboard.at("test_player").kills, 0);
     EXPECT_EQ(scoreboard.at("test_player").deaths, 0);
+    EXPECT_EQ(scoreboard.at("test_player").score, 0);
 }
 
 TEST_F(TestGame, PlayerIsDeadAfterTakingAllHealthDamage) {
@@ -369,6 +370,7 @@ TEST_F(TestGame, PlayerIsDeadAfterTakingAllHealthDamage) {
     Vector2D player_pos = updates.get_players().at("test_player").get_pos();
     Vector2D target_pos = updates.get_players().at("target_player").get_pos();
     int health = updates.get_players().at("target_player").get_health();
+    int old_money = updates.get_players().at("test_player").get_inventory().get_money();
 
     Message msg_select_team = Message(SelectTeamCommand(Team::TT));
     game.tick({PlayerMessage("test_player", msg_select_team)});
@@ -397,13 +399,22 @@ TEST_F(TestGame, PlayerIsDeadAfterTakingAllHealthDamage) {
     EXPECT_TRUE(updates.has_players_changed());
     EXPECT_EQ(health, 0);
 
+    updates = game.get_full_update();
+    int new_money = updates.get_players().at("test_player").get_inventory().get_money();
+    EXPECT_EQ(new_money, old_money + BonificationsConfig::kill);
+
     for (const auto& m: player_messages) {
-        if (m.get_message().get_type() == MessageType::SCOREBOARD_RESP) {
+        if (m.get_message().get_type() ==
+            MessageType::SCOREBOARD_RESP) {  // cppcheck-suppress[useStlAlgorithm]
             auto scoreboard = m.get_message().get_content<ScoreboardResponse>().get_scoreboard();
             EXPECT_EQ(scoreboard.at("target_player").deaths, 1);
             EXPECT_EQ(scoreboard.at("target_player").kills, 0);
+            EXPECT_EQ(scoreboard.at("test_player").score, 0);
+
             EXPECT_EQ(scoreboard.at("test_player").kills, 1);
             EXPECT_EQ(scoreboard.at("test_player").deaths, 0);
+            EXPECT_GT(scoreboard.at("test_player").score, ScoresConfig::kill);
+            break;
         }
     }
 }

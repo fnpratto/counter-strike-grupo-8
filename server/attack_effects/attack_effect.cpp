@@ -15,7 +15,5 @@ bool AttackEffect::apply(const std::unique_ptr<Player>& player) {
         return false;
     int final_damage = compute_damage(distance);
     player->take_damage(final_damage);
-    if (player->is_dead())
-        player_origin.increment_kills();
     return true;
 }

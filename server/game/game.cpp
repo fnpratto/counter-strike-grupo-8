@@ -81,8 +81,14 @@ void Game::perform_attacks() {
                 continue;
 
             bool is_hit = false;
-            if (closest_target.value().is_player())
-                is_hit = effect->apply(closest_target.value().get_player().get());
+            if (closest_target.value().is_player()) {
+                auto& target_player = closest_target.value().get_player().get();
+                is_hit = effect->apply(target_player);
+                if (target_player->is_dead()) {
+                    player->add_kill();
+                    player->add_rewards(ScoresConfig::kill, BonificationsConfig::kill);
+                }
+            }
 
             HitResponse hit_response(player->get_pos(), closest_target.value().get_pos(),
                                      effect->get_dir(), is_hit);

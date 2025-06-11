@@ -57,5 +57,7 @@ public:
 
     void reload();
 
-    void increment_kills();
+    void add_kill();
+
+    void add_rewards(int score, int bonification);
 };
