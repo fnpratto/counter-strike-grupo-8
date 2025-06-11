@@ -13,9 +13,10 @@
 #include "player_update.h"
 #include "state_update.h"
 
-#define GAME_ATTRS(X, M, U, O, V) \
-    U(PhaseUpdate, phase)         \
-    X(int, num_rounds)            \
-    M(std::string, PlayerUpdate, players)
+#define GAME_ATTRS(X, M, U, O, V)         \
+    U(PhaseUpdate, phase)                 \
+    X(int, num_rounds)                    \
+    M(std::string, PlayerUpdate, players) \
+    V((std::pair<GunType, Vector2D>), dropped_guns)
 
 DEFINE_UPDATE(GameUpdate, GAME_ATTRS)

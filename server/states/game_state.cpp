@@ -1,5 +1,7 @@
 #include "game_state.h"
 
+#include <utility>
+
 GameState::GameState(std::shared_ptr<Clock>&& game_clock, int max_players):
         phase(std::move(game_clock)), max_players(max_players) {
     updates = get_full_update();
@@ -85,6 +87,7 @@ void GameState::add_player(const std::string& player_name, std::unique_ptr<Playe
 }
 
 void GameState::add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos) {
+    updates.set_dropped_guns({std::make_pair(gun->get_type(), pos)});
     dropped_guns.emplace_back(std::move(gun), pos);
 }
 
@@ -109,8 +112,9 @@ GameUpdate GameState::get_full_update() const {
     GameUpdate update;
     update.set_phase(phase.get_full_update());
     update.set_num_rounds(num_rounds);
-    for (const auto& [name, player]: players) {
+    for (const auto& [name, player]: players)
         update.add_players_change(name, player->get_full_update());
-    }
+    for (const auto& [gun, pos]: dropped_guns)
+        update.set_dropped_guns({std::make_pair(gun->get_type(), pos)});
     return update;
 }
