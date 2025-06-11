@@ -13,8 +13,6 @@
 
 #define ATTR(...) __VA_ARGS__
 
-#define EXPAND_VECTOR(...) std::vector<__VA_ARGS__>
-
 class StateUpdate {
 public:
     virtual bool has_change() const = 0;
@@ -46,7 +44,7 @@ protected:
                 if constexpr (std::is_base_of_v<StateUpdate, V>) {
                     merged[key] = merged[key].merged(value);
                 } else {
-                    merged[key] = value;  // For simple types, just overwrite
+                    merged[key] = value;
                 }
             }
         }
@@ -68,9 +66,9 @@ protected:
     template <typename T>
     std::vector<T> merge(const std::vector<T>& a, const std::vector<T>& b) const {
         std::vector<T> merged = a;
-        std::copy_if(a.begin(), a.end(), std::back_inserter(merged), [&b](const T& value) {
-            return std::find(b.begin(), b.end(), value) == b.end();
-        });
+        merged.reserve(a.size() + b.size());
+        merged.insert(merged.end(), a.begin(), a.end());
+        merged.insert(merged.end(), b.begin(), b.end());
         return merged;
     }
 };
@@ -79,7 +77,7 @@ protected:
 #define M_DEFINE_MEMBER(key_type, value_type, attr) std::map<key_type, value_type> attr;
 #define U_DEFINE_MEMBER(type, attr) type attr;
 #define O_DEFINE_MEMBER(type, attr) std::optional<std::optional<type>> attr;
-#define V_DEFINE_MEMBER(type, attr) EXPAND_VECTOR type attr;
+#define V_DEFINE_MEMBER(type, attr) std::vector<ATTR type> attr;
 
 #define X_SETTER(type, attr)                                                \
     void set_##attr(const type& value) { attr = value; }                    \
@@ -110,9 +108,12 @@ protected:
             throw std::runtime_error(#attr " not set");                                    \
         return attr.value();                                                               \
     }
-#define V_SETTER(type, attr)                                           \
-    void set_##attr(const EXPAND_VECTOR type& value) { attr = value; } \
-    const EXPAND_VECTOR type& get_##attr() const { return attr; }
+#define V_SETTER(type, attr)                               \
+    void set_##attr(const std::vector<ATTR type>& value) { \
+        if (!value.empty())                                \
+            attr = merge(attr, value);                     \
+    }                                                      \
+    const std::vector<ATTR type>& get_##attr() const { return attr; }
 
 #define X_MERGER(type, attr)                                                        \
     auto merged_##attr = merge(get_optional_##attr(), other.get_optional_##attr()); \
