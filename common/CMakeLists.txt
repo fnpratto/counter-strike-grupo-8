@@ -18,6 +18,7 @@ target_sources(taller_common
     updates/player_update.h
     updates/inventory_update.h
     updates/gun_update.h
+    updates/knife_update.h
     ../server/states/state.h
     ../server/states/game_state.h
     ../server/states/gun_state.h

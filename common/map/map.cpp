@@ -7,9 +7,6 @@
 Map::Map(const std::string& name, int max_players): name(name), max_players(max_players) {}
 
 void Map::validate() const {
-    if (tiles.empty()) {
-        throw std::runtime_error("Map '" + name + "' has no tiles");
-    }
     if (spawns_tts.empty()) {
         throw std::runtime_error("Map '" + name + "' has no Terrorist spawns");
     }
@@ -20,11 +17,17 @@ void Map::validate() const {
 
 int Map::get_max_players() const { return max_players; }
 
-const std::vector<Tile>& Map::get_tiles() const { return tiles; }
+const std::vector<Floor>& Map::get_floors() const { return floors; }
 
-void Map::add_tile(MapTileType type, Vector2D&& grid_pos) {
-    tiles.emplace_back(type, std::move(grid_pos));
-}
+const std::vector<Wall>& Map::get_walls() const { return walls; }
+
+const std::vector<Box>& Map::get_boxes() const { return boxes; }
+
+void Map::add_floor(Vector2D&& pos) { floors.emplace_back(std::move(pos)); }
+
+void Map::add_wall(Vector2D&& pos) { walls.emplace_back(std::move(pos)); }
+
+void Map::add_box(Vector2D&& pos) { boxes.emplace_back(std::move(pos)); }
 
 void Map::add_spawn_tt(Vector2D&& grid_pos) { spawns_tts.push_back(std::move(grid_pos)); }
 

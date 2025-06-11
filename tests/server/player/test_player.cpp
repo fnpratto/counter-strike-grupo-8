@@ -19,9 +19,12 @@
 
 class TestPlayer: public ::testing::Test {
 protected:
+    MockClock clock;
     Player player;
 
-    TestPlayer(): player(Team::TT, Vector2D(0, 0)) {}
+    TestPlayer(): clock(std::chrono::steady_clock::now()), player(Team::TT, Vector2D(0, 0)) {}
+
+    void advance_secs(float secs) { clock.advance(std::chrono::duration<float>(secs)); }
 };
 
 TEST_F(TestPlayer, PlayerStartWithFullHealth) {
@@ -35,17 +38,46 @@ TEST_F(TestPlayer, PlayerStartWithDefaultInventory) {
     GunUpdate i_sec_weapon = i_inv.get_guns().at(ItemSlot::Secondary);
     GunUpdate p_sec_weapon = p_inv.get_guns().at(ItemSlot::Secondary);
     EXPECT_EQ(i_sec_weapon.get_gun(), p_sec_weapon.get_gun());
-    EXPECT_EQ(i_sec_weapon.get_bullets_per_mag(), p_sec_weapon.get_bullets_per_mag());
     EXPECT_EQ(i_sec_weapon.get_mag_ammo(), p_sec_weapon.get_mag_ammo());
     EXPECT_EQ(i_sec_weapon.get_reserve_ammo(), p_sec_weapon.get_reserve_ammo());
 
-    std::vector<ItemSlot> weapons_added = p_inv.get_weapons_added();
-    EXPECT_TRUE(std::find(weapons_added.begin(), weapons_added.end(), ItemSlot::Melee) !=
-                weapons_added.end());
-    EXPECT_TRUE(std::find(weapons_added.begin(), weapons_added.end(), ItemSlot::Secondary) !=
-                weapons_added.end());
-    EXPECT_FALSE(std::find(weapons_added.begin(), weapons_added.end(), ItemSlot::Bomb) !=
-                 weapons_added.end());
-    EXPECT_FALSE(std::find(weapons_added.begin(), weapons_added.end(), ItemSlot::Primary) !=
-                 weapons_added.end());
+    EXPECT_TRUE(p_inv.get_guns().find(ItemSlot::Secondary) != p_inv.get_guns().end());
+    EXPECT_FALSE(p_inv.get_guns().find(ItemSlot::Primary) != p_inv.get_guns().end());
+    EXPECT_TRUE(p_inv.get_knife().has_change());
+    EXPECT_FALSE(p_inv.get_bomb().has_value());
+}
+
+TEST_F(TestPlayer, GunReduceMagAmmoWhenPlayerAttacks) {
+    player.equip_item(ItemSlot::Secondary);
+    int old_mag_ammo = player.get_inventory().get_gun(ItemSlot::Secondary)->get_mag_ammo();
+
+    player.start_attacking();
+    auto attack_effects = player.attack(clock.now());
+    EXPECT_EQ(attack_effects.size(), 1);
+    EXPECT_EQ(player.get_inventory().get_gun(ItemSlot::Secondary)->get_mag_ammo(),
+              old_mag_ammo - GlockConfig.bullets_per_attack);
+}
+
+TEST_F(TestPlayer, GunBurst) {
+    Shop shop;
+    player.get_inventory().set_money(10000);
+    shop.buy_gun(player.get_inventory(), GunType::AK47);
+
+    player.equip_item(ItemSlot::Primary);
+    player.start_attacking();
+
+    for (int i = 0; i < Ak47Config.bullets_per_attack; i++) {
+        if (i > 0) {
+            auto effects = player.attack(clock.now());
+            EXPECT_EQ(effects.size(), 0);
+        }
+        advance_secs(Ak47Config.burst_interval);
+        auto attack_effects = player.attack(clock.now());
+        EXPECT_EQ(attack_effects.size(), 1);
+        EXPECT_EQ(player.get_inventory().get_gun(ItemSlot::Primary)->get_mag_ammo(),
+                  Ak47Config.bullets_per_mag - (i + 1));
+    }
+
+    auto attack_effects = player.attack(clock.now());
+    EXPECT_EQ(attack_effects.size(), 0);
 }

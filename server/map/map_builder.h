@@ -9,6 +9,7 @@
 #include "common/map/map.h"
 #include "common/models.h"
 #include "common/utils/vector_2d.h"
+#include "server/game/physics_system_config.h"
 
 // TODO: Make subclasses of MapBuilder that build specific
 //       maps such as DesertMapBuilder, AztecMapBuilder, and
@@ -34,7 +35,7 @@ public:
                 int x = tile_data["x"].as<int>();
                 int y = tile_data["y"].as<int>();
                 Vector2D tile_pos(x, y);
-                map.add_tile(MapTileType::Floor, std::move(tile_pos));
+                map.add_floor(std::move(tile_pos * PhysicsSystemConfig::meter_size));
             }
         }
 
@@ -43,7 +44,7 @@ public:
                 int x = tile_data["x"].as<int>();
                 int y = tile_data["y"].as<int>();
                 Vector2D tile_pos(x, y);
-                map.add_tile(MapTileType::Wall, std::move(tile_pos));
+                map.add_wall(std::move(tile_pos * PhysicsSystemConfig::meter_size));
             }
         }
 
@@ -52,7 +53,7 @@ public:
                 int x = tile_data["x"].as<int>();
                 int y = tile_data["y"].as<int>();
                 Vector2D tile_pos(x, y);
-                map.add_tile(MapTileType::Box, std::move(tile_pos));
+                map.add_box(std::move(tile_pos * PhysicsSystemConfig::meter_size));
             }
         }
 
@@ -60,21 +61,21 @@ public:
             int x = spawn_tt_data["x"].as<int>();
             int y = spawn_tt_data["y"].as<int>();
             Vector2D spawn_tt_pos(x, y);
-            map.add_spawn_tt(std::move(spawn_tt_pos));
+            map.add_spawn_tt(std::move(spawn_tt_pos * PhysicsSystemConfig::meter_size));
         }
 
         for (const auto& spawn_ct_data: map_data["spawns_cts"]) {
             int x = spawn_ct_data["x"].as<int>();
             int y = spawn_ct_data["y"].as<int>();
             Vector2D spawn_ct_pos(x, y);
-            map.add_spawn_ct(std::move(spawn_ct_pos));
+            map.add_spawn_ct(std::move(spawn_ct_pos * PhysicsSystemConfig::meter_size));
         }
 
         for (const auto& bomb_site_data: map_data["bomb_sites"]) {
             int x = bomb_site_data["x"].as<int>();
             int y = bomb_site_data["y"].as<int>();
             Vector2D bomb_site_pos(x, y);
-            map.add_bomb_site(std::move(bomb_site_pos));
+            map.add_bomb_site(std::move(bomb_site_pos * PhysicsSystemConfig::meter_size));
         }
 
         map.validate();

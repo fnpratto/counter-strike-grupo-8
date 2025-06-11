@@ -12,6 +12,7 @@
 #include "common/message.h"
 #include "gui/controllers/mousehandler.h"
 #include "gui/hud_component/hud_display.h"
+#include "gui/pre_game_view/list_skins.h"
 #include "gui/pre_game_view/list_teams.h"
 #include "gui/shop_view/shop.h"
 #include "gui/window_elements/sdl_window.h"
@@ -25,8 +26,6 @@ class SDLDisplay: public Display {
 
     std::atomic<bool> quit_flag;
 
-    static constexpr int SCREEN_WIDTH = 800;
-    static constexpr int SCREEN_HEIGHT = 600;
 
     std::unique_ptr<SDLInput> input_handler;
 
@@ -37,6 +36,8 @@ public:
     void stop() override;
 
 private:
+    int SCREEN_WIDTH;
+    int SCREEN_HEIGHT;
     void setup();
 
     GameUpdate get_initial_state();

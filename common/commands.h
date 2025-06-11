@@ -106,7 +106,7 @@ class MoveCommand: public Command {
     Vector2D direction;
 
 public:
-    explicit MoveCommand(Vector2D direction): direction(direction.normalized()) {}
+    explicit MoveCommand(Vector2D direction): direction(direction) {}
 
     Vector2D get_direction() const { return direction; }
 };
@@ -129,7 +129,7 @@ class AimCommand: public Command {
     Vector2D direction;
 
 public:
-    explicit AimCommand(Vector2D direction): direction(direction.normalized()) {}
+    explicit AimCommand(Vector2D direction): direction(direction) {}
 
     Vector2D get_direction() const { return direction; }
 };
@@ -187,3 +187,27 @@ class GetShopPricesCommand: public Command {};
  * @brief Command to leave the current game.
  */
 class LeaveGameCommand: public Command {};
+
+/**
+ * @class GetCharacterCommand
+ * @brief Command to get the character information.
+ */
+class GetCharactersCommand: public Command {};
+
+/**
+ * @class SelectCharacterCommand
+ * @brief Command to choose a character for the player.
+ */
+class SelectCharacterCommand: public Command {
+    CharacterType character_type;
+
+public:
+    explicit SelectCharacterCommand(CharacterType character_type): character_type(character_type) {}
+    CharacterType get_character_type() const { return character_type; }
+};
+
+/**
+ * @class GetScoreboardCommand
+ * @brief Command to request the scoreboard information.
+ */
+class GetScoreboardCommand: public Command {};

@@ -114,7 +114,7 @@ TEST_F(TestGameUpdate, NestedUpdateMerging) {
     phase1.set_phase(PhaseType::WarmUp);
 
     PhaseUpdate phase2;
-    phase2.set_time(TimePoint{});  // Assuming TimePoint has default constructor
+    phase2.set_secs_remaining(2);  // Assuming TimePoint has default constructor
 
     update1.set_phase(phase1);
     update2.set_phase(phase2);
@@ -125,7 +125,7 @@ TEST_F(TestGameUpdate, NestedUpdateMerging) {
 
     auto merged_phase = merged.get_phase();
     EXPECT_TRUE(merged_phase.has_phase_changed());
-    EXPECT_TRUE(merged_phase.has_time_changed());
+    EXPECT_TRUE(merged_phase.has_secs_remaining_changed());
     EXPECT_EQ(merged_phase.get_phase(), PhaseType::WarmUp);
 }
 

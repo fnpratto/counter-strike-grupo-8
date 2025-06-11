@@ -15,7 +15,6 @@ QtDisplay::QtDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue):
 void QtDisplay::run() {
     LogInWindow login_window(input_queue, output_queue);
     login_window.show();
-
     app.exec();
 }
 

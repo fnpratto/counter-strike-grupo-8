@@ -72,5 +72,5 @@ TEST_F(TestInventory, BuyAmmo) {
     GunUpdate new_glock = new_update.get_guns().at(ItemSlot::Secondary);
     EXPECT_EQ(new_glock.get_mag_ammo(), old_glock.get_mag_ammo());
     EXPECT_EQ(new_glock.get_reserve_ammo(),
-              old_glock.get_reserve_ammo() + new_glock.get_bullets_per_mag());
+              old_glock.get_reserve_ammo() + GlockConfig.bullets_per_mag);
 }

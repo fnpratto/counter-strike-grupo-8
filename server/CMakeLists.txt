@@ -9,6 +9,10 @@ target_sources(taller_server
     receiver.cpp
     sender.cpp
     main.cpp
+    # attack_effects
+    attack_effects/attack_effect.cpp
+    attack_effects/melee_attack.cpp
+    attack_effects/gun_attack.cpp
     # game
     game/game.cpp
     game/game_phase.cpp
@@ -24,6 +28,10 @@ target_sources(taller_server
     states/phase_state.cpp
     states/player_state.cpp
     states/inventory_state.cpp
+    states/knife_state.cpp
+    states/bomb_state.cpp
+    # weapons
+    weapons/gun.cpp
 
     PUBLIC
     acceptor.h
@@ -47,10 +55,14 @@ target_sources(taller_server
     game/game_phase.h
     game/physics_system.h
     game/game_config.h
+    game/target_type.h
+    game/physics_system_config.h
     # map
     map/map_builder.h
     ../common/map/map.h
-    ../common/map/tile.h
+    ../common/map/floor.h
+    ../common/map/wall.h
+    ../common/map/box.h
     # player
     player/player.h
     player/player_config.h
@@ -62,13 +74,11 @@ target_sources(taller_server
     states/phase_state.h
     states/player_state.h
     states/inventory_state.h
+    states/knife_state.h
+    states/bomb_state.h
     # weapons
     weapons/weapons_config.h
     weapons/gun.h
-    weapons/m3.h
     weapons/knife.h
     weapons/bomb.h
-    weapons/glock.h
-    weapons/awp.h
-    weapons/ak47.h
 )
