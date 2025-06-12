@@ -67,15 +67,7 @@ inline const std::map<int, GunType> GunIndexMap = {
         {0, GunType::AK47}, {1, GunType::M3}, {2, GunType::AWP}};
 
 inline const std::map<int, GunType> AmmoIndexMap = {
-        {4, GunType::AK47}, {5, GunType::M3}, {6, GunType::AWP}, {7, GunType::Glock}};
-
-// --- Gun Info ---
-inline const std::vector<GunInfo> Guns = {{"1", "", "1000"}, {"2", "", "1500"}, {"3", "", "20"},
-                                          {"4", "", ""},     {"5", "", "2000"}, {"6", "", "10"},
-                                          {"7", "", "30"},   {"8", "", ""}};
-
-inline const std::vector<AmmoInfo> Ammos = {
-        {"4", "", "200"}, {"5", "", "300"}, {"6", "", "400"}, {"7", "", "500"}, {"8", "", ""}};
+        {3, GunType::AK47}, {4, GunType::M3}, {5, GunType::AWP}, {6, GunType::Glock}};
 
 // --- GunType to string ---
 constexpr std::string_view GunTypeToStr(GunType type) {

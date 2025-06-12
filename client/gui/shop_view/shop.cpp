@@ -23,12 +23,12 @@ shopDisplay::shopDisplay(SdlWindow& window, const GameUpdate& state):
         back_chosen(std::string(GameConfig::Paths::HUD_SLOT_CLICKED_PATH), window),
         gunNumber(std::string(GameConfig::Paths::FONT_PAT), 20, {255, 255, 255, 255}, window),
         gun_buy(-1),
-        guns({{"1", "", "1000"}, {"2", "", "1500"}, {"3", "", "20"}}),  // Initialized guns
+        guns({{"1", "", "1000"}, {"2", "", "1500"}, {"3", "", "20"}}),
         ammo({{"4", "", "200"},
               {"5", "", "300"},
               {"6", "", "400"},
               {"7", "", "500"},
-              {"8", "", ""}}) {  // Initialized ammo
+              {"8", "", ""}}) {
 
     float BASE_WIDTH = 800.0f;
     float BASE_HEIGHT = 600.0f;
@@ -207,9 +207,6 @@ std::optional<Message> shopDisplay::getPurchaseCommand(int x, int y) {
         return Message(BuyGunCommand(GameConfig::GunIndexMap.at(slot_index)));
     } else if (GameConfig::AmmoIndexMap.count(slot_index)) {
         gun_buy = slot_index;
-        if (slot_index == 8) {
-            return std::nullopt;
-        }
         ItemSlot get_type = get_ammo_type(slot_index);
         return Message(BuyAmmoCommand(get_type));
     }
