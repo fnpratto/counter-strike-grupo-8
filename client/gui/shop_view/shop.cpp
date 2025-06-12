@@ -93,12 +93,6 @@ void shopDisplay::updatePrices(const ShopPricesResponse& response) {
         }
     }
 
-    /*
-       ammo_prices[GunType::AK47] = PRICE_MAG_AK47;
-       ammo_prices[GunType::M3] = PRICE_MAG_M3;
-       ammo_prices[GunType::AWP] = PRICE_MAG_AWP;
-       ammo_prices[GunType::Glock] = PRICE_MAG_GLOCK;
-    */
     auto ammo_prices = response.get_ammo_prices();
     std::cerr << "Ammo prices received: " << ammo_prices.size() << std::endl;
     std::cout << "Ammo prices: " << std::endl;
@@ -214,7 +208,7 @@ void shopDisplay::renderItem() {
     }
 }
 
-std::optional<Message> shopDisplay::updatePointerPosition(int x, int y) {
+std::optional<Message> shopDisplay::getPurchaseCommand(int x, int y) {
     if (!active) {
         return std::nullopt;
     }

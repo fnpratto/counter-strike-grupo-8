@@ -32,7 +32,7 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
             case SDL_BUTTON_LEFT:
                 std::cout << "MOUSE_PRESS_LEFT" << std::endl;
 
-                maybe_message = shopDisplayRef.updatePointerPosition(x, y);
+                maybe_message = shopDisplayRef.getPurchaseCommand(x, y);
                 if (maybe_message.has_value()) {
                     output_queue.push(maybe_message.value());
                     std::cout << "Sent shop-related command." << std::endl;

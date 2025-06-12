@@ -20,7 +20,6 @@ private:
     shopDisplay& shopRef;
     void update_direction();
     // bool isMuted = false;  // TODO sacar
-    bool no_movement = false;  // TODO sacar
 };
 
 #endif  // KEYBOARDHANDLER_H

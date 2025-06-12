@@ -82,7 +82,7 @@ payload_t ClientProtocol::serialize_msg(const BuyGunCommand& cmd) const {
 
 template <>
 payload_t ClientProtocol::serialize_msg(const BuyAmmoCommand& cmd) const {
-    return serialize(static_cast<uint8_t>(cmd.get_slot()));
+    return serialize(cmd.get_slot());
 }
 
 template <>

@@ -16,11 +16,10 @@ class shopDisplay {
 public:
     explicit shopDisplay(SdlWindow& window, const GameUpdate& state);
     void render();
-    std::optional<Message> updatePointerPosition(int x, int y);
+    std::optional<Message> getPurchaseCommand(int x, int y);
     void updateShopState(bool state);
     void updatePrices(const ShopPricesResponse& response);
     ItemSlot get_ammo_type(int id_slot);
-    void getShopInfo();
 
 private:
     SdlWindow& window;

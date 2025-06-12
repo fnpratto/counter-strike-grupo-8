@@ -128,17 +128,23 @@ void SDLDisplay::update_state() {
     }
 
     for (const auto& msg: msgs) {
-        if (msg.get_type() == MessageType::GAME_UPDATE) {
-            const GameUpdate& update = msg.get_content<GameUpdate>();
-            state = state.merged(update);
-        } else if (msg.get_type() == MessageType::SHOP_PRICES_RESP) {
-            const ShopPricesResponse& response = msg.get_content<ShopPricesResponse>();
-            shop_display->updateShopState(true);
-            shop_display->updatePrices(response);
-            std::cout << "Updated shop prices" << std::endl;
-        } else {
-            std::cerr << "Received unexpected message type: " << static_cast<int>(msg.get_type())
-                      << std::endl;
+        switch (msg.get_type()) {
+            case MessageType::GAME_UPDATE: {
+                const GameUpdate& update = msg.get_content<GameUpdate>();
+                state = state.merged(update);
+                break;
+            }
+            case MessageType::SHOP_PRICES_RESP: {
+                const ShopPricesResponse& response = msg.get_content<ShopPricesResponse>();
+                shop_display->updateShopState(true);
+                shop_display->updatePrices(response);
+                std::cout << "Updated shop prices" << std::endl;
+                break;
+            }
+            default:
+                std::cerr << "Received unexpected message type: "
+                          << static_cast<int>(msg.get_type()) << std::endl;
+                break;
         }
     }
 }

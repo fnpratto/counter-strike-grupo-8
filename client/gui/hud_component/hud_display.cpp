@@ -6,39 +6,8 @@
 #include <map>
 #include <vector>
 
-const std::string& BACKGROUND_PATH = "../assets/gfx/backgrounds/water1.jpg";
-const std::string& POINTER_PATH = "../assets/gfx/hud/pointer.xcf";
-const std::string& MONEY_PATH = "../assets/gfx/hud/hud_symbols.xcf";
-const std::string& LIFE_PATH = "../assets/gfx/hud/hud_symbols.xcf";
-const std::string& FONT_PATH = "../assets/gfx/fonts/joystix_monospace.otf";
-const std::string& BULLET_PATH = "../assets/gfx/hud/bullet-icon1.xcf";
-const std::string& TRAPECIO_PATH = "../assets/gfx/hud/trapezoid.xcf";
-const std::string& HUD_NUMS_PATH = "../assets/gfx/fonts/hud_nums.xcf";
-const std::string& PARALELO_RED_PATH = "../assets/gfx/hud/parallelogram.xcf";
-const std::string& PARALELO_BLUE_PATH = "../assets/gfx/hud/parallelogram_blue.xcf";
-const std::string& PARALELO_RED_O_PATH = "../assets/gfx/hud/parallelogram_red_op.xcf";
-const std::string& PARALELO_BLUE_O_PATH = "../assets/gfx/hud/parallelogram_blue_op.xcf";
-const std::string& HUD_NUMS_XCF = "../assets/gfx/fonts/hud_nums.xcf";
-const std::string& MUTE_ICON_PATH = "../assets/gfx/hud/hud_voice.xcf";
-const std::string& GUNS_INVENTORY_PATH = "../assets/gfx/hud/guns_inventory.xcf";
+#include "../../game_config.h"
 
-std::map<std::string, int> offsetInventory = {{"awp", 0},   {"m3", 1},    {"ak4", 2},
-                                              {"glock", 3}, {"knife", 4}, {"bomb", 5}};
-
-std::string gunTypeToStr(GunType type) {
-    switch (type) {
-        case GunType::AK47:
-            return "ak4";
-        case GunType::M3:
-            return "m3";
-        case GunType::AWP:
-            return "awp";
-        case GunType::Glock:
-            return "glock";
-        default:
-            return "";
-    }
-}
 
 hudDisplay::hudDisplay(SdlWindow& window, const GameUpdate& state, const std::string& player_name):
         state(state),
@@ -46,20 +15,20 @@ hudDisplay::hudDisplay(SdlWindow& window, const GameUpdate& state, const std::st
         window(window),
         SCREEN_WIDTH(window.getWidth()),
         SCREEN_HEIGHT(window.getHeight()),
-        pointer(POINTER_PATH, window),
-        money(MONEY_PATH, window),
-        money_amount(window.getRenderer(), HUD_NUMS_XCF),
-        life(LIFE_PATH, window),
-        life_amount(window.getRenderer(), HUD_NUMS_XCF),
-        equipedBullets(BULLET_PATH, window),
-        equipedBulletsAmount(window.getRenderer(), HUD_NUMS_XCF),
-        timer_amount(window.getRenderer(), HUD_NUMS_XCF),
-        timer_dots(HUD_NUMS_XCF, window),
-        roundText(FONT_PATH, 20, {150, 150, 150, 255}, window),
-        gunNumber(FONT_PATH, 20, {150, 150, 150, 255}, window),
-        scoreText(FONT_PATH, 20, {255, 255, 255, 255}, window),
-        muteIcon(MUTE_ICON_PATH, window),
-        gunsInventoryTexture(GUNS_INVENTORY_PATH, window) {
+        pointer(std::string(GameConfig::Paths::POINTER_PATH), window),
+        money(std::string(GameConfig::Paths::MONEY_PATH), window),
+        money_amount(window.getRenderer(), std::string(GameConfig::Paths::HUD_NUMS_XCF)),
+        life(std::string(GameConfig::Paths::LIFE_PATH), window),
+        life_amount(window.getRenderer(), std::string(GameConfig::Paths::HUD_NUMS_XCF)),
+        equipedBullets(std::string(GameConfig::Paths::BULLET_PATH), window),
+        equipedBulletsAmount(window.getRenderer(), std::string(GameConfig::Paths::HUD_NUMS_XCF)),
+        timer_amount(window.getRenderer(), std::string(GameConfig::Paths::HUD_NUMS_XCF)),
+        timer_dots(std::string(GameConfig::Paths::HUD_NUMS_XCF), window),
+        roundText(std::string(GameConfig::Paths::FONT_PATH), 20, {150, 150, 150, 255}, window),
+        gunNumber(std::string(GameConfig::Paths::FONT_PATH), 20, {150, 150, 150, 255}, window),
+        scoreText(std::string(GameConfig::Paths::FONT_PATH), 20, {255, 255, 255, 255}, window),
+        muteIcon(std::string(GameConfig::Paths::MUTE_ICON_PATH), window),
+        gunsInventoryTexture(std::string(GameConfig::Paths::GUNS_INVENTORY_PATH), window) {
     float BASE_WIDTH = 800.0f;
     float BASE_HEIGHT = 600.0f;
 
@@ -117,7 +86,7 @@ void hudDisplay::renderBackground() {
 
     SDL_Rect rect = {0, 0, SCREEN_WIDTH, 10};
     SDL_RenderFillRect(renderer, &rect);
-    SdlTexture trapecio(TRAPECIO_PATH, window);
+    SdlTexture trapecio(std::string(GameConfig::Paths::TRAPECIO_PATH), window);
     Area srcTrapecio(0, 0, 500, 230);
     Area destTrapecio(SCREEN_WIDTH * 0.5 - SCREEN_WIDTH * 0.5 / 2, 0, SCREEN_WIDTH * 0.5,
                       layout.size_height * 1.75);
@@ -134,7 +103,7 @@ void hudDisplay::renderTeamScores() {
     const int margin = layout.padding * 2;  // espacio entre trapecio y paralelogramas
 
     // BLUE (izquierda del trapecio)
-    SdlTexture parallelogram1(PARALELO_BLUE_O_PATH, window);
+    SdlTexture parallelogram1(std::string(GameConfig::Paths::PARALELO_BLUE_O_PATH), window);
     Area srcParallelogram1(0, 180, 500, 320);
     Area destParallelogram1(trapecioX - paralWidth / 4 + margin, layout.padding * 2, paralWidth,
                             paralHeight);
@@ -145,7 +114,7 @@ void hudDisplay::renderTeamScores() {
                           layout.size_width / 1.75, layout.size_height / 2));
 
     // RED (derecha del trapecio)
-    SdlTexture parallelogram(PARALELO_RED_PATH, window);
+    SdlTexture parallelogram(std::string(GameConfig::Paths::PARALELO_RED_PATH), window);
     Area srcParallelogram(0, 180, 500, 320);
     Area destParallelogram(trapecioX + trapecioWidth + margin, layout.padding * 2, paralWidth,
                            paralHeight);
@@ -280,9 +249,9 @@ void hudDisplay::renderGunIcons() {
 
         int iconIndex = -1;
         if (slot == ItemSlot::Primary || slot == ItemSlot::Secondary) {
-            std::string key = gunTypeToStr(type);
-            if (offsetInventory.count(key)) {
-                iconIndex = offsetInventory[key];
+            std::string key = std::string(GameConfig::GunTypeToStr(type));
+            if (GameConfig::offsetInventory.count(key)) {
+                iconIndex = GameConfig::offsetInventory[key];
             }
         }
 
@@ -299,7 +268,7 @@ void hudDisplay::renderGunIcons() {
     }
 
     // Render knife (always present)
-    int knifeIndex = offsetInventory["knife"];
+    int knifeIndex = GameConfig::offsetInventory["knife"];
     Area knifeSrc(knifeIndex * iconWidth, 0, iconWidth, iconHeight);
     Area knifeDest(x, y, SCREEN_WIDTH / 14, 34);
     gunsInventoryTexture.render(knifeSrc, knifeDest);
@@ -316,7 +285,7 @@ void hudDisplay::renderGunIcons() {
     } catch (const std::exception& e) {
         return;
     }
-    int bombIndex = offsetInventory["bomb"];
+    int bombIndex = GameConfig::offsetInventory["bomb"];
     Area bombSrc(bombIndex * iconWidth, 0, iconWidth, iconHeight);
     Area bombDest(x, y, SCREEN_WIDTH / 14, 34);
 

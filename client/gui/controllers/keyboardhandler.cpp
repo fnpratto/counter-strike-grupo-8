@@ -5,10 +5,7 @@
 #include <SDL2/SDL.h>
 
 KeyboardHandler::KeyboardHandler(Queue<Message>& output_queue, shopDisplay& shopRef):
-        output_queue(output_queue), shopRef(shopRef) {
-    no_movement = true;
-    // Constructor implementation can be empty or contain initialization logic if needed
-}
+        output_queue(output_queue), shopRef(shopRef) {}
 
 
 void KeyboardHandler::handleEvent(const SDL_Event& event /*, bool& shop*/) {
@@ -19,7 +16,6 @@ void KeyboardHandler::handleEvent(const SDL_Event& event /*, bool& shop*/) {
                 break;
             case SDLK_b:
                 output_queue.push(Message(GetShopPricesCommand()));
-                // shopRef.updateShopState(true);
                 break;
             case SDLK_m:
                 // Toggle mute functionality //TODO_ADD SERVER
@@ -53,11 +49,8 @@ void KeyboardHandler::update_direction() {
 
     if (dx != 0 || dy != 0) {
         output_queue.push(Message(MoveCommand(Vector2D(dx, dy))));
-        no_movement = false;
         return;
-    }
-    if (!no_movement) {
-        no_movement = true;
+    } else {
         output_queue.push(Message(StopPlayerCommand()));
     }
 }
