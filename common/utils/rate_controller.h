@@ -17,6 +17,8 @@ private:
     std::chrono::steady_clock::time_point next_frame_time;
     int max_lag_frames;
 
+    bool is_blocking = false;
+
 public:
     /**
      * @brief Constructs a RateController with the specified target rate.
@@ -37,6 +39,8 @@ public:
      */
     void run_at_rate(std::function<bool()> callback);
 
+    void set_blocking(bool blocking) { is_blocking = blocking; }
+
     /**
      * @brief Sets a new target rate.
      *
@@ -50,6 +54,8 @@ public:
      * @return Current target rate
      */
     int get_rate() const;
+
+    bool should_run();
 };
 
 #endif  // RATE_CONTROLLER_H

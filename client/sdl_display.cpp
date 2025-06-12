@@ -68,8 +68,11 @@ void SDLDisplay::run() {
     listTeams list_teams(window, state, player_name);
     skinSelect list_skins(window, state, player_name);
 
-    input_handler = std::make_unique<SDLInput>(output_queue, quit_flag, list_teams, shop_display,
-                                               hud_display, list_skins);
+    input_handler = std::make_unique<SDLInput>(
+            quit_flag,
+            MouseHandler(output_queue, SCREEN_WIDTH, SCREEN_HEIGHT, list_teams, shop_display,
+                         hud_display, list_skins),
+            KeyboardHandler(output_queue, shop_display));
     input_handler->start();
 
     update_state();
@@ -130,7 +133,6 @@ void SDLDisplay::update_state() {
         if (msg.get_type() == MessageType::GAME_UPDATE) {
             const GameUpdate& update = msg.get_content<GameUpdate>();
             state = state.merged(update);
-            std::cout << "Applied GameUpdate" << std::endl;
         }
     }
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "../common/message.h"
 #include "gui/controllers/keyboardhandler.h"
 #include "gui/controllers/mousehandler.h"
@@ -11,14 +13,15 @@
 class SDLInput: public Thread {
 private:
     std::atomic<bool>& quit_flag;
-    Queue<Message>& queue;
     MouseHandler mouseHandler;
     KeyboardHandler keyboardHandler;
 
-
 public:
-    SDLInput(Queue<Message>& queue, std::atomic<bool>& quit_flag, listTeams& listRef,
-             shopDisplay& shopRef, hudDisplay& hudRef, skinSelect& skinSelectRef);
+    SDLInput(std::atomic<bool>& quit_flag, MouseHandler mouse_handler,
+             KeyboardHandler keyboard_handler):
+            quit_flag(quit_flag),
+            mouseHandler(std::move(mouse_handler)),
+            keyboardHandler(std::move(keyboard_handler)) {}
 
     void run() override;
     void stop() override {

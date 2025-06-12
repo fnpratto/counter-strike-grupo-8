@@ -154,11 +154,20 @@ protected:
         return payload;
     }
 
-    payload_t serialize(const int& i) const { return serialize(static_cast<uint16_t>(i)); }
+    payload_t serialize(const int16_t& i) const {
+        payload_t payload;
+
+        int16_t data = htons(static_cast<int16_t>(i));
+        payload.insert(payload.begin(), reinterpret_cast<const char*>(&data),
+                       reinterpret_cast<const char*>(&data) + sizeof(data));
+
+        return payload;
+    }
+
+    payload_t serialize(const int& i) const { return serialize(static_cast<int16_t>(i)); }
 
     payload_t serialize(const Vector2D& vec) const {
         payload_t payload;
-        payload.reserve(2 * sizeof(uint16_t));
         payload_t x_payload = serialize(vec.get_x());
         payload_t y_payload = serialize(vec.get_y());
         payload.insert(payload.end(), x_payload.begin(), x_payload.end());

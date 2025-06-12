@@ -11,10 +11,11 @@
 #include <vector>
 
 #include "common/updates/player_update.h"
+#include "server/game/physics_system_config.h"
 
 class SdlCamera {
 private:
-    static constexpr float meter_u = 64.0f;
+    static constexpr float meter_u = static_cast<float>(PhysicsSystemConfig::meter_size);
     static constexpr float meter_px = 32.0f;
     static constexpr float u2px_rate = meter_px / meter_u;
 

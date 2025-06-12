@@ -5,14 +5,6 @@
 #include "gui/controllers/keyboardhandler.h"
 #include "gui/controllers/mousehandler.h"
 
-SDLInput::SDLInput(Queue<Message>& queue, std::atomic<bool>& quit_flag, listTeams& listRef,
-                   shopDisplay& shopRef, hudDisplay& hudRef, skinSelect& skinSelectRef):
-        quit_flag(quit_flag),
-        queue(queue),
-        mouseHandler(queue, listRef, shopRef, hudRef, skinSelectRef),
-        keyboardHandler(queue, shopRef) {}
-
-
 void SDLInput::run() {
     while (!quit_flag) {
         // bool shop = false;
