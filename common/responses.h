@@ -93,3 +93,15 @@ public:
 
     std::map<std::string, ScoreboardEntry> get_scoreboard() const { return scoreboard; }
 };
+
+/**
+ * @class TriedToJoinFullTeamErrorResponse
+ * @brief Response sent when a player attempts to join a team that is already full.
+ */
+class TriedToJoinFullTeamErrorResponse {};
+
+/**
+ * @class CannotBuyErrorResponse
+ * @brief Response sent when a player attempts to make a purchase but is not allowed to.
+ */
+class CannotBuyErrorResponse {};

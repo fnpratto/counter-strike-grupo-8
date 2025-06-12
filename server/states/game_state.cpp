@@ -61,13 +61,9 @@ const std::unique_ptr<Player>& GameState::get_player(const std::string& player_n
     return it->second;
 }
 
-void GameState::advance_round() { set_num_rounds(num_rounds + 1); }
-
-void GameState::set_num_rounds(int rounds) {
-    if (num_rounds == rounds)
-        return;
-    num_rounds = rounds;
-    updates.set_num_rounds(rounds);
+void GameState::advance_round() {
+    num_rounds += 1;
+    updates.set_num_rounds(num_rounds);
 }
 
 void GameState::swap_players_teams() {

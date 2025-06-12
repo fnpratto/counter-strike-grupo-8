@@ -6,12 +6,11 @@
 #include <utility>
 #include <vector>
 
+#include "common/errors.h"
 #include "common/message.h"
 #include "common/protocol.h"
 #include "common/socket.h"
 #include "common/updates/state_update.h"
-
-#include "errors.h"
 
 /**
  * @class ClientProtocol
