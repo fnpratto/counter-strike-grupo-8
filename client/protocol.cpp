@@ -141,6 +141,11 @@ payload_t ClientProtocol::serialize_msg([[maybe_unused]] const GetShopPricesComm
 }
 
 template <>
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const GetScoreboardCommand& cmd) const {
+    return payload_t();
+}
+
+template <>
 payload_t ClientProtocol::serialize_msg([[maybe_unused]] const LeaveGameCommand& cmd) const {
     return payload_t();
 }
@@ -185,6 +190,8 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
             return serialize_msg(message.get_content<GetShopPricesCommand>());
         case MessageType::LEAVE_GAME_CMD:
             return serialize_msg(message.get_content<LeaveGameCommand>());
+        case MessageType::GET_SCOREBOARD_CMD:
+            return serialize_msg(message.get_content<GetScoreboardCommand>());
         default:
             throw std::runtime_error("Invalid message type for serialization");
     }

@@ -317,6 +317,11 @@ Message TextDisplay::build_message<GetShopPricesCommand>([[maybe_unused]] std::i
 }
 
 template <>
+Message TextDisplay::build_message<GetScoreboardCommand>([[maybe_unused]] std::istringstream& iss) {
+    return Message(GetScoreboardCommand());
+}
+
+template <>
 Message TextDisplay::build_message<LeaveGameCommand>([[maybe_unused]] std::istringstream& iss) {
     return Message(LeaveGameCommand());
 }
@@ -365,6 +370,10 @@ Message TextDisplay::parse_line(const std::string& line) {
             {"shop",
              [this](std::istringstream& is) {
                  return this->build_message<GetShopPricesCommand>(is);
+             }},
+            {"scoreboard",
+             [this](std::istringstream& is) {
+                 return this->build_message<GetScoreboardCommand>(is);
              }},
     };
 

@@ -232,6 +232,13 @@ GetShopPricesCommand ServerProtocol::deserialize_msg<GetShopPricesCommand>(
 }
 
 template <>
+GetScoreboardCommand ServerProtocol::deserialize_msg<GetScoreboardCommand>(
+        payload_t& payload) const {
+    (void)payload;
+    return GetScoreboardCommand();
+}
+
+template <>
 LeaveGameCommand ServerProtocol::deserialize_msg<LeaveGameCommand>(payload_t& payload) const {
     (void)payload;
     return LeaveGameCommand();
@@ -277,6 +284,8 @@ Message ServerProtocol::deserialize_message(const MessageType& msg_type, payload
             return Message(deserialize_msg<GetShopPricesCommand>(payload));
         case MessageType::LEAVE_GAME_CMD:
             return Message(deserialize_msg<LeaveGameCommand>(payload));
+        case MessageType::GET_SCOREBOARD_CMD:
+            return Message(deserialize_msg<GetScoreboardCommand>(payload));
 
         default:
             throw std::runtime_error("Invalid command received");
