@@ -12,12 +12,12 @@ static constexpr int playing_phase_secs = 120;
 static constexpr int end_phase_secs = 5;
 };  // namespace PhaseTimes
 
-namespace ScoresConfig {
+namespace Scores {
 static constexpr int kill = 2;
 // TODO: static constexpr int win = 5;
-};  // namespace ScoresConfig
+};  // namespace Scores
 
-namespace BonificationsConfig {
+namespace Bonifications {
 static constexpr int kill = 100;
 // TODO: static constexpr int win = 300;
-}  // namespace BonificationsConfig
+}  // namespace Bonifications

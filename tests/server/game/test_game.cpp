@@ -412,9 +412,9 @@ TEST_F(TestGame, PlayerIsDeadAfterTakingAllHealthDamage) {
 
             EXPECT_EQ(scoreboard.at("test_player").kills, 1);
             EXPECT_EQ(scoreboard.at("test_player").deaths, 0);
-            EXPECT_GT(scoreboard.at("test_player").score, ScoresConfig::kill);
+            EXPECT_GT(scoreboard.at("test_player").score, Scores::kill);
             EXPECT_EQ(scoreboard.at("test_player").money,
-                      PlayerConfig::initial_money + BonificationsConfig::kill);
+                      PlayerConfig::initial_money + Bonifications::kill);
             break;
         }
     }

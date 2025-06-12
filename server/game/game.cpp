@@ -94,7 +94,7 @@ bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker,
         is_hit = effect->apply(target_player);
         if (target_player->is_dead()) {
             attacker->add_kill();
-            attacker->add_rewards(ScoresConfig::kill, BonificationsConfig::kill);
+            attacker->add_rewards(Scores::kill, Bonifications::kill);
         }
     }
     return is_hit;
