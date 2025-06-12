@@ -69,10 +69,34 @@ public:
 };
 
 /**
+ * @class GetCharacterCommand
+ * @brief Command to get the character information.
+ */
+class GetCharactersCommand: public Command {};
+
+/**
+ * @class SelectCharacterCommand
+ * @brief Command to choose a character for the player.
+ */
+class SelectCharacterCommand: public Command {
+    CharacterType character_type;
+
+public:
+    explicit SelectCharacterCommand(CharacterType character_type): character_type(character_type) {}
+    CharacterType get_character_type() const { return character_type; }
+};
+
+/**
  * @class StartGameCommand
  * @brief Command to start the game (sent by the game creator).
  */
 class StartGameCommand: public Command {};
+
+/**
+ * @class GetShopPricesCommand
+ * @brief Command to request the shop prices.
+ */
+class GetShopPricesCommand: public Command {};
 
 /**
  * @class BuyGunCommand
@@ -111,7 +135,6 @@ public:
     Vector2D get_direction() const { return direction; }
 };
 
-
 /**
  * @class StopPlayerCommand
  * @brief Command to stop the player's movement.
@@ -141,12 +164,6 @@ public:
 class AttackCommand: public Command {};
 
 /**
- * @class ReloadCommand
- * @brief Command to reload the current weapon.
- */
-class ReloadCommand: public Command {};
-
-/**
  * @class SwitchItemCommand
  * @brief Command to switch the equipped weapon.
  */
@@ -157,6 +174,18 @@ public:
     explicit SwitchItemCommand(ItemSlot s): slot(s) {}
     ItemSlot get_slot() const { return slot; }
 };
+
+/**
+ * @class ReloadCommand
+ * @brief Command to reload the current weapon.
+ */
+class ReloadCommand: public Command {};
+
+/**
+ * @class GetScoreboardCommand
+ * @brief Command to request the scoreboard information.
+ */
+class GetScoreboardCommand: public Command {};
 
 /**
  * @class PlantBombCommand
@@ -177,37 +206,7 @@ class DefuseBombCommand: public Command {};
 class PickUpItemCommand: public Command {};
 
 /**
- * @class GetShopPricesCommand
- * @brief Command to request the shop prices.
- */
-class GetShopPricesCommand: public Command {};
-
-/**
  * @class LeaveGameCommand
  * @brief Command to leave the current game.
  */
 class LeaveGameCommand: public Command {};
-
-/**
- * @class GetCharacterCommand
- * @brief Command to get the character information.
- */
-class GetCharactersCommand: public Command {};
-
-/**
- * @class SelectCharacterCommand
- * @brief Command to choose a character for the player.
- */
-class SelectCharacterCommand: public Command {
-    CharacterType character_type;
-
-public:
-    explicit SelectCharacterCommand(CharacterType character_type): character_type(character_type) {}
-    CharacterType get_character_type() const { return character_type; }
-};
-
-/**
- * @class GetScoreboardCommand
- * @brief Command to request the scoreboard information.
- */
-class GetScoreboardCommand: public Command {};
