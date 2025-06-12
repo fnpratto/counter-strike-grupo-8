@@ -61,7 +61,7 @@ TEST_F(TestPlayer, GunReduceMagAmmoWhenPlayerAttacks) {
 TEST_F(TestPlayer, GunBurst) {
     Shop shop;
     player.get_inventory().set_money(10000);
-    shop.buy_gun(player.get_inventory(), GunType::AK47);
+    shop.buy_gun(GunType::AK47, player.get_inventory());
 
     player.equip_item(ItemSlot::Primary);
     player.start_attacking();

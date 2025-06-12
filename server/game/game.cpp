@@ -95,6 +95,12 @@ bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker,
         if (target_player->is_dead()) {
             attacker->add_kill();
             attacker->add_rewards(Scores::kill, Bonifications::kill);
+            auto gun = target_player->drop_primary_weapon();
+            if (gun.has_value())
+                state.add_dropped_gun(std::move(gun.value()), target_player->get_pos());
+            auto bomb = target_player->drop_bomb();
+            if (bomb.has_value())
+                state.add_bomb(std::move(bomb.value()), target_player->get_pos());
         }
     }
     return is_hit;
@@ -187,11 +193,13 @@ void Game::handle<BuyGunCommand>(const std::string& player_name, const BuyGunCom
     }
 
     auto& player = state.get_player(player_name);
-    bool success = shop.buy_gun(player->get_inventory(), msg.get_gun());
-
-    if (!success) {
+    if (shop.can_buy_gun(msg.get_gun(), player->get_inventory())) {
+        auto gun = player->drop_primary_weapon();
+        if (gun.has_value())
+            state.add_dropped_gun(std::move(gun.value()), player->get_pos());
+        shop.buy_gun(msg.get_gun(), player->get_inventory());
+    } else {
         output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
-        return;
     }
 }
 
@@ -203,12 +211,10 @@ void Game::handle<BuyAmmoCommand>(const std::string& player_name, const BuyAmmoC
     }
 
     auto& player = state.get_player(player_name);
-    bool success = shop.buy_ammo(player->get_inventory(), msg.get_slot());
-
-    if (!success) {
+    if (shop.can_buy_ammo(msg.get_slot(), player->get_inventory()))
+        shop.buy_ammo(msg.get_slot(), player->get_inventory());
+    else
         output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
-        return;
-    }
 }
 
 template <>

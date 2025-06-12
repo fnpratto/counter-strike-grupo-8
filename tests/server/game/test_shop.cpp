@@ -26,7 +26,7 @@ TEST_F(TestShop, CanBuyAnyPrimaryWeapon) {
     EXPECT_TRUE(prices.find(GunType::AWP) != prices.end());
 
     for (auto [gun_type, price]: prices) {
-        shop.buy_gun(inventory, gun_type);
+        shop.buy_gun(gun_type, inventory);
 
         int actual_money = inventory.get_updates().get_money();
         EXPECT_EQ(actual_money, initial_money - price);
@@ -45,11 +45,12 @@ TEST_F(TestShop, CannotBuyWeaponIfNotEnoughMoney) {
     int gun_price = PRICE_AK47;
 
     while (gun_price <= initial_money) {
-        EXPECT_TRUE(shop.buy_gun(inventory, gun));
+        EXPECT_TRUE(shop.can_buy_gun(gun, inventory));
+        shop.buy_gun(gun, inventory);
         initial_money = inventory.get_updates().get_money();
     }
 
-    EXPECT_FALSE(shop.buy_gun(inventory, gun));
+    EXPECT_FALSE(shop.can_buy_gun(gun, inventory));
     EXPECT_EQ(inventory.get_full_update().get_money(), initial_money);
 }
 
@@ -63,7 +64,7 @@ TEST_F(TestShop, BuyAmmo) {
     int old_money = inventory_update.get_money();
     GunUpdate old_glock = inventory_update.get_guns().at(ItemSlot::Secondary);
 
-    shop.buy_ammo(inventory, ItemSlot::Secondary);
+    shop.buy_ammo(ItemSlot::Secondary, inventory);
     InventoryUpdate new_update = inventory.get_full_update();
     int new_money = new_update.get_money();
 
