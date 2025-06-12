@@ -187,6 +187,7 @@ class ReloadCommand: public Command {};
  */
 class GetScoreboardCommand: public Command {};
 
+
 /**
  * @class PlantBombCommand
  * @brief Command to plant the bomb at the current position.

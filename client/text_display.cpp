@@ -120,7 +120,7 @@ void TextDisplay::draw(const Message& message) {
             bool result = message.get_content<bool>();
             std::cout << "Operation result: " << (result ? "Success" : "Failure") << std::endl;
             break;
-        }
+        }  // TODO
         default:
             throw std::runtime_error("Invalid message type for TextDisplay: " +
                                      std::to_string(static_cast<int>(message.get_type())));
@@ -331,7 +331,6 @@ Message TextDisplay::parse_line(const std::string& line) {
     std::string command;
     iss >> command;
 
-
     using CommandFunction = std::function<Message(std::istringstream&)>;
     static const std::unordered_map<std::string, CommandFunction> command_map = {
             {"connect",
@@ -367,15 +366,9 @@ Message TextDisplay::parse_line(const std::string& line) {
              [this](std::istringstream& is) { return this->build_message<PickUpItemCommand>(is); }},
             {"leave",
              [this](std::istringstream& is) { return this->build_message<LeaveGameCommand>(is); }},
-            {"shop",
-             [this](std::istringstream& is) {
+            {"shop", [this](std::istringstream& is) {
                  return this->build_message<GetShopPricesCommand>(is);
-             }},
-            {"scoreboard",
-             [this](std::istringstream& is) {
-                 return this->build_message<GetScoreboardCommand>(is);
-             }},
-    };
+             }}};
 
     auto it = command_map.find(command);
     if (it != command_map.end())

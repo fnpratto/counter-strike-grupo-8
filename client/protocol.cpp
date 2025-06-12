@@ -11,6 +11,7 @@
 #include "common/errors.h"
 #include "common/message.h"
 #include "common/responses.h"
+#include "common/scoreboard/scoreboard_entry.h"
 #include "common/socket.h"
 #include "common/updates/bomb_update.h"
 #include "common/updates/game_update.h"
@@ -135,6 +136,7 @@ payload_t ClientProtocol::serialize_msg([[maybe_unused]] const GetScoreboardComm
     return payload_t();
 }
 
+
 template <>
 payload_t ClientProtocol::serialize_msg([[maybe_unused]] const PlantBombCommand& cmd) const {
     return payload_t();
@@ -197,11 +199,12 @@ CharactersResponse ClientProtocol::deserialize_msg<CharactersResponse>(payload_t
     return CharactersResponse(deserialize_vector<CharacterType>(payload));
 }
 
-// TODO: Implement
+
+// TODO
 template <>
-ScoreboardResponse ClientProtocol::deserialize_msg<ScoreboardResponse>(
-        [[maybe_unused]] payload_t& payload) const {
-    return ScoreboardResponse({});
+ScoreboardResponse ClientProtocol::deserialize_msg<ScoreboardResponse>(payload_t& payload) const {
+    auto scoreboard = deserialize_map<std::string, ScoreboardEntry>(payload);
+    return ScoreboardResponse(std::move(scoreboard));
 }
 
 // TODO: Implement
