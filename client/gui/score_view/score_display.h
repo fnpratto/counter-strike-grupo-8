@@ -26,10 +26,20 @@ private:
     SdlTexture black_rectangle;
     SdlTexture red_rectangle;
     SdlTexture blue_rectangle;
+    SdlTexture line;
     int baseX;
     int baseY;
     int slotWidth;
     int slotHeight;
+
+    void renderHeaderTexts(int y);
+    void renderText(SdlText& text, const std::string& content, int x, int y, int width, int height);
+    void renderPlayerEntry(const std::string& playerName, const ScoreboardEntry& entry, int y,
+                           Team team);
+    void renderRectangle(const SdlTexture& rectangle, int x, int y, int width, int height);
+    void renderTeamSlots(const SdlTexture& rectangle, int baseY, int slotCount);
+    void renderLine(int x, int baseY, int height);
+    void renderLines(int baseY, int slotCount);
 
 public:
     explicit ScoreDisplay(SdlWindow& window, std::map<std::string, ScoreboardEntry> scoreboard,
