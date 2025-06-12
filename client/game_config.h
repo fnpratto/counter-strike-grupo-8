@@ -59,8 +59,8 @@ constexpr std::string_view AMMO_PATH = "../assets/gfx/guns/ammo.xcf";
 // --- Gun Type Offsets ---
 
 
-std::map<std::string, int> offsetInventory = {{"awp", 0},   {"m3", 1},    {"ak4", 2},
-                                              {"glock", 3}, {"knife", 4}, {"bomb", 5}};
+inline std::map<std::string, int> offsetInventory = {{"awp", 0},   {"m3", 1},    {"ak4", 2},
+                                                     {"glock", 3}, {"knife", 4}, {"bomb", 5}};
 
 // --- Gun Type Mapping ---
 inline const std::map<int, GunType> GunIndexMap = {
