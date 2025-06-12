@@ -36,6 +36,7 @@ class hudDisplay {
     SdlTexture life;
     BitmapFont life_amount;
     SdlTexture equipedBullets;
+    SdlTexture white_line;
     BitmapFont equipedBulletsAmount;
     BitmapFont timer_amount;
     SdlTexture timer_dots;

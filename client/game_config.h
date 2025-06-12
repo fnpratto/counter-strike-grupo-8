@@ -46,6 +46,7 @@ constexpr std::string_view PARALELO_BLUE_O_PATH = "../assets/gfx/hud/parallelogr
 constexpr std::string_view HUD_NUMS_XCF = "../assets/gfx/fonts/hud_nums.xcf";
 constexpr std::string_view MUTE_ICON_PATH = "../assets/gfx/hud/hud_voice.xcf";
 constexpr std::string_view GUNS_INVENTORY_PATH = "../assets/gfx/hud/guns_inventory.xcf";
+constexpr std::string_view WHITE_LINE_PATH = "../assets/gfx/hud/linea_blanca.xcf";
 
 constexpr std::string_view GUNS_PATH = "../assets/gfx/guns/guns.xcf";
 constexpr std::string_view HUD_SLOT_PATH = "../assets/gfx/shop/hud_slot.xcf";

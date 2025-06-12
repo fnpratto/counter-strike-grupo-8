@@ -21,6 +21,7 @@ hudDisplay::hudDisplay(SdlWindow& window, const GameUpdate& state, const std::st
         life(std::string(GameConfig::Paths::LIFE_PATH), window),
         life_amount(window.getRenderer(), std::string(GameConfig::Paths::HUD_NUMS_XCF)),
         equipedBullets(std::string(GameConfig::Paths::BULLET_PATH), window),
+        white_line(std::string(GameConfig::Paths::WHITE_LINE_PATH), window),
         equipedBulletsAmount(window.getRenderer(), std::string(GameConfig::Paths::HUD_NUMS_XCF)),
         timer_amount(window.getRenderer(), std::string(GameConfig::Paths::HUD_NUMS_XCF)),
         timer_dots(std::string(GameConfig::Paths::HUD_NUMS_XCF), window),
@@ -44,7 +45,6 @@ hudDisplay::hudDisplay(SdlWindow& window, const GameUpdate& state, const std::st
     layout.digitHeight = static_cast<int>(32 * scaleRatio);
     layout.scale = 0.5f * scaleRatio;
 }
-
 
 void hudDisplay::render() {
     renderBackground();
@@ -225,6 +225,14 @@ void hudDisplay::renderBullets() {
     renderDigits(bulletsStr, x, y, equipedBulletsAmount);
 
     x += layout.digitSpacing * bulletsStr.size();
+
+    const Area sizeWhiteLine(0, 0, 30, 300);  // Adjust dimensions as needed
+    const Area destWhiteLine(x + 5, y, 5 * scaleRatio,
+                             32 * scaleRatio);  // Adjust dimensions as needed
+    white_line.render(sizeWhiteLine, destWhiteLine);
+
+    x += 5 * scaleRatio + 5;  // Move x position after rendering the white line
+
     renderDigits(bulletsReserve, x, y, equipedBulletsAmount);
 }
 
