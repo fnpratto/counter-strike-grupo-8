@@ -208,8 +208,8 @@ Message TextDisplay::build_message<SelectTeamCommand>(std::istringstream& iss) {
 }
 
 template <>
-Message TextDisplay::build_message<StartGameCommand>([[maybe_unused]] std::istringstream& iss) {
-    return Message(StartGameCommand());
+Message TextDisplay::build_message<SetReadyCommand>([[maybe_unused]] std::istringstream& iss) {
+    return Message(SetReadyCommand());
 }
 
 template <>
@@ -357,7 +357,7 @@ Message TextDisplay::parse_line(const std::string& line) {
             {"team",
              [this](std::istringstream& is) { return this->build_message<SelectTeamCommand>(is); }},
             {"start",
-             [this](std::istringstream& is) { return this->build_message<StartGameCommand>(is); }},
+             [this](std::istringstream& is) { return this->build_message<SetReadyCommand>(is); }},
             {"buy",
              [this](std::istringstream& is) { return this->build_message<BuyGunCommand>(is); }},
             {"ammo",

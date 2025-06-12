@@ -3,7 +3,7 @@
 #include <iostream>
 #include <thread>
 
-#include "errors.h"
+#include "common/errors.h"
 
 void ClientReceiver::run() {
     try {
