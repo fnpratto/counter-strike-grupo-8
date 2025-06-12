@@ -54,6 +54,7 @@ private:
     void move_player_to_spawn(const std::string& player_name);
 
     void send_msg_to_all_players(const Message& msg);
+    void send_msg_to_single_player(const std::string& player_name, const Message& msg);
 
     void handle_msg(const Message& msg, const std::string& player_name);
 
