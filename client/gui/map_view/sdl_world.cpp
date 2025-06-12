@@ -37,7 +37,7 @@ Map SdlWorld::build_default_map() {
 
     for (int i = 0; i < 10; ++i) {
         for (int j = 0; j < 10; ++j) {
-            actual_map.add_tile(MapTileType::Floor, Vector2D(i * 64, j * 64));
+            actual_map.add_floor(Vector2D(i * 64, j * 64));
         }
     }
 
@@ -55,7 +55,6 @@ void SdlWorld::render() {
     for (auto& [name, player_state]: game_state.get_players()) {
         if (camera.can_see(player_state)) {
             auto& player = players.at(name);
-
             player.render(camera, player_state);
         }
     }

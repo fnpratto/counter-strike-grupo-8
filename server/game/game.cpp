@@ -146,7 +146,7 @@ void Game::handle<GetCharactersCommand>(const std::string& player_name,
                       CharacterType::French_GIGN};
     } else if (player->is_tt()) {
         characters = {CharacterType::Pheonix, CharacterType::L337_Krew,
-                      CharacterType::Artic_Avenger, CharacterType::Guerrilla};
+                      CharacterType::Arctic_Avenger, CharacterType::Guerrilla};
     }
     output_messages.emplace_back(player_name, Message(CharactersResponse(std::move(characters))));
 }

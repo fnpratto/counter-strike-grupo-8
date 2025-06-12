@@ -6,7 +6,13 @@ SdlCamera::SdlCamera(int screen_width, int screen_height):
 
 void SdlCamera::center(const Vector2D& target_pos) { position = target_pos; }
 
-Vector2D SdlCamera::get_offset(Vector2D pos) const {
+/**
+ * @brief Converts a game position to a screen position.
+ *
+ * @param pos
+ * @return Vector2D
+ */
+Vector2D SdlCamera::get_screen_pos(Vector2D pos) const {
     auto delta = pos - position;
     // Convert from game units to pixels
     delta = delta * u2px_rate;
@@ -16,10 +22,4 @@ Vector2D SdlCamera::get_offset(Vector2D pos) const {
     Vector2D position = screen_center + delta;
 
     return position;
-}
-
-bool SdlCamera::can_see(const Vector2D& target_pos) const {
-    Vector2D offset = get_offset(target_pos);
-    return offset.get_x() >= 0 && offset.get_x() < screen_width && offset.get_y() >= 0 &&
-           offset.get_y() < screen_height;
 }

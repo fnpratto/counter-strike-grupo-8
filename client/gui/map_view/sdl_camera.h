@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 
-#include "common/map/tile.h"
 #include "common/updates/player_update.h"
 
 class SdlCamera {
@@ -28,13 +27,20 @@ public:
     SdlCamera(int screen_width, int screen_height);
     void center(const Vector2D& target_pos);
 
-    Vector2D get_offset(Vector2D position) const;
+    Vector2D get_screen_pos(Vector2D position) const;
 
-    bool can_see(const PlayerUpdate& player) const { return can_see(player.get_pos()); }
-    bool can_see(const Tile& tile) const { return can_see(tile.get_pos()); }
-
-private:
-    bool can_see(const Vector2D& target_pos) const;
+    /**
+     * @brief Checks if a game object is within the camera's view.
+     *
+     * @param obj The game object to check. (must respond to `.get_pos()`)
+     * @return true if the object is within view, false otherwise.
+     */
+    template <typename T>
+    bool can_see(const T& obj) const {
+        Vector2D offset = get_screen_pos(obj.get_pos());
+        return offset.get_x() >= 0 && offset.get_x() < screen_width && offset.get_y() >= 0 &&
+               offset.get_y() < screen_height;
+    }
 };
 
 

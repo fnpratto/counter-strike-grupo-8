@@ -45,7 +45,7 @@ public:
             walk_animation.reset();
         }
 
-        auto position_from_cam = camera.get_offset(state.get_pos());
+        auto position_from_cam = camera.get_screen_pos(state.get_pos());
         auto aim_direction = state.get_aim_direction();
         float angle;
         if (aim_direction != Vector2D(0, 0)) {
