@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <functional>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -66,6 +67,8 @@ void SDLDisplay::run() {
     Map map(window, player_name, state);
     listTeams list_teams(window, state, player_name);
     skinSelect list_skins(window, state, player_name);
+    std::map<std::string, ScoreboardEntry> scoreboard;
+    ScoreDisplay scoreDisplay(window, scoreboard, state);
 
     input_handler = std::make_unique<SDLInput>(output_queue, quit_flag, list_teams, shop_display,
                                                hud_display, list_skins);
@@ -85,7 +88,8 @@ void SDLDisplay::run() {
         } else {
             map.render();
             hud_display.render();
-            shop_display.render();
+            // shop_display.render();
+            scoreDisplay.render();
         }
         window.render();
         return !quit_flag;
@@ -109,6 +113,9 @@ GameUpdate SDLDisplay::get_initial_state() {
         msg = input_queue.pop();
         if (msg.get_type() == MessageType::GAME_UPDATE) {
             return msg.get_content<GameUpdate>();
+        } else if (msg.get_type() == MessageType::SCOREBOARD_RESP) {
+            auto scoreboard = msg.get_content<ScoreboardResponse>().get_scoreboard();
+            // scoreDisplay.updateScoreboard(scoreboard);  // Update scoreboard data
         } else {
             std::cerr << "Received unexpected message type: " << static_cast<int>(msg.get_type())
                       << std::endl;

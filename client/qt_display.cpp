@@ -13,9 +13,11 @@ QtDisplay::QtDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue):
         LobbyDisplay(input_queue, output_queue) {}
 
 void QtDisplay::run() {
-    LogInWindow login_window(input_queue, output_queue);
+    /*LogInWindow login_window(input_queue, output_queue);
     login_window.show();
-    app.exec();
+    app.exec();*/
+    output_queue.push(Message(ConnectionRequest("localhost", "2031")));
+    output_queue.push(Message(CreateGameCommand("TestGame", "Player1")));
 }
 
 void QtDisplay::stop() { app.quit(); }
