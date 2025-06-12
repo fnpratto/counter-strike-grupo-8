@@ -140,7 +140,6 @@ void hudDisplay::renderTeamScores() {
 
 void hudDisplay::renderPointer() {
     const Area sizePointer(0, 0, 50, 50);
-    // std::cout << "Mouse moved to: (" << pointerX << ", " << pointerY << ")" << std::endl;
     const Area destPointer(pointerX - 25, pointerY - 25, 50, 50);
     pointer.render(sizePointer, destPointer);
 }
@@ -265,7 +264,6 @@ void hudDisplay::renderDigits(const std::string& str, int x, int y, BitmapFont& 
 
 
 void hudDisplay::updatePointerPosition(int x, int y) {
-    std::cout << "Mouse moved to: (" << x << ", " << y << ")" << std::endl;
     pointerX = x;
     pointerY = y;
 }

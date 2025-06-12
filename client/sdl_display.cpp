@@ -140,7 +140,6 @@ void SDLDisplay::update_state() {
         if (msg.get_type() == MessageType::GAME_UPDATE) {
             const GameUpdate& update = msg.get_content<GameUpdate>();
             state = state.merged(update);
-            std::cout << "Applied GameUpdate" << std::endl;
         } else if (msg.get_type() == MessageType::SCOREBOARD_RESP) {
             std::cout << "Received ScoreboardResponse" << std::endl;
             auto scoreboard = msg.get_content<ScoreboardResponse>().get_scoreboard();
