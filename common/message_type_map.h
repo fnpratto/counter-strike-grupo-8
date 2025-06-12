@@ -24,7 +24,7 @@
     F(SelectTeamCommand, SELECT_TEAM_CMD)           \
     F(GetCharactersCommand, GET_CHARACTERS_CMD)     \
     F(SelectCharacterCommand, SELECT_CHARACTER_CMD) \
-    F(StartGameCommand, START_GAME_CMD)             \
+    F(SetReadyCommand, START_GAME_CMD)              \
     F(GetShopPricesCommand, GET_SHOP_PRICES_CMD)    \
     F(BuyGunCommand, BUY_GUN_CMD)                   \
     F(BuyAmmoCommand, BUY_AMMO_CMD)                 \

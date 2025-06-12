@@ -172,9 +172,9 @@ SelectCharacterCommand ServerProtocol::deserialize_msg<SelectCharacterCommand>(
 }
 
 template <>
-StartGameCommand ServerProtocol::deserialize_msg<StartGameCommand>(payload_t& payload) const {
+SetReadyCommand ServerProtocol::deserialize_msg<SetReadyCommand>(payload_t& payload) const {
     (void)payload;
-    return StartGameCommand();
+    return SetReadyCommand();
 }
 
 template <>

@@ -24,9 +24,9 @@ public:
     JoinGameError(): GameError("could not join game") {}
 };
 
-class StartGameError: public GameError {
+class SetReadyError: public GameError {
 public:
-    StartGameError(): GameError("try to start an already started game") {}
+    SetReadyError(): GameError("try to set ready when playing an already started game") {}
 };
 
 class SelectTeamError: public GameError {

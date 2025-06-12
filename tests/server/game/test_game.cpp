@@ -106,7 +106,7 @@ TEST_F(TestGame, CannotStartAnAlreadyStartedGame) {
     game.join_player("test_player");
     game.tick({});
 
-    auto player_messages = game.tick({PlayerMessage("test_player", Message(StartGameCommand()))});
+    auto player_messages = game.tick({PlayerMessage("test_player", Message(SetReadyCommand()))});
     GameUpdate updates;
     updates = player_messages[0].get_message().get_content<GameUpdate>();
 
@@ -115,13 +115,13 @@ TEST_F(TestGame, CannotStartAnAlreadyStartedGame) {
     PhaseUpdate phase_updates = updates.get_phase();
     EXPECT_EQ(phase_updates.get_phase(), PhaseType::Buying);
 
-    EXPECT_THROW({ game.tick({PlayerMessage("test_player", Message(StartGameCommand()))}); },
-                 StartGameError);
+    EXPECT_THROW({ game.tick({PlayerMessage("test_player", Message(SetReadyCommand()))}); },
+                 SetReadyError);
 }
 
 TEST_F(TestGame, PlayerCannotJoinStartedGame) {
     game.join_player("test_player");
-    Message msg_start = Message(StartGameCommand());
+    Message msg_start = Message(SetReadyCommand());
     game.tick({PlayerMessage("test_player", msg_start)});
 
     game.join_player("another_player");
@@ -141,7 +141,7 @@ TEST_F(TestGame, PlayerCannotSelectTeamWhenStartedGame) {
         new_team = Team::CT;
     }
 
-    Message msg_start = Message(StartGameCommand());
+    Message msg_start = Message(SetReadyCommand());
     auto player_messages = game.tick({PlayerMessage("test_player", msg_start)});
     GameUpdate updates;
     updates = player_messages[0].get_message().get_content<GameUpdate>();
@@ -155,7 +155,7 @@ TEST_F(TestGame, NumberOfRoundsIncrementCorrectly) {
     GameUpdate updates = game.get_full_update();
     EXPECT_EQ(updates.get_num_rounds(), 0);
 
-    Message msg_start = Message(StartGameCommand());
+    Message msg_start = Message(SetReadyCommand());
     game.tick({PlayerMessage("test_player", msg_start)});
 
     int rounds = 3;
@@ -180,7 +180,7 @@ TEST_F(TestGame, OneTerroristHasBombWhenGameStarted) {
     game.tick({PlayerMessage("test_player", msg_select_team)});
     game.tick({PlayerMessage("another_player", msg_select_team)});
 
-    Message msg_start = Message(StartGameCommand());
+    Message msg_start = Message(SetReadyCommand());
     game.tick({PlayerMessage("test_player", msg_start)});
     auto player_messages = game.tick({PlayerMessage("another_player", msg_start)});
     GameUpdate updates = player_messages[1].get_message().get_content<GameUpdate>();
@@ -194,7 +194,7 @@ TEST_F(TestGame, OneTerroristHasBombWhenGameStarted) {
 TEST_F(TestGame, CounterTerroristDoesNotHaveBombWhenGameStarted) {
     game.join_player("test_player");
     Message msg_select_team = Message(SelectTeamCommand(Team::CT));
-    Message msg_start = Message(StartGameCommand());
+    Message msg_start = Message(SetReadyCommand());
     game.tick({});
 
     auto player_messages = game.tick({PlayerMessage("test_player", msg_select_team),
@@ -217,7 +217,7 @@ TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
     msg_select_team = Message(SelectTeamCommand(Team::CT));
     game.tick({PlayerMessage("test_player2", msg_select_team)});
 
-    Message msg_start = Message(StartGameCommand());
+    Message msg_start = Message(SetReadyCommand());
     game.tick({PlayerMessage("test_player1", msg_start)});
     game.tick({PlayerMessage("test_player2", msg_start)});
 
@@ -322,7 +322,7 @@ TEST_F(TestGame, TargetIsHitByPlayerAttack) {
 
     Message msg_aim = Message(AimCommand(target_pos - player_pos));
     Message msg_switch_weap = Message(SwitchItemCommand(ItemSlot::Secondary));
-    Message msg_start = Message(StartGameCommand());
+    Message msg_start = Message(SetReadyCommand());
     game.tick({PlayerMessage("test_player", msg_aim), PlayerMessage("test_player", msg_switch_weap),
                PlayerMessage("test_player", msg_start), PlayerMessage("target_player", msg_start)});
 
@@ -381,7 +381,7 @@ TEST_F(TestGame, PlayerIsDeadAfterTakingAllHealthDamage) {
 
     Message msg_aim = Message(AimCommand(target_pos - player_pos));
     Message msg_switch_weap = Message(SwitchItemCommand(ItemSlot::Secondary));
-    Message msg_start = Message(StartGameCommand());
+    Message msg_start = Message(SetReadyCommand());
     game.tick({PlayerMessage("test_player", msg_aim), PlayerMessage("test_player", msg_switch_weap),
                PlayerMessage("test_player", msg_start), PlayerMessage("target_player", msg_start)});
 
@@ -437,7 +437,7 @@ TEST_F(TestGame, WeaponDoesNotMakeDamageWhenTargetIsOutOfRange) {
 
     Message msg_aim = Message(AimCommand(target_pos - player_pos));
     Message msg_switch_weap = Message(SwitchItemCommand(ItemSlot::Melee));
-    Message msg_start = Message(StartGameCommand());
+    Message msg_start = Message(SetReadyCommand());
     game.tick({PlayerMessage("test_player", msg_aim), PlayerMessage("test_player", msg_switch_weap),
                PlayerMessage("test_player", msg_start), PlayerMessage("target_player", msg_start)});
 

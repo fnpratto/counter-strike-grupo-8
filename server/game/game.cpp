@@ -159,10 +159,10 @@ void Game::handle<SelectCharacterCommand>(const std::string& player_name,
 }
 
 template <>
-void Game::handle<StartGameCommand>(const std::string& player_name,
-                                    [[maybe_unused]] const StartGameCommand& msg) {
+void Game::handle<SetReadyCommand>(const std::string& player_name,
+                                   [[maybe_unused]] const SetReadyCommand& msg) {
     if (state.get_phase().is_started())
-        throw StartGameError();
+        throw SetReadyError();
 
     state.get_player(player_name)->set_ready();
     if (state.all_players_ready()) {

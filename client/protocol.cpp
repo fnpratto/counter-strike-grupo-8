@@ -71,7 +71,7 @@ payload_t ClientProtocol::serialize_msg(const SelectCharacterCommand& cmd) const
 }
 
 template <>
-payload_t ClientProtocol::serialize_msg([[maybe_unused]] const StartGameCommand& cmd) const {
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const SetReadyCommand& cmd) const {
     return payload_t();
 }
 

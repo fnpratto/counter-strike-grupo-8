@@ -87,10 +87,10 @@ public:
 };
 
 /**
- * @class StartGameCommand
- * @brief Command to start the game (sent by the game creator).
+ * @class SetReadyCommand
+ * @brief Command to set ready to start game.
  */
-class StartGameCommand: public Command {};
+class SetReadyCommand: public Command {};
 
 /**
  * @class GetShopPricesCommand

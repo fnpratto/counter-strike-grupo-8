@@ -55,7 +55,7 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
                     }
                     pre_game_finished = skinSelectRef.updateFinishPreGame(x, y);
                     if (pre_game_finished) {
-                        output_queue.push(Message(StartGameCommand()));
+                        output_queue.push(Message(SetReadyCommand()));
                         return;
                     }
                     return;
