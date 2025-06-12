@@ -72,7 +72,7 @@ void SDLDisplay::run() {
 
     score_display = std::make_unique<ScoreDisplay>(window, scoreboard, state);
     input_handler = std::make_unique<SDLInput>(output_queue, quit_flag, list_teams, shop_display,
-                                               hud_display, list_skins);
+                                               hud_display, list_skins, *score_display);
     input_handler->start();
 
     update_state();
