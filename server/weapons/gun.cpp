@@ -6,8 +6,10 @@
 #include "common/utils/random_float_generator.h"
 #include "server/attack_effects/gun_attack.h"
 
-Gun::Gun(GunType gun, GunConfig initial_config):
-        Logic<GunState, GunUpdate>(GunState(gun, initial_config)) {}
+Gun::Gun(GunType gun, GunConfig gun_config):
+        Logic<GunState, GunUpdate>(
+                GunState(gun, gun_config.init_mag_ammo, gun_config.init_reserve_ammo)),
+        gun_config(gun_config) {}
 
 std::unique_ptr<Gun> Gun::make_glock() {
     return std::make_unique<Gun>(GunType::Glock, GlockConfig);
@@ -26,20 +28,19 @@ int Gun::get_mag_ammo() const { return state.get_mag_ammo(); }
 int Gun::get_reserve_ammo() const { return state.get_reserve_ammo(); }
 
 void Gun::add_mag() {
-    state.set_reserve_ammo(state.get_reserve_ammo() + state.get_gun_config().bullets_per_mag);
+    state.set_reserve_ammo(state.get_reserve_ammo() + gun_config.bullets_per_mag);
 }
 
 void Gun::start_attacking() { state.set_is_attacking(true); }
 
 void Gun::reload() {
-    int bullets_to_reload = state.get_gun_config().bullets_per_mag - state.get_mag_ammo();
+    int bullets_to_reload = gun_config.bullets_per_mag - state.get_mag_ammo();
     state.set_mag_ammo(state.get_mag_ammo() + bullets_to_reload);
     state.set_reserve_ammo(state.get_reserve_ammo() - bullets_to_reload);
 }
 
 std::vector<std::unique_ptr<AttackEffect>> Gun::attack(Player& player_origin, const Vector2D& dir,
                                                        TimePoint now) {
-    GunConfig gun_config = state.get_gun_config();
     std::vector<std::unique_ptr<AttackEffect>> effects;
     if (!state.get_is_attacking() || !has_ammo() || !can_attack(gun_config.attack_rate, now))
         return effects;
@@ -67,7 +68,6 @@ std::vector<std::unique_ptr<AttackEffect>> Gun::attack(Player& player_origin, co
 }
 
 int Gun::get_bullets_ready_to_fire(TimePoint now) {
-    GunConfig gun_config = state.get_gun_config();
     int available_bullets = 0;
 
     auto burst_interval_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
