@@ -95,13 +95,7 @@ public:
 };
 
 /**
- * @class TriedToJoinFullTeamErrorResponse
- * @brief Response sent when a player attempts to join a team that is already full.
+ * @class ErrorResponse
+ * @brief Sent when a command results in an error.
  */
-class TriedToJoinFullTeamErrorResponse {};
-
-/**
- * @class CannotBuyErrorResponse
- * @brief Response sent when a player attempts to make a purchase but is not allowed to.
- */
-class CannotBuyErrorResponse {};
+class ErrorResponse {};

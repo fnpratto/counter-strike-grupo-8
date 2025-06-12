@@ -59,14 +59,7 @@ payload_t ServerProtocol::serialize_msg([[maybe_unused]] const ScoreboardRespons
 }
 
 template <>
-payload_t ServerProtocol::serialize_msg(
-        [[maybe_unused]] const TriedToJoinFullTeamErrorResponse& response) const {
-    return payload_t();
-}
-
-template <>
-payload_t ServerProtocol::serialize_msg(
-        [[maybe_unused]] const CannotBuyErrorResponse& response) const {
+payload_t ServerProtocol::serialize_msg([[maybe_unused]] const ErrorResponse& response) const {
     return payload_t();
 }
 

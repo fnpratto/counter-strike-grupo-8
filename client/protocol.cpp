@@ -208,16 +208,9 @@ ScoreboardResponse ClientProtocol::deserialize_msg<ScoreboardResponse>(
 
 // TODO: Implement
 template <>
-TriedToJoinFullTeamErrorResponse ClientProtocol::deserialize_msg<TriedToJoinFullTeamErrorResponse>(
+ErrorResponse ClientProtocol::deserialize_msg<ErrorResponse>(
         [[maybe_unused]] payload_t& payload) const {
-    return TriedToJoinFullTeamErrorResponse();
-}
-
-// TODO: Implement
-template <>
-CannotBuyErrorResponse ClientProtocol::deserialize_msg<CannotBuyErrorResponse>(
-        [[maybe_unused]] payload_t& payload) const {
-    return CannotBuyErrorResponse();
+    return ErrorResponse();
 }
 
 #define X_DESERIALIZE_UPDATE(type, attr)        \

@@ -133,7 +133,7 @@ void Game::handle<SelectTeamCommand>(const std::string& player_name, const Selec
     if (state.get_phase().is_started())
         throw SelectTeamError();
     if (state.team_is_full(msg.get_team())) {
-        send_msg_to_single_player(player_name, Message(TriedToJoinFullTeamErrorResponse()));
+        send_msg_to_single_player(player_name, Message(ErrorResponse()));
         return;
     }
 
@@ -187,34 +187,29 @@ void Game::handle<GetShopPricesCommand>(const std::string& player_name,
 
 template <>
 void Game::handle<BuyGunCommand>(const std::string& player_name, const BuyGunCommand& msg) {
-    if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name)) {
-        send_msg_to_single_player(player_name, Message(CannotBuyErrorResponse()));
+    auto& player = state.get_player(player_name);
+    if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name) ||
+        !shop.can_buy_gun(msg.get_gun(), player->get_inventory())) {
+        send_msg_to_single_player(player_name, Message(ErrorResponse()));
         return;
     }
 
-    auto& player = state.get_player(player_name);
-    if (shop.can_buy_gun(msg.get_gun(), player->get_inventory())) {
-        auto gun = player->drop_primary_weapon();
-        if (gun.has_value())
-            state.add_dropped_gun(std::move(gun.value()), player->get_pos());
-        shop.buy_gun(msg.get_gun(), player->get_inventory());
-    } else {
-        send_msg_to_single_player(player_name, Message(CannotBuyErrorResponse()));
-    }
+    auto gun = player->drop_primary_weapon();
+    if (gun.has_value())
+        state.add_dropped_gun(std::move(gun.value()), player->get_pos());
+    shop.buy_gun(msg.get_gun(), player->get_inventory());
 }
 
 template <>
 void Game::handle<BuyAmmoCommand>(const std::string& player_name, const BuyAmmoCommand& msg) {
-    if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name)) {
-        send_msg_to_single_player(player_name, Message(CannotBuyErrorResponse()));
+    auto& player = state.get_player(player_name);
+    if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name) ||
+        !shop.can_buy_ammo(msg.get_slot(), player->get_inventory())) {
+        send_msg_to_single_player(player_name, Message(ErrorResponse()));
         return;
     }
 
-    auto& player = state.get_player(player_name);
-    if (shop.can_buy_ammo(msg.get_slot(), player->get_inventory()))
-        shop.buy_ammo(msg.get_slot(), player->get_inventory());
-    else
-        send_msg_to_single_player(player_name, Message(CannotBuyErrorResponse()));
+    shop.buy_ammo(msg.get_slot(), player->get_inventory());
 }
 
 template <>
