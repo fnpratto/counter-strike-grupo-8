@@ -29,8 +29,9 @@ void KeyboardHandler::handleEvent(const SDL_Event& event) {
                 break;
             case SDLK_TAB:
                 std::cout << "KEY_PRESS_TAB" << std::endl;
-                output_queue.push(Message(GetScoreboardCommand()));
-                if (score_displayRef.isActive()) {
+                if (!score_displayRef.isActive()) {
+                    output_queue.push(Message(GetScoreboardCommand()));
+                } else {
                     score_displayRef.updateState();
                 }
                 break;

@@ -143,6 +143,7 @@ void SDLDisplay::update_state() {
         } else if (msg.get_type() == MessageType::SCOREBOARD_RESP) {
             std::cout << "Received ScoreboardResponse" << std::endl;
             auto scoreboard = msg.get_content<ScoreboardResponse>().get_scoreboard();
+            score_display->updateScoreboard(scoreboard);
             score_display->updateState();
         }
     }

@@ -30,6 +30,11 @@ ScoreDisplay::ScoreDisplay(SdlWindow& window, std::map<std::string, ScoreboardEn
         active(false) {}
 
 void ScoreDisplay::updateScoreboard(const std::map<std::string, ScoreboardEntry>& score_board) {
+    std::cout << "Updating scoreboard with " << score_board.size() << " entries." << std::endl;
+    if (score_board.empty()) {
+        std::cout << "Scoreboard is empty, no updates made." << std::endl;
+        return;
+    }
     scoreboard = score_board;
 }
 
@@ -122,6 +127,7 @@ void ScoreDisplay::render() {
     renderRectangle(black_rectangle, baseX, baseY, DISPLAY_WIDTH * 0.5, DISPLAY_WIDTH * 0.50);
 
     for (const auto& [playerName, entry]: scoreboard) {
+        std::cout << "Rendering player: " << playerName << std::endl;
         Team team = state.get_players().at(playerName).get_team();
         renderPlayerEntry(playerName, entry, base_cc, team);
         base_cc += slotHeight + pading;

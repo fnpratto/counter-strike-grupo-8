@@ -39,5 +39,4 @@ private:
     void renderSlots();
     void renderItem();
 };
-
 #endif  // SHOP_DISPLAY_H
