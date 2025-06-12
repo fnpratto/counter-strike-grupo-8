@@ -20,6 +20,7 @@
 
 class SdlPlayer {
     SdlWindow& window;
+    const SdlCamera& camera;
 
     static constexpr const char* CHARACTER_PATH = "../assets/gfx/player/ct2.xcf";
     static constexpr int WIDTH = 32;
@@ -28,8 +29,9 @@ class SdlPlayer {
     SdlAnimation walk_animation;
 
 public:
-    explicit SdlPlayer(SdlWindow& window):
+    explicit SdlPlayer(SdlWindow& window, const SdlCamera& camera):
             window(window),
+            camera(camera),
             walk_animation(SdlTexture(CHARACTER_PATH, window, WIDTH, HEIGHT),
                            // TODO This could be changed with a strip of sprites instead of this
                            // mosaic and simply iterated over x
@@ -40,7 +42,7 @@ public:
                                                   {0, 64, WIDTH, HEIGHT},
                                                   {32, 64, WIDTH, HEIGHT}})) {}
 
-    void render(const SdlCamera& camera, const PlayerUpdate& state) {
+    void render(const PlayerUpdate& state) {
         if (state.get_velocity() == Vector2D(0, 0)) {
             walk_animation.reset();
         }

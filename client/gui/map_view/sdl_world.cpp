@@ -28,7 +28,7 @@ SdlWorld::SdlWorld(SdlWindow& window, const GameUpdate& game_state, const std::s
         camera(window.getWidth(), window.getHeight()),
         map(window, camera, build_default_map()) {
     for (const auto& [name, player_update]: game_state.get_players()) {
-        players.emplace(name, SdlPlayer(window));
+        players.emplace(name, SdlPlayer(window, camera));
     }
 }
 
@@ -55,7 +55,7 @@ void SdlWorld::render() {
     for (auto& [name, player_state]: game_state.get_players()) {
         if (camera.can_see(player_state)) {
             auto& player = players.at(name);
-            player.render(camera, player_state);
+            player.render(player_state);
         }
     }
 }
