@@ -24,7 +24,8 @@ SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue
         player_name(player_name),
         state(get_initial_state()),
         quit_flag(false),
-        input_handler(nullptr) {
+        input_handler(nullptr),
+        score_display(nullptr) {
     std::cout << "SDLDisplay initialized with player: " << player_name << std::endl;
     SCREEN_WIDTH = 800;
     SCREEN_HEIGHT = 600;
@@ -68,8 +69,8 @@ void SDLDisplay::run() {
     listTeams list_teams(window, state, player_name);
     skinSelect list_skins(window, state, player_name);
     std::map<std::string, ScoreboardEntry> scoreboard;
-    ScoreDisplay scoreDisplay(window, scoreboard, state);
 
+    score_display = std::make_unique<ScoreDisplay>(window, scoreboard, state);
     input_handler = std::make_unique<SDLInput>(output_queue, quit_flag, list_teams, shop_display,
                                                hud_display, list_skins);
     input_handler->start();
@@ -85,11 +86,17 @@ void SDLDisplay::run() {
             list_teams.render();
         } else if (list_skins.isActive()) {
             list_skins.render();
+        } else if (score_display->isActive()) {
+            map.render();
+            hud_display.render();
+            score_display->render();
+        } else if (shop_display.isActive()) {
+            map.render();
+            hud_display.render();
+            shop_display.render();
         } else {
             map.render();
             hud_display.render();
-            // shop_display.render();
-            scoreDisplay.render();
         }
         window.render();
         return !quit_flag;
@@ -113,9 +120,6 @@ GameUpdate SDLDisplay::get_initial_state() {
         msg = input_queue.pop();
         if (msg.get_type() == MessageType::GAME_UPDATE) {
             return msg.get_content<GameUpdate>();
-        } else if (msg.get_type() == MessageType::SCOREBOARD_RESP) {
-            auto scoreboard = msg.get_content<ScoreboardResponse>().get_scoreboard();
-            // scoreDisplay.updateScoreboard(scoreboard);  // Update scoreboard data
         } else {
             std::cerr << "Received unexpected message type: " << static_cast<int>(msg.get_type())
                       << std::endl;
@@ -137,6 +141,10 @@ void SDLDisplay::update_state() {
             const GameUpdate& update = msg.get_content<GameUpdate>();
             state = state.merged(update);
             std::cout << "Applied GameUpdate" << std::endl;
+        } else if (msg.get_type() == MessageType::SCOREBOARD_RESP) {
+            std::cout << "Received ScoreboardResponse" << std::endl;
+            auto scoreboard = msg.get_content<ScoreboardResponse>().get_scoreboard();
+            score_display->updateState();
         }
     }
 }

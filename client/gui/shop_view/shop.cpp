@@ -63,6 +63,8 @@ shopDisplay::shopDisplay(SdlWindow& window):
 }
 void shopDisplay::updateShopState(bool state) { active = state; }
 
+bool shopDisplay::isActive() { return active; }
+
 void shopDisplay::render() {
     if (active) {
         renderSlots();

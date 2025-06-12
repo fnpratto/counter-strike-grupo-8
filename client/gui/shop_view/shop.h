@@ -18,6 +18,7 @@ public:
     void render();
     std::optional<Message> updatePointerPosition(int x, int y);
     void updateShopState(bool state);
+    bool isActive();
 
 private:
     SdlWindow& window;

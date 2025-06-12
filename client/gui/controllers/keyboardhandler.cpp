@@ -26,6 +26,10 @@ void KeyboardHandler::handleEvent(const SDL_Event& event /*, bool& shop*/) {
             case SDLK_m:
                 // Toggle mute functionality //TODO_ADD SERVER
                 break;
+            case SDLK_TAB:
+                std::cout << "KEY_PRESS_TAB" << std::endl;
+                output_queue.push(Message(GetScoreboardCommand()));
+                break;
         }
     }
     update_direction();
