@@ -47,6 +47,13 @@ constexpr std::string_view HUD_NUMS_XCF = "../assets/gfx/fonts/hud_nums.xcf";
 constexpr std::string_view MUTE_ICON_PATH = "../assets/gfx/hud/hud_voice.xcf";
 constexpr std::string_view GUNS_INVENTORY_PATH = "../assets/gfx/hud/guns_inventory.xcf";
 
+constexpr std::string_view GUNS_PATH = "../assets/gfx/guns/guns.xcf";
+constexpr std::string_view HUD_SLOT_PATH = "../assets/gfx/shop/hud_slot.xcf";
+constexpr std::string_view HUD_SLOT_CLICKED_PATH = "../assets/gfx/shop/hud_slot_clicked.xcf";
+constexpr std::string_view HUD_SLOT_BLOCKED_PATH = "../assets/gfx/shop/hud_slot_blocked.xcf";
+constexpr std::string_view FONT_PAT = "../assets/gfx/fonts/joystix_monospace.otf";
+constexpr std::string_view AMMO_PATH = "../assets/gfx/guns/ammo.xcf";
+
 }  // namespace Paths
 
 // --- Gun Type Offsets ---

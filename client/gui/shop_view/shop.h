@@ -5,12 +5,12 @@
 #include <string>
 #include <vector>
 
+#include "../../game_config.h"
 #include "../window_elements/area.h"
 #include "../window_elements/sdl_text.h"
 #include "../window_elements/sdl_texture.h"
 #include "../window_elements/sdl_window.h"
 #include "common/message.h"
-
 
 class shopDisplay {
 public:
@@ -38,6 +38,8 @@ private:
     int size_slots_w;
     int size_slots_h;
     bool active;
+    std::vector<GameConfig::GunInfo> guns;   // Moved guns into the class
+    std::vector<GameConfig::AmmoInfo> ammo;  // Moved ammo into the class
     void renderSlots();
     void renderItem();
     void get_item_slots(int id_slot);

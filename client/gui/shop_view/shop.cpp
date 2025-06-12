@@ -4,57 +4,31 @@
 #include <map>
 #include <optional>
 
+#include "../../game_config.h"
 #include "common/commands.h"
 #include "common/message.h"
 #include "common/models.h"
 
 const int VALID_SLOTS = 6;
 
-const std::string& GUNS_PATH = "../assets/gfx/guns/guns.xcf";
-const std::string& HUD_SLOT_PATH = "../assets/gfx/shop/hud_slot.xcf";
-const std::string& HUD_SLOT_CLICKED_PATH = "../assets/gfx/shop/hud_slot_clicked.xcf";
-const std::string& HUD_SLOT_BLOCKED_PATH = "../assets/gfx/shop/hud_slot_blocked.xcf";
-const std::string& FONT_PAT = "../assets/gfx/fonts/joystix_monospace.otf";
-const std::string& AMMO_PATH = "../assets/gfx/guns/ammo.xcf";
-struct GunInfo {
-    std::string id;
-    std::string name_2;
-    std::string price;
-};
-
-struct AmmoInfo {
-    std::string id;
-    std::string name_2;
-    std::string price;
-};
-
-std::map<int, GunType> gunIndexMap = {{0, GunType::AK47}, {1, GunType::M3}, {2, GunType::AWP}};
-
-std::map<int, GunType> ammoIndexMap = {
-        {4, GunType::AK47}, {5, GunType::M3}, {6, GunType::AWP}, {7, GunType::Glock}};
-
-std::vector<GunInfo> guns = {{"1", "", "1000"},  // gun at (0,0)
-                             {"2", "", "1500"},  // gun at (64,0)
-                             {"3", "", "20"}};   // gun at (192,0)
-
-std::vector<AmmoInfo> ammo = {{"4", "", "200"},  // ammo at (0,64)
-                              {"5", "", "300"},  // ammo at (64,64)
-                              {"6", "", "400"},  // ammo at (128,64)
-                              {"7", "", "500"},
-                              {"8", "", ""}};  // ammo at (192,64)
-
 shopDisplay::shopDisplay(SdlWindow& window, const GameUpdate& state):
         window(window),
         game_state(state),
         DISPLAY_WIDTH(window.getWidth()),
         DISPLAY_HEIGHT(window.getHeight()),
-        gun_icons(GUNS_PATH, window),
-        ammo_icons(AMMO_PATH, window),
-        cost_money(FONT_PAT, 20, {255, 255, 255, 255}, window),
-        back(HUD_SLOT_PATH, window),
-        back_chosen(HUD_SLOT_CLICKED_PATH, window),
-        gunNumber(FONT_PAT, 20, {255, 255, 255, 255}, window),
-        gun_buy(-1) {
+        gun_icons(std::string(GameConfig::Paths::GUNS_PATH), window),
+        ammo_icons(std::string(GameConfig::Paths::AMMO_PATH), window),
+        cost_money(std::string(GameConfig::Paths::FONT_PAT), 20, {255, 255, 255, 255}, window),
+        back(std::string(GameConfig::Paths::HUD_SLOT_PATH), window),
+        back_chosen(std::string(GameConfig::Paths::HUD_SLOT_CLICKED_PATH), window),
+        gunNumber(std::string(GameConfig::Paths::FONT_PAT), 20, {255, 255, 255, 255}, window),
+        gun_buy(-1),
+        guns({{"1", "", "1000"}, {"2", "", "1500"}, {"3", "", "20"}}),  // Initialized guns
+        ammo({{"4", "", "200"},
+              {"5", "", "300"},
+              {"6", "", "400"},
+              {"7", "", "500"},
+              {"8", "", ""}}) {  // Initialized ammo
 
     float BASE_WIDTH = 800.0f;
     float BASE_HEIGHT = 600.0f;
@@ -228,10 +202,10 @@ std::optional<Message> shopDisplay::getPurchaseCommand(int x, int y) {
 
     int slot_index = row * 2 + col;
 
-    if (gunIndexMap.count(slot_index)) {
+    if (GameConfig::GunIndexMap.count(slot_index)) {
         gun_buy = slot_index;
-        return Message(BuyGunCommand(gunIndexMap.at(slot_index)));
-    } else if (ammoIndexMap.count(slot_index)) {
+        return Message(BuyGunCommand(GameConfig::GunIndexMap.at(slot_index)));
+    } else if (GameConfig::AmmoIndexMap.count(slot_index)) {
         gun_buy = slot_index;
         if (slot_index == 8) {
             return std::nullopt;
