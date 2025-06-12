@@ -15,13 +15,18 @@
 
 #include "inventory.h"
 
-
 class Player: public Logic<PlayerState, PlayerUpdate> {
 private:
     ScoreboardEntry scoreboard_entry;
 
 public:
     Player(Team team, Vector2D pos);
+
+    Player(const Player&) = delete;
+    Player& operator=(const Player&) = delete;
+
+    Player(Player&&) = default;
+    Player& operator=(Player&&) = default;
 
     bool is_ready() const;
     bool is_tt() const;

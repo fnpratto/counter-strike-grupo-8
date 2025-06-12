@@ -20,6 +20,12 @@ protected:
 public:
     AttackEffect(Player& player_origin, int damage, const Vector2D& dir, int max_range);
 
+    AttackEffect(const AttackEffect&) = delete;
+    AttackEffect& operator=(const AttackEffect&) = delete;
+
+    AttackEffect(AttackEffect&&) = delete;
+    AttackEffect& operator=(AttackEffect&&) = delete;
+
     Vector2D get_dir() const;
     int get_max_range() const;
 

@@ -31,11 +31,6 @@ payload_t ServerProtocol::serialize_msg(const ListGamesResponse& response) const
 }
 
 template <>
-payload_t ServerProtocol::serialize_msg(const CharactersResponse& response) const {
-    return serialize(response.get_characters());
-}
-
-template <>
 payload_t ServerProtocol::serialize_msg(const ShopPricesResponse& response) const {
     payload_t payload;
     payload_t gun_prices_payload = serialize_map(response.get_gun_prices());
@@ -46,6 +41,33 @@ payload_t ServerProtocol::serialize_msg(const ShopPricesResponse& response) cons
     payload.insert(payload.end(), ammo_prices_payload.begin(), ammo_prices_payload.end());
 
     return payload;
+}
+
+template <>
+payload_t ServerProtocol::serialize_msg([[maybe_unused]] const HitResponse& response) const {
+    return payload_t();
+}
+
+template <>
+payload_t ServerProtocol::serialize_msg(const CharactersResponse& response) const {
+    return serialize(response.get_characters());
+}
+
+template <>
+payload_t ServerProtocol::serialize_msg([[maybe_unused]] const ScoreboardResponse& response) const {
+    return payload_t();
+}
+
+template <>
+payload_t ServerProtocol::serialize_msg(
+        [[maybe_unused]] const TriedToJoinFullTeamErrorResponse& response) const {
+    return payload_t();
+}
+
+template <>
+payload_t ServerProtocol::serialize_msg(
+        [[maybe_unused]] const CannotBuyErrorResponse& response) const {
+    return payload_t();
 }
 
 #define X_SERIALIZE_UPDATE(type, attr)                                               \
@@ -91,28 +113,21 @@ SERIALIZE_UPDATE(PlayerUpdate, PLAYER_ATTRS)
 SERIALIZE_UPDATE(PhaseUpdate, PHASE_ATTRS)
 SERIALIZE_UPDATE(GameUpdate, GAME_ATTRS)
 
+#define SERIALIZE_MSG(msg, msg_type) \
+    case MessageType::msg_type:      \
+        return serialize_msg(message.get_content<msg>());
+
 payload_t ServerProtocol::serialize_message(const Message& message) const {
     switch (message.get_type()) {
-        case MessageType::LIST_GAMES_RESP: {
-            const auto& response = message.get_content<ListGamesResponse>();
-            return serialize_msg(response);
-        }
-        case MessageType::CHARACTERS_RESP: {
-            const auto& response = message.get_content<CharactersResponse>();
-            return serialize_msg(response);
-        }
-        case MessageType::SHOP_PRICES_RESP: {
-            const auto& response = message.get_content<ShopPricesResponse>();
-            return serialize_msg(response);
-        }
-        case MessageType::GAME_UPDATE: {
-            const auto& update = message.get_content<GameUpdate>();
-            return serialize_update(update);
-        }
+        RESPONSES_MAP(SERIALIZE_MSG)
+        case MessageType::GAME_UPDATE:
+            return serialize_update(message.get_content<GameUpdate>());
         default:
             throw std::runtime_error("Invalid message type for serialization");
     }
 }
+
+#undef SERIALIZE_MSG
 
 // === Deserialization ===
 
@@ -157,9 +172,16 @@ SelectCharacterCommand ServerProtocol::deserialize_msg<SelectCharacterCommand>(
 }
 
 template <>
-StartGameCommand ServerProtocol::deserialize_msg<StartGameCommand>(payload_t& payload) const {
+SetReadyCommand ServerProtocol::deserialize_msg<SetReadyCommand>(payload_t& payload) const {
     (void)payload;
-    return StartGameCommand();
+    return SetReadyCommand();
+}
+
+template <>
+GetShopPricesCommand ServerProtocol::deserialize_msg<GetShopPricesCommand>(
+        payload_t& payload) const {
+    (void)payload;
+    return GetShopPricesCommand();
 }
 
 template <>
@@ -168,12 +190,18 @@ BuyGunCommand ServerProtocol::deserialize_msg<BuyGunCommand>(payload_t& payload)
     return BuyGunCommand(static_cast<GunType>(gun));
 }
 
+// TODO: Implement
+template <>
+BuyAmmoCommand ServerProtocol::deserialize_msg<BuyAmmoCommand>(
+        [[maybe_unused]] payload_t& payload) const {
+    return BuyAmmoCommand(ItemSlot::Primary);
+}
+
 template <>
 MoveCommand ServerProtocol::deserialize_msg<MoveCommand>(payload_t& payload) const {
     Vector2D dir = deserialize<Vector2D>(payload);
     return MoveCommand(dir);
 }
-
 
 template <>
 StopPlayerCommand ServerProtocol::deserialize_msg<StopPlayerCommand>(payload_t& payload) const {
@@ -195,15 +223,22 @@ AttackCommand ServerProtocol::deserialize_msg<AttackCommand>(payload_t& payload)
 }
 
 template <>
+SwitchItemCommand ServerProtocol::deserialize_msg<SwitchItemCommand>(payload_t& payload) const {
+    uint8_t slot = deserialize<uint8_t>(payload);
+    return SwitchItemCommand(static_cast<ItemSlot>(slot));
+}
+
+template <>
 ReloadCommand ServerProtocol::deserialize_msg<ReloadCommand>(payload_t& payload) const {
     (void)payload;
     return ReloadCommand();
 }
 
 template <>
-SwitchItemCommand ServerProtocol::deserialize_msg<SwitchItemCommand>(payload_t& payload) const {
-    uint8_t slot = deserialize<uint8_t>(payload);
-    return SwitchItemCommand(static_cast<ItemSlot>(slot));
+GetScoreboardCommand ServerProtocol::deserialize_msg<GetScoreboardCommand>(
+        payload_t& payload) const {
+    (void)payload;
+    return GetScoreboardCommand();
 }
 
 template <>
@@ -225,60 +260,22 @@ PickUpItemCommand ServerProtocol::deserialize_msg<PickUpItemCommand>(payload_t& 
 }
 
 template <>
-GetShopPricesCommand ServerProtocol::deserialize_msg<GetShopPricesCommand>(
-        payload_t& payload) const {
-    (void)payload;
-    return GetShopPricesCommand();
-}
-
-template <>
 LeaveGameCommand ServerProtocol::deserialize_msg<LeaveGameCommand>(payload_t& payload) const {
     (void)payload;
     return LeaveGameCommand();
 }
 
+#define DESERIALIZE_MSG(command, msg_type) \
+    case MessageType::msg_type:            \
+        return Message(deserialize_msg<command>(payload));
+
 Message ServerProtocol::deserialize_message(const MessageType& msg_type, payload_t& payload) const {
     switch (msg_type) {
-        case MessageType::CREATE_GAME_CMD:
-            return Message(deserialize_msg<CreateGameCommand>(payload));
-        case MessageType::LIST_GAMES_CMD:
-            return Message(deserialize_msg<ListGamesCommand>(payload));
-        case MessageType::JOIN_GAME_CMD:
-            return Message(deserialize_msg<JoinGameCommand>(payload));
-        case MessageType::SELECT_TEAM_CMD:
-            return Message(deserialize_msg<SelectTeamCommand>(payload));
-        case MessageType::GET_CHARACTERS_CMD:
-            return Message(deserialize_msg<GetCharactersCommand>(payload));
-        case MessageType::SELECT_CHARACTER_CMD:
-            return Message(deserialize_msg<SelectCharacterCommand>(payload));
-        case MessageType::START_GAME_CMD:
-            return Message(deserialize_msg<StartGameCommand>(payload));
-        case MessageType::BUY_GUN_CMD:
-            return Message(deserialize_msg<BuyGunCommand>(payload));
-        case MessageType::MOVE_CMD:
-            return Message(deserialize_msg<MoveCommand>(payload));
-        case MessageType::STOP_PLAYER_CMD:
-            return Message(deserialize_msg<StopPlayerCommand>(payload));
-        case MessageType::AIM_CMD:
-            return Message(deserialize_msg<AimCommand>(payload));
-        case MessageType::ATTACK_CMD:
-            return Message(deserialize_msg<AttackCommand>(payload));
-        case MessageType::RELOAD_CMD:
-            return Message(deserialize_msg<ReloadCommand>(payload));
-        case MessageType::SWITCH_ITEM_CMD:
-            return Message(deserialize_msg<SwitchItemCommand>(payload));
-        case MessageType::PLANT_BOMB_CMD:
-            return Message(deserialize_msg<PlantBombCommand>(payload));
-        case MessageType::DEFUSE_BOMB_CMD:
-            return Message(deserialize_msg<DefuseBombCommand>(payload));
-        case MessageType::PICK_UP_ITEM_CMD:
-            return Message(deserialize_msg<PickUpItemCommand>(payload));
-        case MessageType::GET_SHOP_PRICES_CMD:
-            return Message(deserialize_msg<GetShopPricesCommand>(payload));
-        case MessageType::LEAVE_GAME_CMD:
-            return Message(deserialize_msg<LeaveGameCommand>(payload));
-
+        LOBBY_COMMANDS_MAP(DESERIALIZE_MSG)
+        GAME_COMMANDS_MAP(DESERIALIZE_MSG)
         default:
             throw std::runtime_error("Invalid command received");
     }
 }
+
+#undef DESERIALIZE_MSG
