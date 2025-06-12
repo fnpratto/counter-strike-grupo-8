@@ -163,13 +163,13 @@ TEST_F(TestGame, NumberOfRoundsIncrementCorrectly) {
         advance_secs(PhaseTimes::buying_phase_secs);
         game.tick({});
         advance_secs(PhaseTimes::playing_phase_secs);
+        game.tick({});
         for (int j = 0; j < 10; j++) game.tick({});
         advance_secs(PhaseTimes::end_phase_secs);
-        auto player_messages = game.tick({});
-        updates = player_messages[0].get_message().get_content<GameUpdate>();
+        game.tick({});
     }
 
-    EXPECT_EQ(updates.get_num_rounds(), rounds);
+    EXPECT_EQ(game.get_full_update().get_num_rounds(), rounds);
 }
 
 TEST_F(TestGame, OneTerroristHasBombWhenGameStarted) {
@@ -226,16 +226,14 @@ TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
         advance_secs(PhaseTimes::buying_phase_secs);
         game.tick({});
         advance_secs(PhaseTimes::playing_phase_secs);
-        auto player_messages = game.tick({});
-        updates = player_messages[0].get_message().get_content<GameUpdate>();
-        EXPECT_EQ(updates.get_phase().get_phase(), PhaseType::End);
+        game.tick({});
+        EXPECT_EQ(game.get_full_update().get_phase().get_phase(), PhaseType::End);
         advance_secs(PhaseTimes::end_phase_secs);
-        player_messages = game.tick({});
-        updates = player_messages[0].get_message().get_content<GameUpdate>();
-        EXPECT_EQ(updates.get_num_rounds(), i + 1);
+        game.tick({});
+        EXPECT_EQ(game.get_full_update().get_num_rounds(), i + 1);
     }
 
-    std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
+    std::map<std::string, PlayerUpdate> player_updates = game.get_full_update().get_players();
     EXPECT_EQ(player_updates.at("test_player1").get_team(), Team::CT);
     EXPECT_EQ(player_updates.at("test_player2").get_team(), Team::TT);
 }

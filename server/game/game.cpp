@@ -41,13 +41,12 @@ PhaseType Game::get_phase() { return state.get_phase().get_type(); }
 
 void Game::advance_round_logic() {
     auto& phase = state.get_phase();
-
-    phase.advance();
-
-    if (phase.round_has_finished()) {
-        state.advance_round();
-        for (const auto& [p_name, _]: state.get_players()) move_player_to_spawn(p_name);
+    bool phase_change = phase.advance();
+    if (phase_change) {
+        if (phase.is_buying_phase())
+            prepare_new_round();
     }
+
     if (state.get_num_rounds() == GameConfig::max_rounds / 2)
         state.swap_players_teams();
 }
@@ -322,6 +321,13 @@ void Game::give_bomb_to_random_tt() {
     std::string player_name = tt_names[random_index];
     auto& player = state.get_player(player_name);
     player->pick_bomb(Bomb());
+}
+
+void Game::prepare_new_round() {
+    state.advance_round();
+    for (const auto& [p_name, player]: state.get_players()) {
+        move_player_to_spawn(p_name);
+    }
 }
 
 void Game::move_player_to_spawn(const std::string& player_name) {
