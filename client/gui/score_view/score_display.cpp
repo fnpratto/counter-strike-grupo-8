@@ -26,11 +26,14 @@ ScoreDisplay::ScoreDisplay(SdlWindow& window, std::map<std::string, ScoreboardEn
         baseX(DISPLAY_WIDTH / 2 - DISPLAY_WIDTH * 0.25),
         baseY(DISPLAY_HEIGHT * 0.15),
         slotWidth(DISPLAY_WIDTH * 0.5),
-        slotHeight(DISPLAY_WIDTH * 0.03) {}
+        slotHeight(DISPLAY_WIDTH * 0.03),
+        active(false) {}
 
 void ScoreDisplay::updateScoreboard(const std::map<std::string, ScoreboardEntry>& score_board) {
     scoreboard = score_board;
 }
+
+bool ScoreDisplay::isActive() { return active; }
 
 void ScoreDisplay::renderHeaderTexts(int y) {
     int col1 = slotWidth * 0.30;
@@ -104,8 +107,8 @@ void ScoreDisplay::renderLines(int baseY, int slotCount) {
 
     renderLine(baseX + col1, baseY, lineHeight);                       // after Player Name
     renderLine(baseX + col1 + col2, baseY, lineHeight);                // after Kills
-    renderLine(baseX + col1 + col2 + col4, baseY, lineHeight);         // after Deaths
-    renderLine(baseX + col1 + col2 + col4 + col4, baseY, lineHeight);  // after Score
+    renderLine(baseX + col1 + col2 + col2, baseY, lineHeight);         // after Deaths
+    renderLine(baseX + col1 + col2 + col2 + col4, baseY, lineHeight);  // after Score
 }
 
 void ScoreDisplay::renderLine(int x, int baseY, int height) {

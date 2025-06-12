@@ -31,6 +31,7 @@ private:
     int baseY;
     int slotWidth;
     int slotHeight;
+    bool active;
 
     void renderHeaderTexts(int y);
     void renderText(SdlText& text, const std::string& content, int x, int y, int width, int height);
@@ -47,6 +48,8 @@ public:
 
     void render();
     void updateScoreboard(const std::map<std::string, ScoreboardEntry>& scoreboard);  // Update data
+    void updateState() { active = !active; }
+    bool isActive();
 };
 
 #endif  // SCORE_DISPLAY_H
