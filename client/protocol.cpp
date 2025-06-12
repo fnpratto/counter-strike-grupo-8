@@ -8,6 +8,7 @@
 
 #include <arpa/inet.h>
 
+#include "common/errors.h"
 #include "common/message.h"
 #include "common/responses.h"
 #include "common/socket.h"
@@ -19,7 +20,6 @@
 #include "common/updates/phase_update.h"
 #include "common/updates/player_update.h"
 
-#include "errors.h"
 #include "protocol.h"
 
 // === Serialization ===
@@ -71,13 +71,23 @@ payload_t ClientProtocol::serialize_msg(const SelectCharacterCommand& cmd) const
 }
 
 template <>
-payload_t ClientProtocol::serialize_msg([[maybe_unused]] const StartGameCommand& cmd) const {
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const SetReadyCommand& cmd) const {
+    return payload_t();
+}
+
+template <>
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const GetShopPricesCommand& cmd) const {
     return payload_t();
 }
 
 template <>
 payload_t ClientProtocol::serialize_msg(const BuyGunCommand& cmd) const {
     return serialize(static_cast<uint8_t>(cmd.get_gun()));
+}
+
+template <>
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const BuyAmmoCommand& cmd) const {
+    return payload_t();
 }
 
 template <>
@@ -111,13 +121,18 @@ payload_t ClientProtocol::serialize_msg([[maybe_unused]] const AttackCommand& cm
 }
 
 template <>
+payload_t ClientProtocol::serialize_msg(const SwitchItemCommand& cmd) const {
+    return serialize(static_cast<uint8_t>(cmd.get_slot()));
+}
+
+template <>
 payload_t ClientProtocol::serialize_msg([[maybe_unused]] const ReloadCommand& cmd) const {
     return payload_t();
 }
 
 template <>
-payload_t ClientProtocol::serialize_msg(const SwitchItemCommand& cmd) const {
-    return serialize(static_cast<uint8_t>(cmd.get_slot()));
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const GetScoreboardCommand& cmd) const {
+    return payload_t();
 }
 
 template <>
@@ -136,66 +151,24 @@ payload_t ClientProtocol::serialize_msg([[maybe_unused]] const PickUpItemCommand
 }
 
 template <>
-payload_t ClientProtocol::serialize_msg([[maybe_unused]] const GetShopPricesCommand& cmd) const {
-    return payload_t();
-}
-
-template <>
-payload_t ClientProtocol::serialize_msg([[maybe_unused]] const GetScoreboardCommand& cmd) const {
-    return payload_t();
-}
-
-template <>
 payload_t ClientProtocol::serialize_msg([[maybe_unused]] const LeaveGameCommand& cmd) const {
     return payload_t();
 }
 
+#define SERIALIZE_MSG(command, msg_type) \
+    case MessageType::msg_type:          \
+        return serialize_msg(message.get_content<command>());
+
 payload_t ClientProtocol::serialize_message(const Message& message) const {
     switch (message.get_type()) {
-        case MessageType::CREATE_GAME_CMD:
-            return serialize_msg(message.get_content<CreateGameCommand>());
-        case MessageType::JOIN_GAME_CMD:
-            return serialize_msg(message.get_content<JoinGameCommand>());
-        case MessageType::LIST_GAMES_CMD:
-            return serialize_msg(message.get_content<ListGamesCommand>());
-        case MessageType::SELECT_TEAM_CMD:
-            return serialize_msg(message.get_content<SelectTeamCommand>());
-        case MessageType::GET_CHARACTERS_CMD:
-            return serialize_msg(message.get_content<GetCharactersCommand>());
-        case MessageType::SELECT_CHARACTER_CMD:
-            return serialize_msg(message.get_content<SelectCharacterCommand>());
-        case MessageType::START_GAME_CMD:
-            return serialize_msg(message.get_content<StartGameCommand>());
-        case MessageType::BUY_GUN_CMD:
-            return serialize_msg(message.get_content<BuyGunCommand>());
-        case MessageType::MOVE_CMD:
-            return serialize_msg(message.get_content<MoveCommand>());
-        case MessageType::STOP_PLAYER_CMD:
-            return serialize_msg(message.get_content<StopPlayerCommand>());
-        case MessageType::AIM_CMD:
-            return serialize_msg(message.get_content<AimCommand>());
-        case MessageType::ATTACK_CMD:
-            return serialize_msg(message.get_content<AttackCommand>());
-        case MessageType::RELOAD_CMD:
-            return serialize_msg(message.get_content<ReloadCommand>());
-        case MessageType::SWITCH_ITEM_CMD:
-            return serialize_msg(message.get_content<SwitchItemCommand>());
-        case MessageType::PLANT_BOMB_CMD:
-            return serialize_msg(message.get_content<PlantBombCommand>());
-        case MessageType::DEFUSE_BOMB_CMD:
-            return serialize_msg(message.get_content<DefuseBombCommand>());
-        case MessageType::PICK_UP_ITEM_CMD:
-            return serialize_msg(message.get_content<PickUpItemCommand>());
-        case MessageType::GET_SHOP_PRICES_CMD:
-            return serialize_msg(message.get_content<GetShopPricesCommand>());
-        case MessageType::LEAVE_GAME_CMD:
-            return serialize_msg(message.get_content<LeaveGameCommand>());
-        case MessageType::GET_SCOREBOARD_CMD:
-            return serialize_msg(message.get_content<GetScoreboardCommand>());
+        LOBBY_COMMANDS_MAP(SERIALIZE_MSG)
+        GAME_COMMANDS_MAP(SERIALIZE_MSG)
         default:
             throw std::runtime_error("Invalid message type for serialization");
     }
 }
+
+#undef SERIALIZE_MSG
 
 // === Deserialization ===
 
@@ -205,16 +178,44 @@ ListGamesResponse ClientProtocol::deserialize_msg<ListGamesResponse>(payload_t& 
 }
 
 template <>
-CharactersResponse ClientProtocol::deserialize_msg<CharactersResponse>(payload_t& payload) const {
-    return CharactersResponse(deserialize_vector<CharacterType>(payload));
-}
-
-template <>
 ShopPricesResponse ClientProtocol::deserialize_msg<ShopPricesResponse>(payload_t& payload) const {
     auto gun_prices = deserialize_map<GunType, int>(payload);
     auto ammo_prices = deserialize_map<GunType, int>(payload);
 
     return ShopPricesResponse(gun_prices, ammo_prices);
+}
+
+// TODO: Implement
+template <>
+HitResponse ClientProtocol::deserialize_msg<HitResponse>(
+        [[maybe_unused]] payload_t& payload) const {
+    return HitResponse(Vector2D(0, 0), Vector2D(0, 0), Vector2D(0, 0), false);
+}
+
+template <>
+CharactersResponse ClientProtocol::deserialize_msg<CharactersResponse>(payload_t& payload) const {
+    return CharactersResponse(deserialize_vector<CharacterType>(payload));
+}
+
+// TODO: Implement
+template <>
+ScoreboardResponse ClientProtocol::deserialize_msg<ScoreboardResponse>(
+        [[maybe_unused]] payload_t& payload) const {
+    return ScoreboardResponse({});
+}
+
+// TODO: Implement
+template <>
+TriedToJoinFullTeamErrorResponse ClientProtocol::deserialize_msg<TriedToJoinFullTeamErrorResponse>(
+        [[maybe_unused]] payload_t& payload) const {
+    return TriedToJoinFullTeamErrorResponse();
+}
+
+// TODO: Implement
+template <>
+CannotBuyErrorResponse ClientProtocol::deserialize_msg<CannotBuyErrorResponse>(
+        [[maybe_unused]] payload_t& payload) const {
+    return CannotBuyErrorResponse();
 }
 
 #define X_DESERIALIZE_UPDATE(type, attr)        \
@@ -262,21 +263,17 @@ GameUpdate ClientProtocol::deserialize_msg<GameUpdate>(payload_t& payload) const
     return deserialize_update<GameUpdate>(payload);
 }
 
+#define DESERIALIZE_MSG(msg, msg_type) \
+    case MessageType::msg_type:        \
+        return Message(deserialize_msg<msg>(payload));
+
 Message ClientProtocol::deserialize_message(const MessageType& type, payload_t& payload) const {
     switch (type) {
-        case MessageType::LIST_GAMES_RESP: {
-            return Message(deserialize_msg<ListGamesResponse>(payload));
-        }
-        case MessageType::CHARACTERS_RESP: {
-            return Message(deserialize_msg<CharactersResponse>(payload));
-        }
-        case MessageType::SHOP_PRICES_RESP: {
-            return Message(deserialize_msg<ShopPricesResponse>(payload));
-        }
-        case MessageType::GAME_UPDATE: {
-            return Message(deserialize_msg<GameUpdate>(payload));
-        }
+        RESPONSES_MAP(DESERIALIZE_MSG)
+        UPDATES_MAP(DESERIALIZE_MSG)
         default:
             throw std::runtime_error("Invalid message type for deserialization");
     }
 }
+
+#undef DESERIALIZE_MSG

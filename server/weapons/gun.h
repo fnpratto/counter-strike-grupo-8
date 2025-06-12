@@ -11,8 +11,10 @@
 #include "server/states/gun_state.h"
 
 #include "weapon.h"
+#include "weapons_config.h"
 
 class Gun: public Logic<GunState, GunUpdate>, public Weapon {
+    GunConfig gun_config;
     int burst_bullets_fired = 0;
 
     int get_bullets_ready_to_fire(TimePoint now);

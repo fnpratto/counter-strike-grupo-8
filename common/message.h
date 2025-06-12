@@ -7,45 +7,7 @@
 #include <variant>
 #include <vector>
 
-#include "client/requests.h"
-#include "common/responses.h"
-#include "common/updates/game_update.h"
-
-#include "commands.h"
-
-
-#define MESSAGE_TYPE_MAP(F)                            \
-    F(bool, BOOL)                                      \
-    F(ConnectionRequest, CONN_REQ)                     \
-    F(ListGamesResponse, LIST_GAMES_RESP)              \
-    F(ShopPricesResponse, SHOP_PRICES_RESP)            \
-    F(HitResponse, HIT_RESP)                           \
-    F(CharactersResponse, CHARACTERS_RESP)             \
-    F(ScoreboardResponse, SCOREBOARD_RESP)             \
-    F(CreateGameCommand, CREATE_GAME_CMD) /*Commands*/ \
-    F(JoinGameCommand, JOIN_GAME_CMD)                  \
-    F(ListGamesCommand, LIST_GAMES_CMD)                \
-    F(SelectTeamCommand, SELECT_TEAM_CMD)              \
-    F(GetCharactersCommand, GET_CHARACTERS_CMD)        \
-    F(SelectCharacterCommand, SELECT_CHARACTER_CMD)    \
-    F(StartGameCommand, START_GAME_CMD)                \
-    F(BuyGunCommand, BUY_GUN_CMD)                      \
-    F(BuyAmmoCommand, BUY_AMMO_CMD)                    \
-    F(MoveCommand, MOVE_CMD)                           \
-    F(StopPlayerCommand, STOP_PLAYER_CMD)              \
-    F(AimCommand, AIM_CMD)                             \
-    F(AttackCommand, ATTACK_CMD)                       \
-    F(ReloadCommand, RELOAD_CMD)                       \
-    F(SwitchItemCommand, SWITCH_ITEM_CMD)              \
-    F(PlantBombCommand, PLANT_BOMB_CMD)                \
-    F(DefuseBombCommand, DEFUSE_BOMB_CMD)              \
-    F(PickUpItemCommand, PICK_UP_ITEM_CMD)             \
-    F(GetShopPricesCommand, GET_SHOP_PRICES_CMD)       \
-    F(LeaveGameCommand, LEAVE_GAME_CMD)                \
-    F(GameUpdate, GAME_UPDATE)                         \
-    F(GetScoreboardCommand, GET_SCOREBOARD_CMD)
-#define MESSAGE_TYPE_MAP_LAST(F) F(std::nullptr_t, NONE)
-
+#include "message_type_map.h"
 
 #define GET_MESSAGE_TYPE(type, enumName) type,
 #define GET_MESSAGE_TYPE_NC(type, enumName) type
@@ -81,8 +43,6 @@ struct MessageTypeTrait;
     };
 MESSAGE_TYPE_MAP(DEF_MESSAGE_TRAIT)
 #undef DEF_MESSAGE_TRAIT
-
-#undef MESSAGE_TYPE_MAP
 
 // @return std::false_type always
 // @note Checks if the type T has a corresponding MessageTypeTrait specialization.

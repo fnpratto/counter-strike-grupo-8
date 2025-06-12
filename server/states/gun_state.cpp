@@ -1,16 +1,14 @@
 #include "gun_state.h"
 
-GunState::GunState(GunType gun_type, GunConfig gun_config):
+GunState::GunState(GunType gun_type, int init_mag_ammo, int init_reserve_ammo):
         gun(gun_type),
-        gun_config(gun_config),
-        mag_ammo(gun_config.init_mag_ammo),
-        reserve_ammo(gun_config.init_reserve_ammo),
+        mag_ammo(init_mag_ammo),
+        reserve_ammo(init_reserve_ammo),
         is_attacking(false) {
     updates = get_full_update();
 }
 
 GunType GunState::get_gun() const { return gun; }
-GunConfig GunState::get_gun_config() const { return gun_config; }
 int GunState::get_mag_ammo() const { return mag_ammo; }
 int GunState::get_reserve_ammo() const { return reserve_ammo; }
 bool GunState::get_is_attacking() const { return is_attacking; }
