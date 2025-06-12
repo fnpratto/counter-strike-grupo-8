@@ -27,8 +27,7 @@ std::vector<PlayerMessage> Game::tick(const std::vector<PlayerMessage>& msgs) {
 
     GameUpdate update = state.get_updates();
     if (update.has_change())
-        for (const auto& [player_name, player]: state.get_players())
-            output_messages.push_back(PlayerMessage(player_name, Message(update)));
+        send_msg_to_all_players(Message(update));
 
     return std::move(output_messages);
 }
@@ -67,33 +66,38 @@ void Game::advance_players_movement() {
 void Game::perform_attacks() {
     if (!state.get_phase().is_playing_phase())
         return;
-    for (const auto& [player_name, player]: state.get_players()) {
+    for (const auto& [p_name, player]: state.get_players()) {
         auto effects = player->attack(state.get_phase().get_time_now());
         if (effects.empty())
             continue;
 
         for (const auto& effect: effects) {
-            auto closest_target = physics_system.get_closest_target(player_name, effect->get_dir(),
+            auto closest_target = physics_system.get_closest_target(p_name, effect->get_dir(),
                                                                     effect->get_max_range());
             if (!closest_target.has_value())
                 continue;
 
-            bool is_hit = false;
-            if (closest_target.value().is_player()) {
-                auto& target_player = closest_target.value().get_player().get();
-                is_hit = effect->apply(target_player);
-                if (target_player->is_dead()) {
-                    player->add_kill();
-                    player->add_rewards(ScoresConfig::kill, BonificationsConfig::kill);
-                }
-            }
+            bool is_hit = apply_attack_effect(player, effect, closest_target.value());
 
             HitResponse hit_response(player->get_pos(), closest_target.value().get_pos(),
                                      effect->get_dir(), is_hit);
-            for (const auto& [p_name, _]: state.get_players())
-                output_messages.emplace_back(p_name, Message(hit_response));
+            send_msg_to_all_players(Message(hit_response));
         }
     }
+}
+
+bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker,
+                               const std::unique_ptr<AttackEffect>& effect, const Target& target) {
+    bool is_hit = false;
+    if (target.is_player()) {
+        auto& target_player = target.get_player().get();
+        is_hit = effect->apply(target_player);
+        if (target_player->is_dead()) {
+            attacker->add_kill();
+            attacker->add_rewards(ScoresConfig::kill, BonificationsConfig::kill);
+        }
+    }
+    return is_hit;
 }
 
 void Game::join_player(const std::string& player_name) {
@@ -338,4 +342,6 @@ void Game::move_player_to_spawn(const std::string& player_name) {
         player->move_to_pos(physics_system.random_spawn_ct_pos());
 }
 
-Game::~Game() {}
+void Game::send_msg_to_all_players(const Message& msg) {
+    for (const auto& [p_name, _]: state.get_players()) output_messages.emplace_back(p_name, msg);
+}
