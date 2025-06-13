@@ -65,12 +65,7 @@ void ScoreDisplay::renderText(SdlText& text, const std::string& content, int x, 
 }
 
 void ScoreDisplay::renderPlayerEntry(const std::string& playerName, const ScoreboardEntry& entry,
-                                     int y, Team team) {
-    if (team == Team::TT) {
-        renderRectangle(red_rectangle, baseX, y, DISPLAY_WIDTH * 0.5, DISPLAY_WIDTH * 0.40);
-    } else if (team == Team::CT) {
-        renderRectangle(blue_rectangle, baseX, y, DISPLAY_WIDTH * 0.5, DISPLAY_WIDTH * 0.40);
-    }
+                                     int y) {
 
     int col1 = slotWidth * 0.30;
     int col2 = slotWidth * 0.15;  // Reuse for col3
@@ -82,13 +77,17 @@ void ScoreDisplay::renderPlayerEntry(const std::string& playerName, const Scoreb
     int x4 = x3 + col2;  // Reuse col2 for col3
     int x5 = x4 + col4;  // Reuse col4 for col5
 
-    renderText(playerNameText, playerName, x1 + 10, y, col1 - 10, 30);
-    renderText(killsText, "Kills: " + std::to_string(entry.kills), x2 + 10, y, col2 - 10, 30);
-    renderText(deathsText, "Deaths: " + std::to_string(entry.deaths), x3 + 10, y, col2 - 10,
-               30);  // Reuse col2 for col3
-    renderText(scoreText, "Score: " + std::to_string(entry.score), x4 + 10, y, col4 - 10, 30);
-    renderText(moneyText, "Money: " + std::to_string(entry.money), x5 + 10, y, col4 - 10,
-               30);  // Reuse col4 for col5
+    int nameWidth = playerName.length() * 30;
+    int killsWidth = std::to_string(entry.kills).length() * 30;
+    int deathsWidth = std::to_string(entry.deaths).length() * 30;
+    int scoreWidth = std::to_string(entry.score).length() * 30;
+    int moneyWidth = std::to_string(entry.money).length() * 30;
+
+    renderText(playerNameText, playerName, x1 + 10, y, nameWidth, 30);
+    renderText(killsText, std::to_string(entry.kills), x2 + 20, y, killsWidth, 30);
+    renderText(deathsText, std::to_string(entry.deaths), x3 + 20, y, deathsWidth, 30);
+    renderText(scoreText, std::to_string(entry.score), x4 + 20, y, scoreWidth, 30);
+    renderText(moneyText, std::to_string(entry.money), x5 + 20, y, moneyWidth, 30);
 }
 
 void ScoreDisplay::renderRectangle(const SdlTexture& rectangle, int x, int y, int width,
@@ -96,10 +95,8 @@ void ScoreDisplay::renderRectangle(const SdlTexture& rectangle, int x, int y, in
     rectangle.render(Area(0, 0, 600, 300), Area(x, y, width, height));
 }
 
-void ScoreDisplay::renderTeamSlots(const SdlTexture& rectangle, int baseY, int slotCount) {
-    for (int i = 0; i < slotCount; ++i) {
-        renderRectangle(rectangle, baseX, baseY + i * (slotHeight + pading), slotWidth, slotHeight);
-    }
+void ScoreDisplay::renderTeamSlot(const SdlTexture& rectangle, int baseY) {
+    renderRectangle(rectangle, baseX, baseY, slotWidth, slotHeight);
 }
 
 
@@ -126,24 +123,27 @@ void ScoreDisplay::render() {
 
     renderRectangle(black_rectangle, baseX, baseY, DISPLAY_WIDTH * 0.5, DISPLAY_WIDTH * 0.50);
 
-    for (const auto& [playerName, entry]: scoreboard) {
-        std::cout << "Rendering player: " << playerName << std::endl;
-        Team team = state.get_players().at(playerName).get_team();
-        renderPlayerEntry(playerName, entry, base_cc, team);
-        base_cc += slotHeight + pading;
-    }
-
     renderRectangle(black_rectangle, baseX, base_cc, slotWidth, slotHeight);
     renderHeaderTexts(base_cc + 20);
     base_cc += slotHeight + pading;
-
-    renderTeamSlots(red_rectangle, base_cc, 5);
-    renderLines(base_cc, 7);
 
     renderRectangle(black_rectangle, baseX, base_ct, slotWidth, slotHeight);
     renderHeaderTexts(base_ct + 20);
     base_ct += slotHeight + pading;
 
-    renderTeamSlots(blue_rectangle, base_ct, 5);
-    renderLines(base_ct, 7);
+    for (const auto& [playerName, entry]: scoreboard) {
+        std::cout << "Rendering player: " << playerName << std::endl;
+        Team team = state.get_players().at(playerName).get_team();
+        if (team == Team::TT) {
+            renderTeamSlot(red_rectangle, base_cc);
+            renderPlayerEntry(playerName, entry, base_cc);
+            base_cc += slotHeight + pading;
+        } else if (team == Team::CT) {
+            renderTeamSlot(blue_rectangle, base_ct);
+            renderPlayerEntry(playerName, entry, base_ct);
+            base_ct += slotHeight + pading;
+        }
+    }
+    renderLines(baseY, 7);
+    renderLines(baseY + slotHeight * 7 + pading, 7);
 }

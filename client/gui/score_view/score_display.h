@@ -35,10 +35,9 @@ private:
 
     void renderHeaderTexts(int y);
     void renderText(SdlText& text, const std::string& content, int x, int y, int width, int height);
-    void renderPlayerEntry(const std::string& playerName, const ScoreboardEntry& entry, int y,
-                           Team team);
+    void renderPlayerEntry(const std::string& playerName, const ScoreboardEntry& entry, int y);
     void renderRectangle(const SdlTexture& rectangle, int x, int y, int width, int height);
-    void renderTeamSlots(const SdlTexture& rectangle, int baseY, int slotCount);
+    void renderTeamSlot(const SdlTexture& rectangle, int baseY);
     void renderLine(int x, int baseY, int height);
     void renderLines(int baseY, int slotCount);
 
