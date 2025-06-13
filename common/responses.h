@@ -7,7 +7,7 @@
 
 #include "common/models.h"
 #include "common/utils/vector_2d.h"
-#include "scoreboard/scoreboard_entry.h"
+#include "game/scoreboard_entry.h"
 
 struct GameInfo {
     std::string name;

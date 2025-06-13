@@ -83,12 +83,12 @@ void GameState::add_player(const std::string& player_name, std::unique_ptr<Playe
 }
 
 void GameState::add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos) {
-    updates.set_dropped_guns({std::make_pair(gun->get_type(), pos)});
+    // updates.set_dropped_guns({WorldItem<GunType>{gun->get_type(), pos}});
     dropped_guns.emplace_back(std::move(gun), pos);
 }
 
 void GameState::add_bomb(Bomb&& bomb, const Vector2D& pos) {
-    this->bomb = std::make_pair(std::move(bomb), pos);
+    this->bomb = WorldItem<Bomb>{std::move(bomb), pos};
 }
 
 void GameState::clear_updates() {
@@ -104,6 +104,9 @@ GameUpdate GameState::get_updates() const {
     update.set_phase(phase.get_updates());
     for (const auto& [name, player]: players)
         update.add_players_change(name, player->get_updates());
+    // if (bomb.has_value())
+    //     update.set_bomb(WorldItem<BombUpdate>{bomb.value().item.get_updates(),
+    //     bomb.value().pos});
 
     return update;
 }
@@ -114,7 +117,10 @@ GameUpdate GameState::get_full_update() const {
     update.set_num_rounds(num_rounds);
     for (const auto& [name, player]: players)
         update.add_players_change(name, player->get_full_update());
-    for (const auto& [gun, pos]: dropped_guns)
-        update.set_dropped_guns({std::make_pair(gun->get_type(), pos)});
+    // for (const auto& dg: dropped_guns)
+    //     update.set_dropped_guns({WorldItem<GunType>{dg.item->get_type(), dg.pos}});
+    // if (bomb.has_value())
+    //     update.set_bomb(
+    //             WorldItem<BombUpdate>{bomb.value().item.get_full_update(), bomb.value().pos});
     return update;
 }

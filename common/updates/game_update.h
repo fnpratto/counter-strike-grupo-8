@@ -4,7 +4,6 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
-#include <utility>
 
 #include "common/models.h"
 #include "common/utils/vector_2d.h"
@@ -13,12 +12,12 @@
 #include "player_update.h"
 #include "state_update.h"
 
-#define GAME_ATTRS(X, M, U, O, V)         \
-    U(PhaseUpdate, phase)                 \
-    X(int, num_rounds)                    \
-    M(std::string, PlayerUpdate, players) \
-    V((std::pair<GunType, Vector2D>), dropped_guns)
+#define GAME_ATTRS(X, M, U, O, V) \
+    U(PhaseUpdate, phase)         \
+    X(int, num_rounds)            \
+    M(std::string, PlayerUpdate, players)
 
-// TODO: Add dropped bomb update (with BombUpdate and pos)
+// TODO: V(WorldItem<GunType>, dropped_guns)
+// TODO: X(std::optional<WorldItem<BombUpdate>>, bomb)
 
 DEFINE_UPDATE(GameUpdate, GAME_ATTRS)

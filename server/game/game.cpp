@@ -3,7 +3,7 @@
 #include <optional>
 #include <utility>
 
-#include "common/scoreboard/scoreboard_entry.h"
+#include "common/game/scoreboard_entry.h"
 #include "server/attack_effects/attack_effect.h"
 #include "server/errors.h"
 #include "server/physics/target_type.h"

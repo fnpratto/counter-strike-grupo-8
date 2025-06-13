@@ -5,8 +5,8 @@
 #include <utility>
 #include <vector>
 
+#include "common/game/scoreboard_entry.h"
 #include "common/models.h"
-#include "common/scoreboard/scoreboard_entry.h"
 #include "common/updates/player_update.h"
 #include "common/utils/vector_2d.h"
 #include "server/attack_effects/attack_effect.h"

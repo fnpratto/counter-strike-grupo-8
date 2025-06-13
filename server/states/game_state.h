@@ -6,6 +6,7 @@
 #include <utility>
 #include <vector>
 
+#include "common/game/world_item.h"
 #include "common/updates/game_update.h"
 #include "server/clock/clock.h"
 #include "server/game/game_phase.h"
@@ -19,9 +20,8 @@ class GameState: public State<GameUpdate> {
     int max_players;
     std::map<std::string, std::unique_ptr<Player>> players;
 
-    // TODO: Refactor to dropped_items to do class Drop
-    std::vector<std::pair<std::unique_ptr<Gun>, Vector2D>> dropped_guns;
-    std::optional<std::pair<Bomb, Vector2D>> bomb;
+    std::vector<WorldItem<std::unique_ptr<Gun>>> dropped_guns;
+    std::optional<WorldItem<Bomb>> bomb;
 
 public:
     GameState(std::shared_ptr<Clock>&& game_clock, int max_players);
