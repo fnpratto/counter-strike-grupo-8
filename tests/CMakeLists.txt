@@ -13,10 +13,8 @@ target_sources(taller_tests
     # game
     ../server/game/game.cpp
     ../server/game/game_phase.cpp
-    # map
-    ../common/map/map.cpp
     # physics
-    ../common/physics/physics_system.cpp
+    ../server/physics/physics_system.cpp
     # player
     ../server/player/player.cpp
     ../server/player/inventory.cpp

@@ -6,6 +6,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <SDL2/SDL.h>
@@ -35,11 +36,13 @@ SdlWorld::SdlWorld(SdlWindow& window, const GameUpdate& game_state, const std::s
 Map SdlWorld::build_default_map() {
     Map actual_map = Map("default_map", 10);
 
+    std::vector<Floor> floors;
     for (int i = 0; i < 10; ++i) {
         for (int j = 0; j < 10; ++j) {
-            actual_map.add_floor(Vector2D(i * 64, j * 64));
+            floors.emplace_back(Vector2D(i * 32, j * 32));
         }
     }
+    actual_map.floors = std::move(floors);
 
     return actual_map;
 }

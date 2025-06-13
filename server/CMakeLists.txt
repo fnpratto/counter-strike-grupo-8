@@ -16,8 +16,6 @@ target_sources(taller_server
     # game
     game/game.cpp
     game/game_phase.cpp
-    # map
-    ../common/map/map.cpp
     # physics
     physics/physics_system.cpp
     # player

@@ -5,7 +5,7 @@
 #include <limits>
 #include <memory>
 
-#include "../common/physics/physics_config.h"
+#include "common/physics/physics_config.h"
 #include "server/game/game_config.h"
 
 PhysicsSystem::PhysicsSystem(Map&& map,

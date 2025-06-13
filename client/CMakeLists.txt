@@ -18,7 +18,6 @@ target_sources(taller_client
     qt/log_in_window.cpp
     qt/resources.qrc
     connection_handler.cpp
-    ../common/map/map.cpp
 
     PUBLIC
     # .h files
