@@ -24,19 +24,14 @@ public:
     JoinGameError(): GameError("could not join game") {}
 };
 
-class StartGameError: public GameError {
+class SetReadyError: public GameError {
 public:
-    StartGameError(): GameError("try to start an already started game") {}
+    SetReadyError(): GameError("try to set ready when playing an already started game") {}
 };
 
 class SelectTeamError: public GameError {
 public:
     SelectTeamError(): GameError("error at select team") {}
-};
-
-class InvalidPlayerNameError: public GameError {
-public:
-    InvalidPlayerNameError(): GameError("invalid player name") {}
 };
 
 class PlayerError: public Error {
@@ -46,16 +41,6 @@ public:
         static std::string full_message = "Player Error: " + std::string(Error::what());
         return full_message.c_str();
     }
-};
-
-class BuyGunError: public PlayerError {
-public:
-    BuyGunError(): PlayerError("could not buy gun") {}
-};
-
-class BuyAmmoError: public PlayerError {
-public:
-    BuyAmmoError(): PlayerError("could not buy ammo") {}
 };
 
 class MapError: public Error {

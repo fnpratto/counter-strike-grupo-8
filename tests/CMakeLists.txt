@@ -4,7 +4,7 @@ target_sources(taller_tests
     server/map/test_map.cpp
     server/game/test_game.cpp
     server/game/test_game_phase.cpp
-    server/player/test_inventory.cpp
+    server/game/test_shop.cpp
     server/player/test_player.cpp
     # attack_effects
     ../server/attack_effects/attack_effect.cpp
@@ -13,9 +13,10 @@ target_sources(taller_tests
     # game
     ../server/game/game.cpp
     ../server/game/game_phase.cpp
-    ../server/game/physics_system.cpp
     # map
     ../common/map/map.cpp
+    # physics
+    ../common/physics/physics_system.cpp
     # player
     ../server/player/player.cpp
     ../server/player/inventory.cpp
@@ -49,10 +50,11 @@ target_sources(taller_tests
     ../server/game/shop.h
     ../server/game/game.h
     ../server/game/game_phase.h
-    ../server/game/physics_system.h
     ../server/game/game_config.h
-    ../server/game/target_type.h
-    ../server/game/physics_system_config.h
+    # physics
+    ../server/physics/physics_system.h
+    ../server/physics/target_type.h
+    ../common/physics/physics_config.h
     # map
     ../server/map/map_builder.h
     ../common/map/map.h

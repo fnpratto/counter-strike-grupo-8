@@ -35,13 +35,12 @@ public:
 
     void advance_round();
 
-    void set_num_rounds(int rounds);
-
     void swap_players_teams();
 
     void add_player(const std::string& player_name, std::unique_ptr<Player> player);
 
     GameUpdate get_updates() const override;
+
     GameUpdate get_full_update() const override;  // cppcheck-suppress[virtualCallInConstructor]
 
     void clear_updates() override;

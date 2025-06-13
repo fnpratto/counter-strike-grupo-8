@@ -18,6 +18,9 @@ private:
     Map map;
     const std::map<std::string, std::unique_ptr<Player>>& players;
 
+    Vector2D rand_pos_in_vector(const std::vector<Vector2D>& vector) const;
+    bool is_pos_in_vector(const std::vector<Vector2D>& vector, const Vector2D& pos) const;
+
     template <typename T>
     std::optional<Target> get_closest_tile(const std::string& origin_p_name, const Vector2D& dir,
                                            const std::vector<T>& vector);
@@ -29,6 +32,12 @@ private:
 
 public:
     PhysicsSystem(Map&& map, const std::map<std::string, std::unique_ptr<Player>>& players);
+
+    PhysicsSystem(const PhysicsSystem&) = delete;
+    PhysicsSystem& operator=(const PhysicsSystem&) = delete;
+
+    PhysicsSystem(PhysicsSystem&&) = delete;
+    PhysicsSystem& operator=(PhysicsSystem&&) = delete;
 
     Vector2D random_spawn_tt_pos() const;
     Vector2D random_spawn_ct_pos() const;

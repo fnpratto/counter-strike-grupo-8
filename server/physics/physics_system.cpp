@@ -5,34 +5,45 @@
 #include <limits>
 #include <memory>
 
-#include "game_config.h"
-#include "physics_system_config.h"
+#include "server/game/game_config.h"
+
+#include "physics_config.h"
 
 PhysicsSystem::PhysicsSystem(Map&& map,
                              const std::map<std::string, std::unique_ptr<Player>>& players):
         map(std::move(map)), players(players) {}
 
-Vector2D PhysicsSystem::random_spawn_tt_pos() const { return map.random_spawn_tt_pos(); }
+Vector2D PhysicsSystem::rand_pos_in_vector(const std::vector<Vector2D>& vector) const {
+    int rand_idx = std::rand() % vector.size();
+    return vector.at(rand_idx);
+}
 
-Vector2D PhysicsSystem::random_spawn_ct_pos() const { return map.random_spawn_ct_pos(); }
+bool PhysicsSystem::is_pos_in_vector(const std::vector<Vector2D>& vector,
+                                     const Vector2D& pos) const {
+    return std::any_of(vector.begin(), vector.end(), [&](const Vector2D& p) { return p == pos; });
+}
 
+Vector2D PhysicsSystem::random_spawn_tt_pos() const { return rand_pos_in_vector(map.spawns_tts); }
+
+Vector2D PhysicsSystem::random_spawn_ct_pos() const { return rand_pos_in_vector(map.spawns_cts); }
+
+// TODO: Fix this to check if any part of player hitbox radius is on spawn
 bool PhysicsSystem::player_in_spawn(const std::string& player_name) const {
     const std::unique_ptr<Player>& player = players.at(player_name);
     if (player->is_tt())
-        return map.is_spawn_tt_pos(player->get_pos());
-    return map.is_spawn_ct_pos(player->get_pos());
+        return is_pos_in_vector(map.spawns_tts, player->get_pos());
+    return is_pos_in_vector(map.spawns_cts, player->get_pos());
 }
 
 Vector2D PhysicsSystem::calculate_step(const Vector2D& dir) const {
     float tick_duration = 1.0f / GameConfig::tickrate;  // TODO use clock
-    return dir.normalized(PhysicsSystemConfig::meter_size) * GameConfig::player_speed *
-           tick_duration;
+    return dir.normalized(PhysicsConfig::meter_size) * GameConfig::player_speed * tick_duration;
 }
 
 std::optional<Target> PhysicsSystem::get_closest_target(const std::string& origin_p_name,
                                                         const Vector2D& dir, int max_range) {
-    auto closest_wall = get_closest_tile<Wall>(origin_p_name, dir, map.get_walls());
-    auto closest_box = get_closest_tile<Box>(origin_p_name, dir, map.get_boxes());
+    auto closest_wall = get_closest_tile<Wall>(origin_p_name, dir, map.walls);
+    auto closest_box = get_closest_tile<Box>(origin_p_name, dir, map.boxes);
     auto closest_player = get_closest_player(origin_p_name, dir);
 
     std::vector<std::optional<Target>> closests = {closest_wall, closest_box, closest_player};
@@ -106,7 +117,7 @@ bool PhysicsSystem::is_in_same_cuadrant(Vector2D target_pos, Vector2D player_pos
 bool PhysicsSystem::player_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir) {
     Vector2D target_distance = target_pos - player_pos;
     float orthogonal_distance = std::abs(target_distance.cross(aim_dir));
-    return orthogonal_distance <= PhysicsSystemConfig::player_hitbox_radius;
+    return orthogonal_distance <= PhysicsConfig::player_hitbox_radius;
 }
 
 bool PhysicsSystem::tile_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir) {
