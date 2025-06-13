@@ -18,7 +18,6 @@ private:
     Queue<Message>& output_queue;
     shopDisplay& shopRef;
     void update_direction();
-    bool no_movement = false;  // TODO sacar
 };
 
 #endif  // KEYBOARDHANDLER_H

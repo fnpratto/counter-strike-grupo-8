@@ -1,5 +1,6 @@
 #include "sdl_world.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <iostream>
 #include <map>
@@ -48,17 +49,14 @@ Map SdlWorld::build_default_map() {
 }
 
 void SdlWorld::render() {
-    // TODO Render the background
-    // background.render(0, 0);
-
     camera.center(game_state.get_players().at(player_name).get_pos());
 
     map.render();
 
-    for (auto& [name, player_state]: game_state.get_players()) {
+    for (const auto& [name, player_state]: game_state.get_players()) {
+        auto [it, _] = players.emplace(name, SdlPlayer(window, camera));
         if (camera.can_see(player_state)) {
-            auto& player = players.at(name);
-            player.render(player_state);
+            it->second.render(player_state);
         }
     }
 }

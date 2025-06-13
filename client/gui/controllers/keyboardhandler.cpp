@@ -5,10 +5,7 @@
 #include <SDL2/SDL.h>
 
 KeyboardHandler::KeyboardHandler(Queue<Message>& output_queue, shopDisplay& shopRef):
-        output_queue(output_queue), shopRef(shopRef) {
-    no_movement = true;
-    // Constructor implementation can be empty or contain initialization logic if needed
-}
+        output_queue(output_queue), shopRef(shopRef) {}
 
 
 void KeyboardHandler::handleEvent(const SDL_Event& event /*, bool& shop*/) {

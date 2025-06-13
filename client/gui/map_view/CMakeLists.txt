@@ -3,6 +3,7 @@ target_sources(taller_client
     sdl_camera.cpp
     sdl_map.cpp
     sdl_world.cpp
+    sdl_player.cpp
 
     PUBLIC
     sdl_camera.h

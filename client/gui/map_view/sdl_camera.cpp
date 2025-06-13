@@ -19,7 +19,7 @@ Vector2D SdlCamera::get_screen_pos(Vector2D pos) const {
 
     // Adjust for screen center
     static Vector2D screen_center(screen_width / 2, screen_height / 2);
-    Vector2D position = screen_center + delta;
+    Vector2D screen_position = screen_center + delta;
 
-    return position;
+    return screen_position;
 }
