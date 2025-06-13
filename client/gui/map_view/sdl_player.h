@@ -43,9 +43,6 @@ public:
                                                   {32, 64, WIDTH, HEIGHT}})) {}
 
     void render(const PlayerUpdate& state) {
-        SDL_Rect clip{32, 32, WIDTH, HEIGHT};
-        SdlTexture texture(CHARACTER_PATH, window, WIDTH, HEIGHT);
-
         if (state.get_velocity() == Vector2D(0, 0)) {
             walk_animation.reset();
         }
@@ -64,9 +61,12 @@ public:
             // (or any default direction, here we assume 0 degrees is right)
             angle = 0.0f;  // Default angle if no aim direction is provided
         }
+
+        // TODO Replace this with the animation
+        SDL_Rect clip{32, 32, WIDTH, HEIGHT};
+        SdlTexture texture(CHARACTER_PATH, window, WIDTH, HEIGHT);
         texture.render(position_from_cam.get_x(), position_from_cam.get_y(), &clip, angle, nullptr,
                        SDL_FLIP_NONE);
-
         // walk_animation.render(position_from_cam.get_x(), position_from_cam.get_y(), angle);
     }
 };
