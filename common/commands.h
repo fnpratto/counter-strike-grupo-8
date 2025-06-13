@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "common/utils/vector_2d.h"
-#include "server/game/physics_system_config.h"
 
 #include "models.h"
 
@@ -131,8 +130,7 @@ class MoveCommand: public Command {
     Vector2D direction;
 
 public:
-    explicit MoveCommand(Vector2D direction):
-            direction(direction.normalized(PhysicsSystemConfig::meter_size)) {}
+    explicit MoveCommand(Vector2D direction): direction(direction) {}
 
     Vector2D get_direction() const { return direction; }
 };

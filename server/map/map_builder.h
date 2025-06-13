@@ -9,8 +9,8 @@
 
 #include "common/map/map.h"
 #include "common/models.h"
+#include "common/physics/physics_config.h"
 #include "common/utils/vector_2d.h"
-#include "server/physics/physics_config.h"
 
 // TODO: Make subclasses of MapBuilder that build specific
 //       maps such as DesertMapBuilder, AztecMapBuilder, and

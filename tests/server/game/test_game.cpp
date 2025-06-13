@@ -4,6 +4,7 @@
 
 #include "common/map/map.h"
 #include "common/models.h"
+#include "common/physics/physics_config.h"
 #include "common/updates/game_update.h"
 #include "common/updates/inventory_update.h"
 #include "common/updates/phase_update.h"
@@ -14,7 +15,6 @@
 #include "server/game/game_config.h"
 #include "server/game/shop.h"
 #include "server/map/map_builder.h"
-#include "server/physics/physics_config.h"
 #include "server/player_message.h"
 
 class TestGame: public ::testing::Test {

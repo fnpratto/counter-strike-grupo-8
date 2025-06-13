@@ -1,6 +1,6 @@
 #pragma once
 
-#include "server/physics/physics_config.h"
+#include "common/physics/physics_config.h"
 
 struct GunConfig {
     int bullets_per_mag;
