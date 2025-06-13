@@ -40,6 +40,9 @@ public:
         // TODO : Implement proper tile rendering based on tile type
         SDL_Rect src_rect = {WIDTH, 0, WIDTH, HEIGHT};
 
-        sheet.render(position_from_cam.get_x(), position_from_cam.get_y(), &src_rect);
+        Area src(src_rect.x, src_rect.y, src_rect.w, src_rect.h);
+        Area dest(position_from_cam.get_x(), position_from_cam.get_y(), src_rect.w, src_rect.h);
+
+        sheet.render(src, dest);
     }
 };

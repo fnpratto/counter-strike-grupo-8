@@ -5,6 +5,7 @@ target_sources(taller_client
     sdl_text.cpp
     sdl_texture.cpp
     sdl_window.cpp
+    sdl_animation.cpp
 
     PUBLIC
     area.h
@@ -12,4 +13,5 @@ target_sources(taller_client
     sdl_text.h
     sdl_texture.h
     sdl_window.h
+    sdl_animation.h
 )

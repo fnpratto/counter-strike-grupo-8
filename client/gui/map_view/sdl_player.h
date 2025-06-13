@@ -11,6 +11,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "../window_elements/area.h"
+#include "../window_elements/sdl_animation.h"
 #include "../window_elements/sdl_texture.h"
 #include "../window_elements/sdl_window.h"
 #include "client/gui/window_elements/sdl_animation.h"
@@ -23,6 +24,7 @@ class SdlPlayer {
     const SdlCamera& camera;
 
     static constexpr const char* CHARACTER_PATH = "../assets/gfx/player/ct2.xcf";
+    static constexpr const char* WALKING_ANIMATION = "../assets/gfx/player/legs_animation.xcf";
     static constexpr int WIDTH = 32;
     static constexpr int HEIGHT = 32;
 
