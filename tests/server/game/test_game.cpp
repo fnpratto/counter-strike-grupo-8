@@ -474,9 +474,11 @@ TEST_F(TestGame, TTsWinIfTheyKillAllCTs) {
 
     Message msg_attack = Message(AttackCommand());
     std::vector<PlayerMessage> player_messages;
-    while (updates.get_players().size() > 2) {
+    while (updates.get_players().at("ct").get_health() > 0) {
+        advance_secs(1.0f / GlockConfig.attack_rate);
         int old_ct_health = updates.get_players().at("ct").get_health();
         player_messages = game.tick({PlayerMessage("tt", msg_attack)});
+        updates = game.get_full_update();
         for (const auto& m: player_messages) {
             if (m.get_message().get_type() == MessageType::HIT_RESP) {
                 auto hit_response = m.get_message().get_content<HitResponse>();
@@ -486,7 +488,6 @@ TEST_F(TestGame, TTsWinIfTheyKillAllCTs) {
                 }
             }
         }
-        updates = game.get_full_update();
     }
 
     for (const auto& m: player_messages) {
