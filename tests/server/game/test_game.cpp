@@ -449,3 +449,52 @@ TEST_F(TestGame, WeaponDoesNotMakeDamageWhenTargetIsOutOfRange) {
     updates = game.get_full_update();
     EXPECT_EQ(updates.get_players().at("target_player").get_health(), old_health);
 }
+
+TEST_F(TestGame, TTsWinIfTheyKillAllCTs) {
+    game.join_player("tt");
+    game.join_player("ct");
+
+    Message msg_select_team = Message(SelectTeamCommand(Team::TT));
+    game.tick({PlayerMessage("tt", msg_select_team)});
+    msg_select_team = Message(SelectTeamCommand(Team::CT));
+    game.tick({PlayerMessage("ct", msg_select_team)});
+
+    Message msg_start = Message(SetReadyCommand());
+    game.tick({PlayerMessage("tt", msg_start), PlayerMessage("ct", msg_start)});
+
+    GameUpdate updates = game.get_full_update();
+    Vector2D tt_pos = updates.get_players().at("tt").get_pos();
+    Vector2D ct_pos = updates.get_players().at("ct").get_pos();
+
+    Message msg_aim = Message(AimCommand(ct_pos - tt_pos));
+    Message msg_switch_weap = Message(SwitchItemCommand(ItemSlot::Secondary));
+    game.tick({PlayerMessage("tt", msg_aim), PlayerMessage("tt", msg_switch_weap)});
+
+    advance_secs(PhaseTimes::buying_phase_secs);
+
+    Message msg_attack = Message(AttackCommand());
+    std::vector<PlayerMessage> player_messages;
+    while (updates.get_players().size() > 2) {
+        int old_ct_health = updates.get_players().at("ct").get_health();
+        player_messages = game.tick({PlayerMessage("tt", msg_attack)});
+        for (const auto& m: player_messages) {
+            if (m.get_message().get_type() == MessageType::HIT_RESP) {
+                auto hit_response = m.get_message().get_content<HitResponse>();
+                if (hit_response.is_hit()) {
+                    EXPECT_EQ(hit_response.get_hit_pos(), ct_pos);
+                    EXPECT_LT(updates.get_players().at("ct").get_health(), old_ct_health);
+                }
+            }
+        }
+        updates = game.get_full_update();
+    }
+
+    for (const auto& m: player_messages) {
+        if (m.get_message().get_type() ==
+            MessageType::ROUND_END_RESP) {  // cppcheck-suppress[useStlAlgorithm]
+            auto round_end_resp = m.get_message().get_content<RoundEndResponse>();
+            EXPECT_EQ(round_end_resp.get_winning_team(), Team::TT);
+            break;
+        }
+    }
+}

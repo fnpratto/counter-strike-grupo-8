@@ -42,8 +42,13 @@ void Game::advance_round_logic() {
     auto& phase = state.get_phase();
     bool phase_change = phase.advance();
     if (phase_change) {
-        if (phase.is_buying_phase())
+        if (phase.is_round_finished()) {
+            Team winning_team = state.get_winning_team();
+            // TODO: Add winning rewards
+            send_msg_to_all_players(Message(RoundEndResponse(winning_team)));
+        } else if (phase.is_buying_phase()) {
             prepare_new_round();
+        }
     }
 
     if (state.get_num_rounds() == GameConfig::max_rounds / 2)
