@@ -13,11 +13,13 @@ static constexpr int end_phase_secs = 5;
 };  // namespace PhaseTimes
 
 namespace Scores {
-static constexpr int kill = 2;
+static constexpr int kill = 1;
 static constexpr int win = 5;
+static constexpr int loss = 0;
 };  // namespace Scores
 
 namespace Bonifications {
-static constexpr int kill = 100;
-static constexpr int win = 300;
+static constexpr int kill = 300;
+static constexpr int win = 3000;
+static constexpr int loss = 1500;
 }  // namespace Bonifications

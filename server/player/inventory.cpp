@@ -6,7 +6,12 @@
 #include "common/models.h"
 #include "server/weapons/knife.h"
 
-std::unique_ptr<Gun>& Inventory::get_gun(const ItemSlot& slot) { return state.get_guns().at(slot); }
+Inventory::Inventory():
+        Logic<InventoryState, InventoryUpdate>(InventoryState(PlayerConfig::initial_money)) {
+    state.set_gun(ItemSlot::Secondary, Gun::make_glock());
+}
+
+std::map<ItemSlot, std::unique_ptr<Gun>>& Inventory::get_guns() { return state.get_guns(); }
 
 Knife& Inventory::get_knife() { return state.get_knife(); }
 
