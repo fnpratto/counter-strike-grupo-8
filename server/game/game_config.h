@@ -9,7 +9,8 @@ static constexpr int max_rounds = 10;
 namespace PhaseTimes {
 static constexpr int buying_phase_secs = 30;
 static constexpr int playing_phase_secs = 120;
-static constexpr int end_phase_secs = 5;
+static constexpr int round_end_phase_secs = 5;
+static constexpr int game_end_phase_secs = 10;
 };  // namespace PhaseTimes
 
 namespace Scores {

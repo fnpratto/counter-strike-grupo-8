@@ -165,7 +165,7 @@ TEST_F(TestGame, NumberOfRoundsIncrementCorrectly) {
         advance_secs(PhaseTimes::playing_phase_secs);
         game.tick({});
         for (int j = 0; j < 10; j++) game.tick({});
-        advance_secs(PhaseTimes::end_phase_secs);
+        advance_secs(PhaseTimes::round_end_phase_secs);
         game.tick({});
     }
 
@@ -227,8 +227,8 @@ TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
         game.tick({});
         advance_secs(PhaseTimes::playing_phase_secs);
         game.tick({});
-        EXPECT_EQ(game.get_full_update().get_phase().get_phase(), PhaseType::End);
-        advance_secs(PhaseTimes::end_phase_secs);
+        EXPECT_EQ(game.get_full_update().get_phase().get_phase(), PhaseType::RoundEnd);
+        advance_secs(PhaseTimes::round_end_phase_secs);
         game.tick({});
         EXPECT_EQ(game.get_full_update().get_num_rounds(), i + 1);
     }
@@ -536,7 +536,7 @@ TEST_F(TestGame, PlayerStateResetCorrectlyWhenANewRoundStarts) {
 
     advance_secs(PhaseTimes::playing_phase_secs);
     game.tick({});
-    advance_secs(PhaseTimes::end_phase_secs);
+    advance_secs(PhaseTimes::round_end_phase_secs);
     game.tick({});
 
     updates = game.get_full_update();

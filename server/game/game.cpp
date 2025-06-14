@@ -18,6 +18,9 @@ Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& m
 bool Game::is_full() const { return state.game_is_full(); }
 
 std::vector<PlayerMessage> Game::tick(const std::vector<PlayerMessage>& msgs) {
+    if (state.get_phase().is_game_end())
+        return {};
+
     state.clear_updates();
 
     advance_round_logic();
@@ -42,7 +45,7 @@ void Game::advance_round_logic() {
     auto& phase = state.get_phase();
     bool phase_change = phase.advance();
     if (phase_change) {
-        if (phase.is_round_finished()) {
+        if (phase.is_round_end()) {
             Team winning_team = state.get_winning_team();
             for (const auto& [p_name, player]: state.get_players()) {
                 if ((winning_team == Team::TT && player->is_tt()) ||
@@ -59,6 +62,9 @@ void Game::advance_round_logic() {
 
     if (state.get_num_rounds() == GameConfig::max_rounds / 2)
         state.swap_players_teams();
+
+    if (state.get_num_rounds() == GameConfig::max_rounds)
+        phase.end_game();
 }
 
 void Game::advance_players_movement() {
@@ -178,7 +184,7 @@ void Game::handle<SetReadyCommand>(const std::string& player_name,
     state.get_player(player_name)->set_ready();
     if (state.all_players_ready()) {
         give_bomb_to_random_tt();
-        state.get_phase().start_buying_phase();
+        state.get_phase().start_game();
         for (const auto& [p_name, _]: state.get_players()) move_player_to_spawn(p_name);
     }
 }

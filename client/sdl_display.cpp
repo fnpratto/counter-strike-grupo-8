@@ -103,7 +103,7 @@ void SDLDisplay::run() {
             map.render();
             hud_display.render();
 
-        } else if (state.get_phase().get_phase() == PhaseType::End) {
+        } else if (state.get_phase().get_phase() == PhaseType::RoundEnd) {
             map.render();
             hud_display.render();
             end_round_display.render();
