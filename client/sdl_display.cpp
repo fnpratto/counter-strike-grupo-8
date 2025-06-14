@@ -67,6 +67,7 @@ void SDLDisplay::run() {
     Map map(window, player_name, state);
     listTeams list_teams(window, state, player_name);
     skinSelect list_skins(window, state, player_name);
+    EndRoundDisplay end_round_display(window, state);
 
 
     input_handler = std::make_unique<SDLInput>(output_queue, quit_flag, list_teams, *shop_display,
@@ -80,14 +81,26 @@ void SDLDisplay::run() {
         // Update game state and display
         update_state();
         window.fill();
-        if (list_teams.isActive()) {
-            list_teams.render();
-        } else if (list_skins.isActive()) {
-            list_skins.render();
-        } else {
+        if (state.get_phase().get_phase() == PhaseType::WarmUp) {
+            if (list_teams.isActive()) {
+                list_teams.render();
+            } else if (list_skins.isActive()) {
+                list_skins.render();
+            } else {
+                map.render();
+                hud_display.render();
+            }
+        } else if (state.get_phase().get_phase() == PhaseType::Buying) {
             map.render();
             hud_display.render();
             shop_display->render();
+        } else if (state.get_phase().get_phase() == PhaseType::Playing) {
+            map.render();
+            hud_display.render();
+        } else if (state.get_phase().get_phase() == PhaseType::End) {
+            map.render();
+            hud_display.render();
+            end_round_display.render();
         }
         window.render();
         return !quit_flag;
