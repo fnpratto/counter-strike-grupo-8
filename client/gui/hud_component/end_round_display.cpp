@@ -3,8 +3,6 @@
 #include <iostream>
 #include <map>
 #include <unordered_map>
-const std::string& FONT1_PAT = "../assets/gfx/fonts/joystix_monospace.otf";
-const std::string& BACKGROUND_WINNER_PATH = "../assets/gfx/hud/end_round.xcf";
 
 const int pading = 10;
 
@@ -13,9 +11,11 @@ EndRoundDisplay::EndRoundDisplay(SdlWindow& window,
                                  const GameUpdate& ref_state):
         window(window),
         state(ref_state),
-        background(BACKGROUND_WINNER_PATH, window),
-        wining_team(FONT1_PAT, 20, {0, 255, 0, 255}, window),  // Green color for winning team
-        losing_team(FONT1_PAT, 20, {255, 0, 0, 255}, window),  // Red color for losing team
+        background(std::string(GameConfig::Paths::BACKGROUND_WINNER_PATH), window),
+        wining_team(std::string(GameConfig::Paths::FONT_PATH), 20, {0, 255, 0, 255},
+                    window),  // Green color for winning team
+        losing_team(std::string(GameConfig::Paths::FONT_PATH), 20, {255, 0, 0, 255},
+                    window),  // Red color for losing team
         DISPLAY_WIDTH(window.getWidth()),
         DISPLAY_HEIGHT(window.getHeight()),
         slotWidth(DISPLAY_WIDTH * 0.5),

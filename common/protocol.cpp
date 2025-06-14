@@ -119,6 +119,16 @@ std::optional<Vector2D> BaseProtocol::deserialize<std::optional<Vector2D>>(
     return std::nullopt;
 }
 
+template <>
+ScoreboardEntry BaseProtocol::deserialize<ScoreboardEntry>(payload_t& payload) const {
+    int money = deserialize<int>(payload);
+    int kills = deserialize<int>(payload);
+    int deaths = deserialize<int>(payload);
+    int score = deserialize<int>(payload);
+
+    return ScoreboardEntry(money, kills, deaths, score);
+}
+
 Message BaseProtocol::recv() {
     payload_t header(sizeof(uint8_t) + sizeof(uint16_t));
     socket.recvall(header.data(), sizeof(uint8_t) + sizeof(uint16_t));

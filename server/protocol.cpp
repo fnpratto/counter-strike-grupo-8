@@ -55,7 +55,11 @@ payload_t ServerProtocol::serialize_msg(const CharactersResponse& response) cons
 
 template <>
 payload_t ServerProtocol::serialize_msg([[maybe_unused]] const ScoreboardResponse& response) const {
-    return payload_t();
+    payload_t payload;
+    payload_t scoreboard_payload = serialize_map(response.get_scoreboard());
+    payload.reserve(scoreboard_payload.size());
+    payload.insert(payload.end(), scoreboard_payload.begin(), scoreboard_payload.end());
+    return payload;
 }
 
 template <>

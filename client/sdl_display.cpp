@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <functional>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -24,7 +25,9 @@ SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue
         state(get_initial_state()),
         quit_flag(false),
         input_handler(nullptr),
+        score_display(nullptr),
         shop_display(nullptr) {
+
     std::cout << "SDLDisplay initialized with player: " << player_name << std::endl;
     SCREEN_WIDTH = 800;
     SCREEN_HEIGHT = 600;
@@ -67,11 +70,13 @@ void SDLDisplay::run() {
     Map map(window, player_name, state);
     listTeams list_teams(window, state, player_name);
     skinSelect list_skins(window, state, player_name);
+    std::map<std::string, ScoreboardEntry> scoreboard;
+
+    score_display = std::make_unique<ScoreDisplay>(window, scoreboard, state);
+    input_handler = std::make_unique<SDLInput>(output_queue, quit_flag, list_teams, *shop_display,
+                                               hud_display, list_skins, *score_display);
     EndRoundDisplay end_round_display(window, state);
 
-
-    input_handler = std::make_unique<SDLInput>(output_queue, quit_flag, list_teams, *shop_display,
-                                               hud_display, list_skins);
     input_handler->start();
 
     update_state();
@@ -97,10 +102,15 @@ void SDLDisplay::run() {
         } else if (state.get_phase().get_phase() == PhaseType::Playing) {
             map.render();
             hud_display.render();
+
         } else if (state.get_phase().get_phase() == PhaseType::End) {
             map.render();
             hud_display.render();
             end_round_display.render();
+        }
+
+        if (score_display->isActive()) {
+            score_display->render();
         }
         window.render();
         return !quit_flag;
@@ -154,10 +164,18 @@ void SDLDisplay::update_state() {
                 std::cout << "Updated shop prices" << std::endl;
                 break;
             }
-            default:
+            case MessageType::SCOREBOARD_RESP: {
+                std::cout << "Received ScoreboardResponse" << std::endl;
+                auto scoreboard = msg.get_content<ScoreboardResponse>().get_scoreboard();
+                score_display->updateScoreboard(scoreboard);
+                score_display->updateState();
+                break;
+            }
+            default: {
                 std::cerr << "Received unexpected message type: "
                           << static_cast<int>(msg.get_type()) << std::endl;
                 break;
+            }
         }
     }
 }

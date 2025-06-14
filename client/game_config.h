@@ -54,6 +54,7 @@ constexpr std::string_view HUD_SLOT_CLICKED_PATH = "../assets/gfx/shop/hud_slot_
 constexpr std::string_view HUD_SLOT_BLOCKED_PATH = "../assets/gfx/shop/hud_slot_blocked.xcf";
 constexpr std::string_view FONT_PAT = "../assets/gfx/fonts/joystix_monospace.otf";
 constexpr std::string_view AMMO_PATH = "../assets/gfx/guns/ammo.xcf";
+constexpr std::string_view BACKGROUND_WINNER_PATH = "../assets/gfx/hud/end_round.xcf";
 
 }  // namespace Paths
 

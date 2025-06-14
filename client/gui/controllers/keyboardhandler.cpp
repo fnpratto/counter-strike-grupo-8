@@ -4,12 +4,15 @@
 
 #include <SDL2/SDL.h>
 
-KeyboardHandler::KeyboardHandler(Queue<Message>& output_queue, shopDisplay& shopRef):
-        output_queue(output_queue), shopRef(shopRef) {}
 
+KeyboardHandler::KeyboardHandler(Queue<Message>& output_queue, shopDisplay& shopRef,
+                                 ScoreDisplay& score_displayRef):
+        output_queue(output_queue), shopRef(shopRef), score_displayRef(score_displayRef) {
+    // Constructor implementation can be empty or contain initialization logic if needed
+}
 
-void KeyboardHandler::handleEvent(const SDL_Event& event /*, bool& shop*/) {
-    if (event.type == SDL_KEYDOWN) {
+void KeyboardHandler::handleEvent(const SDL_Event& event) {
+    if (event.type != SDL_KEYDOWN) {
         switch (event.key.keysym.sym) {
             case SDLK_ESCAPE:
                 shopRef.updateShopState(false);
@@ -19,6 +22,13 @@ void KeyboardHandler::handleEvent(const SDL_Event& event /*, bool& shop*/) {
                 break;
             case SDLK_m:
                 // Toggle mute functionality //TODO_ADD SERVER
+                break;
+            case SDLK_TAB:
+                if (!score_displayRef.isActive()) {
+                    output_queue.push(Message(GetScoreboardCommand()));
+                } else {
+                    score_displayRef.updateState();
+                }
                 break;
             case SDLK_r:
                 output_queue.push(Message(ReloadCommand()));

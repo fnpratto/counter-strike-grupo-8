@@ -45,6 +45,7 @@ shopDisplay::shopDisplay(SdlWindow& window, const GameUpdate& state):
 }
 void shopDisplay::updateShopState(bool state) { active = state; }
 
+
 void shopDisplay::updatePrices(const ShopPricesResponse& response) {
     auto gun_prices = response.get_gun_prices();
     for (const auto& [gun_type, price]: gun_prices) {

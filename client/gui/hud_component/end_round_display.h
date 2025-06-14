@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 
+#include "../../game_config.h"
 #include "../window_elements/area.h"
 #include "../window_elements/sdl_text.h"
 #include "../window_elements/sdl_texture.h"

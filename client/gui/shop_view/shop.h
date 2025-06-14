@@ -44,5 +44,4 @@ private:
     void renderItem();
     void get_item_slots(int id_slot);
 };
-
 #endif  // SHOP_DISPLAY_H
