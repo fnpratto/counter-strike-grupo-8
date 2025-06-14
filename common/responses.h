@@ -105,3 +105,16 @@ class TriedToJoinFullTeamErrorResponse {};
  * @brief Response sent when a player attempts to make a purchase but is not allowed to.
  */
 class CannotBuyErrorResponse {};
+
+/**
+ * @class RoundEndResponse
+ * @brief Response sent when a round ends.
+ */
+class RoundEndResponse {
+    Team winning_team;
+
+public:
+    explicit RoundEndResponse(Team winning_team): winning_team(winning_team) {}
+
+    Team get_winning_team() const { return winning_team; }
+};

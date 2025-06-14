@@ -74,6 +74,11 @@ payload_t ServerProtocol::serialize_msg(
     return payload_t();
 }
 
+template <>
+payload_t ServerProtocol::serialize_msg([[maybe_unused]] const RoundEndResponse& response) const {
+    return payload_t();
+}
+
 #define X_SERIALIZE_UPDATE(type, attr)                                               \
     payload.push_back(update.has_##attr##_changed());                                \
     if (update.has_##attr##_changed()) {                                             \
