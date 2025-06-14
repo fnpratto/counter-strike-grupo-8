@@ -44,7 +44,11 @@ void Game::advance_round_logic() {
     if (phase_change) {
         if (phase.is_round_finished()) {
             Team winning_team = state.get_winning_team();
-            // TODO: Add winning rewards
+            for (const auto& [p_name, player]: state.get_players()) {
+                if ((winning_team == Team::TT && player->is_tt()) ||
+                    (winning_team == Team::CT && player->is_ct()))
+                    player->add_rewards(Scores::win, Bonifications::win);
+            }
             send_msg_to_all_players(Message(RoundEndResponse(winning_team)));
         } else if (phase.is_buying_phase()) {
             prepare_new_round();

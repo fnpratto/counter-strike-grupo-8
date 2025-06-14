@@ -14,10 +14,10 @@ static constexpr int end_phase_secs = 5;
 
 namespace Scores {
 static constexpr int kill = 2;
-// TODO: static constexpr int win = 5;
+static constexpr int win = 5;
 };  // namespace Scores
 
 namespace Bonifications {
 static constexpr int kill = 100;
-// TODO: static constexpr int win = 300;
+static constexpr int win = 300;
 }  // namespace Bonifications
