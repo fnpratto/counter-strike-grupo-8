@@ -87,8 +87,9 @@ payload_t ClientProtocol::serialize_msg(const BuyGunCommand& cmd) const {
 }
 
 template <>
-payload_t ClientProtocol::serialize_msg([[maybe_unused]] const BuyAmmoCommand& cmd) const {
-    return payload_t();
+
+payload_t ClientProtocol::serialize_msg(const BuyAmmoCommand& cmd) const {
+    return serialize(cmd.get_slot());
 }
 
 template <>

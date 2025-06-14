@@ -2,20 +2,20 @@
 
 #include <iostream>
 #include <map>
+#include <string>
 #include <unordered_map>
-const std::string& FONT1_PAT = "../assets/gfx/fonts/joystix_monospace.otf";
 const int pading = 10;
 
 ScoreDisplay::ScoreDisplay(SdlWindow& window, std::map<std::string, ScoreboardEntry> score_board,
                            const GameUpdate& ref_state):
         window(window),
         state(ref_state),
-        playerNameText("../assets/gfx/fonts/joystix_monospace.otf", 20,
-                       SDL_Color{255, 255, 255, 255}, window),
-        killsText(FONT1_PAT, 20, {255, 255, 255, 255}, window),
-        deathsText(FONT1_PAT, 20, {255, 255, 255, 255}, window),
-        scoreText(FONT1_PAT, 20, {255, 255, 255, 255}, window),
-        moneyText(FONT1_PAT, 20, {255, 255, 255, 255}, window),
+        playerNameText(std::string(GameConfig::Paths::FONT_PATH), 20, SDL_Color{255, 255, 255, 255},
+                       window),
+        killsText(std::string(GameConfig::Paths::FONT_PATH), 20, {255, 255, 255, 255}, window),
+        deathsText(std::string(GameConfig::Paths::FONT_PATH), 20, {255, 255, 255, 255}, window),
+        scoreText(std::string(GameConfig::Paths::FONT_PATH), 20, {255, 255, 255, 255}, window),
+        moneyText(std::string(GameConfig::Paths::FONT_PATH), 20, {255, 255, 255, 255}, window),
         scoreboard(score_board),
         DISPLAY_WIDTH(window.getWidth()),
         DISPLAY_HEIGHT(window.getHeight()),

@@ -194,12 +194,12 @@ BuyGunCommand ServerProtocol::deserialize_msg<BuyGunCommand>(payload_t& payload)
     return BuyGunCommand(static_cast<GunType>(gun));
 }
 
-// TODO: Implement
 template <>
-BuyAmmoCommand ServerProtocol::deserialize_msg<BuyAmmoCommand>(
-        [[maybe_unused]] payload_t& payload) const {
-    return BuyAmmoCommand(ItemSlot::Primary);
+BuyAmmoCommand ServerProtocol::deserialize_msg<BuyAmmoCommand>(payload_t& payload) const {
+    ItemSlot slot = deserialize<ItemSlot>(payload);
+    return BuyAmmoCommand(slot);
 }
+
 
 template <>
 MoveCommand ServerProtocol::deserialize_msg<MoveCommand>(payload_t& payload) const {

@@ -234,6 +234,23 @@ Message TextDisplay::build_message<BuyGunCommand>(std::istringstream& iss) {
 }
 
 template <>
+Message TextDisplay::build_message<BuyAmmoCommand>(std::istringstream& iss) {
+    std::string slot_str;
+    iss >> slot_str;
+
+    ItemSlot slot;
+    if (slot_str == "primary") {
+        slot = ItemSlot::Primary;
+    } else if (slot_str == "secondary") {
+        slot = ItemSlot::Secondary;
+    } else {
+        throw std::invalid_argument("Invalid gun slot: " + slot_str);
+    }
+
+    return Message(BuyAmmoCommand(slot));
+}
+
+template <>
 Message TextDisplay::build_message<MoveCommand>(std::istringstream& iss) {
     std::string direction_str;
     iss >> direction_str;
@@ -347,6 +364,8 @@ Message TextDisplay::parse_line(const std::string& line) {
              [this](std::istringstream& is) { return this->build_message<SetReadyCommand>(is); }},
             {"buy",
              [this](std::istringstream& is) { return this->build_message<BuyGunCommand>(is); }},
+            {"ammo",
+             [this](std::istringstream& is) { return this->build_message<BuyAmmoCommand>(is); }},
             {"move",
              [this](std::istringstream& is) { return this->build_message<MoveCommand>(is); }},
             {"stop",
