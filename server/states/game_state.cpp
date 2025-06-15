@@ -61,6 +61,12 @@ const std::unique_ptr<Player>& GameState::get_player(const std::string& player_n
     return it->second;
 }
 
+Bomb&& GameState::get_bomb() {
+    if (!bomb.has_value())
+        throw std::runtime_error("Bomb not found");
+    return std::move(bomb.value().item);
+}
+
 void GameState::advance_round() {
     num_rounds += 1;
     updates.set_num_rounds(num_rounds);

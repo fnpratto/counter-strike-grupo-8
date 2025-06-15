@@ -189,7 +189,7 @@ void Game::handle<SetReadyCommand>(const std::string& player_name,
 
     state.get_player(player_name)->set_ready();
     if (state.all_players_ready()) {
-        give_bomb_to_random_tt();
+        give_bomb_to_random_tt(Bomb());
         state.get_phase().start_game();
         for (const auto& [p_name, _]: state.get_players()) move_player_to_spawn(p_name);
     }
@@ -327,7 +327,7 @@ void Game::handle_msg(const Message& msg, const std::string& player_name) {
 
 #undef HANDLE_MSG
 
-void Game::give_bomb_to_random_tt() {
+void Game::give_bomb_to_random_tt(Bomb&& bomb) {
     if (state.get_num_tts() == 0)
         return;
 
@@ -341,8 +341,7 @@ void Game::give_bomb_to_random_tt() {
     int rand_index = rand() % state.get_num_tts();
     std::string player_name = tt_names[rand_index];
     auto& player = state.get_player(player_name);
-    // TODO: Player pick bomb stored in state
-    player->pick_bomb(Bomb());
+    player->pick_bomb(std::move(bomb));
 }
 
 void Game::prepare_new_round() {
@@ -350,9 +349,11 @@ void Game::prepare_new_round() {
     for (const auto& [p_name, player]: state.get_players()) {
         move_player_to_spawn(p_name);
         reset_for_new_round(player);
-        // TODO: Drop player bomb and unplant
+        auto bomb = player->drop_bomb();
+        if (bomb.has_value())
+            state.add_bomb(std::move(bomb.value()), player->get_pos());
     }
-    // TODO: Give dropped bomb to random TT
+    give_bomb_to_random_tt(std::move(state.get_bomb()));
 }
 
 void Game::move_player_to_spawn(const std::string& player_name) {

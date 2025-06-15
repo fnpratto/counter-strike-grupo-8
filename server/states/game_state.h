@@ -40,6 +40,7 @@ public:
     GamePhase& get_phase();
     const std::map<std::string, std::unique_ptr<Player>>& get_players() const;
     const std::unique_ptr<Player>& get_player(const std::string& player_name) const;
+    Bomb&& get_bomb();
 
     void advance_round();
 
