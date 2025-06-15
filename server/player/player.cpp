@@ -92,7 +92,7 @@ std::vector<std::unique_ptr<AttackEffect>> Player::attack(TimePoint now) {
 }
 
 void Player::equip_item(ItemSlot slot) {
-    if (!state.get_inventory().get_bomb().has_value() && slot == ItemSlot::Bomb)
+    if (!state.get_inventory().has_item_in_slot(slot))
         return;
     state.set_equipped_item(slot);
 }
