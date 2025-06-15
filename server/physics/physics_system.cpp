@@ -120,11 +120,10 @@ bool PhysicsSystem::player_is_hit(Vector2D target_pos, Vector2D player_pos, Vect
 }
 
 bool PhysicsSystem::tile_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir) {
-    // AABB bounds
     float minX = target_pos.get_x();
-    float maxX = target_pos.get_x();
+    float maxX = target_pos.get_x() + PhysicsConfig::meter_size;
     float minY = target_pos.get_y();
-    float maxY = target_pos.get_y();
+    float maxY = target_pos.get_y() + PhysicsConfig::meter_size;
 
     // Ray direction
     float aim_x = aim_dir.get_x();
