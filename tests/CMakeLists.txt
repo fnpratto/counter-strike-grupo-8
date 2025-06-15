@@ -10,6 +10,7 @@ target_sources(taller_tests
     server/test_protocol.cpp
     # protocol
     ../server/protocol.cpp
+    ../client/protocol.cpp
     # attack_effects
     ../server/attack_effects/attack_effect.cpp
     ../server/attack_effects/melee_attack.cpp

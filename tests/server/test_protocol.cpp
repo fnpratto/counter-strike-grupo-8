@@ -19,6 +19,7 @@ protected:
 
     void SetUp() override {
         server_mock_socket = std::make_shared<MockSocket>();
+        client_mock_socket = std::make_shared<MockSocket>();
         server_protocol = std::make_unique<ServerProtocol>(server_mock_socket);
         client_protocol = std::make_unique<ClientProtocol>(client_mock_socket);
     }
@@ -168,19 +169,23 @@ TEST_F(ProtocolTest, GameUpdateSerialization) {
 
     PhaseUpdate phase_update;
     phase_update.set_phase(PhaseType::Playing);
-    phase_update.set_time(TimePoint::clock::now());
+    phase_update.set_secs_remaining(30);
     update.set_phase(phase_update);
 
     update.set_num_rounds(5);
 
     PlayerUpdate player1_update;
     player1_update.set_team(Team::CT);
+    player1_update.set_character_type(CharacterType::UK_SAS);
     player1_update.set_pos(Vector2D(100.0f, 200.0f));
     player1_update.set_aim_direction(Vector2D(1.0f, 0.0f));
     player1_update.set_velocity(Vector2D(0.0f, 0.0f));
     player1_update.set_ready(true);
     player1_update.set_health(100);
+    player1_update.set_equipped_item(ItemSlot::Primary);
     player1_update.set_inventory(InventoryUpdate());
+
+    update.add_players_change("player1", player1_update);
 
     Message message(update);
     server_protocol->send(message);
@@ -192,7 +197,7 @@ TEST_F(ProtocolTest, GameUpdateSerialization) {
     PlayerUpdate received_player1 = received_update.get_players().at("player1");
     ASSERT_EQ(received_message.get_type(), MessageType::GAME_UPDATE);
     ASSERT_EQ(received_phase.get_phase(), PhaseType::Playing);
-    ASSERT_EQ(received_phase.get_time(), TimePoint::clock::now());
+    ASSERT_EQ(received_phase.get_secs_remaining(), 30);
     ASSERT_EQ(received_update.get_num_rounds(), 5);
     ASSERT_EQ(received_player1.get_team(), Team::CT);
     ASSERT_EQ(received_player1.get_pos(), Vector2D(100.0f, 200.0f));
@@ -200,5 +205,5 @@ TEST_F(ProtocolTest, GameUpdateSerialization) {
     ASSERT_EQ(received_player1.get_velocity(), Vector2D(0.0f, 0.0f));
     ASSERT_TRUE(received_player1.get_ready());
     ASSERT_EQ(received_player1.get_health(), 100);
-    ASSERT_EQ(received_player1.get_current_weapon(), WeaponSlot::Primary);
+    ASSERT_EQ(received_player1.get_equipped_item(), ItemSlot::Primary);
 }
