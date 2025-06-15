@@ -5,6 +5,12 @@
 #include "gui/controllers/keyboardhandler.h"
 #include "gui/controllers/mousehandler.h"
 
+SDLInput::SDLInput(std::atomic<bool>& quit_flag, MouseHandler mouse_handler,
+                   KeyboardHandler keyboard_handler):
+        quit_flag(quit_flag),
+        mouseHandler(std::move(mouse_handler)),
+        keyboardHandler(std::move(keyboard_handler)) {}
+
 void SDLInput::run() {
     while (!quit_flag) {
         // bool shop = false;

@@ -11,9 +11,11 @@
 #include "../common/updates/player_update.h"
 #include "common/message.h"
 #include "gui/controllers/mousehandler.h"
+#include "gui/hud_component/end_round_display.h"
 #include "gui/hud_component/hud_display.h"
 #include "gui/pre_game_view/list_skins.h"
 #include "gui/pre_game_view/list_teams.h"
+#include "gui/score_view/score_display.h"
 #include "gui/shop_view/shop.h"
 #include "gui/window_elements/sdl_window.h"
 
@@ -38,6 +40,8 @@ public:
 private:
     int SCREEN_WIDTH;
     int SCREEN_HEIGHT;
+    std::unique_ptr<ScoreDisplay> score_display;
+    std::unique_ptr<shopDisplay> shop_display;
     void setup();
 
     GameUpdate get_initial_state();

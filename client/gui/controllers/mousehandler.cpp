@@ -15,7 +15,7 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
         if (event.button.button != SDL_BUTTON_LEFT)
             return;
 
-        std::optional<Message> maybe_message = shopDisplayRef.updatePointerPosition(x, y);
+        std::optional<Message> maybe_message = shopDisplayRef.getPurchaseCommand(x, y);
         if (maybe_message.has_value()) {
             output_queue.push(maybe_message.value());
             return;
@@ -41,7 +41,6 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
             }
             return;
         }
-
         return;
         // output_queue.push(Message(ShootCommand()));  // TODO_ADD SERVER
     } else if (event.type == SDL_MOUSEMOTION) {

@@ -36,6 +36,7 @@ class hudDisplay {
     SdlTexture life;
     BitmapFont life_amount;
     SdlTexture equipedBullets;
+    SdlTexture white_line;
     BitmapFont equipedBulletsAmount;
     BitmapFont timer_amount;
     SdlTexture timer_dots;
@@ -44,6 +45,7 @@ class hudDisplay {
     SdlText scoreText;
 
     SdlTexture muteIcon;
+    SdlTexture gunsInventoryTexture;
     int pointerX = SCREEN_WIDTH / 2;
     int pointerY = SCREEN_HEIGHT / 2;
     float widthRatio;

@@ -6,5 +6,6 @@ struct ScoreboardEntry {
     int deaths;
     int score;
 
-    explicit ScoreboardEntry(int money): money(money), kills(0), deaths(0), score(0) {}
+    ScoreboardEntry(int money, int kills, int deaths, int score):
+            money(money), kills(kills), deaths(deaths), score(score) {}
 };
