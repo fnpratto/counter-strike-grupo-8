@@ -10,6 +10,7 @@
 #include <SDL2/SDL.h>
 #include <yaml-cpp/yaml.h>
 
+#include "../map_view/sdl_gun.h"
 #include "../window_elements/area.h"
 #include "../window_elements/sdl_animation.h"
 #include "../window_elements/sdl_texture.h"
@@ -22,16 +23,20 @@
 class SdlPlayer {
     SdlWindow& window;
     const SdlCamera& camera;
+    SdlAnimation walk_animation;
+    const GameUpdate& game_state;
+    std::string playerName;
+    SDLGun weapon;
 
     static constexpr const char* CHARACTER_PATH = "../assets/gfx/player/ct2.xcf";
     static constexpr const char* WALKING_ANIMATION = "../assets/gfx/player/legs_animation.xcf";
     static constexpr int WIDTH = 32;
     static constexpr int HEIGHT = 32;
 
-    SdlAnimation walk_animation;
 
 public:
-    explicit SdlPlayer(SdlWindow& w, const SdlCamera& camera);
+    explicit SdlPlayer(SdlWindow& w, const SdlCamera& camera, const GameUpdate& game_state,
+                       const std::string& playerName);
 
     void render(const PlayerUpdate& state);
 };

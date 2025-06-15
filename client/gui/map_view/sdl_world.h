@@ -26,7 +26,6 @@ class SdlWorld {
     SdlWindow& window;
     const GameUpdate& game_state;
     const std::string& player_name;
-
     SdlCamera camera;
     std::map<std::string, SdlPlayer> players;
     SdlMap map;

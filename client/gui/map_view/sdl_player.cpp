@@ -5,13 +5,17 @@
 #include <SDL2/SDL.h>
 
 
-SdlPlayer::SdlPlayer(SdlWindow& w, const SdlCamera& camera):
+SdlPlayer::SdlPlayer(SdlWindow& w, const SdlCamera& cam, const GameUpdate& game_state_param,
+                     const std::string& player_name_param):
         window(w),
-        camera(camera),
+        camera(cam),
         walk_animation(
                 w, WALKING_ANIMATION,
                 std::vector<SDL_Rect>(
-                        {{0, 0, WIDTH, HEIGHT}, {32, 0, WIDTH, HEIGHT}, {64, 0, WIDTH, HEIGHT}})) {}
+                        {{0, 0, WIDTH, HEIGHT}, {32, 0, WIDTH, HEIGHT}, {64, 0, WIDTH, HEIGHT}})),
+        game_state(game_state_param),
+        playerName(player_name_param),
+        weapon(w) {}
 
 void SdlPlayer::render(const PlayerUpdate& state) {
     if (state.get_velocity() == Vector2D(0, 0)) {
@@ -29,6 +33,7 @@ void SdlPlayer::render(const PlayerUpdate& state) {
         angle = 0.0f;  // Default angle if no aim direction is provided
     }
 
+
     // Render feet
     walk_animation.render(position_from_cam.get_x(), position_from_cam.get_y(), angle);
     // Render the player texture body TODO change arms
@@ -36,4 +41,7 @@ void SdlPlayer::render(const PlayerUpdate& state) {
     SdlTexture texture(CHARACTER_PATH, window, WIDTH, HEIGHT);
     texture.render(position_from_cam.get_x(), position_from_cam.get_y(), &clip, angle, nullptr,
                    SDL_FLIP_NONE);
+
+    ItemSlot item = game_state.get_players().at(playerName).get_equipped_item();
+    weapon.render(item, position_from_cam.get_x(), position_from_cam.get_y(), angle);
 }
