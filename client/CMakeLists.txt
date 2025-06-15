@@ -22,6 +22,10 @@ target_sources(taller_client
     PUBLIC
     # .h files
     ../common/utils/vector_2d.h
+    ../common/map/map.h
+    ../common/map/floor.h
+    ../common/map/wall.h
+    ../common/map/box.h
     client.h
     display.h
     protocol.h

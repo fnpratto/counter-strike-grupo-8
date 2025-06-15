@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "server/map/map.h"
+#include "common/map/map.h"
 #include "server/map/map_builder.h"
 
 TEST(YamlTest, LoadMap) {

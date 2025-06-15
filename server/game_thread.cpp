@@ -3,8 +3,8 @@
 #include <utility>
 
 #include "clock/real_clock.h"
+#include "common/map/map.h"
 #include "common/utils/rate_controller.h"
-#include "map/map.h"
 #include "map/map_builder.h"
 #include "server/player_message.h"
 

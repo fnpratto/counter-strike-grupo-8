@@ -15,26 +15,29 @@
 #include "common/thread.h"
 
 class MouseHandler {
-public:
-    explicit MouseHandler(Queue<Message>& output_queue, listTeams& listRef, shopDisplay& shopRef,
-                          hudDisplay& hudRef, skinSelect& skinRef):
+    Queue<Message>& output_queue;
+    int screen_width;
+    int screen_height;
+    shopDisplay& shopDisplayRef;
+    listTeams& listTeamsRef;
+    hudDisplay& hudDisplayRef;
+    skinSelect& skinSelectRef;
 
+public:
+    explicit MouseHandler(Queue<Message>& output_queue, int screen_width, int screen_height,
+                          listTeams& listRef, shopDisplay& shopRef, hudDisplay& hudRef,
+                          skinSelect& skinRef):
             output_queue(output_queue),
+            screen_width(screen_width),
+            screen_height(screen_height),
             shopDisplayRef(shopRef),
             listTeamsRef(listRef),
             hudDisplayRef(hudRef),
             skinSelectRef(skinRef) {}
     void handleEvent(const SDL_Event& event);
 
-
 private:
-    Queue<Message>& output_queue;
-
-    void sendNormalizedCoordinates(int x, int y);
-    shopDisplay& shopDisplayRef;
-    listTeams& listTeamsRef;
-    hudDisplay& hudDisplayRef;
-    skinSelect& skinSelectRef;
+    void sendAimCommand(Vector2D direction);
 };
 
 #endif  // MOUSEHANDLER_H
