@@ -5,11 +5,11 @@
 #include <string>
 #include <vector>
 
+#include "common/map/map.h"
 #include "common/message.h"
 #include "common/updates/game_update.h"
 #include "server/clock/clock.h"
 #include "server/logic.h"
-#include "server/map/map.h"
 #include "server/physics/physics_system.h"
 #include "server/player/player.h"
 #include "server/player_message.h"

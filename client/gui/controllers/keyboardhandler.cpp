@@ -7,9 +7,7 @@
 
 KeyboardHandler::KeyboardHandler(Queue<Message>& output_queue, shopDisplay& shopRef,
                                  ScoreDisplay& score_displayRef):
-        output_queue(output_queue), shopRef(shopRef), score_displayRef(score_displayRef) {
-    // Constructor implementation can be empty or contain initialization logic if needed
-}
+        output_queue(output_queue), shopRef(shopRef), score_displayRef(score_displayRef) {}
 
 void KeyboardHandler::handleEvent(const SDL_Event& event) {
     if (event.type != SDL_KEYDOWN) {
@@ -41,26 +39,28 @@ void KeyboardHandler::handleEvent(const SDL_Event& event) {
 void KeyboardHandler::update_direction() {
     const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
-    int dx = 0;
-    int dy = 0;
+    Vector2D direction(0, 0);
 
     if (keystate[SDL_SCANCODE_W]) {
-        dy = -1;
-    }
-    if (keystate[SDL_SCANCODE_S]) {
-        dy = 1;
-    }
-    if (keystate[SDL_SCANCODE_A]) {
-        dx = -1;
-    }
-    if (keystate[SDL_SCANCODE_D]) {
-        dx = 1;
+        direction.set_y(-1);
+    } else if (keystate[SDL_SCANCODE_S]) {
+        direction.set_y(1);
     }
 
-    if (dx != 0 || dy != 0) {
-        output_queue.push(Message(MoveCommand(Vector2D(dx, dy))));
-        return;
-    } else {
-        output_queue.push(Message(StopPlayerCommand()));
+    if (keystate[SDL_SCANCODE_A]) {
+        direction.set_x(-1);
+    } else if (keystate[SDL_SCANCODE_D]) {
+        direction.set_x(1);
+    }
+
+    static Vector2D last_direction(0, 0);
+
+    if (direction != last_direction) {
+        if (direction != Vector2D(0, 0)) {
+            output_queue.push(Message(MoveCommand(direction)));
+        } else {
+            output_queue.push(Message(StopPlayerCommand()));
+        }
+        last_direction = direction;
     }
 }

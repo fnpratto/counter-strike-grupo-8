@@ -68,6 +68,12 @@ uint16_t BaseProtocol::deserialize<uint16_t>(payload_t& payload) const {
 }
 
 template <>
+int16_t BaseProtocol::deserialize<int16_t>(payload_t& payload) const {
+    payload_t data = pop(payload, sizeof(int16_t));
+    return ntohs(*reinterpret_cast<const int16_t*>(data.data()));
+}
+
+template <>
 std::string BaseProtocol::deserialize<std::string>(payload_t& payload) const {
     uint16_t length = deserialize<uint16_t>(payload);
 
@@ -78,7 +84,7 @@ std::string BaseProtocol::deserialize<std::string>(payload_t& payload) const {
 
 template <>
 int BaseProtocol::deserialize<int>(payload_t& payload) const {
-    return static_cast<int>(deserialize<uint16_t>(payload));
+    return static_cast<int>(deserialize<int16_t>(payload));
 }
 
 template <>

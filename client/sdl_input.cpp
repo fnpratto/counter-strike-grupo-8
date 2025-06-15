@@ -5,14 +5,11 @@
 #include "gui/controllers/keyboardhandler.h"
 #include "gui/controllers/mousehandler.h"
 
-SDLInput::SDLInput(Queue<Message>& queue, std::atomic<bool>& quit_flag, listTeams& listRef,
-                   shopDisplay& shopRef, hudDisplay& hudRef, skinSelect& skinSelectRef,
-                   ScoreDisplay& score_displayRef):
+SDLInput::SDLInput(std::atomic<bool>& quit_flag, MouseHandler mouse_handler,
+                   KeyboardHandler keyboard_handler):
         quit_flag(quit_flag),
-        queue(queue),
-        mouseHandler(queue, listRef, shopRef, hudRef, skinSelectRef),
-        keyboardHandler(queue, shopRef, score_displayRef) {}
-
+        mouseHandler(std::move(mouse_handler)),
+        keyboardHandler(std::move(keyboard_handler)) {}
 
 void SDLInput::run() {
     while (!quit_flag) {

@@ -8,7 +8,6 @@
 
 #include "../../game_config.h"
 
-
 hudDisplay::hudDisplay(SdlWindow& window, const GameUpdate& state, const std::string& player_name):
         state(state),
         player_name(player_name),
