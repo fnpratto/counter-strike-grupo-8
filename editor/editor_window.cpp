@@ -10,6 +10,7 @@
 #include <QLabel>
 #include <QPixmap>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QToolBar>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -24,7 +25,7 @@
 EditorWindow::EditorWindow(QWidget* parent): QWidget(parent) {
     this->setWindowTitle(EDITOR_TITLE);
     this->setWindowIcon(QIcon(ICON_PATH));
-    this->setFixedSize(800, 600);
+    // this->setFixedSize(800, 600);
     QFontDatabase::addApplicationFont(CS_FONT_PATH);
     this->setStyleSheet(
             "QWidget { background-color: #404040; } QAction { border: 1px solid #ccc; }");
@@ -45,8 +46,8 @@ void EditorWindow::add_sidebar() {
     sidebar_layout->setSpacing(5);
     this->main_layout->addLayout(sidebar_layout);
 
-    this->add_toolbar(sidebar_layout);
-    this->add_tilebar(sidebar_layout);
+    this->add_tool_bar(sidebar_layout);
+    this->add_tile_bar(sidebar_layout);
     this->add_buttons(sidebar_layout);
 }
 
@@ -67,7 +68,7 @@ void EditorWindow::add_map_view() {
     this->main_layout->addLayout(map_view_layout);
 }
 
-void EditorWindow::add_toolbar(QVBoxLayout* sidebar_layout) {
+void EditorWindow::add_tool_bar(QVBoxLayout* sidebar_layout) {
     QToolBar* toolbar = new QToolBar("Toolbar", this);
     toolbar->setMovable(false);
     toolbar->setIconSize(QSize(24, 24));
@@ -81,12 +82,22 @@ void EditorWindow::add_toolbar(QVBoxLayout* sidebar_layout) {
     sidebar_layout->addWidget(toolbar);
 }
 
-void EditorWindow::add_tilebar(QVBoxLayout* sidebar_layout) {
+void EditorWindow::add_tile_bar(QVBoxLayout* sidebar_layout) {
+    QScrollArea* tilebar_scroll_area = new QScrollArea();
+    sidebar_layout->addWidget(tilebar_scroll_area);
+
+    QWidget* tilebar_widget = new QWidget();
+    tilebar_scroll_area->setWidget(tilebar_widget);
+
+    tilebar_scroll_area->setWidgetResizable(true);
+    tilebar_scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    tilebar_scroll_area->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
     QGridLayout* tilebar_layout = new QGridLayout();
-    tilebar_layout->setContentsMargins(0, 0, 0, 0);
+    tilebar_layout->setContentsMargins(0, 0, 15, 0);
     tilebar_layout->setSpacing(0);
     this->add_tiles(tilebar_layout);
-    sidebar_layout->addLayout(tilebar_layout);
+    tilebar_widget->setLayout(tilebar_layout);
 }
 
 void EditorWindow::add_buttons(QVBoxLayout* sidebar_layout) {
@@ -112,7 +123,7 @@ void EditorWindow::add_tiles(QGridLayout* tilebar_layout) {
     int col = 0;
 
     this->add_dust_tiles(tilebar_layout, row, col);
-    // this->add_aztec_tiles(tilebar_layout, row, col);
+    this->add_aztec_tiles(tilebar_layout, row, col);
 }
 
 void EditorWindow::add_dust_tiles(QGridLayout* tilebar_layout, int& row, int& col) {
@@ -121,11 +132,9 @@ void EditorWindow::add_dust_tiles(QGridLayout* tilebar_layout, int& row, int& co
         for (int j = 0; j < 8; ++j) {
             QPixmap tile = dust_tile_image.copy(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE);
             QPushButton* tile_button = new QPushButton(this);
-            tile_button->setStyleSheet("border: 5px solid #000000;");
             tile_button->setIcon(QIcon(tile));
             tile_button->setIconSize(QSize(TILE_SIZE, TILE_SIZE));
             tile_button->setFixedSize(TILE_SIZE, TILE_SIZE);
-            tile_button->setToolTip(QString("Tile %1-%2").arg(i).arg(j));
             connect(tile_button, &QPushButton::clicked, this, [this, i, j]() {
                 qDebug() << "Tile clicked:" << i << j;
                 // Here you can handle the tile selection, e.g., set it as the current tile

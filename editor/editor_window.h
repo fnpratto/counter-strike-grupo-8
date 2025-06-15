@@ -17,8 +17,8 @@ private:
     void init_gui();
     void add_sidebar();
     void add_map_view();
-    void add_toolbar(QVBoxLayout* sidebar_layout);
-    void add_tilebar(QVBoxLayout* sidebar_layout);
+    void add_tool_bar(QVBoxLayout* sidebar_layout);
+    void add_tile_bar(QVBoxLayout* sidebar_layout);
     void add_buttons(QVBoxLayout* sidebar_layout);
     void add_tiles(QGridLayout* tilebar_layout);
     void add_dust_tiles(QGridLayout* tilebar_layout, int& row, int& col);
