@@ -26,9 +26,17 @@ protected:
     }
 
 public:
+    Weapon() {}
+
     virtual std::vector<std::unique_ptr<AttackEffect>> attack(Player& player_origin,
                                                               const Vector2D& dir,
                                                               TimePoint now) = 0;
+
+    Weapon(const Weapon&) = delete;
+    Weapon& operator=(const Weapon&) = delete;
+
+    Weapon(Weapon&&) = default;
+    Weapon& operator=(Weapon&&) = default;
 
     virtual ~Weapon() = default;
 };

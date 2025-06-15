@@ -44,15 +44,12 @@ public:
 
         for (size_t i = 0; i < length; i++) {
             K key = deserialize<K>(payload);
-            V value;
 
             if constexpr (std::is_base_of_v<StateUpdate, V>) {
-                value = deserialize_update<V>(payload);
+                result.emplace(key, deserialize_update<V>(payload));
             } else {
-                value = deserialize<V>(payload);
+                result.emplace(key, deserialize<V>(payload));
             }
-
-            result[key] = value;
         }
 
         return result;

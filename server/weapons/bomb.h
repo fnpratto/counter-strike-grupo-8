@@ -10,4 +10,10 @@
 class Bomb: public Logic<BombState, BombUpdate> {
 public:
     Bomb(): Logic<BombState, BombUpdate>(BombState()) {}
+
+    Bomb(const Bomb&) = delete;
+    Bomb& operator=(const Bomb&) = delete;
+
+    Bomb(Bomb&&) = default;
+    Bomb& operator=(Bomb&&) = default;
 };

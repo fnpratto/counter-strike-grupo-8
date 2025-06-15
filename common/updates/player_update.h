@@ -20,8 +20,6 @@
     X(bool, ready)                   \
     X(int, health)                   \
     X(ItemSlot, equipped_item)       \
-    U(InventoryUpdate, inventory)    \
-    X(int, kills)                    \
-    X(int, deaths)
+    U(InventoryUpdate, inventory)
 
 DEFINE_UPDATE(PlayerUpdate, PLAYER_ATTRS)

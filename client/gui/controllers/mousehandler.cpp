@@ -32,7 +32,7 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
             case SDL_BUTTON_LEFT:
                 std::cout << "MOUSE_PRESS_LEFT" << std::endl;
 
-                maybe_message = shopDisplayRef.updatePointerPosition(x, y);
+                maybe_message = shopDisplayRef.getPurchaseCommand(x, y);
                 if (maybe_message.has_value()) {
                     output_queue.push(maybe_message.value());
                     std::cout << "Sent shop-related command." << std::endl;
@@ -55,13 +55,12 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
                     }
                     pre_game_finished = skinSelectRef.updateFinishPreGame(x, y);
                     if (pre_game_finished) {
-                        output_queue.push(Message(StartGameCommand()));
+                        output_queue.push(Message(SetReadyCommand()));
                         return;
                     }
                     return;
                 }
-                return;
-                // output_queue.push(Message(ShootCommand()));  // TODO_ADD SERVER
+                output_queue.push(Message(AttackCommand()));
                 break;
             case SDL_BUTTON_RIGHT:
                 std::cout << "MOUSE_PRESS_RIGHT" << std::endl;

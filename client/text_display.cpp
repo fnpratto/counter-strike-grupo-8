@@ -120,7 +120,7 @@ void TextDisplay::draw(const Message& message) {
             bool result = message.get_content<bool>();
             std::cout << "Operation result: " << (result ? "Success" : "Failure") << std::endl;
             break;
-        }
+        }  // TODO
         default:
             throw std::runtime_error("Invalid message type for TextDisplay: " +
                                      std::to_string(static_cast<int>(message.get_type())));
@@ -208,8 +208,8 @@ Message TextDisplay::build_message<SelectTeamCommand>(std::istringstream& iss) {
 }
 
 template <>
-Message TextDisplay::build_message<StartGameCommand>([[maybe_unused]] std::istringstream& iss) {
-    return Message(StartGameCommand());
+Message TextDisplay::build_message<SetReadyCommand>([[maybe_unused]] std::istringstream& iss) {
+    return Message(SetReadyCommand());
 }
 
 template <>
@@ -231,6 +231,23 @@ Message TextDisplay::build_message<BuyGunCommand>(std::istringstream& iss) {
     }
 
     return Message(BuyGunCommand(gun));
+}
+
+template <>
+Message TextDisplay::build_message<BuyAmmoCommand>(std::istringstream& iss) {
+    std::string slot_str;
+    iss >> slot_str;
+
+    ItemSlot slot;
+    if (slot_str == "primary") {
+        slot = ItemSlot::Primary;
+    } else if (slot_str == "secondary") {
+        slot = ItemSlot::Secondary;
+    } else {
+        throw std::invalid_argument("Invalid gun slot: " + slot_str);
+    }
+
+    return Message(BuyAmmoCommand(slot));
 }
 
 template <>
@@ -317,6 +334,11 @@ Message TextDisplay::build_message<GetShopPricesCommand>([[maybe_unused]] std::i
 }
 
 template <>
+Message TextDisplay::build_message<GetScoreboardCommand>([[maybe_unused]] std::istringstream& iss) {
+    return Message(GetScoreboardCommand());
+}
+
+template <>
 Message TextDisplay::build_message<LeaveGameCommand>([[maybe_unused]] std::istringstream& iss) {
     return Message(LeaveGameCommand());
 }
@@ -325,7 +347,6 @@ Message TextDisplay::parse_line(const std::string& line) {
     std::istringstream iss(line);
     std::string command;
     iss >> command;
-
 
     using CommandFunction = std::function<Message(std::istringstream&)>;
     static const std::unordered_map<std::string, CommandFunction> command_map = {
@@ -340,9 +361,11 @@ Message TextDisplay::parse_line(const std::string& line) {
             {"team",
              [this](std::istringstream& is) { return this->build_message<SelectTeamCommand>(is); }},
             {"start",
-             [this](std::istringstream& is) { return this->build_message<StartGameCommand>(is); }},
+             [this](std::istringstream& is) { return this->build_message<SetReadyCommand>(is); }},
             {"buy",
              [this](std::istringstream& is) { return this->build_message<BuyGunCommand>(is); }},
+            {"ammo",
+             [this](std::istringstream& is) { return this->build_message<BuyAmmoCommand>(is); }},
             {"move",
              [this](std::istringstream& is) { return this->build_message<MoveCommand>(is); }},
             {"stop",
@@ -362,11 +385,9 @@ Message TextDisplay::parse_line(const std::string& line) {
              [this](std::istringstream& is) { return this->build_message<PickUpItemCommand>(is); }},
             {"leave",
              [this](std::istringstream& is) { return this->build_message<LeaveGameCommand>(is); }},
-            {"shop",
-             [this](std::istringstream& is) {
+            {"shop", [this](std::istringstream& is) {
                  return this->build_message<GetShopPricesCommand>(is);
-             }},
-    };
+             }}};
 
     auto it = command_map.find(command);
     if (it != command_map.end())

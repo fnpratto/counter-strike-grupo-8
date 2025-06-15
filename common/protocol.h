@@ -194,6 +194,24 @@ protected:
         return serialize(static_cast<uint8_t>(character_type));
     }
 
+    payload_t serialize(const ScoreboardEntry& entry) const {
+        payload_t payload;
+
+        payload_t money_payload = serialize(entry.money);
+        payload_t kills_payload = serialize(entry.kills);
+        payload_t deaths_payload = serialize(entry.deaths);
+        payload_t score_payload = serialize(entry.score);
+
+        payload.reserve(money_payload.size() + kills_payload.size() + deaths_payload.size() +
+                        score_payload.size());
+        payload.insert(payload.end(), money_payload.begin(), money_payload.end());
+        payload.insert(payload.end(), kills_payload.begin(), kills_payload.end());
+        payload.insert(payload.end(), deaths_payload.begin(), deaths_payload.end());
+        payload.insert(payload.end(), score_payload.begin(), score_payload.end());
+
+        return payload;
+    }
+
     template <typename T>
     typename std::enable_if<std::is_enum<T>::value, payload_t>::type serialize(
             const T& enum_value) const {

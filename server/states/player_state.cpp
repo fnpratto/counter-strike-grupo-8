@@ -10,9 +10,7 @@ PlayerState::PlayerState(Team team, Vector2D pos, Vector2D aim_direction, Vector
         velocity(velocity),
         ready(ready),
         health(health),
-        equipped_item(equipped_item),
-        kills(0),
-        deaths(0) {
+        equipped_item(equipped_item) {
     updates = get_full_update();
 }
 
@@ -88,16 +86,6 @@ void PlayerState::set_equipped_item(ItemSlot new_equipped_item) {
     updates.set_equipped_item(new_equipped_item);
 }
 
-void PlayerState::increment_kills() {
-    kills++;
-    updates.set_kills(kills);
-}
-
-void PlayerState::increment_deaths() {
-    deaths++;
-    updates.set_deaths(deaths);
-}
-
 void PlayerState::add_bomb(Bomb&& bomb) { inventory.add_bomb(std::move(bomb)); }
 
 PlayerUpdate PlayerState::get_updates() const {
@@ -116,8 +104,6 @@ PlayerUpdate PlayerState::get_full_update() const {
     full_update.set_health(health);
     full_update.set_equipped_item(equipped_item);
     full_update.set_inventory(inventory.get_full_update());
-    full_update.set_kills(kills);
-    full_update.set_deaths(deaths);
     return full_update;
 }
 

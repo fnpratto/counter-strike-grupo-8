@@ -3,15 +3,15 @@
 #include <optional>
 #include <utility>
 
+#include "common/scoreboard/scoreboard_entry.h"
 #include "server/attack_effects/attack_effect.h"
 #include "server/errors.h"
+#include "server/physics/target_type.h"
 #include "server/player_message.h"
 #include "server/weapons/bomb.h"
 
-#include "target_type.h"
-
 Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map):
-        Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.get_max_players())),
+        Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.max_players)),
         name(name),
         physics_system(std::move(map), state.get_players()) {}
 
@@ -27,8 +27,7 @@ std::vector<PlayerMessage> Game::tick(const std::vector<PlayerMessage>& msgs) {
 
     GameUpdate update = state.get_updates();
     if (update.has_change())
-        for (const auto& [player_name, player]: state.get_players())
-            output_messages.push_back(PlayerMessage(player_name, Message(update)));
+        send_msg_to_all_players(Message(update));
 
     return std::move(output_messages);
 }
@@ -41,13 +40,12 @@ PhaseType Game::get_phase() { return state.get_phase().get_type(); }
 
 void Game::advance_round_logic() {
     auto& phase = state.get_phase();
-
-    phase.advance();
-
-    if (phase.round_has_finished()) {
-        state.advance_round();
-        for (const auto& [p_name, _]: state.get_players()) move_player_to_spawn(p_name);
+    bool phase_change = phase.advance();
+    if (phase_change) {
+        if (phase.is_buying_phase())
+            prepare_new_round();
     }
+
     if (state.get_num_rounds() == GameConfig::max_rounds / 2)
         state.swap_players_teams();
 }
@@ -68,35 +66,43 @@ void Game::advance_players_movement() {
 void Game::perform_attacks() {
     if (!state.get_phase().is_playing_phase())
         return;
-    for (const auto& [player_name, player]: state.get_players()) {
+    for (const auto& [p_name, player]: state.get_players()) {
         auto effects = player->attack(state.get_phase().get_time_now());
         if (effects.empty())
             continue;
 
         for (const auto& effect: effects) {
-            auto closest_target = physics_system.get_closest_target(player_name, effect->get_dir(),
+            auto closest_target = physics_system.get_closest_target(p_name, effect->get_dir(),
                                                                     effect->get_max_range());
             if (!closest_target.has_value())
                 continue;
 
-            bool is_hit = false;
-            if (closest_target.value().is_player())
-                is_hit = effect->apply(closest_target.value().get_player().get());
+            bool is_hit = apply_attack_effect(player, effect, closest_target.value());
 
             HitResponse hit_response(player->get_pos(), closest_target.value().get_pos(),
                                      effect->get_dir(), is_hit);
-            for (const auto& [p_name, _]: state.get_players())
-                output_messages.emplace_back(p_name, Message(hit_response));
+            send_msg_to_all_players(Message(hit_response));
         }
     }
 }
 
+bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker,
+                               const std::unique_ptr<AttackEffect>& effect, const Target& target) {
+    bool is_hit = false;
+    if (target.is_player()) {
+        auto& target_player = target.get_player().get();
+        is_hit = effect->apply(target_player);
+        if (target_player->is_dead()) {
+            attacker->add_kill();
+            attacker->add_rewards(Scores::kill, Bonifications::kill);
+        }
+    }
+    return is_hit;
+}
+
 void Game::join_player(const std::string& player_name) {
-    if (player_name.empty())
-        throw InvalidPlayerNameError();
-    if (state.player_is_in_game(player_name))
-        throw JoinGameError();
-    if (is_full() || state.get_phase().is_started())
+    if (player_name.empty() || state.player_is_in_game(player_name) || is_full() ||
+        state.get_phase().is_started())
         return;
 
     Team default_team = (state.get_num_tts() > state.get_num_cts()) ? Team::CT : Team::TT;
@@ -120,9 +126,10 @@ template <>
 void Game::handle<SelectTeamCommand>(const std::string& player_name, const SelectTeamCommand& msg) {
     if (state.get_phase().is_started())
         throw SelectTeamError();
-    if (state.team_is_full(msg.get_team()))
-        // TODO: Error response
+    if (state.team_is_full(msg.get_team())) {
+        output_messages.emplace_back(player_name, Message(TriedToJoinFullTeamErrorResponse()));
         return;
+    }
 
     auto& player = state.get_player(player_name);
     player->select_team(msg.get_team());
@@ -147,19 +154,15 @@ void Game::handle<GetCharactersCommand>(const std::string& player_name,
 template <>
 void Game::handle<SelectCharacterCommand>(const std::string& player_name,
                                           const SelectCharacterCommand& msg) {
-    if (state.get_phase().is_started())
-        // throw SelectCharacterError();
-        return;  // TODO: Error response
-
     auto& player = state.get_player(player_name);
     player->select_character(msg.get_character_type());
 }
 
 template <>
-void Game::handle<StartGameCommand>(const std::string& player_name,
-                                    [[maybe_unused]] const StartGameCommand& msg) {
+void Game::handle<SetReadyCommand>(const std::string& player_name,
+                                   [[maybe_unused]] const SetReadyCommand& msg) {
     if (state.get_phase().is_started())
-        throw StartGameError();
+        throw SetReadyError();
 
     state.get_player(player_name)->set_ready();
     if (state.all_players_ready()) {
@@ -170,26 +173,42 @@ void Game::handle<StartGameCommand>(const std::string& player_name,
 }
 
 template <>
-void Game::handle<BuyGunCommand>(const std::string& player_name, const BuyGunCommand& msg) {
-    if (!state.get_phase().is_buying_phase())
-        return;
-    if (!physics_system.player_in_spawn(player_name))
-        return;
+void Game::handle<GetShopPricesCommand>(const std::string& player_name,
+                                        [[maybe_unused]] const GetShopPricesCommand& msg) {
+    output_messages.emplace_back(player_name, Message(ShopPricesResponse(shop.get_gun_prices(),
+                                                                         shop.get_ammo_prices())));
+}
 
+template <>
+void Game::handle<BuyGunCommand>(const std::string& player_name, const BuyGunCommand& msg) {
+    if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name)) {
+        output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
+        return;
+    }
 
     auto& player = state.get_player(player_name);
-    shop.buy_gun(player->get_inventory(), msg.get_gun());
+    bool success = shop.buy_gun(player->get_inventory(), msg.get_gun());
+
+    if (!success) {
+        output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
+        return;
+    }
 }
 
 template <>
 void Game::handle<BuyAmmoCommand>(const std::string& player_name, const BuyAmmoCommand& msg) {
-    if (!state.get_phase().is_buying_phase())
+    if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name)) {
+        output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
         return;
-    if (!physics_system.player_in_spawn(player_name))
-        return;
+    }
 
     auto& player = state.get_player(player_name);
-    shop.buy_ammo(player->get_inventory(), msg.get_slot());
+    bool success = shop.buy_ammo(player->get_inventory(), msg.get_slot());
+
+    if (!success) {
+        output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
+        return;
+    }
 }
 
 template <>
@@ -198,7 +217,6 @@ void Game::handle<MoveCommand>(const std::string& player_name, const MoveCommand
         return;
 
     auto& player = state.get_player(player_name);
-
     player->start_moving(msg.get_direction());
 }
 
@@ -213,13 +231,6 @@ template <>
 void Game::handle<AimCommand>(const std::string& player_name, const AimCommand& msg) {
     auto& player = state.get_player(player_name);
     player->aim(msg.get_direction());
-}
-
-template <>
-void Game::handle<GetShopPricesCommand>(const std::string& player_name,
-                                        [[maybe_unused]] const GetShopPricesCommand& msg) {
-    output_messages.emplace_back(player_name, Message(ShopPricesResponse(shop.get_gun_prices(),
-                                                                         shop.get_ammo_prices())));
 }
 
 template <>
@@ -242,59 +253,61 @@ void Game::handle<ReloadCommand>(const std::string& player_name,
     player->reload();
 }
 
-// TODO function map
+template <>
+void Game::handle<GetScoreboardCommand>(const std::string& player_name,
+                                        [[maybe_unused]] const GetScoreboardCommand& msg) {
+    std::map<std::string, ScoreboardEntry> scoreboard;
+    for (const auto& [p_name, player]: state.get_players())
+        scoreboard.emplace(p_name, player->get_scoreboard_entry());
+    output_messages.emplace_back(player_name, Message(ScoreboardResponse(std::move(scoreboard))));
+}
+
+// TODO: Implement
+template <>
+void Game::handle<PlantBombCommand>(const std::string& player_name,
+                                    [[maybe_unused]] const PlantBombCommand& msg) {
+    (void)player_name;
+}
+
+// TODO: Implement
+template <>
+void Game::handle<DefuseBombCommand>(const std::string& player_name,
+                                     [[maybe_unused]] const DefuseBombCommand& msg) {
+    (void)player_name;
+}
+
+// TODO: Implement
+template <>
+void Game::handle<PickUpItemCommand>(const std::string& player_name,
+                                     [[maybe_unused]] const PickUpItemCommand& msg) {
+    (void)player_name;
+}
+
+// TODO: Implement
+template <>
+void Game::handle<LeaveGameCommand>(const std::string& player_name,
+                                    [[maybe_unused]] const LeaveGameCommand& msg) {
+    (void)player_name;
+}
+
+#define HANDLE_MSG(command, msg_type)                    \
+    case MessageType::msg_type:                          \
+        handle(player_name, msg.get_content<command>()); \
+        break;
+
 void Game::handle_msg(const Message& msg, const std::string& player_name) {
     if (state.get_player(player_name)->is_dead())
         return;
     MessageType msg_type = msg.get_type();
-    std::cout << "Game::handle_msg: Received message of type: " << static_cast<int>(msg_type)
-              << " from player: " << player_name << "\n";
     switch (msg_type) {
-        case MessageType::SELECT_TEAM_CMD:
-            handle(player_name, msg.get_content<SelectTeamCommand>());
-            break;
-        case MessageType::GET_CHARACTERS_CMD:
-            handle(player_name, msg.get_content<GetCharactersCommand>());
-            break;
-        case MessageType::SELECT_CHARACTER_CMD:
-            handle(player_name, msg.get_content<SelectCharacterCommand>());
-            break;
-        case MessageType::START_GAME_CMD:
-            handle(player_name, msg.get_content<StartGameCommand>());
-            break;
-        case MessageType::BUY_GUN_CMD:
-            handle(player_name, msg.get_content<BuyGunCommand>());
-            break;
-        case MessageType::BUY_AMMO_CMD:
-            handle(player_name, msg.get_content<BuyAmmoCommand>());
-            break;
-        case MessageType::MOVE_CMD:
-            handle(player_name, msg.get_content<MoveCommand>());
-            break;
-        case MessageType::STOP_PLAYER_CMD:
-            handle(player_name, msg.get_content<StopPlayerCommand>());
-            break;
-        case MessageType::AIM_CMD:
-            handle(player_name, msg.get_content<AimCommand>());
-            break;
-        case MessageType::ATTACK_CMD:
-            handle(player_name, msg.get_content<AttackCommand>());
-            break;
-        case MessageType::SWITCH_ITEM_CMD:
-            handle(player_name, msg.get_content<SwitchItemCommand>());
-            break;
-        case MessageType::RELOAD_CMD:
-            handle(player_name, msg.get_content<ReloadCommand>());
-            break;
-        case MessageType::GET_SHOP_PRICES_CMD:
-            handle(player_name, msg.get_content<GetShopPricesCommand>());
-            break;
+        GAME_COMMANDS_MAP(HANDLE_MSG)
         default:
             throw std::runtime_error("Invalid message type: " +
                                      std::to_string(static_cast<int>(msg_type)));
-            break;
     }
 }
+
+#undef HANDLE_MSG
 
 void Game::give_bomb_to_random_tt() {
     if (state.get_num_tts() == 0)
@@ -314,6 +327,13 @@ void Game::give_bomb_to_random_tt() {
     player->pick_bomb(Bomb());
 }
 
+void Game::prepare_new_round() {
+    state.advance_round();
+    for (const auto& [p_name, player]: state.get_players()) {
+        move_player_to_spawn(p_name);
+    }
+}
+
 void Game::move_player_to_spawn(const std::string& player_name) {
     auto& player = state.get_player(player_name);
     if (player->is_tt())
@@ -322,4 +342,6 @@ void Game::move_player_to_spawn(const std::string& player_name) {
         player->move_to_pos(physics_system.random_spawn_ct_pos());
 }
 
-Game::~Game() {}
+void Game::send_msg_to_all_players(const Message& msg) {
+    for (const auto& [p_name, _]: state.get_players()) output_messages.emplace_back(p_name, msg);
+}

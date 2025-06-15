@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "common/models.h"
+#include "common/scoreboard/scoreboard_entry.h"
 #include "common/updates/player_update.h"
 #include "common/utils/vector_2d.h"
 #include "server/attack_effects/attack_effect.h"
@@ -14,10 +15,18 @@
 
 #include "inventory.h"
 
-
 class Player: public Logic<PlayerState, PlayerUpdate> {
+private:
+    ScoreboardEntry scoreboard_entry;
+
 public:
     Player(Team team, Vector2D pos);
+
+    Player(const Player&) = delete;
+    Player& operator=(const Player&) = delete;
+
+    Player(Player&&) = default;
+    Player& operator=(Player&&) = default;
 
     bool is_ready() const;
     bool is_tt() const;
@@ -28,6 +37,7 @@ public:
     Vector2D get_pos() const;
     Vector2D get_move_dir() const;
     Inventory& get_inventory();
+    ScoreboardEntry get_scoreboard_entry() const;
 
     void set_ready();
 
@@ -52,5 +62,7 @@ public:
 
     void reload();
 
-    void increment_kills();
+    void add_kill();
+
+    void add_rewards(int score, int bonification);
 };
