@@ -39,6 +39,18 @@ Vector2D PhysicsSystem::calculate_step(const Vector2D& dir) const {
     return dir.normalized(PhysicsConfig::meter_size) * GameConfig::player_speed * tick_duration;
 }
 
+bool PhysicsSystem::is_walkable(const Vector2D& pos) const {
+    for (const Wall& wall: map.walls) {  // cppcheck-suppress[useStlAlgorithm]
+        if (is_in_tile(pos, wall.get_pos()))
+            return false;
+    }
+    for (const Box& box: map.boxes) {  // cppcheck-suppress[useStlAlgorithm]
+        if (is_in_tile(pos, box.get_pos()))
+            return false;
+    }
+    return true;
+}
+
 std::optional<Target> PhysicsSystem::get_closest_target(const std::string& origin_p_name,
                                                         const Vector2D& dir, int max_range) {
     auto closest_wall = get_closest_tile<Wall>(origin_p_name, dir, map.walls);
@@ -154,4 +166,12 @@ bool PhysicsSystem::tile_is_hit(Vector2D target_pos, Vector2D player_pos, Vector
         return false;
 
     return true;
+}
+
+bool PhysicsSystem::is_in_tile(const Vector2D& pos, const Vector2D& tile_pos) const {
+    float minX = tile_pos.get_x();
+    float maxX = tile_pos.get_x() + PhysicsConfig::meter_size;
+    float minY = tile_pos.get_y();
+    float maxY = tile_pos.get_y() + PhysicsConfig::meter_size;
+    return pos.get_x() >= minX && pos.get_x() <= maxX && pos.get_y() >= minY && pos.get_y() <= maxY;
 }

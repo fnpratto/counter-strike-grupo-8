@@ -29,6 +29,7 @@ private:
     bool is_in_same_cuadrant(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir);
     bool player_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir);
     bool tile_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir);
+    bool is_in_tile(const Vector2D& pos, const Vector2D& tile_pos) const;
 
 public:
     PhysicsSystem(Map&& map, const std::map<std::string, std::unique_ptr<Player>>& players);
@@ -44,6 +45,8 @@ public:
     bool player_in_spawn(const std::string& player_name) const;
 
     Vector2D calculate_step(const Vector2D& dir) const;
+
+    bool is_walkable(const Vector2D& pos) const;
 
     std::optional<Target> get_closest_target(const std::string& origin_p_name, const Vector2D& dir,
                                              int max_range);

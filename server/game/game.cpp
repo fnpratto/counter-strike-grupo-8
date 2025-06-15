@@ -75,8 +75,9 @@ void Game::advance_players_movement() {
         Vector2D old_pos = player->get_pos();
         Vector2D step = physics_system.calculate_step(player->get_move_dir());
         Vector2D new_pos = old_pos + step;
-        // TODO: Check collisions with physics_system (with tiles and entities)
-        player->move_to_pos(new_pos);
+        // TODO: Check collisions with items
+        if (physics_system.is_walkable(new_pos))
+            player->move_to_pos(new_pos);
     }
 }
 
