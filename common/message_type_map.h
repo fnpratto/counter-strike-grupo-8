@@ -12,7 +12,8 @@
     F(HitResponse, HIT_RESP)                \
     F(CharactersResponse, CHARACTERS_RESP)  \
     F(ScoreboardResponse, SCOREBOARD_RESP)  \
-    F(ErrorResponse, ERROR_RESP)
+    F(ErrorResponse, ERROR_RESP)            \
+    F(RoundEndResponse, ROUND_END_RESP)
 
 #define LOBBY_COMMANDS_MAP(F)             \
     F(CreateGameCommand, CREATE_GAME_CMD) \

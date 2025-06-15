@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "common/game/world_item.h"
+#include "common/models.h"
 #include "common/updates/game_update.h"
 #include "server/clock/clock.h"
 #include "server/game/game_phase.h"
@@ -22,6 +23,8 @@ class GameState: public State<GameUpdate> {
 
     std::vector<WorldItem<std::unique_ptr<Gun>>> dropped_guns;
     std::optional<WorldItem<Bomb>> bomb;
+
+    bool is_tts_win_condition() const;
 
 public:
     GameState(std::shared_ptr<Clock>&& game_clock, int max_players);
@@ -45,6 +48,8 @@ public:
     void add_player(const std::string& player_name, std::unique_ptr<Player> player);
     void add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos);
     void add_bomb(Bomb&& bomb, const Vector2D& pos);
+
+    Team get_winning_team() const;
 
     GameUpdate get_updates() const override;
 

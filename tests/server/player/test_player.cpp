@@ -49,12 +49,12 @@ TEST_F(TestPlayer, PlayerStartWithDefaultInventory) {
 
 TEST_F(TestPlayer, GunReduceMagAmmoWhenPlayerAttacks) {
     player.equip_item(ItemSlot::Secondary);
-    int old_mag_ammo = player.get_inventory().get_gun(ItemSlot::Secondary)->get_mag_ammo();
+    int old_mag_ammo = player.get_inventory().get_guns().at(ItemSlot::Secondary)->get_mag_ammo();
 
     player.start_attacking();
     auto attack_effects = player.attack(clock.now());
     EXPECT_EQ(attack_effects.size(), 1);
-    EXPECT_EQ(player.get_inventory().get_gun(ItemSlot::Secondary)->get_mag_ammo(),
+    EXPECT_EQ(player.get_inventory().get_guns().at(ItemSlot::Secondary)->get_mag_ammo(),
               old_mag_ammo - GlockConfig.bullets_per_attack);
 }
 
@@ -74,7 +74,7 @@ TEST_F(TestPlayer, GunBurst) {
         advance_secs(Ak47Config.burst_interval);
         auto attack_effects = player.attack(clock.now());
         EXPECT_EQ(attack_effects.size(), 1);
-        EXPECT_EQ(player.get_inventory().get_gun(ItemSlot::Primary)->get_mag_ammo(),
+        EXPECT_EQ(player.get_inventory().get_guns().at(ItemSlot::Primary)->get_mag_ammo(),
                   Ak47Config.bullets_per_mag - (i + 1));
     }
 

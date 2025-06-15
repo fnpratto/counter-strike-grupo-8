@@ -33,6 +33,26 @@ void RateController::run_at_rate(std::function<bool()> callback) {
     }
 }
 
+bool RateController::should_run() {
+    auto now = std::chrono::steady_clock::now();
+
+    if (now < next_frame_time)
+        return false;  // Not time to run yet
+
+    // We're at or past the time for the next execution
+
+    // Schedule next execution (even if we're late)
+    next_frame_time += frame_duration;
+
+    // If we are significantly behind, skip ahead to avoid lag accumulation
+    auto max_lag = max_lag_frames * frame_duration;
+    if (now - next_frame_time > max_lag) {
+        next_frame_time = now;
+    }
+
+    return true;
+}
+
 void RateController::set_rate(int rate) {
     target_rate = rate;
     frame_duration = std::chrono::milliseconds(1000 / rate);

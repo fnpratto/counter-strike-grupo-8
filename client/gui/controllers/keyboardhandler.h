@@ -3,7 +3,8 @@
 
 #include <SDL2/SDL.h>
 
-#include "../map_view/map_view.h"
+#include "../map_view/sdl_world.h"
+#include "../score_view/score_display.h"
 #include "../shop_view/shop.h"
 #include "common/commands.h"
 #include "common/message.h"
@@ -12,15 +13,15 @@
 #include "common/thread.h"
 class KeyboardHandler {
 public:
-    explicit KeyboardHandler(Queue<Message>& output_queue, shopDisplay& shopRef);
+    explicit KeyboardHandler(Queue<Message>& output_queue, shopDisplay& shopRef,
+                             ScoreDisplay& score_displayRef);
     void handleEvent(const SDL_Event& event);
 
 private:
     Queue<Message>& output_queue;
     shopDisplay& shopRef;
+    ScoreDisplay& score_displayRef;
     void update_direction();
-    // bool isMuted = false;  // TODO sacar
-    bool no_movement = false;  // TODO sacar
 };
 
 #endif  // KEYBOARDHANDLER_H

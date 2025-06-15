@@ -43,6 +43,7 @@ public:
     void set_ready();
 
     void take_damage(int damage);
+    void heal();
 
     void select_team(Team team);
 
@@ -58,6 +59,7 @@ public:
 
     void start_attacking();
     std::vector<std::unique_ptr<AttackEffect>> attack(TimePoint now);
+    void stop_attacking();
 
     void equip_item(ItemSlot slot);
 

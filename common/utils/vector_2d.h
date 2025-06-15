@@ -12,6 +12,9 @@ public:
     Vector2D(const Vector2D& v1, const Vector2D& v2):
             x(v2.get_x() - v1.get_x()), y(v2.get_y() - v1.get_y()) {}
 
+    void set_x(int new_x) { x = new_x; }
+    void set_y(int new_y) { y = new_y; }
+
     int get_x() const { return x; }
     int get_y() const { return y; }
 

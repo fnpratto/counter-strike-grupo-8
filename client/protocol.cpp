@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 
 #include "common/errors.h"
+#include "common/game/scoreboard_entry.h"
 #include "common/message.h"
 #include "common/responses.h"
 #include "common/socket.h"
@@ -88,8 +89,9 @@ payload_t ClientProtocol::serialize_msg(const BuyGunCommand& cmd) const {
 }
 
 template <>
-payload_t ClientProtocol::serialize_msg([[maybe_unused]] const BuyAmmoCommand& cmd) const {
-    return payload_t();
+
+payload_t ClientProtocol::serialize_msg(const BuyAmmoCommand& cmd) const {
+    return serialize(cmd.get_slot());
 }
 
 template <>
@@ -136,6 +138,7 @@ template <>
 payload_t ClientProtocol::serialize_msg([[maybe_unused]] const GetScoreboardCommand& cmd) const {
     return payload_t();
 }
+
 
 template <>
 payload_t ClientProtocol::serialize_msg([[maybe_unused]] const PlantBombCommand& cmd) const {
@@ -199,11 +202,12 @@ CharactersResponse ClientProtocol::deserialize_msg<CharactersResponse>(payload_t
     return CharactersResponse(deserialize_vector<CharacterType>(payload));
 }
 
-// TODO: Implement
+
+// TODO
 template <>
-ScoreboardResponse ClientProtocol::deserialize_msg<ScoreboardResponse>(
-        [[maybe_unused]] payload_t& payload) const {
-    return ScoreboardResponse({});
+ScoreboardResponse ClientProtocol::deserialize_msg<ScoreboardResponse>(payload_t& payload) const {
+    auto scoreboard = deserialize_map<std::string, ScoreboardEntry>(payload);
+    return ScoreboardResponse(std::move(scoreboard));
 }
 
 // TODO: Implement
@@ -211,6 +215,13 @@ template <>
 ErrorResponse ClientProtocol::deserialize_msg<ErrorResponse>(
         [[maybe_unused]] payload_t& payload) const {
     return ErrorResponse();
+}
+
+// TODO: Implement
+template <>
+RoundEndResponse ClientProtocol::deserialize_msg<RoundEndResponse>(
+        [[maybe_unused]] payload_t& payload) const {
+    return RoundEndResponse(Team::CT);
 }
 
 #define X_DESERIALIZE_UPDATE(type, attr)        \

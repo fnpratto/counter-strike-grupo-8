@@ -50,7 +50,8 @@ public:
     bool can_buy_ammo(const ItemSlot& slot, Inventory& inventory) const {
         if (slot != ItemSlot::Primary && slot != ItemSlot::Secondary)
             return false;
-        auto& gun = inventory.get_gun(slot);
+
+        auto& gun = inventory.get_guns().at(slot);
         GunType gun_type = gun->get_type();
         return ammo_prices.at(gun_type) <= inventory.get_money();
     }
@@ -65,7 +66,7 @@ public:
     void buy_ammo(const ItemSlot& slot, Inventory& inventory) const {
         if (!can_buy_ammo(slot, inventory))
             return;
-        auto& gun = inventory.get_gun(slot);
+        auto& gun = inventory.get_guns().at(slot);
         GunType gun_type = gun->get_type();
         gun->add_mag();
         inventory.set_money(inventory.get_money() - ammo_prices.at(gun_type));

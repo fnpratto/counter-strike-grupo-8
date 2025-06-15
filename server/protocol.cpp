@@ -55,11 +55,20 @@ payload_t ServerProtocol::serialize_msg(const CharactersResponse& response) cons
 
 template <>
 payload_t ServerProtocol::serialize_msg([[maybe_unused]] const ScoreboardResponse& response) const {
-    return payload_t();
+    payload_t payload;
+    payload_t scoreboard_payload = serialize_map(response.get_scoreboard());
+    payload.reserve(scoreboard_payload.size());
+    payload.insert(payload.end(), scoreboard_payload.begin(), scoreboard_payload.end());
+    return payload;
 }
 
 template <>
 payload_t ServerProtocol::serialize_msg([[maybe_unused]] const ErrorResponse& response) const {
+    return payload_t();
+}
+
+template <>
+payload_t ServerProtocol::serialize_msg([[maybe_unused]] const RoundEndResponse& response) const {
     return payload_t();
 }
 
@@ -190,12 +199,12 @@ BuyGunCommand ServerProtocol::deserialize_msg<BuyGunCommand>(payload_t& payload)
     return BuyGunCommand(static_cast<GunType>(gun));
 }
 
-// TODO: Implement
 template <>
-BuyAmmoCommand ServerProtocol::deserialize_msg<BuyAmmoCommand>(
-        [[maybe_unused]] payload_t& payload) const {
-    return BuyAmmoCommand(ItemSlot::Primary);
+BuyAmmoCommand ServerProtocol::deserialize_msg<BuyAmmoCommand>(payload_t& payload) const {
+    ItemSlot slot = deserialize<ItemSlot>(payload);
+    return BuyAmmoCommand(slot);
 }
+
 
 template <>
 MoveCommand ServerProtocol::deserialize_msg<MoveCommand>(payload_t& payload) const {

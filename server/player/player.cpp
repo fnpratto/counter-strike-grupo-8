@@ -11,7 +11,7 @@ Player::Player(Team team, Vector2D pos):
         Logic<PlayerState, PlayerUpdate>(
                 PlayerState(team, pos, Vector2D(0.0f, 0.0f), Vector2D(0.0f, 0.0f), false,
                             PlayerConfig::full_health, ItemSlot::Secondary)),
-        scoreboard_entry(state.get_inventory().get_money()) {}
+        scoreboard_entry(state.get_inventory().get_money(), 0, 0, 0) {}
 
 bool Player::is_ready() const { return state.get_ready(); }
 
@@ -43,6 +43,8 @@ void Player::take_damage(int damage) {
     }
 }
 
+void Player::heal() { state.set_health(PlayerConfig::full_health); }
+
 void Player::pick_bomb(Bomb&& bomb) { state.add_bomb(std::move(bomb)); }
 
 void Player::select_team(Team team) { state.set_team(team); }
@@ -66,9 +68,14 @@ void Player::start_attacking() {
         return knife.start_attacking();
     }
     if (slot == ItemSlot::Primary || slot == ItemSlot::Secondary) {
-        auto& gun = state.get_inventory().get_gun(slot);
+        auto& gun = state.get_inventory().get_guns().at(slot);
         return gun->start_attacking();
     }
+}
+
+void Player::stop_attacking() {
+    state.get_inventory().get_knife().stop_attacking();
+    for (auto& [_, gun]: state.get_inventory().get_guns()) gun->stop_attacking();
 }
 
 std::vector<std::unique_ptr<AttackEffect>> Player::attack(TimePoint now) {
@@ -78,14 +85,14 @@ std::vector<std::unique_ptr<AttackEffect>> Player::attack(TimePoint now) {
         return knife.attack(*this, state.get_aim_direction(), now);
     }
     if (slot == ItemSlot::Primary || slot == ItemSlot::Secondary) {
-        auto& gun = state.get_inventory().get_gun(slot);
+        auto& gun = state.get_inventory().get_guns().at(slot);
         return gun->attack(*this, state.get_aim_direction(), now);
     }
     return {};
 }
 
 void Player::equip_item(ItemSlot slot) {
-    if (!state.get_inventory().get_bomb().has_value() && slot == ItemSlot::Bomb)
+    if (!state.get_inventory().has_item_in_slot(slot))
         return;
     state.set_equipped_item(slot);
 }
@@ -95,7 +102,7 @@ void Player::reload() {
     if (slot != ItemSlot::Primary && slot != ItemSlot::Secondary)
         return;
 
-    auto& gun = state.get_inventory().get_gun(slot);
+    auto& gun = state.get_inventory().get_guns().at(slot);
     gun->reload();
 }
 
@@ -109,7 +116,7 @@ void Player::add_rewards(int score, int bonification) {
 }
 
 std::optional<std::unique_ptr<Gun>> Player::drop_primary_weapon() {
-    if (!state.get_inventory().has_gun_in_slot(ItemSlot::Primary))
+    if (!state.get_inventory().has_item_in_slot(ItemSlot::Primary))
         return std::optional<std::unique_ptr<Gun>>();
     equip_item(ItemSlot::Melee);
     auto gun = state.get_inventory().remove_primary_weapon();

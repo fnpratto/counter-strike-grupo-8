@@ -18,6 +18,9 @@ Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& m
 bool Game::is_full() const { return state.game_is_full(); }
 
 std::vector<PlayerMessage> Game::tick(const std::vector<PlayerMessage>& msgs) {
+    if (state.get_phase().is_game_end())
+        return {};
+
     state.clear_updates();
 
     advance_round_logic();
@@ -42,12 +45,26 @@ void Game::advance_round_logic() {
     auto& phase = state.get_phase();
     bool phase_change = phase.advance();
     if (phase_change) {
-        if (phase.is_buying_phase())
+        if (phase.is_round_end()) {
+            Team winning_team = state.get_winning_team();
+            for (const auto& [p_name, player]: state.get_players()) {
+                if ((winning_team == Team::TT && player->is_tt()) ||
+                    (winning_team == Team::CT && player->is_ct()))
+                    player->add_rewards(Scores::win, Bonifications::win);
+                else
+                    player->add_rewards(Scores::loss, Bonifications::loss);
+            }
+            send_msg_to_all_players(Message(RoundEndResponse(winning_team)));
+        } else if (phase.is_buying_phase()) {
             prepare_new_round();
+        }
     }
 
     if (state.get_num_rounds() == GameConfig::max_rounds / 2)
         state.swap_players_teams();
+
+    if (state.get_num_rounds() == GameConfig::max_rounds)
+        phase.end_game();
 }
 
 void Game::advance_players_movement() {
@@ -152,7 +169,7 @@ void Game::handle<GetCharactersCommand>(const std::string& player_name,
                       CharacterType::French_GIGN};
     } else if (player->is_tt()) {
         characters = {CharacterType::Pheonix, CharacterType::L337_Krew,
-                      CharacterType::Artic_Avenger, CharacterType::Guerrilla};
+                      CharacterType::Arctic_Avenger, CharacterType::Guerrilla};
     }
     send_msg_to_single_player(player_name, Message(CharactersResponse(std::move(characters))));
 }
@@ -173,7 +190,7 @@ void Game::handle<SetReadyCommand>(const std::string& player_name,
     state.get_player(player_name)->set_ready();
     if (state.all_players_ready()) {
         give_bomb_to_random_tt();
-        state.get_phase().start_buying_phase();
+        state.get_phase().start_game();
         for (const auto& [p_name, _]: state.get_players()) move_player_to_spawn(p_name);
     }
 }
@@ -321,10 +338,10 @@ void Game::give_bomb_to_random_tt() {
             tt_names.push_back(player_name);
     }
 
-    int random_index = rand() % state.get_num_tts();
-
-    std::string player_name = tt_names[random_index];
+    int rand_index = rand() % state.get_num_tts();
+    std::string player_name = tt_names[rand_index];
     auto& player = state.get_player(player_name);
+    // TODO: Player pick bomb stored in state
     player->pick_bomb(Bomb());
 }
 
@@ -332,7 +349,10 @@ void Game::prepare_new_round() {
     state.advance_round();
     for (const auto& [p_name, player]: state.get_players()) {
         move_player_to_spawn(p_name);
+        reset_for_new_round(player);
+        // TODO: Drop player bomb and unplant
     }
+    // TODO: Give dropped bomb to random TT
 }
 
 void Game::move_player_to_spawn(const std::string& player_name) {
@@ -341,6 +361,12 @@ void Game::move_player_to_spawn(const std::string& player_name) {
         player->move_to_pos(physics_system.random_spawn_tt_pos());
     else
         player->move_to_pos(physics_system.random_spawn_ct_pos());
+}
+
+void Game::reset_for_new_round(const std::unique_ptr<Player>& player) {
+    player->heal();
+    player->stop_moving();
+    player->stop_attacking();
 }
 
 void Game::send_msg_to_all_players(const Message& msg) {

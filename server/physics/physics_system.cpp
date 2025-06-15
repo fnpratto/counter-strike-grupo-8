@@ -5,9 +5,8 @@
 #include <limits>
 #include <memory>
 
+#include "common/physics/physics_config.h"
 #include "server/game/game_config.h"
-
-#include "physics_config.h"
 
 PhysicsSystem::PhysicsSystem(Map&& map,
                              const std::map<std::string, std::unique_ptr<Player>>& players):
@@ -92,7 +91,7 @@ std::optional<Target> PhysicsSystem::get_closest_player(const std::string& origi
     std::optional<Target> closest_target;
     Vector2D origin = players.at(origin_p_name)->get_pos();
     float min_distance = std::numeric_limits<float>::max();
-    for (const auto& [p_name, p]: players) {
+    for (const auto& [p_name, p]: players) {  // cppcheck-suppress[unassignedVariable]
         if (origin_p_name == p_name)
             continue;
         Vector2D target_pos = p->get_pos();

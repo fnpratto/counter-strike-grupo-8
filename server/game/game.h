@@ -5,11 +5,11 @@
 #include <string>
 #include <vector>
 
+#include "common/map/map.h"
 #include "common/message.h"
 #include "common/updates/game_update.h"
 #include "server/clock/clock.h"
 #include "server/logic.h"
-#include "server/map/map.h"
 #include "server/physics/physics_system.h"
 #include "server/player/player.h"
 #include "server/player_message.h"
@@ -52,6 +52,7 @@ private:
 
     void prepare_new_round();
     void move_player_to_spawn(const std::string& player_name);
+    void reset_for_new_round(const std::unique_ptr<Player>& player);
 
     void send_msg_to_all_players(const Message& msg);
     void send_msg_to_single_player(const std::string& player_name, const Message& msg);

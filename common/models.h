@@ -3,13 +3,12 @@
 enum class Team { TT, CT };
 enum class GunType { AK47, M3, AWP, Glock };
 enum class ItemSlot { Primary, Secondary, Melee, Bomb };
-enum class PhaseType { WarmUp, Buying, Playing, End };
-enum class MapTileType { Floor, Wall, Box };
+enum class PhaseType { WarmUp, Buying, Playing, RoundEnd, GameEnd };
 enum class CharacterType {
     // Terrorists
     Pheonix,
     L337_Krew,
-    Artic_Avenger,
+    Arctic_Avenger,
     Guerrilla,
 
     // Counter-Terrorists

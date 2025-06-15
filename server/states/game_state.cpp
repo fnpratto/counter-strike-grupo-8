@@ -33,7 +33,7 @@ int GameState::get_num_rounds() const { return num_rounds; }
 int GameState::get_num_tts() const {
     int num_tts = 0;
     for (const auto& [_, player]: players)  // cppcheck-suppress[unusedVariable]
-        if (player->is_tt())
+        if (player->is_tt() && !player->is_dead())
             num_tts++;
 
     return num_tts;
@@ -42,7 +42,7 @@ int GameState::get_num_tts() const {
 int GameState::get_num_cts() const {
     int num_cts = 0;
     for (const auto& [_, player]: players)  // cppcheck-suppress[unusedVariable]
-        if (player->is_ct())
+        if (player->is_ct() && !player->is_dead())
             num_cts++;
 
     return num_cts;
@@ -90,6 +90,14 @@ void GameState::add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos)
 void GameState::add_bomb(Bomb&& bomb, const Vector2D& pos) {
     this->bomb = WorldItem<Bomb>{std::move(bomb), pos};
 }
+Team GameState::get_winning_team() const {
+    if (is_tts_win_condition())
+        return Team::TT;
+    return Team::CT;
+}
+
+// TODO: Add bomb planted win condition
+bool GameState::is_tts_win_condition() const { return get_num_cts() == 0; }
 
 void GameState::clear_updates() {
     State<GameUpdate>::clear_updates();

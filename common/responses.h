@@ -99,3 +99,16 @@ public:
  * @brief Sent when a command results in an error.
  */
 class ErrorResponse {};
+
+/**
+ * @class RoundEndResponse
+ * @brief Response sent when a round ends.
+ */
+class RoundEndResponse {
+    Team winning_team;
+
+public:
+    explicit RoundEndResponse(Team winning_team): winning_team(winning_team) {}
+
+    Team get_winning_team() const { return winning_team; }
+};
