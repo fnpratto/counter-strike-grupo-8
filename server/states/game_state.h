@@ -5,6 +5,7 @@
 #include <string>
 #include <utility>
 
+#include "common/models.h"
 #include "common/updates/game_update.h"
 #include "server/clock/clock.h"
 #include "server/game/game_phase.h"
@@ -17,6 +18,8 @@ class GameState: public State<GameUpdate> {
     int num_rounds = 0;
     int max_players;
     std::map<std::string, std::unique_ptr<Player>> players;
+
+    bool is_tts_win_condition() const;
 
 public:
     GameState(std::shared_ptr<Clock>&& game_clock, int max_players);
@@ -38,6 +41,8 @@ public:
     void swap_players_teams();
 
     void add_player(const std::string& player_name, std::unique_ptr<Player> player);
+
+    Team get_winning_team() const;
 
     GameUpdate get_updates() const override;
 

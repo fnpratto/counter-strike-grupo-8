@@ -105,7 +105,7 @@ void SDLDisplay::run() {
         } else if (state.get_phase().get_phase() == PhaseType::Playing) {
             world.render();
             hud_display.render();
-        } else if (state.get_phase().get_phase() == PhaseType::End) {
+        } else if (state.get_phase().get_phase() == PhaseType::RoundEnd) {
             world.render();
             hud_display.render();
             end_round_display.render();

@@ -43,6 +43,8 @@ void Player::take_damage(int damage) {
     }
 }
 
+void Player::heal() { state.set_health(PlayerConfig::full_health); }
+
 void Player::pick_bomb(Bomb&& bomb) { state.add_bomb(std::move(bomb)); }
 
 void Player::select_team(Team team) { state.set_team(team); }
@@ -66,9 +68,14 @@ void Player::start_attacking() {
         return knife.start_attacking();
     }
     if (slot == ItemSlot::Primary || slot == ItemSlot::Secondary) {
-        auto& gun = state.get_inventory().get_gun(slot);
+        auto& gun = state.get_inventory().get_guns().at(slot);
         return gun->start_attacking();
     }
+}
+
+void Player::stop_attacking() {
+    state.get_inventory().get_knife().stop_attacking();
+    for (auto& [_, gun]: state.get_inventory().get_guns()) gun->stop_attacking();
 }
 
 std::vector<std::unique_ptr<AttackEffect>> Player::attack(TimePoint now) {
@@ -78,14 +85,14 @@ std::vector<std::unique_ptr<AttackEffect>> Player::attack(TimePoint now) {
         return knife.attack(*this, state.get_aim_direction(), now);
     }
     if (slot == ItemSlot::Primary || slot == ItemSlot::Secondary) {
-        auto& gun = state.get_inventory().get_gun(slot);
+        auto& gun = state.get_inventory().get_guns().at(slot);
         return gun->attack(*this, state.get_aim_direction(), now);
     }
     return {};
 }
 
 void Player::equip_item(ItemSlot slot) {
-    if (!state.get_inventory().get_bomb().has_value() && slot == ItemSlot::Bomb)
+    if (!state.get_inventory().has_item_in_slot(slot))
         return;
     state.set_equipped_item(slot);
 }
@@ -95,7 +102,7 @@ void Player::reload() {
     if (slot != ItemSlot::Primary && slot != ItemSlot::Secondary)
         return;
 
-    auto& gun = state.get_inventory().get_gun(slot);
+    auto& gun = state.get_inventory().get_guns().at(slot);
     gun->reload();
 }
 

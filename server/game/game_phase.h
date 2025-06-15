@@ -29,11 +29,13 @@ public:
     bool is_started() const;
     bool is_buying_phase() const;
     bool is_playing_phase() const;
-    bool is_round_finished() const;
+    bool is_round_end() const;
+    bool is_game_end() const;
 
     TimePoint get_time_now() const;
 
-    void start_buying_phase();
+    void start_game();
+    void end_game();
 
     /**
      * Return true if the game phase type changed
