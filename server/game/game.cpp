@@ -84,6 +84,9 @@ void Game::advance_players_movement() {
 void Game::perform_attacks() {
     if (!state.get_phase().is_playing_phase())
         return;
+
+    std::vector<HitResponse> hit_responses;
+
     for (const auto& [p_name, player]: state.get_players()) {
         auto effects = player->attack(state.get_phase().get_time_now());
         if (effects.empty())
@@ -92,16 +95,22 @@ void Game::perform_attacks() {
         for (const auto& effect: effects) {
             auto closest_target = physics_system.get_closest_target(p_name, effect->get_dir(),
                                                                     effect->get_max_range());
-            if (!closest_target.has_value())
+            if (!closest_target.has_value()) {
+                Vector2D max_hit_pos =
+                        player->get_pos() + effect->get_dir() * effect->get_max_range();
+                hit_responses.push_back(
+                        HitResponse(player->get_pos(), max_hit_pos, effect->get_dir(), false));
                 continue;
+            }
 
             bool is_hit = apply_attack_effect(player, effect, closest_target.value());
 
-            HitResponse hit_response(player->get_pos(), closest_target.value().get_pos(),
-                                     effect->get_dir(), is_hit);
-            send_msg_to_all_players(Message(hit_response));
+            hit_responses.push_back(HitResponse(player->get_pos(), closest_target.value().get_pos(),
+                                                effect->get_dir(), is_hit));
         }
     }
+
+    for (const auto& hit_resp: hit_responses) send_msg_to_all_players(Message(hit_resp));
 }
 
 bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker,
