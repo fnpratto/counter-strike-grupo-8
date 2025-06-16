@@ -50,6 +50,11 @@ bool RectHitbox::collides_with_circle(const Vector2D& circle_pos, float radius) 
     return false;
 }
 
+bool RectHitbox::is_in_same_cuadrant(const Vector2D& ray_start, const Vector2D& ray_dir) const {
+    Vector2D distance = get_pos() - ray_start;
+    return distance.dot(ray_dir) > 0;
+}
+
 bool RectHitbox::is_hit(const Vector2D& ray_start, const Vector2D& ray_dir) const {
     float minX = get_pos().get_x();
     float maxX = get_pos().get_x() + get_width();

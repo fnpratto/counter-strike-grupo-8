@@ -314,7 +314,7 @@ void Game::handle<PickUpItemCommand>(const std::string& player_name,
         return;
     }
 
-    auto gun_pos = physics_system.get_colliding_gun_pos(player);
+    auto gun_pos = physics_system.get_player_colliding_gun_pos(player);
     if (!gun_pos.has_value())
         return;
     if (player->get_inventory().has_item_in_slot(ItemSlot::Primary)) {

@@ -55,5 +55,6 @@ public:
                                              int max_range);
 
     bool player_collides_with_bomb(const std::unique_ptr<Player>& player) const;
-    std::optional<Vector2D> get_colliding_gun_pos(const std::unique_ptr<Player>& player) const;
+    std::optional<Vector2D> get_player_colliding_gun_pos(
+            const std::unique_ptr<Player>& player) const;
 };
