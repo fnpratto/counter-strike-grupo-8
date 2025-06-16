@@ -21,6 +21,9 @@
 #include "map_view_tile.h"
 #include "tile_button.h"
 
+constexpr int WINDOW_WIDTH = 845;
+constexpr int WINDOW_HEIGHT = 662;
+
 constexpr int MAX_COLUMNS_TILEBAR = 5;
 constexpr int MAX_COLUMNS_MAPVIEW = 20;
 constexpr int MAX_ROWS_MAPVIEW = 20;
@@ -36,7 +39,7 @@ constexpr std::array<int, 5> AZTEC_SKIP_TILES = {0, 46, 47, 48, 49};
 EditorWindow::EditorWindow(QWidget* parent): QWidget(parent) {
     this->setWindowTitle(EDITOR_TITLE);
     this->setWindowIcon(QIcon(ICON_PATH));
-    // this->setFixedSize(800, 600);
+    this->setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     QFontDatabase::addApplicationFont(CS_FONT_PATH);
     this->setStyleSheet(
             "QWidget { background-color: #404040; } QAction { border: 1px solid #ccc; }");
