@@ -2,10 +2,11 @@
 
 #include <utility>
 
-PlayerState::PlayerState(Team team, Vector2D pos, Vector2D aim_direction, Vector2D velocity,
-                         bool ready, int health, ItemSlot equipped_item):
+PlayerState::PlayerState(Team team, Vector2D pos, int hitbox_radius, Vector2D aim_direction,
+                         Vector2D velocity, bool ready, int health, ItemSlot equipped_item):
         team(team),
         pos(pos),
+        hitbox_radius(hitbox_radius),
         aim_direction(aim_direction),
         velocity(velocity),
         ready(ready),
@@ -17,6 +18,8 @@ PlayerState::PlayerState(Team team, Vector2D pos, Vector2D aim_direction, Vector
 Team PlayerState::get_team() const { return team; }
 
 Vector2D PlayerState::get_pos() const { return pos; }
+
+int PlayerState::get_hitbox_radius() const { return hitbox_radius; }
 
 Vector2D PlayerState::get_aim_direction() const { return aim_direction; }
 
@@ -96,6 +99,7 @@ PlayerUpdate PlayerState::get_full_update() const {
     PlayerUpdate full_update;
     full_update.set_team(team);
     full_update.set_pos(pos);
+    full_update.set_hitbox_radius(hitbox_radius);
     full_update.set_aim_direction(aim_direction);
     full_update.set_velocity(velocity);
     full_update.set_ready(ready);

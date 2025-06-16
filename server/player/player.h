@@ -36,6 +36,7 @@ public:
     bool is_dead() const;
 
     Vector2D get_pos() const;
+    int get_hitbox_radius() const;
     Vector2D get_move_dir() const;
     Inventory& get_inventory();
     ScoreboardEntry get_scoreboard_entry() const;

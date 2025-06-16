@@ -14,6 +14,7 @@ class PlayerState: public State<PlayerUpdate> {
     Team team;
     CharacterType character_type;
     Vector2D pos;
+    int hitbox_radius;
     Vector2D aim_direction;
     Vector2D velocity;
     bool ready;
@@ -22,11 +23,12 @@ class PlayerState: public State<PlayerUpdate> {
     Inventory inventory;
 
 public:
-    PlayerState(Team team, Vector2D pos, Vector2D aim_direction, Vector2D velocity, bool ready,
-                int health, ItemSlot equipped_item);
+    PlayerState(Team team, Vector2D pos, int hitbox_radius, Vector2D aim_direction,
+                Vector2D velocity, bool ready, int health, ItemSlot equipped_item);
 
     Team get_team() const;
     Vector2D get_pos() const;
+    int get_hitbox_radius() const;
     Vector2D get_aim_direction() const;
     Vector2D get_velocity() const;
     bool get_ready() const;

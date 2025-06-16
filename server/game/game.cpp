@@ -76,7 +76,7 @@ void Game::advance_players_movement() {
         Vector2D old_pos = player->get_pos();
         Vector2D step = physics_system.calculate_step(player->get_move_dir());
         Vector2D new_pos = old_pos + step;
-        if (physics_system.is_walkable(new_pos))
+        if (physics_system.player_can_move_to_pos(player, new_pos))
             player->move_to_pos(new_pos);
     }
 }
@@ -309,12 +309,12 @@ void Game::handle<PickUpItemCommand>(const std::string& player_name,
                                      [[maybe_unused]] const PickUpItemCommand& msg) {
     auto& player = state.get_player(player_name);
 
-    if (physics_system.player_collides_with_bomb(player->get_pos())) {
+    if (physics_system.player_collides_with_bomb(player)) {
         player->pick_bomb(std::move(state.remove_bomb()));
         return;
     }
 
-    auto gun_pos = physics_system.get_colliding_gun_pos(player->get_pos());
+    auto gun_pos = physics_system.get_colliding_gun_pos(player);
     if (!gun_pos.has_value())
         return;
     if (player->get_inventory().has_item_in_slot(ItemSlot::Primary)) {
