@@ -32,7 +32,6 @@ public:
     void set_money(int new_money) { state.set_money(new_money); }
 
     void set_gun(std::unique_ptr<Gun>&& gun);
-    void add_primary_weapon(const GunType& weapon_type);
     std::unique_ptr<Gun> remove_primary_weapon();
 
     void set_bomb(Bomb&& bomb);
