@@ -131,42 +131,26 @@ void EditorWindow::add_tiles(QGridLayout* tilebar_layout) {
     int row = 0;
     int col = 0;
 
-    this->add_dust_tiles(tilebar_layout, row, col);
-    this->add_aztec_tiles(tilebar_layout, row, col);
-}
-
-void EditorWindow::add_dust_tiles(QGridLayout* tilebar_layout, int& row, int& col) {
     QPixmap dust_tile_image(":/resources/dust.bmp");
-    for (int i = 0; i < DUST_TILE_ROWS; ++i) {
-        for (int j = 0; j < DUST_TILE_COLS; ++j) {
-            int tile_index = i * DUST_TILE_COLS + j;
-            if (std::find(DUST_SKIP_TILES.begin(), DUST_SKIP_TILES.end(), tile_index) !=
-                DUST_SKIP_TILES.end()) {
-                continue;
-            }
-            QPixmap tile = dust_tile_image.copy(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-            QPushButton* tile_button = new TileButton(tile, this);
-            tilebar_layout->addWidget(tile_button, row, col);
-            col++;
-            if (col >= MAX_COLUMNS_TILEBAR) {
-                col = 0;
-                row++;
-            }
-        }
-    }
+    this->add_some_tiles(tilebar_layout, row, col, dust_tile_image, DUST_TILE_COLS, DUST_TILE_ROWS,
+                         DUST_SKIP_TILES);
+
+    QPixmap aztec_tile_image(":/resources/default_aztec.png");
+    this->add_some_tiles(tilebar_layout, row, col, aztec_tile_image, AZTEC_TILE_COLS,
+                         AZTEC_TILE_ROWS, AZTEC_SKIP_TILES);
 }
 
-void EditorWindow::add_aztec_tiles(QGridLayout* tilebar_layout, int& row, int& col) {
-    QPixmap aztec_tile_image(":/resources/default_aztec.png");
-    for (int i = 0; i < AZTEC_TILE_ROWS; ++i) {
-        for (int j = 0; j < AZTEC_TILE_COLS; ++j) {
-            int tile_index = i * AZTEC_TILE_COLS + j;
-            if (std::find(AZTEC_SKIP_TILES.begin(), AZTEC_SKIP_TILES.end(), tile_index) !=
-                AZTEC_SKIP_TILES.end()) {
+template <size_t N>
+void EditorWindow::add_some_tiles(QGridLayout* tilebar_layout, int& row, int& col,
+                                  const QPixmap& tile_image, int tile_cols, int tile_rows,
+                                  const std::array<int, N>& skip_tiles) {
+    for (int i = 0; i < tile_rows; i++) {
+        for (int j = 0; j < tile_cols; j++) {
+            int tile_index = i * tile_cols + j;
+            if (std::find(skip_tiles.begin(), skip_tiles.end(), tile_index) != skip_tiles.end()) {
                 continue;
             }
-            QPixmap tile =
-                    aztec_tile_image.copy(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            QPixmap tile = tile_image.copy(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE);
             QPushButton* tile_button = new TileButton(tile, this);
             tilebar_layout->addWidget(tile_button, row, col);
             col++;
