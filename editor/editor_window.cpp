@@ -14,6 +14,7 @@
 #include <QToolBar>
 #include <QToolButton>
 #include <QVBoxLayout>
+#include <array>
 
 #include "common/qt/constants.h"
 
@@ -21,6 +22,9 @@
 #define MAX_COLUMNS_MAPVIEW 20
 #define MAX_ROWS_MAPVIEW 20
 #define TILE_SIZE 32
+
+constexpr std::array<int, 11> DUST_SKIP_TILES = {0, 39, 55, 64, 65, 68, 69, 70, 71, 72, 73};
+constexpr std::array<int, 5> AZTEC_SKIP_TILES = {0, 46, 47, 48, 49};
 
 EditorWindow::EditorWindow(QWidget* parent): QWidget(parent) {
     this->setWindowTitle(EDITOR_TITLE);
@@ -130,6 +134,11 @@ void EditorWindow::add_dust_tiles(QGridLayout* tilebar_layout, int& row, int& co
     QPixmap dust_tile_image(":/resources/dust.bmp");
     for (int i = 0; i < 10; ++i) {
         for (int j = 0; j < 8; ++j) {
+            int tile_index = i * 8 + j;
+            if (std::find(DUST_SKIP_TILES.begin(), DUST_SKIP_TILES.end(), tile_index) !=
+                DUST_SKIP_TILES.end()) {
+                continue;
+            }
             QPixmap tile = dust_tile_image.copy(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE);
             QPushButton* tile_button = new QPushButton(this);
             tile_button->setIcon(QIcon(tile));
@@ -155,6 +164,11 @@ void EditorWindow::add_aztec_tiles(QGridLayout* tilebar_layout, int& row, int& c
     QPixmap aztec_tile_image(":/resources/default_aztec.png");
     for (int i = 0; i < 10; ++i) {
         for (int j = 0; j < 5; ++j) {
+            int tile_index = i * 5 + j;
+            if (std::find(AZTEC_SKIP_TILES.begin(), AZTEC_SKIP_TILES.end(), tile_index) !=
+                AZTEC_SKIP_TILES.end()) {
+                continue;
+            }
             QPixmap tile =
                     aztec_tile_image.copy(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE);
             QPushButton* tile_button = new QPushButton(this);
