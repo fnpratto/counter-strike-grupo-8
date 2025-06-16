@@ -16,6 +16,7 @@ target_sources(taller_tests
     # physics
     ../server/physics/physics_system.cpp
     ../server/physics/rect_hitbox.cpp
+    ../server/physics/circular_hitbox.cpp
     # player
     ../server/player/player.cpp
     ../server/player/inventory.cpp
@@ -55,6 +56,7 @@ target_sources(taller_tests
     ../server/physics/target_type.h
     ../common/physics/physics_config.h
     ../server/physics/rect_hitbox.h
+    ../server/physics/circular_hitbox.h
     # map
     ../server/map/map_builder.h
     ../common/map/map.h
@@ -82,4 +84,6 @@ target_sources(taller_tests
     # utils
     ../common/utils/vector_2d.h
     ../common/utils/random_float_generator.h
+    ../common/utils/rectangle.h
+    ../common/utils/circle.h
     )

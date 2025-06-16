@@ -2,19 +2,18 @@
 
 #include "common/models.h"
 #include "common/updates/player_update.h"
+#include "common/utils/circle.h"
 #include "common/utils/vector_2d.h"
 #include "server/player/inventory.h"
 
 #include "state.h"
 
-// Forward declaration
 class Inventory;
 
 class PlayerState: public State<PlayerUpdate> {
     Team team;
     CharacterType character_type;
-    Vector2D pos;
-    int hitbox_radius;
+    Circle hitbox;
     Vector2D aim_direction;
     Vector2D velocity;
     bool ready;
@@ -23,12 +22,11 @@ class PlayerState: public State<PlayerUpdate> {
     Inventory inventory;
 
 public:
-    PlayerState(Team team, Vector2D pos, int hitbox_radius, Vector2D aim_direction,
-                Vector2D velocity, bool ready, int health, ItemSlot equipped_item);
+    PlayerState(Team team, Circle hitbox, Vector2D aim_direction, Vector2D velocity, bool ready,
+                int health, ItemSlot equipped_item);
 
     Team get_team() const;
-    Vector2D get_pos() const;
-    int get_hitbox_radius() const;
+    Circle get_hitbox() const;
     Vector2D get_aim_direction() const;
     Vector2D get_velocity() const;
     bool get_ready() const;

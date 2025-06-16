@@ -2,6 +2,7 @@
 
 #include <utility>
 
+#include "server/physics/circular_hitbox.h"
 #include "server/physics/rect_hitbox.h"
 
 GameState::GameState(std::shared_ptr<Clock>&& game_clock, int max_players):
@@ -84,10 +85,11 @@ void GameState::swap_players_teams() {
     }
 }
 
-void GameState::add_player(const std::string& player_name, std::unique_ptr<Player> player) {
+void GameState::add_player(const std::string& player_name, Team team, const Vector2D& pos) {
     if (players.find(player_name) != players.end())
         throw std::runtime_error("Player already exists");
-    players[player_name] = std::move(player);
+    players[player_name] =
+            std::make_unique<Player>(team, CircularHitbox::player_hitbox(pos).get_bounds());
 }
 
 void GameState::add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos) {

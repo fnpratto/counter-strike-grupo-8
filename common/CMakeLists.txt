@@ -14,6 +14,7 @@ target_sources(taller_common
     utils/vector_2d.h
     utils/rate_controller.h
     utils/rectangle.h
+    utils/circle.h
     commands.h
     updates/state_update.h
     updates/game_update.h

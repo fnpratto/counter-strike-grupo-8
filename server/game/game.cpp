@@ -73,10 +73,11 @@ void Game::advance_players_movement() {
         if (!player->is_moving())
             continue;
 
-        Vector2D old_pos = player->get_pos();
+        // TODO: Refactor this to use a physics system method
+        Vector2D old_pos = player->get_hitbox().center;
         Vector2D step = physics_system.calculate_step(player->get_move_dir());
         Vector2D new_pos = old_pos + step;
-        if (physics_system.player_can_move_to_pos(player, new_pos))
+        if (physics_system.is_walkable(new_pos))
             player->move_to_pos(new_pos);
     }
 }
@@ -97,16 +98,17 @@ void Game::perform_attacks() {
                                                                     effect->get_max_range());
             if (!closest_target.has_value()) {
                 Vector2D max_hit_pos =
-                        player->get_pos() + effect->get_dir() * effect->get_max_range();
-                hit_responses.push_back(
-                        HitResponse(player->get_pos(), max_hit_pos, effect->get_dir(), false));
+                        player->get_hitbox().center + effect->get_dir() * effect->get_max_range();
+                hit_responses.push_back(HitResponse(player->get_hitbox().center, max_hit_pos,
+                                                    effect->get_dir(), false));
                 continue;
             }
 
             bool is_hit = apply_attack_effect(player, effect, closest_target.value());
 
-            hit_responses.push_back(HitResponse(player->get_pos(), closest_target.value().get_pos(),
-                                                effect->get_dir(), is_hit));
+            hit_responses.push_back(HitResponse(player->get_hitbox().center,
+                                                closest_target.value().get_pos(), effect->get_dir(),
+                                                is_hit));
         }
     }
 
@@ -124,10 +126,10 @@ bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker,
             attacker->add_rewards(Scores::kill, Bonifications::kill);
             auto gun = target_player->drop_primary_weapon();
             if (gun.has_value())
-                state.add_dropped_gun(std::move(gun.value()), target_player->get_pos());
+                state.add_dropped_gun(std::move(gun.value()), target_player->get_hitbox().center);
             auto bomb = target_player->drop_bomb();
             if (bomb.has_value())
-                state.add_bomb(std::move(bomb.value()), target_player->get_pos());
+                state.add_bomb(std::move(bomb.value()), target_player->get_hitbox().center);
         }
     }
     return is_hit;
@@ -141,10 +143,10 @@ void Game::join_player(const std::string& player_name) {
     Team default_team = (state.get_num_tts() > state.get_num_cts()) ? Team::CT : Team::TT;
     if (default_team == Team::TT) {
         Vector2D pos = physics_system.random_spawn_tt_pos();
-        state.add_player(player_name, std::make_unique<Player>(default_team, pos));
+        state.add_player(player_name, default_team, pos);
     } else {
         Vector2D pos = physics_system.random_spawn_ct_pos();
-        state.add_player(player_name, std::make_unique<Player>(default_team, pos));
+        state.add_player(player_name, default_team, pos);
     }
 
     send_msg_to_single_player(player_name, Message(state.get_full_update()));
@@ -223,7 +225,7 @@ void Game::handle<BuyGunCommand>(const std::string& player_name, const BuyGunCom
 
     auto gun = player->drop_primary_weapon();
     if (gun.has_value())
-        state.add_dropped_gun(std::move(gun.value()), player->get_pos());
+        state.add_dropped_gun(std::move(gun.value()), player->get_hitbox().center);
     shop.buy_gun(msg.get_gun(), player->get_inventory());
 }
 
@@ -321,7 +323,7 @@ void Game::handle<PickUpItemCommand>(const std::string& player_name,
         auto old_gun = player->drop_primary_weapon();
         auto new_gun = state.remove_dropped_gun_at_pos(gun_pos.value());
         if (old_gun.has_value())
-            state.add_dropped_gun(std::move(old_gun.value()), player->get_pos());
+            state.add_dropped_gun(std::move(old_gun.value()), player->get_hitbox().center);
         player->pick_gun(std::move(new_gun));
     }
 }
@@ -376,7 +378,7 @@ void Game::prepare_new_round() {
         reset_for_new_round(player);
         auto bomb = player->drop_bomb();
         if (bomb.has_value())
-            state.add_bomb(std::move(bomb.value()), player->get_pos());
+            state.add_bomb(std::move(bomb.value()), player->get_hitbox().center);
     }
     give_bomb_to_random_tt(std::move(state.remove_bomb()));
 }

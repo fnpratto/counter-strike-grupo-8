@@ -29,10 +29,6 @@ private:
                                            const std::vector<T>& vector);
     std::optional<Target> get_closest_player(const std::string& origin_p_name, const Vector2D& dir);
 
-    bool player_is_in_same_cuadrant(const std::unique_ptr<Player>& player, Vector2D origin,
-                                    Vector2D dir);
-    bool player_is_hit(const std::unique_ptr<Player>& player, Vector2D origin, Vector2D dir);
-
 public:
     PhysicsSystem(Map&& map, const std::map<std::string, std::unique_ptr<Player>>& players,
                   const std::vector<WorldItem<std::unique_ptr<Gun>>>& dropped_guns,
@@ -49,7 +45,7 @@ public:
     bool player_in_spawn(const std::string& player_name) const;
 
     Vector2D calculate_step(const Vector2D& dir) const;
-    bool player_can_move_to_pos(const std::unique_ptr<Player>& player, const Vector2D& pos) const;
+    bool is_walkable(const Vector2D& pos) const;
 
     std::optional<Target> get_closest_target(const std::string& origin_p_name, const Vector2D& dir,
                                              int max_range);

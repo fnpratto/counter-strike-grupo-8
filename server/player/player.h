@@ -21,7 +21,7 @@ private:
     ScoreboardEntry scoreboard_entry;
 
 public:
-    Player(Team team, Vector2D pos);
+    Player(Team team, Circle hitbox);
 
     Player(const Player&) = delete;
     Player& operator=(const Player&) = delete;
@@ -35,8 +35,7 @@ public:
     bool is_moving() const;
     bool is_dead() const;
 
-    Vector2D get_pos() const;
-    int get_hitbox_radius() const;
+    Circle get_hitbox() const;
     Vector2D get_move_dir() const;
     Inventory& get_inventory();
     ScoreboardEntry get_scoreboard_entry() const;

@@ -7,10 +7,10 @@
 
 #include "player_config.h"
 
-Player::Player(Team team, Vector2D pos):
-        Logic<PlayerState, PlayerUpdate>(PlayerState(
-                team, pos, PlayerConfig::hitbox_radius, Vector2D(0.0f, 0.0f), Vector2D(0.0f, 0.0f),
-                false, PlayerConfig::full_health, ItemSlot::Secondary)),
+Player::Player(Team team, Circle hitbox):
+        Logic<PlayerState, PlayerUpdate>(
+                PlayerState(team, hitbox, Vector2D(0.0f, 0.0f), Vector2D(0.0f, 0.0f), false,
+                            PlayerConfig::full_health, ItemSlot::Secondary)),
         scoreboard_entry(state.get_inventory().get_money(), 0, 0, 0) {}
 
 bool Player::is_ready() const { return state.get_ready(); }
@@ -23,9 +23,7 @@ bool Player::is_moving() const { return state.get_velocity() != Vector2D(0.0f, 0
 
 bool Player::is_dead() const { return state.get_health() == 0; }
 
-Vector2D Player::get_pos() const { return state.get_pos(); }
-
-int Player::get_hitbox_radius() const { return state.get_hitbox_radius(); }
+Circle Player::get_hitbox() const { return state.get_hitbox(); }
 
 Vector2D Player::get_move_dir() const { return state.get_velocity(); }
 
