@@ -13,6 +13,7 @@ target_sources(taller_common
     game/world_item.h
     utils/vector_2d.h
     utils/rate_controller.h
+    utils/rect_bounds.h
     commands.h
     updates/state_update.h
     updates/game_update.h

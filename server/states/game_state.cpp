@@ -2,6 +2,8 @@
 
 #include <utility>
 
+#include "server/physics/rect_hitbox.h"
+
 GameState::GameState(std::shared_ptr<Clock>&& game_clock, int max_players):
         phase(std::move(game_clock)), max_players(max_players) {
     updates = get_full_update();
@@ -89,14 +91,15 @@ void GameState::add_player(const std::string& player_name, std::unique_ptr<Playe
 }
 
 void GameState::add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos) {
-    dropped_guns.emplace_back(std::move(gun), pos);
+    dropped_guns.emplace_back(std::move(gun), RectHitbox::gun_hitbox(pos).get_bounds());
     // updates.set_dropped_guns(dropped_guns);
 }
 
 std::unique_ptr<Gun>&& GameState::remove_dropped_gun_at_pos(const Vector2D& pos) {
-    auto it = std::find_if(
-            dropped_guns.begin(), dropped_guns.end(),
-            [&pos](const WorldItem<std::unique_ptr<Gun>>& item) { return item.pos == pos; });
+    auto it = std::find_if(dropped_guns.begin(), dropped_guns.end(),
+                           [&pos](const WorldItem<std::unique_ptr<Gun>>& item) {
+                               return item.hitbox_bounds.get_pos() == pos;
+                           });
     if (it == dropped_guns.end())
         throw std::runtime_error("Dropped gun not found at the specified position");
 
@@ -107,7 +110,7 @@ std::unique_ptr<Gun>&& GameState::remove_dropped_gun_at_pos(const Vector2D& pos)
 }
 
 void GameState::add_bomb(Bomb&& bomb, const Vector2D& pos) {
-    this->bomb = WorldItem<Bomb>{std::move(bomb), pos};
+    this->bomb = WorldItem<Bomb>{std::move(bomb), RectHitbox::bomb_hitbox(pos).get_bounds()};
 }
 
 Bomb&& GameState::remove_bomb() {

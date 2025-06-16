@@ -31,11 +31,6 @@ private:
 
     bool is_in_same_cuadrant(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir);
     bool player_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir);
-    bool tile_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir);
-
-    bool player_hitbox_collides_with_aabb(const Vector2D& player_pos, float radius,
-                                          const Vector2D& rect_pos, float width,
-                                          float height) const;
 
 public:
     PhysicsSystem(Map&& map, const std::map<std::string, std::unique_ptr<Player>>& players,

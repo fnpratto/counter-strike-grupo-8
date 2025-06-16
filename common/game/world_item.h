@@ -1,9 +1,11 @@
 #pragma once
 
-#include "common/utils/vector_2d.h"
+#include <memory>
+
+#include "common/utils/rect_bounds.h"
 
 template <typename T>
 struct WorldItem {
     T item;
-    Vector2D pos;
+    RectBounds hitbox_bounds;
 };
