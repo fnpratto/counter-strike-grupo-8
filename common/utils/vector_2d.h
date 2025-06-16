@@ -22,6 +22,10 @@ public:
 
     Vector2D operator+(const Vector2D& other) const { return Vector2D(x + other.x, y + other.y); }
 
+    Vector2D operator+(float n) const { return Vector2D(x + n, y + n); }
+
+    Vector2D operator-(float n) const { return Vector2D(x - n, y - n); }
+
     Vector2D operator*(float n) const { return Vector2D(x * n, y * n); }
 
     Vector2D operator/(float n) const { return Vector2D(x / n, y / n); }
