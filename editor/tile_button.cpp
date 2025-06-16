@@ -2,8 +2,12 @@
 
 #include <QApplication>
 #include <QDrag>
+#include <QFile>
+#include <QIcon>
 #include <QMimeData>
 #include <QMouseEvent>
+#include <QSize>
+#include <QTextStream>
 
 constexpr int TILE_SIZE = 32;
 
@@ -12,6 +16,13 @@ TileButton::TileButton(const QPixmap& tile_pixmap, QWidget* parent):
     this->setIcon(QIcon(tile_pixmap));
     this->setIconSize(QSize(TILE_SIZE, TILE_SIZE));
     this->setFixedSize(TILE_SIZE, TILE_SIZE);
+    this->setCheckable(true);
+    QFile file(":/styles/tile_button_style.qss");
+    if (file.open(QFile::ReadOnly | QFile::Text)) {
+        QTextStream stream(&file);
+        this->setStyleSheet(stream.readAll());
+        file.close();
+    }
 }
 
 void TileButton::mousePressEvent(QMouseEvent* event) {
@@ -42,4 +53,17 @@ void TileButton::mouseMoveEvent(QMouseEvent* event) {
     drag->exec(Qt::CopyAction | Qt::MoveAction);
 
     QApplication::restoreOverrideCursor();
+}
+
+void TileButton::enterEvent(QEvent* event) {
+    this->setIconSize(QSize(TILE_SIZE - 2, TILE_SIZE - 2));
+    QPushButton::enterEvent(event);
+}
+
+void TileButton::leaveEvent(QEvent* event) {
+    if (!this->isChecked()) {
+        this->setIconSize(QSize(TILE_SIZE, TILE_SIZE));
+    }
+
+    QPushButton::leaveEvent(event);
 }

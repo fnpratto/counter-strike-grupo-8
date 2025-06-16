@@ -5,5 +5,6 @@
         <file alias="resources/cs2d.bmp">../assets/gfx/cs2d.bmp</file>
         <file alias="resources/dust.bmp">../assets/gfx/tiles/dust.bmp</file>
         <file alias="resources/default_aztec.png">../assets/gfx/tiles/default_aztec.png</file>
+        <file alias="styles/tile_button_style.qss">tile_button_style.qss</file>
     </qresource>
 </RCC>
