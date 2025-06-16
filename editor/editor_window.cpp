@@ -18,6 +18,9 @@
 
 #include "common/qt/constants.h"
 
+#include "map_view_tile.h"
+#include "tile_button.h"
+
 #define MAX_COLUMNS_TILEBAR 5
 #define MAX_COLUMNS_MAPVIEW 20
 #define MAX_ROWS_MAPVIEW 20
@@ -62,9 +65,7 @@ void EditorWindow::add_map_view() {
 
     for (int row = 0; row < MAX_ROWS_MAPVIEW; ++row) {
         for (int col = 0; col < MAX_COLUMNS_MAPVIEW; ++col) {
-            QWidget* empty_tile = new QWidget(this);
-            empty_tile->setStyleSheet("background-color: #000000; border: 1px solid #ffeeaa;");
-            empty_tile->setFixedSize(TILE_SIZE, TILE_SIZE);
+            MapViewTile* empty_tile = new MapViewTile(this);
             map_view_layout->addWidget(empty_tile, row, col);
         }
     }
@@ -140,16 +141,7 @@ void EditorWindow::add_dust_tiles(QGridLayout* tilebar_layout, int& row, int& co
                 continue;
             }
             QPixmap tile = dust_tile_image.copy(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-            QPushButton* tile_button = new QPushButton(this);
-            tile_button->setIcon(QIcon(tile));
-            tile_button->setIconSize(QSize(TILE_SIZE, TILE_SIZE));
-            tile_button->setFixedSize(TILE_SIZE, TILE_SIZE);
-            connect(tile_button, &QPushButton::clicked, this, [this, i, j]() {
-                qDebug() << "Tile clicked:" << i << j;
-                // Here you can handle the tile selection, e.g., set it as the current tile
-                // For example, you could emit a signal or set a member variable
-                // to store the selected tile index.
-            });
+            QPushButton* tile_button = new TileButton(tile, this);
             tilebar_layout->addWidget(tile_button, row, col);
             col++;
             if (col >= MAX_COLUMNS_TILEBAR) {
@@ -171,10 +163,7 @@ void EditorWindow::add_aztec_tiles(QGridLayout* tilebar_layout, int& row, int& c
             }
             QPixmap tile =
                     aztec_tile_image.copy(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-            QPushButton* tile_button = new QPushButton(this);
-            tile_button->setIcon(QIcon(tile));
-            tile_button->setIconSize(QSize(TILE_SIZE, TILE_SIZE));
-            tile_button->setFixedSize(TILE_SIZE, TILE_SIZE);
+            QPushButton* tile_button = new TileButton(tile, this);
             tilebar_layout->addWidget(tile_button, row, col);
             col++;
             if (col >= MAX_COLUMNS_TILEBAR) {
