@@ -96,10 +96,9 @@ void GameState::add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos)
 }
 
 std::unique_ptr<Gun>&& GameState::remove_dropped_gun_at_pos(const Vector2D& pos) {
-    auto it = std::find_if(dropped_guns.begin(), dropped_guns.end(),
-                           [&pos](const WorldItem<std::unique_ptr<Gun>>& item) {
-                               return item.hitbox_bounds.get_pos() == pos;
-                           });
+    auto it = std::find_if(
+            dropped_guns.begin(), dropped_guns.end(),
+            [&pos](const WorldItem<std::unique_ptr<Gun>>& item) { return item.hitbox.pos == pos; });
     if (it == dropped_guns.end())
         throw std::runtime_error("Dropped gun not found at the specified position");
 

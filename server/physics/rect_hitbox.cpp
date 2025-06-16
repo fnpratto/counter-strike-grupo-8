@@ -6,13 +6,12 @@
 #include "common/utils/random_float_generator.h"
 
 RectHitbox::RectHitbox(const Vector2D& pos, int width, int height, float rotation = 0.0f):
-        RectBounds(pos, width, height) {
+        Rectangle(pos, width, height) {
     this->rotate(rotation);
 }
 
-RectHitbox::RectHitbox(const RectBounds& bounds):
-        RectHitbox(bounds.get_pos(), bounds.get_width(), bounds.get_height(),
-                   bounds.get_rotation()) {}
+RectHitbox::RectHitbox(const Rectangle& bounds):
+        RectHitbox(bounds.pos, bounds.width, bounds.height, bounds.rotation_deg) {}
 
 RectHitbox RectHitbox::gun_hitbox(const Vector2D& pos) {
     float rotation = RandomFloatGenerator(-180.0f, 180.0f).generate();
@@ -28,15 +27,13 @@ RectHitbox RectHitbox::tile_hitbox(const Vector2D& pos) {
     return RectHitbox(pos, PhysicsConfig::meter_size, PhysicsConfig::meter_size);
 }
 
-RectBounds RectHitbox::get_bounds() const {
-    return RectBounds(get_pos(), get_width(), get_height());
-}
+Rectangle RectHitbox::get_bounds() const { return Rectangle(pos, width, height); }
 
 bool RectHitbox::collides_with_circle(const Vector2D& circle_pos, float radius) const {
-    float minX = get_pos().get_x();
-    float maxX = get_pos().get_x() + get_width();
-    float minY = get_pos().get_y();
-    float maxY = get_pos().get_y() + get_height();
+    float minX = pos.get_x();
+    float maxX = pos.get_x() + width;
+    float minY = pos.get_y();
+    float maxY = pos.get_y() + height;
 
     float closestX = std::max(minX, std::min(static_cast<float>(circle_pos.get_x()), maxX));
     float closestY = std::max(minY, std::min(static_cast<float>(circle_pos.get_y()), maxY));
@@ -51,15 +48,15 @@ bool RectHitbox::collides_with_circle(const Vector2D& circle_pos, float radius) 
 }
 
 bool RectHitbox::is_in_same_cuadrant(const Vector2D& ray_start, const Vector2D& ray_dir) const {
-    Vector2D distance = get_pos() - ray_start;
+    Vector2D distance = pos - ray_start;
     return distance.dot(ray_dir) > 0;
 }
 
 bool RectHitbox::is_hit(const Vector2D& ray_start, const Vector2D& ray_dir) const {
-    float minX = get_pos().get_x();
-    float maxX = get_pos().get_x() + get_width();
-    float minY = get_pos().get_y();
-    float maxY = get_pos().get_y() + get_height();
+    float minX = pos.get_x();
+    float maxX = pos.get_x() + width;
+    float minY = pos.get_y();
+    float maxY = pos.get_y() + height;
 
     float aim_x = ray_dir.get_x();
     float aim_y = ray_dir.get_y();

@@ -101,7 +101,7 @@ std::optional<Target> PhysicsSystem::get_closest_tile(const std::string& origin_
     for (const T& target: vector) {
         RectHitbox target_hitbox = RectHitbox::tile_hitbox(target.get_pos());
         if (target_hitbox.is_in_same_cuadrant(origin, dir) && target_hitbox.is_hit(origin, dir)) {
-            float distance = (target_hitbox.get_pos() - origin).length();
+            float distance = (target_hitbox.pos - origin).length();
             if (distance < min_distance) {
                 min_distance = distance;
                 closest_target = target;
@@ -149,16 +149,16 @@ bool PhysicsSystem::player_collides_with_bomb(const std::unique_ptr<Player>& pla
     if (!bomb.has_value())
         return false;
 
-    RectHitbox bomb_hitbox = RectHitbox(bomb.value().hitbox_bounds);
+    RectHitbox bomb_hitbox = RectHitbox(bomb.value().hitbox);
     return bomb_hitbox.collides_with_circle(player->get_pos(), player->get_hitbox_radius());
 }
 
 std::optional<Vector2D> PhysicsSystem::get_player_colliding_gun_pos(
         const std::unique_ptr<Player>& player) const {
     for (const auto& gun_item: dropped_guns) {
-        RectHitbox gun_hitbox = RectHitbox(gun_item.hitbox_bounds);
+        RectHitbox gun_hitbox = RectHitbox(gun_item.hitbox);
         if (gun_hitbox.collides_with_circle(player->get_pos(), player->get_hitbox_radius()))
-            return gun_item.hitbox_bounds.get_pos();
+            return gun_item.hitbox.pos;
     }
     return std::optional<Vector2D>();
 }

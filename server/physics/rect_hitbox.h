@@ -1,13 +1,13 @@
 #pragma once
 
-#include "common/utils/rect_bounds.h"
+#include "common/utils/rectangle.h"
 #include "common/utils/vector_2d.h"
 
-class RectHitbox: public RectBounds {
+class RectHitbox: public Rectangle {
     RectHitbox(const Vector2D& pos, int width, int height, float rotation);
 
 public:
-    explicit RectHitbox(const RectBounds& bounds);
+    explicit RectHitbox(const Rectangle& bounds);
 
     static RectHitbox gun_hitbox(const Vector2D& pos);
 
@@ -15,7 +15,7 @@ public:
 
     static RectHitbox tile_hitbox(const Vector2D& pos);
 
-    RectBounds get_bounds() const;
+    Rectangle get_bounds() const;
 
     bool collides_with_circle(const Vector2D& circle_pos, float radius) const;
 
