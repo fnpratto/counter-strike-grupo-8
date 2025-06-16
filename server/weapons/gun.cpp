@@ -98,3 +98,8 @@ void Gun::decrease_mag_ammo() {
     if (state.get_mag_ammo() > 0)
         state.set_mag_ammo(state.get_mag_ammo() - 1);
 }
+
+void Gun::stop_attacking() {
+    time_last_attack = TimePoint::min();
+    state.set_is_attacking(false);
+}

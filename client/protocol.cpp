@@ -222,6 +222,13 @@ CannotBuyErrorResponse ClientProtocol::deserialize_msg<CannotBuyErrorResponse>(
     return CannotBuyErrorResponse();
 }
 
+// TODO: Implement
+template <>
+RoundEndResponse ClientProtocol::deserialize_msg<RoundEndResponse>(
+        [[maybe_unused]] payload_t& payload) const {
+    return RoundEndResponse(Team::CT);
+}
+
 #define X_DESERIALIZE_UPDATE(type, attr)        \
     if (deserialize<bool>(payload)) {           \
         type attr = deserialize<type>(payload); \

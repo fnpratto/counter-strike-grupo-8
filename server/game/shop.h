@@ -55,7 +55,7 @@ public:
         if (slot != ItemSlot::Primary && slot != ItemSlot::Secondary)
             return false;
 
-        auto& gun = inventory.get_gun(slot);
+        auto& gun = inventory.get_guns().at(slot);
         GunType gun_type = gun->get_type();
         int price = ammo_prices.at(gun_type);
         if (inventory.get_money() < price)
