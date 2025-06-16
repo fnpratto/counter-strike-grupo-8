@@ -22,16 +22,20 @@ bool PhysicsSystem::is_pos_in_vector(const std::vector<Vector2D>& vector,
     return std::any_of(vector.begin(), vector.end(), [&](const Vector2D& p) { return p == pos; });
 }
 
-Vector2D PhysicsSystem::random_spawn_tt_pos() const { return rand_pos_in_vector(map.spawns_tts); }
+Vector2D PhysicsSystem::random_spawn_tt_pos() const {
+    return rand_pos_in_vector(map.spawns_tts) + (PhysicsConfig::meter_size / 2);
+}
 
-Vector2D PhysicsSystem::random_spawn_ct_pos() const { return rand_pos_in_vector(map.spawns_cts); }
+Vector2D PhysicsSystem::random_spawn_ct_pos() const {
+    return rand_pos_in_vector(map.spawns_cts) + (PhysicsConfig::meter_size / 2);
+}
 
 // TODO: Fix this to check if any part of player hitbox radius is on spawn
 bool PhysicsSystem::player_in_spawn(const std::string& player_name) const {
     const std::unique_ptr<Player>& player = players.at(player_name);
     if (player->is_tt())
-        return is_pos_in_vector(map.spawns_tts, player->get_pos());
-    return is_pos_in_vector(map.spawns_cts, player->get_pos());
+        return is_in_any_tile(map.spawns_tts, player->get_pos());
+    return is_in_any_tile(map.spawns_cts, player->get_pos());
 }
 
 Vector2D PhysicsSystem::calculate_step(const Vector2D& dir) const {
@@ -174,4 +178,9 @@ bool PhysicsSystem::is_in_tile(const Vector2D& pos, const Vector2D& tile_pos) co
     float minY = tile_pos.get_y();
     float maxY = tile_pos.get_y() + PhysicsConfig::meter_size;
     return pos.get_x() >= minX && pos.get_x() <= maxX && pos.get_y() >= minY && pos.get_y() <= maxY;
+}
+
+bool PhysicsSystem::is_in_any_tile(const std::vector<Vector2D>& vector, const Vector2D& pos) const {
+    return std::any_of(vector.begin(), vector.end(),
+                       [&](const Vector2D& tile_pos) { return is_in_tile(pos, tile_pos); });
 }

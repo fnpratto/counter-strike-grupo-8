@@ -30,6 +30,7 @@ private:
     bool player_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir);
     bool tile_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir);
     bool is_in_tile(const Vector2D& pos, const Vector2D& tile_pos) const;
+    bool is_in_any_tile(const std::vector<Vector2D>& vector, const Vector2D& pos) const;
 
 public:
     PhysicsSystem(Map&& map, const std::map<std::string, std::unique_ptr<Player>>& players);
