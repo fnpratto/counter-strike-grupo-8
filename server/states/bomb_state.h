@@ -1,12 +1,11 @@
 #pragma once
 
 #include "common/updates/bomb_update.h"
-#include "common/utils/vector_2d.h"
 
 #include "state.h"
 
 class BombState: public State<BombUpdate> {
-    std::optional<Vector2D> planted_pos;
+    bool planted;
     // TODO: Time remaining
 
 public:

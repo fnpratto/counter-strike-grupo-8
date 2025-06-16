@@ -63,14 +63,7 @@ payload_t ServerProtocol::serialize_msg([[maybe_unused]] const ScoreboardRespons
 }
 
 template <>
-payload_t ServerProtocol::serialize_msg(
-        [[maybe_unused]] const TriedToJoinFullTeamErrorResponse& response) const {
-    return payload_t();
-}
-
-template <>
-payload_t ServerProtocol::serialize_msg(
-        [[maybe_unused]] const CannotBuyErrorResponse& response) const {
+payload_t ServerProtocol::serialize_msg([[maybe_unused]] const ErrorResponse& response) const {
     return payload_t();
 }
 
@@ -103,13 +96,20 @@ payload_t ServerProtocol::serialize_msg([[maybe_unused]] const RoundEndResponse&
         payload_t attr##_payload = serialize_optional(update.get_##attr());          \
         payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end()); \
     }
+#define V_SERIALIZE_UPDATE(type, attr)                                               \
+    payload.push_back(update.has_##attr##_changed());                                \
+    if (update.has_##attr##_changed()) {                                             \
+        payload_t attr##_payload = serialize_vector(update.get_##attr());            \
+        payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end()); \
+    }
 
 #define SERIALIZE_UPDATE(CLASS, ATTRS)                                                        \
     template <>                                                                               \
     payload_t ServerProtocol::serialize_update(const CLASS& update) const {                   \
         payload_t payload;                                                                    \
                                                                                               \
-        ATTRS(X_SERIALIZE_UPDATE, M_SERIALIZE_UPDATE, U_SERIALIZE_UPDATE, O_SERIALIZE_UPDATE) \
+        ATTRS(X_SERIALIZE_UPDATE, M_SERIALIZE_UPDATE, U_SERIALIZE_UPDATE, O_SERIALIZE_UPDATE, \
+              V_SERIALIZE_UPDATE)                                                             \
                                                                                               \
         return payload;                                                                       \
     }

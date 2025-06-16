@@ -1,5 +1,7 @@
 #include "game_state.h"
 
+#include <utility>
+
 GameState::GameState(std::shared_ptr<Clock>&& game_clock, int max_players):
         phase(std::move(game_clock)), max_players(max_players) {
     updates = get_full_update();
@@ -59,6 +61,12 @@ const std::unique_ptr<Player>& GameState::get_player(const std::string& player_n
     return it->second;
 }
 
+Bomb&& GameState::get_bomb() {
+    if (!bomb.has_value())
+        throw std::runtime_error("Bomb not found");
+    return std::move(bomb.value().item);
+}
+
 void GameState::advance_round() {
     num_rounds += 1;
     updates.set_num_rounds(num_rounds);
@@ -80,6 +88,14 @@ void GameState::add_player(const std::string& player_name, std::unique_ptr<Playe
     players[player_name] = std::move(player);
 }
 
+void GameState::add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos) {
+    // updates.set_dropped_guns({WorldItem<GunType>{gun->get_type(), pos}});
+    dropped_guns.emplace_back(std::move(gun), pos);
+}
+
+void GameState::add_bomb(Bomb&& bomb, const Vector2D& pos) {
+    this->bomb = WorldItem<Bomb>{std::move(bomb), pos};
+}
 Team GameState::get_winning_team() const {
     if (is_tts_win_condition())
         return Team::TT;
@@ -102,6 +118,9 @@ GameUpdate GameState::get_updates() const {
     update.set_phase(phase.get_updates());
     for (const auto& [name, player]: players)
         update.add_players_change(name, player->get_updates());
+    // if (bomb.has_value())
+    //     update.set_bomb(WorldItem<BombUpdate>{bomb.value().item.get_updates(),
+    //     bomb.value().pos});
 
     return update;
 }
@@ -110,8 +129,12 @@ GameUpdate GameState::get_full_update() const {
     GameUpdate update;
     update.set_phase(phase.get_full_update());
     update.set_num_rounds(num_rounds);
-    for (const auto& [name, player]: players) {
+    for (const auto& [name, player]: players)
         update.add_players_change(name, player->get_full_update());
-    }
+    // for (const auto& dg: dropped_guns)
+    //     update.set_dropped_guns({WorldItem<GunType>{dg.item->get_type(), dg.pos}});
+    // if (bomb.has_value())
+    //     update.set_bomb(
+    //             WorldItem<BombUpdate>{bomb.value().item.get_full_update(), bomb.value().pos});
     return update;
 }

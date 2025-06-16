@@ -1,11 +1,12 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
+#include "common/game/scoreboard_entry.h"
 #include "common/models.h"
-#include "common/scoreboard/scoreboard_entry.h"
 #include "common/updates/player_update.h"
 #include "common/utils/vector_2d.h"
 #include "server/attack_effects/attack_effect.h"
@@ -67,4 +68,7 @@ public:
     void add_kill();
 
     void add_rewards(int score, int bonification);
+
+    std::optional<std::unique_ptr<Gun>> drop_primary_weapon();
+    std::optional<Bomb> drop_bomb();
 };

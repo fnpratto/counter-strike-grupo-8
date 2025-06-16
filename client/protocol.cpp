@@ -9,9 +9,9 @@
 #include <arpa/inet.h>
 
 #include "common/errors.h"
+#include "common/game/scoreboard_entry.h"
 #include "common/message.h"
 #include "common/responses.h"
-#include "common/scoreboard/scoreboard_entry.h"
 #include "common/socket.h"
 #include "common/updates/bomb_update.h"
 #include "common/updates/game_update.h"
@@ -22,6 +22,8 @@
 #include "common/updates/player_update.h"
 
 #include "protocol.h"
+
+#define ATTR(...) __VA_ARGS__
 
 // === Serialization ===
 
@@ -210,16 +212,9 @@ ScoreboardResponse ClientProtocol::deserialize_msg<ScoreboardResponse>(payload_t
 
 // TODO: Implement
 template <>
-TriedToJoinFullTeamErrorResponse ClientProtocol::deserialize_msg<TriedToJoinFullTeamErrorResponse>(
+ErrorResponse ClientProtocol::deserialize_msg<ErrorResponse>(
         [[maybe_unused]] payload_t& payload) const {
-    return TriedToJoinFullTeamErrorResponse();
-}
-
-// TODO: Implement
-template <>
-CannotBuyErrorResponse ClientProtocol::deserialize_msg<CannotBuyErrorResponse>(
-        [[maybe_unused]] payload_t& payload) const {
-    return CannotBuyErrorResponse();
+    return ErrorResponse();
 }
 
 // TODO: Implement
@@ -249,6 +244,11 @@ RoundEndResponse ClientProtocol::deserialize_msg<RoundEndResponse>(
         std::optional<type> attr = deserialize_optional<type>(payload); \
         result.set_##attr(attr);                                        \
     }
+#define V_DESERIALIZE_UPDATE(type, attr)                                      \
+    if (deserialize<bool>(payload)) {                                         \
+        std::vector<ATTR type> attr = deserialize_vector<ATTR type>(payload); \
+        result.set_##attr(attr);                                              \
+    }
 
 #define DESERIALIZE_UPDATE(CLASS, ATTRS)                                         \
     template <>                                                                  \
@@ -256,7 +256,7 @@ RoundEndResponse ClientProtocol::deserialize_msg<RoundEndResponse>(
         CLASS result;                                                            \
                                                                                  \
         ATTRS(X_DESERIALIZE_UPDATE, M_DESERIALIZE_UPDATE, U_DESERIALIZE_UPDATE,  \
-              O_DESERIALIZE_UPDATE)                                              \
+              O_DESERIALIZE_UPDATE, V_DESERIALIZE_UPDATE)                        \
                                                                                  \
         return result;                                                           \
     }

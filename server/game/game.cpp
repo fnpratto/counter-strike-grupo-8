@@ -3,7 +3,7 @@
 #include <optional>
 #include <utility>
 
-#include "common/scoreboard/scoreboard_entry.h"
+#include "common/game/scoreboard_entry.h"
 #include "server/attack_effects/attack_effect.h"
 #include "server/errors.h"
 #include "server/physics/target_type.h"
@@ -112,6 +112,12 @@ bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker,
         if (target_player->is_dead()) {
             attacker->add_kill();
             attacker->add_rewards(Scores::kill, Bonifications::kill);
+            auto gun = target_player->drop_primary_weapon();
+            if (gun.has_value())
+                state.add_dropped_gun(std::move(gun.value()), target_player->get_pos());
+            auto bomb = target_player->drop_bomb();
+            if (bomb.has_value())
+                state.add_bomb(std::move(bomb.value()), target_player->get_pos());
         }
     }
     return is_hit;
@@ -131,11 +137,11 @@ void Game::join_player(const std::string& player_name) {
         state.add_player(player_name, std::make_unique<Player>(default_team, pos));
     }
 
-    output_messages.emplace_back(player_name, Message(state.get_full_update()));
+    send_msg_to_single_player(player_name, Message(state.get_full_update()));
     for (const auto& [p_name, _]: state.get_players()) {
         if (p_name == player_name)
             continue;
-        output_messages.emplace_back(p_name, Message(state.get_updates()));
+        send_msg_to_single_player(p_name, Message(state.get_updates()));
     }
 }
 
@@ -144,7 +150,7 @@ void Game::handle<SelectTeamCommand>(const std::string& player_name, const Selec
     if (state.get_phase().is_started())
         throw SelectTeamError();
     if (state.team_is_full(msg.get_team())) {
-        output_messages.emplace_back(player_name, Message(TriedToJoinFullTeamErrorResponse()));
+        send_msg_to_single_player(player_name, Message(ErrorResponse()));
         return;
     }
 
@@ -165,7 +171,7 @@ void Game::handle<GetCharactersCommand>(const std::string& player_name,
         characters = {CharacterType::Pheonix, CharacterType::L337_Krew,
                       CharacterType::Arctic_Avenger, CharacterType::Guerrilla};
     }
-    output_messages.emplace_back(player_name, Message(CharactersResponse(std::move(characters))));
+    send_msg_to_single_player(player_name, Message(CharactersResponse(std::move(characters))));
 }
 
 template <>
@@ -183,7 +189,7 @@ void Game::handle<SetReadyCommand>(const std::string& player_name,
 
     state.get_player(player_name)->set_ready();
     if (state.all_players_ready()) {
-        give_bomb_to_random_tt();
+        give_bomb_to_random_tt(Bomb());
         state.get_phase().start_game();
         for (const auto& [p_name, _]: state.get_players()) move_player_to_spawn(p_name);
     }
@@ -192,40 +198,35 @@ void Game::handle<SetReadyCommand>(const std::string& player_name,
 template <>
 void Game::handle<GetShopPricesCommand>(const std::string& player_name,
                                         [[maybe_unused]] const GetShopPricesCommand& msg) {
-    output_messages.emplace_back(player_name, Message(ShopPricesResponse(shop.get_gun_prices(),
-                                                                         shop.get_ammo_prices())));
+    send_msg_to_single_player(player_name, Message(ShopPricesResponse(shop.get_gun_prices(),
+                                                                      shop.get_ammo_prices())));
 }
 
 template <>
 void Game::handle<BuyGunCommand>(const std::string& player_name, const BuyGunCommand& msg) {
-    if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name)) {
-        output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
-        return;
-    }
-
     auto& player = state.get_player(player_name);
-    bool success = shop.buy_gun(player->get_inventory(), msg.get_gun());
-
-    if (!success) {
-        output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
+    if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name) ||
+        !shop.can_buy_gun(msg.get_gun(), player->get_inventory())) {
+        send_msg_to_single_player(player_name, Message(ErrorResponse()));
         return;
     }
+
+    auto gun = player->drop_primary_weapon();
+    if (gun.has_value())
+        state.add_dropped_gun(std::move(gun.value()), player->get_pos());
+    shop.buy_gun(msg.get_gun(), player->get_inventory());
 }
 
 template <>
 void Game::handle<BuyAmmoCommand>(const std::string& player_name, const BuyAmmoCommand& msg) {
-    if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name)) {
-        output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
-        return;
-    }
-
     auto& player = state.get_player(player_name);
-    bool success = shop.buy_ammo(player->get_inventory(), msg.get_slot());
-
-    if (!success) {
-        output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
+    if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name) ||
+        !shop.can_buy_ammo(msg.get_slot(), player->get_inventory())) {
+        send_msg_to_single_player(player_name, Message(ErrorResponse()));
         return;
     }
+
+    shop.buy_ammo(msg.get_slot(), player->get_inventory());
 }
 
 template <>
@@ -276,7 +277,7 @@ void Game::handle<GetScoreboardCommand>(const std::string& player_name,
     std::map<std::string, ScoreboardEntry> scoreboard;
     for (const auto& [p_name, player]: state.get_players())
         scoreboard.emplace(p_name, player->get_scoreboard_entry());
-    output_messages.emplace_back(player_name, Message(ScoreboardResponse(std::move(scoreboard))));
+    send_msg_to_single_player(player_name, Message(ScoreboardResponse(std::move(scoreboard))));
 }
 
 // TODO: Implement
@@ -326,7 +327,7 @@ void Game::handle_msg(const Message& msg, const std::string& player_name) {
 
 #undef HANDLE_MSG
 
-void Game::give_bomb_to_random_tt() {
+void Game::give_bomb_to_random_tt(Bomb&& bomb) {
     if (state.get_num_tts() == 0)
         return;
 
@@ -340,8 +341,7 @@ void Game::give_bomb_to_random_tt() {
     int rand_index = rand() % state.get_num_tts();
     std::string player_name = tt_names[rand_index];
     auto& player = state.get_player(player_name);
-    // TODO: Player pick bomb stored in state
-    player->pick_bomb(Bomb());
+    player->pick_bomb(std::move(bomb));
 }
 
 void Game::prepare_new_round() {
@@ -349,9 +349,11 @@ void Game::prepare_new_round() {
     for (const auto& [p_name, player]: state.get_players()) {
         move_player_to_spawn(p_name);
         reset_for_new_round(player);
-        // TODO: Drop player bomb and unplant
+        auto bomb = player->drop_bomb();
+        if (bomb.has_value())
+            state.add_bomb(std::move(bomb.value()), player->get_pos());
     }
-    // TODO: Give dropped bomb to random TT
+    give_bomb_to_random_tt(std::move(state.get_bomb()));
 }
 
 void Game::move_player_to_spawn(const std::string& player_name) {
@@ -369,5 +371,9 @@ void Game::reset_for_new_round(const std::unique_ptr<Player>& player) {
 }
 
 void Game::send_msg_to_all_players(const Message& msg) {
-    for (const auto& [p_name, _]: state.get_players()) output_messages.emplace_back(p_name, msg);
+    for (const auto& [p_name, _]: state.get_players()) send_msg_to_single_player(p_name, msg);
+}
+
+void Game::send_msg_to_single_player(const std::string& player_name, const Message& msg) {
+    output_messages.emplace_back(player_name, msg);
 }
