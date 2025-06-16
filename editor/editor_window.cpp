@@ -36,6 +36,8 @@ constexpr int AZTEC_TILE_COLS = 5;
 constexpr int AZTEC_TILE_ROWS = 10;
 constexpr std::array<int, 5> AZTEC_SKIP_TILES = {0, 46, 47, 48, 49};
 
+TileButton* TileButton::selected_tile_button = nullptr;
+
 EditorWindow::EditorWindow(QWidget* parent): QWidget(parent) {
     this->setWindowTitle(EDITOR_TITLE);
     this->setWindowIcon(QIcon(ICON_PATH));
@@ -112,6 +114,19 @@ void EditorWindow::add_tile_bar(QVBoxLayout* sidebar_layout) {
     tilebar_widget->setLayout(tilebar_layout);
 }
 
+void EditorWindow::add_tiles(QGridLayout* tilebar_layout) {
+    int row = 0;
+    int col = 0;
+
+    QPixmap dust_tile_image(":/resources/dust.bmp");
+    this->add_some_tiles(tilebar_layout, row, col, dust_tile_image, DUST_TILE_COLS, DUST_TILE_ROWS,
+                         DUST_SKIP_TILES);
+
+    QPixmap aztec_tile_image(":/resources/default_aztec.png");
+    this->add_some_tiles(tilebar_layout, row, col, aztec_tile_image, AZTEC_TILE_COLS,
+                         AZTEC_TILE_ROWS, AZTEC_SKIP_TILES);
+}
+
 void EditorWindow::add_buttons(QVBoxLayout* sidebar_layout) {
     QHBoxLayout* button_layout = new QHBoxLayout();
 
@@ -128,19 +143,6 @@ void EditorWindow::add_buttons(QVBoxLayout* sidebar_layout) {
 
     connect(save_map_button, &QPushButton::clicked, this,
             []() { qDebug() << "Save Map button clicked"; });
-}
-
-void EditorWindow::add_tiles(QGridLayout* tilebar_layout) {
-    int row = 0;
-    int col = 0;
-
-    QPixmap dust_tile_image(":/resources/dust.bmp");
-    this->add_some_tiles(tilebar_layout, row, col, dust_tile_image, DUST_TILE_COLS, DUST_TILE_ROWS,
-                         DUST_SKIP_TILES);
-
-    QPixmap aztec_tile_image(":/resources/default_aztec.png");
-    this->add_some_tiles(tilebar_layout, row, col, aztec_tile_image, AZTEC_TILE_COLS,
-                         AZTEC_TILE_ROWS, AZTEC_SKIP_TILES);
 }
 
 template <size_t N>

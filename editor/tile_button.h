@@ -7,8 +7,10 @@
 class TileButton: public QPushButton {
     Q_OBJECT
 private:
+    static TileButton* selected_tile_button;
     QPixmap tile_pixmap;
     QPoint drag_start_position;
+    bool is_dragging;
 
 public:
     explicit TileButton(const QPixmap& tile_pixmap, QWidget* parent = nullptr);
@@ -19,6 +21,9 @@ protected:
     void mouseMoveEvent(QMouseEvent* event) override;
     void enterEvent(QEvent* event) override;
     void leaveEvent(QEvent* event) override;
+
+private:
+    void on_toggled(bool checked);
 };
 
 #endif  // TILE_BUTTON_H

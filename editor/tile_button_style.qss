@@ -3,11 +3,11 @@ QPushButton {
 }
 
 QPushButton:checked {
-    border: 1px solid #cccccc;
+    border: 2px solid #cccccc;
 }
 
 QPushButton:hover {
-    border: 1px solid #888888;
+    border: 2px solid #888888;
 }
 
 QPushButton:checked:hover {

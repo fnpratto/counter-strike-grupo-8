@@ -1,6 +1,7 @@
 #include "tile_button.h"
 
 #include <QApplication>
+#include <QDebug>
 #include <QDrag>
 #include <QFile>
 #include <QIcon>
@@ -12,7 +13,10 @@
 constexpr int TILE_SIZE = 32;
 
 TileButton::TileButton(const QPixmap& tile_pixmap, QWidget* parent):
-        QPushButton(parent), tile_pixmap(tile_pixmap) {
+        QPushButton(parent),
+        tile_pixmap(tile_pixmap),
+        drag_start_position(0, 0),
+        is_dragging(false) {
     this->setIcon(QIcon(tile_pixmap));
     this->setIconSize(QSize(TILE_SIZE, TILE_SIZE));
     this->setFixedSize(TILE_SIZE, TILE_SIZE);
@@ -23,6 +27,8 @@ TileButton::TileButton(const QPixmap& tile_pixmap, QWidget* parent):
         this->setStyleSheet(stream.readAll());
         file.close();
     }
+
+    connect(this, &QPushButton::toggled, this, &TileButton::on_toggled);
 }
 
 void TileButton::mousePressEvent(QMouseEvent* event) {
@@ -32,7 +38,18 @@ void TileButton::mousePressEvent(QMouseEvent* event) {
     QPushButton::mousePressEvent(event);
 }
 
-void TileButton::mouseReleaseEvent(QMouseEvent* event) { QPushButton::mouseReleaseEvent(event); }
+void TileButton::mouseReleaseEvent(QMouseEvent* event) {
+    if (this->selected_tile_button == this) {
+        this->selected_tile_button = nullptr;
+    } else {
+        if (this->selected_tile_button) {
+            this->selected_tile_button->setChecked(false);
+        }
+        this->selected_tile_button = this;
+    }
+
+    QPushButton::mouseReleaseEvent(event);
+}
 
 void TileButton::mouseMoveEvent(QMouseEvent* event) {
     if (!(event->buttons() & Qt::LeftButton)) {
@@ -56,7 +73,7 @@ void TileButton::mouseMoveEvent(QMouseEvent* event) {
 }
 
 void TileButton::enterEvent(QEvent* event) {
-    this->setIconSize(QSize(TILE_SIZE - 2, TILE_SIZE - 2));
+    this->setIconSize(QSize(TILE_SIZE - 4, TILE_SIZE - 4));
     QPushButton::enterEvent(event);
 }
 
@@ -66,4 +83,12 @@ void TileButton::leaveEvent(QEvent* event) {
     }
 
     QPushButton::leaveEvent(event);
+}
+
+void TileButton::on_toggled(bool checked) {
+    if (checked) {
+        this->setIconSize(QSize(TILE_SIZE - 4, TILE_SIZE - 4));
+    } else {
+        this->setIconSize(QSize(TILE_SIZE, TILE_SIZE));
+    }
 }
