@@ -30,12 +30,14 @@ Vector2D PhysicsSystem::random_spawn_ct_pos() const {
     return rand_pos_in_vector(map.spawns_cts) + (PhysicsConfig::meter_size / 2);
 }
 
-// TODO: Fix this to check if any part of player hitbox radius is on spawn
 bool PhysicsSystem::player_in_spawn(const std::string& player_name) const {
     const std::unique_ptr<Player>& player = players.at(player_name);
-    if (player->is_tt())
-        return is_in_any_tile(map.spawns_tts, player->get_pos());
-    return is_in_any_tile(map.spawns_cts, player->get_pos());
+    const std::vector<Vector2D>& spawns = player->is_tt() ? map.spawns_tts : map.spawns_cts;
+    for (const Vector2D& s: spawns) {  // cppcheck-suppress[useStlAlgorithm]
+        if (player_collides_with_tile(player->get_pos(), s))
+            return true;
+    }
+    return false;
 }
 
 Vector2D PhysicsSystem::calculate_step(const Vector2D& dir) const {
@@ -45,11 +47,11 @@ Vector2D PhysicsSystem::calculate_step(const Vector2D& dir) const {
 
 bool PhysicsSystem::is_walkable(const Vector2D& pos) const {
     for (const Wall& wall: map.walls) {  // cppcheck-suppress[useStlAlgorithm]
-        if (is_in_tile(pos, wall.get_pos()))
+        if (player_collides_with_tile(pos, wall.get_pos()))
             return false;
     }
     for (const Box& box: map.boxes) {  // cppcheck-suppress[useStlAlgorithm]
-        if (is_in_tile(pos, box.get_pos()))
+        if (player_collides_with_tile(pos, box.get_pos()))
             return false;
     }
     return true;
@@ -172,15 +174,21 @@ bool PhysicsSystem::tile_is_hit(Vector2D target_pos, Vector2D player_pos, Vector
     return true;
 }
 
-bool PhysicsSystem::is_in_tile(const Vector2D& pos, const Vector2D& tile_pos) const {
+bool PhysicsSystem::player_collides_with_tile(const Vector2D& player_pos,
+                                              const Vector2D& tile_pos) const {
     float minX = tile_pos.get_x();
     float maxX = tile_pos.get_x() + PhysicsConfig::meter_size;
     float minY = tile_pos.get_y();
     float maxY = tile_pos.get_y() + PhysicsConfig::meter_size;
-    return pos.get_x() >= minX && pos.get_x() <= maxX && pos.get_y() >= minY && pos.get_y() <= maxY;
-}
 
-bool PhysicsSystem::is_in_any_tile(const std::vector<Vector2D>& vector, const Vector2D& pos) const {
-    return std::any_of(vector.begin(), vector.end(),
-                       [&](const Vector2D& tile_pos) { return is_in_tile(pos, tile_pos); });
+    float closestX = std::max(minX, std::min(static_cast<float>(player_pos.get_x()), maxX));
+    float closestY = std::max(minY, std::min(static_cast<float>(player_pos.get_y()), maxY));
+
+    float distance =
+            Vector2D(player_pos.get_x() - closestX, player_pos.get_y() - closestY).length();
+
+    if (distance <= PhysicsConfig::player_hitbox_radius)
+        return true;
+
+    return false;
 }
