@@ -2,7 +2,9 @@
 
 #include <gtest/gtest.h>
 
+#include "common/map/map.h"
 #include "common/models.h"
+#include "common/physics/physics_config.h"
 #include "common/updates/game_update.h"
 #include "common/updates/inventory_update.h"
 #include "common/updates/phase_update.h"
@@ -12,11 +14,8 @@
 #include "server/game/game.h"
 #include "server/game/game_config.h"
 #include "server/game/shop.h"
-#include "server/map/map.h"
 #include "server/map/map_builder.h"
 #include "server/player_message.h"
-
-#define TILE_SIZE 32.0
 
 class TestGame: public ::testing::Test {
 protected:
@@ -28,10 +27,10 @@ protected:
     TestGame():
             clock(std::make_shared<MockClock>(std::chrono::steady_clock::now())),
             map(MapBuilder("./tests/server/map/map.yaml").build()),
-            max_players(map.get_max_players()),
+            max_players(map.max_players),
             game("test_game", clock, std::move(map)) {}
 
-    void advance_secs(int secs) { clock->advance(std::chrono::seconds(secs)); }
+    void advance_secs(float secs) { clock->advance(std::chrono::duration<float>(secs)); }
 };
 
 TEST_F(TestGame, PlayerCanJoinGame) {
@@ -42,13 +41,17 @@ TEST_F(TestGame, PlayerCanJoinGame) {
 
 TEST_F(TestGame, PlayerCannotJoinGameTwice) {
     game.join_player("test_player");
-    EXPECT_THROW({ game.join_player("test_player"); }, JoinGameError);
-    GameUpdate update = game.get_full_update();
-    EXPECT_EQ(static_cast<int>(update.get_players().size()), 1);
+    GameUpdate updates = game.get_full_update();
+    EXPECT_EQ(static_cast<int>(updates.get_players().size()), 1);
+    game.join_player("test_player");
+    updates = game.get_full_update();
+    EXPECT_EQ(static_cast<int>(updates.get_players().size()), 1);
 }
 
-TEST_F(TestGame, PlayerCannotJoinGameWithInvalidName) {
-    EXPECT_THROW({ game.join_player(""); }, InvalidPlayerNameError);
+TEST_F(TestGame, PlayerCannotJoinGameWithEmptyName) {
+    game.join_player("");
+    GameUpdate updates = game.get_full_update();
+    EXPECT_EQ(static_cast<int>(updates.get_players().size()), 0);
 }
 
 TEST_F(TestGame, PlayersCanJoinGameUntilItIsFull) {
@@ -82,7 +85,6 @@ TEST_F(TestGame, PlayerCanSelectTeam) {
 }
 
 TEST_F(TestGame, PlayerCannotJoinFullTeam) {
-    // Fill the Terrorist team
     Message msg_select_team = Message(SelectTeamCommand(Team::TT));
     int max_team_players = max_players / 2;
     for (int i = 1; i <= max_team_players; i++) {
@@ -93,21 +95,18 @@ TEST_F(TestGame, PlayerCannotJoinFullTeam) {
     GameUpdate update = game.get_full_update();
     EXPECT_EQ(static_cast<int>(update.get_players().size()), max_team_players + 1);
 
-    // Try to select Terrorist team
     auto player_messages = game.tick({PlayerMessage("extra_player", msg_select_team)});
     GameUpdate updates;
 
-    for (const auto& msg: player_messages) {
-        updates = msg.get_message().get_content<GameUpdate>();
-        EXPECT_EQ(updates.get_players().at("extra_player").get_team(), Team::CT);
-    }
+    updates = player_messages[0].get_message().get_content<GameUpdate>();
+    EXPECT_EQ(updates.get_players().at("extra_player").get_team(), Team::CT);
 }
 
 TEST_F(TestGame, CannotStartAnAlreadyStartedGame) {
     game.join_player("test_player");
     game.tick({});
 
-    auto player_messages = game.tick({PlayerMessage("test_player", Message(StartGameCommand()))});
+    auto player_messages = game.tick({PlayerMessage("test_player", Message(SetReadyCommand()))});
     GameUpdate updates;
     updates = player_messages[0].get_message().get_content<GameUpdate>();
 
@@ -116,13 +115,13 @@ TEST_F(TestGame, CannotStartAnAlreadyStartedGame) {
     PhaseUpdate phase_updates = updates.get_phase();
     EXPECT_EQ(phase_updates.get_phase(), PhaseType::Buying);
 
-    EXPECT_THROW({ game.tick({PlayerMessage("test_player", Message(StartGameCommand()))}); },
-                 StartGameError);
+    EXPECT_THROW({ game.tick({PlayerMessage("test_player", Message(SetReadyCommand()))}); },
+                 SetReadyError);
 }
 
 TEST_F(TestGame, PlayerCannotJoinStartedGame) {
     game.join_player("test_player");
-    Message msg_start = Message(StartGameCommand());
+    Message msg_start = Message(SetReadyCommand());
     game.tick({PlayerMessage("test_player", msg_start)});
 
     game.join_player("another_player");
@@ -142,7 +141,7 @@ TEST_F(TestGame, PlayerCannotSelectTeamWhenStartedGame) {
         new_team = Team::CT;
     }
 
-    Message msg_start = Message(StartGameCommand());
+    Message msg_start = Message(SetReadyCommand());
     auto player_messages = game.tick({PlayerMessage("test_player", msg_start)});
     GameUpdate updates;
     updates = player_messages[0].get_message().get_content<GameUpdate>();
@@ -156,7 +155,7 @@ TEST_F(TestGame, NumberOfRoundsIncrementCorrectly) {
     GameUpdate updates = game.get_full_update();
     EXPECT_EQ(updates.get_num_rounds(), 0);
 
-    Message msg_start = Message(StartGameCommand());
+    Message msg_start = Message(SetReadyCommand());
     game.tick({PlayerMessage("test_player", msg_start)});
 
     int rounds = 3;
@@ -164,13 +163,13 @@ TEST_F(TestGame, NumberOfRoundsIncrementCorrectly) {
         advance_secs(PhaseTimes::buying_phase_secs);
         game.tick({});
         advance_secs(PhaseTimes::playing_phase_secs);
+        game.tick({});
         for (int j = 0; j < 10; j++) game.tick({});
-        advance_secs(PhaseTimes::round_finished_phase_secs);
-        auto player_messages = game.tick({});
-        updates = player_messages[0].get_message().get_content<GameUpdate>();
+        advance_secs(PhaseTimes::round_end_phase_secs);
+        game.tick({});
     }
 
-    EXPECT_EQ(updates.get_num_rounds(), rounds);
+    EXPECT_EQ(game.get_full_update().get_num_rounds(), rounds);
 }
 
 TEST_F(TestGame, OneTerroristHasBombWhenGameStarted) {
@@ -181,28 +180,21 @@ TEST_F(TestGame, OneTerroristHasBombWhenGameStarted) {
     game.tick({PlayerMessage("test_player", msg_select_team)});
     game.tick({PlayerMessage("another_player", msg_select_team)});
 
-    Message msg_start = Message(StartGameCommand());
+    Message msg_start = Message(SetReadyCommand());
     game.tick({PlayerMessage("test_player", msg_start)});
     auto player_messages = game.tick({PlayerMessage("another_player", msg_start)});
-    GameUpdate updates = player_messages[0].get_message().get_content<GameUpdate>();
+    GameUpdate updates = player_messages[1].get_message().get_content<GameUpdate>();
 
     std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
 
-    if (player_updates.find("test_player") != player_updates.end()) {
-        InventoryUpdate inv_updates = player_updates.at("test_player").get_inventory();
-        EXPECT_TRUE(inv_updates.has_weapons_added_changed());
-    } else if (player_updates.find("another_player") != player_updates.end()) {
-        InventoryUpdate inv_updates = player_updates.at("another_player").get_inventory();
-        EXPECT_TRUE(inv_updates.has_weapons_added_changed());
-    } else {
-        FAIL();
-    }
+    EXPECT_TRUE(player_updates.at("test_player").get_inventory().has_bomb_changed() ||
+                player_updates.at("another_player").get_inventory().has_bomb_changed());
 }
 
 TEST_F(TestGame, CounterTerroristDoesNotHaveBombWhenGameStarted) {
     game.join_player("test_player");
     Message msg_select_team = Message(SelectTeamCommand(Team::CT));
-    Message msg_start = Message(StartGameCommand());
+    Message msg_start = Message(SetReadyCommand());
     game.tick({});
 
     auto player_messages = game.tick({PlayerMessage("test_player", msg_select_team),
@@ -212,7 +204,7 @@ TEST_F(TestGame, CounterTerroristDoesNotHaveBombWhenGameStarted) {
 
     PlayerUpdate player_updates = updates.get_players().at("test_player");
 
-    EXPECT_FALSE(player_updates.has_inventory_changed());
+    EXPECT_FALSE(player_updates.get_inventory().has_bomb_changed());
 }
 
 TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
@@ -225,7 +217,7 @@ TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
     msg_select_team = Message(SelectTeamCommand(Team::CT));
     game.tick({PlayerMessage("test_player2", msg_select_team)});
 
-    Message msg_start = Message(StartGameCommand());
+    Message msg_start = Message(SetReadyCommand());
     game.tick({PlayerMessage("test_player1", msg_start)});
     game.tick({PlayerMessage("test_player2", msg_start)});
 
@@ -234,16 +226,14 @@ TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
         advance_secs(PhaseTimes::buying_phase_secs);
         game.tick({});
         advance_secs(PhaseTimes::playing_phase_secs);
-        auto player_messages = game.tick({});
-        updates = player_messages[0].get_message().get_content<GameUpdate>();
-        EXPECT_EQ(updates.get_phase().get_phase(), PhaseType::End);
-        advance_secs(PhaseTimes::round_finished_phase_secs);
-        player_messages = game.tick({});
-        updates = player_messages[0].get_message().get_content<GameUpdate>();
-        EXPECT_EQ(updates.get_num_rounds(), i + 1);
+        game.tick({});
+        EXPECT_EQ(game.get_full_update().get_phase().get_phase(), PhaseType::RoundEnd);
+        advance_secs(PhaseTimes::round_end_phase_secs);
+        game.tick({});
+        EXPECT_EQ(game.get_full_update().get_num_rounds(), i + 1);
     }
 
-    std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
+    std::map<std::string, PlayerUpdate> player_updates = game.get_full_update().get_players();
     EXPECT_EQ(player_updates.at("test_player1").get_team(), Team::CT);
     EXPECT_EQ(player_updates.at("test_player2").get_team(), Team::TT);
 }
@@ -259,7 +249,7 @@ TEST_F(TestGame, PlayerCanMove) {
     game.tick({});
 
     // Check velocity
-    Vector2D dir = Vector2D(0, 32).normalized();
+    Vector2D dir = Vector2D(0, 1).normalized(PhysicsConfig::meter_size);
     Message msg_move = Message(MoveCommand(dir));
     auto player_messages = game.tick({PlayerMessage("test_player", msg_move)});
     updates = player_messages[0].get_message().get_content<GameUpdate>();
@@ -286,7 +276,7 @@ TEST_F(TestGame, PlayerCanMoveInDiagonal) {
     advance_secs(PhaseTimes::buying_phase_secs);
     game.tick({});
 
-    Vector2D dir = Vector2D(32, 32).normalized();
+    Vector2D dir = Vector2D(1, 1).normalized(PhysicsConfig::meter_size);
     Message msg_move = Message(MoveCommand(dir));
     auto player_messages = game.tick({PlayerMessage("test_player", msg_move)});
     updates = player_messages[0].get_message().get_content<GameUpdate>();
@@ -315,26 +305,249 @@ TEST_F(TestGame, PlayerCanAimInADirection) {
     EXPECT_EQ(updates.get_players().at("test_player").get_aim_direction(), new_aim_dir);
 }
 
-// TODO: AttackCommand
-// TEST_F(TestGame, PlayerCanAttack) {
-//     GameUpdate updates = game.join_player("test_player");
-//     InventoryUpdate p_inv = updates.get_players().at("test_player").get_inventory();
-//     int old_mag_ammo = p_inv.get_guns().at(ItemSlot::Secondary).get_mag_ammo();
+TEST_F(TestGame, TargetIsHitByPlayerAttack) {
+    GameUpdate updates;
+    game.join_player("test_player");
+    game.join_player("target_player");
 
-//     Message msg_aim = Message(AimCommand(Vector2D(1, 1)));
-//     Message msg_switch_weap = Message(SwitchItemCommand(ItemSlot::Secondary));
-//     Message msg_start = Message(StartGameCommand());
-//     game.tick({PlayerMessage("test_player", msg_aim), PlayerMessage("test_player",
-//     msg_switch_weap),
-//                PlayerMessage("test_player", msg_start)});
+    updates = game.get_full_update();
+    Vector2D player_pos = updates.get_players().at("test_player").get_pos();
+    Vector2D target_pos = updates.get_players().at("target_player").get_pos();
+    int old_health = updates.get_players().at("target_player").get_health();
 
-//     advance_secs(PhaseTimes::buying_phase_secs);
+    Message msg_select_team = Message(SelectTeamCommand(Team::TT));
+    game.tick({PlayerMessage("test_player", msg_select_team)});
+    msg_select_team = Message(SelectTeamCommand(Team::CT));
+    game.tick({PlayerMessage("target_player", msg_select_team)});
 
-//     Message msg_attack = Message(AttackCommand());
-//     updates = game.tick({PlayerMessage("test_player", msg_attack)});
+    Message msg_aim = Message(AimCommand(target_pos - player_pos));
+    Message msg_switch_weap = Message(SwitchItemCommand(ItemSlot::Secondary));
+    Message msg_start = Message(SetReadyCommand());
+    game.tick({PlayerMessage("test_player", msg_aim), PlayerMessage("test_player", msg_switch_weap),
+               PlayerMessage("test_player", msg_start), PlayerMessage("target_player", msg_start)});
 
-//     EXPECT_TRUE(updates.has_players_changed());
-//     p_inv = updates.get_players().at("test_player").get_inventory();
-//     int new_mag_ammo = p_inv.get_guns().at(ItemSlot::Secondary).get_mag_ammo();
-//     EXPECT_EQ(new_mag_ammo, old_mag_ammo - 1);
-// }
+    advance_secs(PhaseTimes::buying_phase_secs);
+
+    Message msg_attack = Message(AttackCommand());
+    auto player_messages = game.tick({PlayerMessage("test_player", msg_attack)});
+
+    auto hit_response = player_messages[0].get_message().get_content<HitResponse>();
+    EXPECT_EQ(hit_response.get_hit_pos(), target_pos);
+
+    if (hit_response.is_hit()) {
+        updates = player_messages[2].get_message().get_content<GameUpdate>();
+        int new_health = updates.get_players().at("target_player").get_health();
+        EXPECT_LT(new_health, old_health);
+    }
+}
+
+TEST_F(TestGame, PlayerCanGetScoreboard) {
+    game.join_player("test_player");
+
+    Message msg_get_scoreboard = Message(GetScoreboardCommand());
+    auto player_messages = game.tick({PlayerMessage("test_player", msg_get_scoreboard)});
+
+    std::map<std::string, ScoreboardEntry> scoreboard;
+    bool scoreboard_send_correctly = false;
+    for (const auto& m: player_messages) {
+        if (m.get_message().get_type() == MessageType::SCOREBOARD_RESP) {
+            scoreboard = m.get_message().get_content<ScoreboardResponse>().get_scoreboard();
+            scoreboard_send_correctly = true;
+        }
+    }
+
+    EXPECT_TRUE(scoreboard_send_correctly);
+    EXPECT_EQ(scoreboard.size(), 1);
+    EXPECT_EQ(scoreboard.at("test_player").kills, 0);
+    EXPECT_EQ(scoreboard.at("test_player").deaths, 0);
+    EXPECT_EQ(scoreboard.at("test_player").score, 0);
+    EXPECT_EQ(scoreboard.at("test_player").money, PlayerConfig::initial_money);
+}
+
+TEST_F(TestGame, PlayerIsDeadAfterTakingAllHealthDamage) {
+    GameUpdate updates;
+    game.join_player("test_player");
+    game.join_player("target_player");
+
+    updates = game.get_full_update();
+    Vector2D player_pos = updates.get_players().at("test_player").get_pos();
+    Vector2D target_pos = updates.get_players().at("target_player").get_pos();
+    int health = updates.get_players().at("target_player").get_health();
+
+    Message msg_select_team = Message(SelectTeamCommand(Team::TT));
+    game.tick({PlayerMessage("test_player", msg_select_team)});
+    msg_select_team = Message(SelectTeamCommand(Team::CT));
+    game.tick({PlayerMessage("target_player", msg_select_team)});
+
+    Message msg_aim = Message(AimCommand(target_pos - player_pos));
+    Message msg_switch_weap = Message(SwitchItemCommand(ItemSlot::Secondary));
+    Message msg_start = Message(SetReadyCommand());
+    game.tick({PlayerMessage("test_player", msg_aim), PlayerMessage("test_player", msg_switch_weap),
+               PlayerMessage("test_player", msg_start), PlayerMessage("target_player", msg_start)});
+
+    advance_secs(PhaseTimes::buying_phase_secs);
+
+    Message msg_attack = Message(AttackCommand());
+    std::vector<PlayerMessage> player_messages;
+    while (health > 0) {
+        advance_secs(1.0f / GlockConfig.attack_rate);
+        player_messages = game.tick({PlayerMessage("test_player", msg_attack)});
+        auto hit_response = player_messages[0].get_message().get_content<HitResponse>();
+        updates = player_messages[2].get_message().get_content<GameUpdate>();
+        if (hit_response.is_hit())
+            health = updates.get_players().at("target_player").get_health();
+    }
+
+    EXPECT_TRUE(updates.has_players_changed());
+    EXPECT_EQ(health, 0);
+
+    for (const auto& m: player_messages) {
+        if (m.get_message().get_type() ==
+            MessageType::SCOREBOARD_RESP) {  // cppcheck-suppress[useStlAlgorithm]
+            auto scoreboard = m.get_message().get_content<ScoreboardResponse>().get_scoreboard();
+            EXPECT_EQ(scoreboard.at("target_player").deaths, 1);
+            EXPECT_EQ(scoreboard.at("target_player").kills, 0);
+            EXPECT_EQ(scoreboard.at("test_player").score, 0);
+            EXPECT_EQ(scoreboard.at("test_player").money, PlayerConfig::initial_money);
+
+            EXPECT_EQ(scoreboard.at("test_player").kills, 1);
+            EXPECT_EQ(scoreboard.at("test_player").deaths, 0);
+            EXPECT_GT(scoreboard.at("test_player").score, Scores::kill);
+            EXPECT_EQ(scoreboard.at("test_player").money,
+                      PlayerConfig::initial_money + Bonifications::kill + Bonifications::win);
+            break;
+        }
+    }
+}
+
+TEST_F(TestGame, WeaponDoesNotMakeDamageWhenTargetIsOutOfRange) {
+    GameUpdate updates;
+    game.join_player("test_player");
+    game.join_player("target_player");
+
+    updates = game.get_full_update();
+    Vector2D player_pos = updates.get_players().at("test_player").get_pos();
+    Vector2D target_pos = updates.get_players().at("target_player").get_pos();
+    int old_health = updates.get_players().at("target_player").get_health();
+
+    Message msg_select_team = Message(SelectTeamCommand(Team::TT));
+    game.tick({PlayerMessage("test_player", msg_select_team)});
+    msg_select_team = Message(SelectTeamCommand(Team::CT));
+    game.tick({PlayerMessage("target_player", msg_select_team)});
+
+    Message msg_aim = Message(AimCommand(target_pos - player_pos));
+    Message msg_switch_weap = Message(SwitchItemCommand(ItemSlot::Melee));
+    Message msg_start = Message(SetReadyCommand());
+    game.tick({PlayerMessage("test_player", msg_aim), PlayerMessage("test_player", msg_switch_weap),
+               PlayerMessage("test_player", msg_start), PlayerMessage("target_player", msg_start)});
+
+    advance_secs(PhaseTimes::buying_phase_secs);
+
+    Message msg_attack = Message(AttackCommand());
+    game.tick({PlayerMessage("test_player", msg_attack)});
+
+    updates = game.get_full_update();
+    EXPECT_EQ(updates.get_players().at("target_player").get_health(), old_health);
+}
+
+TEST_F(TestGame, TTsWinIfTheyKillAllCTs) {
+    game.join_player("tt");
+    game.join_player("ct");
+
+    Message msg_select_team = Message(SelectTeamCommand(Team::TT));
+    game.tick({PlayerMessage("tt", msg_select_team)});
+    msg_select_team = Message(SelectTeamCommand(Team::CT));
+    game.tick({PlayerMessage("ct", msg_select_team)});
+
+    Message msg_start = Message(SetReadyCommand());
+    game.tick({PlayerMessage("tt", msg_start), PlayerMessage("ct", msg_start)});
+
+    GameUpdate updates = game.get_full_update();
+    Vector2D tt_pos = updates.get_players().at("tt").get_pos();
+    Vector2D ct_pos = updates.get_players().at("ct").get_pos();
+
+    Message msg_aim = Message(AimCommand(ct_pos - tt_pos));
+    Message msg_switch_weap = Message(SwitchItemCommand(ItemSlot::Secondary));
+    game.tick({PlayerMessage("tt", msg_aim), PlayerMessage("tt", msg_switch_weap)});
+
+    advance_secs(PhaseTimes::buying_phase_secs);
+
+    Message msg_attack = Message(AttackCommand());
+    std::vector<PlayerMessage> player_messages;
+    while (updates.get_players().at("ct").get_health() > 0) {
+        advance_secs(1.0f / GlockConfig.attack_rate);
+        int old_ct_health = updates.get_players().at("ct").get_health();
+        player_messages = game.tick({PlayerMessage("tt", msg_attack)});
+        updates = game.get_full_update();
+        for (const auto& m: player_messages) {
+            if (m.get_message().get_type() == MessageType::HIT_RESP) {
+                auto hit_response = m.get_message().get_content<HitResponse>();
+                if (hit_response.is_hit()) {
+                    EXPECT_EQ(hit_response.get_hit_pos(), ct_pos);
+                    EXPECT_LT(updates.get_players().at("ct").get_health(), old_ct_health);
+                }
+            }
+        }
+    }
+
+    for (const auto& m: player_messages) {
+        if (m.get_message().get_type() ==
+            MessageType::ROUND_END_RESP) {  // cppcheck-suppress[useStlAlgorithm]
+            auto round_end_resp = m.get_message().get_content<RoundEndResponse>();
+            EXPECT_EQ(round_end_resp.get_winning_team(), Team::TT);
+            break;
+        }
+    }
+}
+
+TEST_F(TestGame, PlayerStateResetCorrectlyWhenANewRoundStarts) {
+    game.join_player("test_player");
+    game.join_player("target_player");
+
+    Message msg_select_team = Message(SelectTeamCommand(Team::TT));
+    game.tick({PlayerMessage("test_player", msg_select_team)});
+    msg_select_team = Message(SelectTeamCommand(Team::CT));
+    game.tick({PlayerMessage("target_player", msg_select_team)});
+
+    Message msg_start = Message(SetReadyCommand());
+    game.tick({PlayerMessage("test_player", msg_start), PlayerMessage("target_player", msg_start)});
+
+    GameUpdate updates = game.get_full_update();
+    Vector2D tt_pos = updates.get_players().at("test_player").get_pos();
+    Vector2D ct_pos = updates.get_players().at("target_player").get_pos();
+
+    advance_secs(PhaseTimes::buying_phase_secs);
+
+    Message msg_aim = Message(AimCommand(ct_pos - tt_pos));
+    Message msg_switch_weap = Message(SwitchItemCommand(ItemSlot::Secondary));
+    game.tick(
+            {PlayerMessage("test_player", msg_aim), PlayerMessage("test_player", msg_switch_weap)});
+
+
+    Message msg_attack = Message(AttackCommand());
+    while (updates.get_players().at("target_player").get_health() == PlayerConfig::full_health) {
+        advance_secs(1.0f / GlockConfig.attack_rate);
+        game.tick({PlayerMessage("test_player", msg_attack)});
+        updates = game.get_full_update();
+    }
+
+    Message msg_start_moving = Message(MoveCommand(Vector2D(1, 0)));
+    game.tick({PlayerMessage("test_player", msg_start_moving)});
+
+    advance_secs(PhaseTimes::playing_phase_secs);
+    game.tick({});
+    advance_secs(PhaseTimes::round_end_phase_secs);
+    game.tick({});
+
+    updates = game.get_full_update();
+    EXPECT_EQ(updates.get_players().at("test_player").get_health(), PlayerConfig::full_health);
+    EXPECT_EQ(updates.get_players().at("target_player").get_health(), PlayerConfig::full_health);
+    EXPECT_EQ(updates.get_players().at("test_player").get_pos(), tt_pos);
+    EXPECT_EQ(updates.get_players().at("target_player").get_pos(), ct_pos);
+    EXPECT_EQ(updates.get_players().at("test_player").get_velocity(), Vector2D(0, 0));
+    EXPECT_EQ(updates.get_players().at("target_player").get_velocity(), Vector2D(0, 0));
+    EXPECT_EQ(updates.get_players().at("test_player").get_inventory().get_money(),
+              PlayerConfig::initial_money + Bonifications::loss);
+    EXPECT_EQ(updates.get_players().at("target_player").get_inventory().get_money(),
+              PlayerConfig::initial_money + Bonifications::win);
+}

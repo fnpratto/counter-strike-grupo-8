@@ -69,10 +69,34 @@ public:
 };
 
 /**
- * @class StartGameCommand
- * @brief Command to start the game (sent by the game creator).
+ * @class GetCharacterCommand
+ * @brief Command to get the character information.
  */
-class StartGameCommand: public Command {};
+class GetCharactersCommand: public Command {};
+
+/**
+ * @class SelectCharacterCommand
+ * @brief Command to choose a character for the player.
+ */
+class SelectCharacterCommand: public Command {
+    CharacterType character_type;
+
+public:
+    explicit SelectCharacterCommand(CharacterType character_type): character_type(character_type) {}
+    CharacterType get_character_type() const { return character_type; }
+};
+
+/**
+ * @class SetReadyCommand
+ * @brief Command to set ready to start game.
+ */
+class SetReadyCommand: public Command {};
+
+/**
+ * @class GetShopPricesCommand
+ * @brief Command to request the shop prices.
+ */
+class GetShopPricesCommand: public Command {};
 
 /**
  * @class BuyGunCommand
@@ -106,11 +130,10 @@ class MoveCommand: public Command {
     Vector2D direction;
 
 public:
-    explicit MoveCommand(Vector2D direction): direction(direction.normalized()) {}
+    explicit MoveCommand(Vector2D direction): direction(direction) {}
 
     Vector2D get_direction() const { return direction; }
 };
-
 
 /**
  * @class StopPlayerCommand
@@ -129,7 +152,7 @@ class AimCommand: public Command {
     Vector2D direction;
 
 public:
-    explicit AimCommand(Vector2D direction): direction(direction.normalized()) {}
+    explicit AimCommand(Vector2D direction): direction(direction) {}
 
     Vector2D get_direction() const { return direction; }
 };
@@ -139,12 +162,6 @@ public:
  * @brief Command to attack towards the aimed direction.
  */
 class AttackCommand: public Command {};
-
-/**
- * @class ReloadCommand
- * @brief Command to reload the current weapon.
- */
-class ReloadCommand: public Command {};
 
 /**
  * @class SwitchItemCommand
@@ -157,6 +174,19 @@ public:
     explicit SwitchItemCommand(ItemSlot s): slot(s) {}
     ItemSlot get_slot() const { return slot; }
 };
+
+/**
+ * @class ReloadCommand
+ * @brief Command to reload the current weapon.
+ */
+class ReloadCommand: public Command {};
+
+/**
+ * @class GetScoreboardCommand
+ * @brief Command to request the scoreboard information.
+ */
+class GetScoreboardCommand: public Command {};
+
 
 /**
  * @class PlantBombCommand
@@ -175,12 +205,6 @@ class DefuseBombCommand: public Command {};
  * @brief Command to pick up an item at the current position.
  */
 class PickUpItemCommand: public Command {};
-
-/**
- * @class GetShopPricesCommand
- * @brief Command to request the shop prices.
- */
-class GetShopPricesCommand: public Command {};
 
 /**
  * @class LeaveGameCommand

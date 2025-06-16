@@ -9,28 +9,23 @@
 #include "server/logic.h"
 #include "server/player/player_config.h"
 #include "server/states/inventory_state.h"
-#include "server/weapons/glock.h"
 #include "server/weapons/gun.h"
 #include "server/weapons/knife.h"
 
 class Inventory: public Logic<InventoryState, InventoryUpdate> {
 public:
-    Inventory():
-            Logic<InventoryState, InventoryUpdate>(InventoryState(PlayerConfig::initial_money)) {
-        state.set_gun(ItemSlot::Secondary, std::make_unique<Glock>());
-    }
+    Inventory();
 
-    // TODO is this needed?
-    // Delete copy constructor and copy assignment operator
     Inventory(const Inventory&) = delete;
     Inventory& operator=(const Inventory&) = delete;
 
-    // Enable move constructor and move assignment operator
     Inventory(Inventory&&) = default;
     Inventory& operator=(Inventory&&) = default;
 
-    int get_money() const { return state.get_money(); }
-    std::unique_ptr<Gun>& get_gun(const ItemSlot& slot);
+    bool has_item_in_slot(ItemSlot slot);
+
+    int get_money() const;
+    std::map<ItemSlot, std::unique_ptr<Gun>>& get_guns();
     Knife& get_knife();
     std::optional<Bomb>& get_bomb();
 

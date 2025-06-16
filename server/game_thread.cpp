@@ -3,7 +3,8 @@
 #include <utility>
 
 #include "clock/real_clock.h"
-#include "map/map.h"
+#include "common/map/map.h"
+#include "common/utils/rate_controller.h"
 #include "map/map_builder.h"
 #include "server/player_message.h"
 
@@ -12,9 +13,9 @@ GameThread::GameThread(const std::string& name):
              std::move(MapBuilder("./tests/server/map/map.yaml").build())),
         input_queue(std::make_shared<Queue<PlayerMessage>>()) {}
 
-// TODO: Tick rate
 void GameThread::run() {
-    while (should_keep_running()) {
+    RateController rate_controller(GameConfig::tickrate);
+    rate_controller.run_at_rate([this]() {
         std::vector<PlayerMessage> msgs;
         for (int i = 0; i < MSG_BATCH_SIZE; ++i) {
             PlayerMessage msg;
@@ -34,8 +35,8 @@ void GameThread::run() {
             q->push(out_msg.get_message());
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    }
+        return should_keep_running();
+    });
 }
 
 pipe_t GameThread::join_game(const std::string& player_name) {

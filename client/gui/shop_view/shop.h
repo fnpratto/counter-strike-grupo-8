@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "../../game_config.h"
 #include "../window_elements/area.h"
 #include "../window_elements/sdl_text.h"
 #include "../window_elements/sdl_texture.h"
@@ -13,15 +14,20 @@
 
 class shopDisplay {
 public:
-    explicit shopDisplay(SdlWindow& window);
+    explicit shopDisplay(SdlWindow& window, const GameUpdate& state);
     void render();
-    std::optional<Message> updatePointerPosition(int x, int y);
+    std::optional<Message> getPurchaseCommand(int x, int y);
+    void updateShopState(bool state);
+    void updatePrices(const ShopPricesResponse& response);
+    ItemSlot get_ammo_type(int id_slot);
 
 private:
     SdlWindow& window;
+    const GameUpdate& game_state;
     int DISPLAY_WIDTH;
     int DISPLAY_HEIGHT;
-    std::vector<SdlTexture> gun_icons;
+    SdlTexture gun_icons;
+    SdlTexture ammo_icons;
     SdlText cost_money;
     SdlTexture back;
     SdlTexture back_chosen;
@@ -31,9 +37,11 @@ private:
     int size_guns_h;
     int size_slots_w;
     int size_slots_h;
+    bool active;
+    std::vector<GameConfig::GunInfo> guns;   // Moved guns into the class
+    std::vector<GameConfig::AmmoInfo> ammo;  // Moved ammo into the class
     void renderSlots();
     void renderItem();
-    void renderblokedSlots();
+    void get_item_slots(int id_slot);
 };
-
 #endif  // SHOP_DISPLAY_H

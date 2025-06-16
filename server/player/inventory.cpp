@@ -4,13 +4,31 @@
 #include <utility>
 
 #include "common/models.h"
-#include "server/weapons/ak47.h"
-#include "server/weapons/awp.h"
-#include "server/weapons/glock.h"
 #include "server/weapons/knife.h"
-#include "server/weapons/m3.h"
 
-std::unique_ptr<Gun>& Inventory::get_gun(const ItemSlot& slot) { return state.get_guns().at(slot); }
+Inventory::Inventory():
+        Logic<InventoryState, InventoryUpdate>(InventoryState(PlayerConfig::initial_money)) {
+    state.set_gun(ItemSlot::Secondary, Gun::make_glock());
+}
+
+bool Inventory::has_item_in_slot(ItemSlot slot) {
+    switch (slot) {
+        case ItemSlot::Primary:
+            return state.get_guns().find(ItemSlot::Primary) != state.get_guns().end();
+        case ItemSlot::Secondary:
+            return state.get_guns().find(ItemSlot::Secondary) != state.get_guns().end();
+        case ItemSlot::Melee:
+            return true;
+        case ItemSlot::Bomb:
+            return state.get_bomb().has_value();
+        default:
+            return false;
+    }
+}
+
+int Inventory::get_money() const { return state.get_money(); }
+
+std::map<ItemSlot, std::unique_ptr<Gun>>& Inventory::get_guns() { return state.get_guns(); }
 
 Knife& Inventory::get_knife() { return state.get_knife(); }
 
@@ -20,10 +38,10 @@ void Inventory::add_bomb(Bomb&& bomb) { state.set_bomb(std::move(bomb)); }
 
 void Inventory::add_primary_weapon(const GunType& gun_type) {
     if (gun_type == GunType::AK47) {
-        state.set_gun(ItemSlot::Primary, std::make_unique<Ak47>());
+        state.set_gun(ItemSlot::Primary, Gun::make_ak47());
     } else if (gun_type == GunType::M3) {
-        state.set_gun(ItemSlot::Primary, std::make_unique<M3>());
+        state.set_gun(ItemSlot::Primary, Gun::make_m3());
     } else if (gun_type == GunType::AWP) {
-        state.set_gun(ItemSlot::Primary, std::make_unique<Awp>());
+        state.set_gun(ItemSlot::Primary, Gun::make_awp());
     }
 }

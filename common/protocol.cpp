@@ -68,6 +68,12 @@ uint16_t BaseProtocol::deserialize<uint16_t>(payload_t& payload) const {
 }
 
 template <>
+int16_t BaseProtocol::deserialize<int16_t>(payload_t& payload) const {
+    payload_t data = pop(payload, sizeof(int16_t));
+    return ntohs(*reinterpret_cast<const int16_t*>(data.data()));
+}
+
+template <>
 std::string BaseProtocol::deserialize<std::string>(payload_t& payload) const {
     uint16_t length = deserialize<uint16_t>(payload);
 
@@ -78,7 +84,7 @@ std::string BaseProtocol::deserialize<std::string>(payload_t& payload) const {
 
 template <>
 int BaseProtocol::deserialize<int>(payload_t& payload) const {
-    return static_cast<int>(deserialize<uint16_t>(payload));
+    return static_cast<int>(deserialize<int16_t>(payload));
 }
 
 template <>
@@ -109,6 +115,26 @@ GameInfo BaseProtocol::deserialize<GameInfo>(payload_t& payload) const {
     return GameInfo(name, players_count, phase);
 }
 
+template <>
+std::optional<Vector2D> BaseProtocol::deserialize<std::optional<Vector2D>>(
+        payload_t& payload) const {
+    bool has_value = deserialize<bool>(payload);
+    if (has_value) {
+        return deserialize<Vector2D>(payload);
+    }
+    return std::nullopt;
+}
+
+template <>
+ScoreboardEntry BaseProtocol::deserialize<ScoreboardEntry>(payload_t& payload) const {
+    int money = deserialize<int>(payload);
+    int kills = deserialize<int>(payload);
+    int deaths = deserialize<int>(payload);
+    int score = deserialize<int>(payload);
+
+    return ScoreboardEntry(money, kills, deaths, score);
+}
+
 Message BaseProtocol::recv() {
     payload_t header(sizeof(uint8_t) + sizeof(uint16_t));
     socket.recvall(header.data(), sizeof(uint8_t) + sizeof(uint16_t));
@@ -119,7 +145,14 @@ Message BaseProtocol::recv() {
     payload_t content(length);
     socket.recvall(content.data(), length);
 
-    return deserialize_message(msg_type, content);
+    Message message = deserialize_message(msg_type, content);
+
+    if (content.size() > 0) {
+        throw std::runtime_error("BaseProtocol::recv: Not all data was consumed, remaining size: " +
+                                 std::to_string(content.size()));
+    }
+
+    return message;
 }
 
 void BaseProtocol::close() {

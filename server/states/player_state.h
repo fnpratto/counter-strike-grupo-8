@@ -12,6 +12,7 @@ class Inventory;
 
 class PlayerState: public State<PlayerUpdate> {
     Team team;
+    CharacterType character_type;
     Vector2D pos;
     Vector2D aim_direction;
     Vector2D velocity;
@@ -34,6 +35,7 @@ public:
     Inventory& get_inventory();
 
     void set_team(Team new_team);
+    void set_character_type(CharacterType new_character_type);
     void set_pos(Vector2D new_pos);
     void set_aim_direction(Vector2D new_aim_direction);
     void set_velocity(Vector2D new_velocity);

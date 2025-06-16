@@ -3,24 +3,37 @@
 #include <filesystem>
 #include <functional>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <SDL.h>
 #include <SDL_events.h>
 #include <unistd.h>
 
-#include "display.h"
+#include "client/gui/map_view/sdl_world.h"
+#include "common/models.h"
+#include "common/utils/rate_controller.h"
+
 #include "sdl_input.h"
 
 
 SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue,
                        const std::string& player_name):
         Display(input_queue, output_queue),
-        state(get_initial_state()),
         player_name(player_name),
+        state(get_initial_state()),
         quit_flag(false),
-        input_handler(std::make_unique<SDLInput>(output_queue, quit_flag)) {}
+        input_handler(nullptr),
+        score_display(nullptr),
+        shop_display(nullptr) {
+
+    std::cout << "SDLDisplay initialized with player: " << player_name << std::endl;
+    SCREEN_WIDTH = 800;
+    SCREEN_HEIGHT = 600;
+}
+
 
 void SDLDisplay::setup() {
     char* basePath = SDL_GetBasePath();
@@ -32,8 +45,6 @@ void SDLDisplay::setup() {
     } else {
         std::cerr << "SDL_GetBasePath failed: " << SDL_GetError() << std::endl;
     }
-
-    input_handler->start();
 
     // FOR FULL SIZE
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -47,60 +58,65 @@ void SDLDisplay::setup() {
         SDL_Quit();
         exit(1);
     }
+
+    SCREEN_WIDTH = displayMode.w;
+    SCREEN_HEIGHT = displayMode.h - 150;
 }
 
 void SDLDisplay::run() {
     setup();
-
     SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
     hudDisplay hud_display(window, state, player_name);
-    shopDisplay shop_display(window);
-    // Map map(window);
-    listTeams list_teams(window);
+    shop_display = std::make_unique<shopDisplay>(window, state);
+    SdlWorld world(window, state, player_name);
+    listTeams list_teams(window, state, player_name);
+    skinSelect list_skins(window, state, player_name);
+    std::map<std::string, ScoreboardEntry> scoreboard;
 
-    // bool shop = false;
-    //  bool list_teams = true;
-    // int clock = 0;  // por ahora
+    score_display = std::make_unique<ScoreDisplay>(window, scoreboard, state);
+    input_handler = std::make_unique<SDLInput>(
+            quit_flag,
+            MouseHandler(output_queue, SCREEN_WIDTH, SCREEN_HEIGHT, list_teams, *shop_display,
+                         hud_display, list_skins),
+            KeyboardHandler(output_queue, *shop_display, *score_display));
+    EndRoundDisplay end_round_display(window, state);
+    input_handler->start();
 
-    framerated([&]() {
+    update_state();
+
+    RateController rate_controller(60);  // 60 FPS
+    rate_controller.run_at_rate([&]() {
         // Update game state and display
         update_state();
         window.fill();
-        update_display(hud_display);
+        if (state.get_phase().get_phase() == PhaseType::WarmUp) {
+            if (list_teams.isActive()) {
+                list_teams.render();
+            } else if (list_skins.isActive()) {
+                list_skins.render();
+            } else {
+                world.render();
+                hud_display.render();
+            }
+        } else if (state.get_phase().get_phase() == PhaseType::Buying) {
+            world.render();
+            hud_display.render();
+            shop_display->render();
+        } else if (state.get_phase().get_phase() == PhaseType::Playing) {
+            world.render();
+            hud_display.render();
+        } else if (state.get_phase().get_phase() == PhaseType::RoundEnd) {
+            world.render();
+            hud_display.render();
+            end_round_display.render();
+        }
+
+        if (score_display->isActive()) {
+            score_display->render();
+        }
         window.render();
         return !quit_flag;
     });
-}
-
-
-void SDLDisplay::framerated(std::function<bool()> draw) {
-    const int target_fps = 60;
-    const std::chrono::milliseconds frame_duration(1000 / target_fps);
-
-    auto next_frame_time = std::chrono::steady_clock::now();
-
-    while (true) {
-        auto now = std::chrono::steady_clock::now();
-
-        if (now >= next_frame_time) {
-            // We're at or past the time for the next frame
-            // Call draw(), if it returns false, exit loop
-            if (!draw())
-                break;
-
-            // Schedule next frame (even if we’re late)
-            next_frame_time += frame_duration;
-
-            // If we are significantly behind (e.g. > 5 frames), skip ahead
-            auto max_lag = 5 * frame_duration;
-            if (now - next_frame_time > max_lag) {
-                next_frame_time = now;
-            }
-        } else {
-            // We're ahead of schedule: sleep to limit framerate
-            std::this_thread::sleep_until(next_frame_time);
-        }
-    }
 }
 
 void SDLDisplay::stop() {
@@ -128,29 +144,40 @@ GameUpdate SDLDisplay::get_initial_state() {
 }
 
 void SDLDisplay::update_state() {
-    Message msg;
-    if (input_queue.try_pop(msg)) {
-        const GameUpdate& update = msg.get_content<GameUpdate>();
-        state = state.merged(update);
-        std::cout << "Applied GameUpdate" << std::endl;
+    std::vector<Message> msgs;
+    for (int i = 0; i < 10; ++i) {
+        Message msg;
+        if (!input_queue.try_pop(msg))
+            break;  // No more messages to process
+        msgs.push_back(msg);
     }
-}
 
-void SDLDisplay::update_display(hudDisplay& hud_display) {
-    hud_display.render();
-    // map.update(state);
-
-    // listTeams.update(state);
-
-    // if (clock > 20) {
-    // hudDisplay.update(clock);
-    //  map.render();
-    /*if (shop) {
-        shopDisplay.render();
-    }*/
-    // list_teams = false;
-    //} else {
-
-    // listTeams.update(clock);
-    //}
+    for (const auto& msg: msgs) {
+        switch (msg.get_type()) {
+            case MessageType::GAME_UPDATE: {
+                const GameUpdate& update = msg.get_content<GameUpdate>();
+                state = state.merged(update);
+                break;
+            }
+            case MessageType::SHOP_PRICES_RESP: {
+                const ShopPricesResponse& response = msg.get_content<ShopPricesResponse>();
+                shop_display->updateShopState(true);
+                shop_display->updatePrices(response);
+                std::cout << "Updated shop prices" << std::endl;
+                break;
+            }
+            case MessageType::SCOREBOARD_RESP: {
+                std::cout << "Received ScoreboardResponse" << std::endl;
+                auto scoreboard = msg.get_content<ScoreboardResponse>().get_scoreboard();
+                score_display->updateScoreboard(scoreboard);
+                score_display->updateState();
+                break;
+            }
+            default: {
+                std::cerr << "Received unexpected message type: "
+                          << static_cast<int>(msg.get_type()) << std::endl;
+                break;
+            }
+        }
+    }
 }

@@ -1,15 +1,16 @@
 #pragma once
 
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include <yaml-cpp/yaml.h>
 
+#include "common/map/map.h"
 #include "common/models.h"
+#include "common/physics/physics_config.h"
 #include "common/utils/vector_2d.h"
-
-#include "map.h"
 
 // TODO: Make subclasses of MapBuilder that build specific
 //       maps such as DesertMapBuilder, AztecMapBuilder, and
@@ -18,6 +19,18 @@
 class MapBuilder {
 private:
     std::string filename;
+
+    template <typename T>
+    void load_positions(YAML::Node node, std::vector<T>& vector) {
+        if (!node || !node.IsSequence())
+            return;
+        for (const auto& data: node) {
+            int x = data["x"].as<int>();
+            int y = data["y"].as<int>();
+            Vector2D pos(x, y);
+            vector.push_back(T(std::move(pos * PhysicsConfig::meter_size)));
+        }
+    }
 
 public:
     explicit MapBuilder(const std::string& filename): filename(filename) {}
@@ -30,56 +43,18 @@ public:
         Map map(name, max_players);
 
         YAML::Node tiles = map_data["tiles"];
-        if (tiles["floors"]) {
-            for (const auto& tile_data: tiles["floors"]) {
-                int x = tile_data["x"].as<int>();
-                int y = tile_data["y"].as<int>();
-                Vector2D tile_pos(x, y);
-                map.add_tile(MapTileType::Floor, std::move(tile_pos));
-            }
-        }
+        if (tiles["floors"])
+            load_positions<Floor>(tiles["floors"], map.floors);
+        if (tiles["walls"])
+            load_positions<Wall>(tiles["walls"], map.walls);
+        if (tiles["boxes"])
+            load_positions<Box>(tiles["boxes"], map.boxes);
 
-        if (tiles["walls"]) {
-            for (const auto& tile_data: tiles["walls"]) {
-                int x = tile_data["x"].as<int>();
-                int y = tile_data["y"].as<int>();
-                Vector2D tile_pos(x, y);
-                map.add_tile(MapTileType::Wall, std::move(tile_pos));
-            }
-        }
-
-        if (tiles["boxes"]) {
-            for (const auto& tile_data: tiles["boxes"]) {
-                int x = tile_data["x"].as<int>();
-                int y = tile_data["y"].as<int>();
-                Vector2D tile_pos(x, y);
-                map.add_tile(MapTileType::Box, std::move(tile_pos));
-            }
-        }
-
-        for (const auto& spawn_tt_data: map_data["spawns_tts"]) {
-            int x = spawn_tt_data["x"].as<int>();
-            int y = spawn_tt_data["y"].as<int>();
-            Vector2D spawn_tt_pos(x, y);
-            map.add_spawn_tt(std::move(spawn_tt_pos));
-        }
-
-        for (const auto& spawn_ct_data: map_data["spawns_cts"]) {
-            int x = spawn_ct_data["x"].as<int>();
-            int y = spawn_ct_data["y"].as<int>();
-            Vector2D spawn_ct_pos(x, y);
-            map.add_spawn_ct(std::move(spawn_ct_pos));
-        }
-
-        for (const auto& bomb_site_data: map_data["bomb_sites"]) {
-            int x = bomb_site_data["x"].as<int>();
-            int y = bomb_site_data["y"].as<int>();
-            Vector2D bomb_site_pos(x, y);
-            map.add_bomb_site(std::move(bomb_site_pos));
-        }
+        load_positions<Vector2D>(map_data["spawns_tts"], map.spawns_tts);
+        load_positions<Vector2D>(map_data["spawns_cts"], map.spawns_cts);
+        load_positions<Vector2D>(map_data["bomb_sites"], map.bomb_sites);
 
         map.validate();
-
         return map;
     }
 };

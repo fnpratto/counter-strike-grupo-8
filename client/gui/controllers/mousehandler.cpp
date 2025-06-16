@@ -4,54 +4,56 @@
 
 #include <SDL2/SDL.h>
 
-constexpr int SCREEN_WIDTH = 800;
-constexpr int SCREEN_HEIGHT = 600;
+#include "common/utils/rate_controller.h"
 
-void MouseHandler::sendNormalizedCoordinates(int x, int y) {
-    float norm_x = static_cast<float>(x) / SCREEN_WIDTH;
-    float norm_y = static_cast<float>(y) / SCREEN_HEIGHT;
+// TODO refactor this to send the event to clickable components
+void MouseHandler::handleEvent(const SDL_Event& event) {
+    int x, y;
+    SDL_GetMouseState(&x, &y);
 
-    // Optional: Clamp values between 0 and 1 just in case
-    norm_x = std::max(0.0f, std::min(1.0f, norm_x));
-    norm_y = std::max(0.0f, std::min(1.0f, norm_y));
-    // output_queue.push(Message(AimCommand(norm_x, norm_y)));
+    if (event.type == SDL_MOUSEBUTTONDOWN) {
+        if (event.button.button != SDL_BUTTON_LEFT)
+            return;
+
+        std::optional<Message> maybe_message = shopDisplayRef.getPurchaseCommand(x, y);
+        if (maybe_message.has_value()) {
+            output_queue.push(maybe_message.value());
+            return;
+        }
+        if (listTeamsRef.isActive()) {
+            std::optional<Team> chosen_team = listTeamsRef.updatePointerPosition(x, y);
+            if (chosen_team.has_value()) {
+                output_queue.push(Message(SelectTeamCommand(chosen_team.value())));
+                return;
+            }
+            return;
+        }
+        if (skinSelectRef.isActive()) {
+            std::optional<CharacterType> id_skin = skinSelectRef.updatePointerPosition(x, y);
+            if (id_skin.has_value()) {
+                output_queue.push(Message(SelectCharacterCommand(id_skin.value())));
+                return;
+            }
+            std::optional<bool> pre_game_finished = skinSelectRef.updateFinishPreGame(x, y);
+            if (pre_game_finished) {
+                output_queue.push(Message(SetReadyCommand()));
+                return;
+            }
+            return;
+        }
+        return;
+        // output_queue.push(Message(ShootCommand()));  // TODO_ADD SERVER
+    } else if (event.type == SDL_MOUSEMOTION) {
+        sendAimCommand(Vector2D(x, y) - Vector2D(screen_width / 2, screen_height / 2));
+        hudDisplayRef.updatePointerPosition(x, y);  // TODO_ADD SERVER
+    }
 }
 
-void MouseHandler::handleEvent(const SDL_Event& event /*, bool shop, bool list_teams*/) {
-    int x, y;
-    if (event.type == SDL_MOUSEBUTTONDOWN) {
-        switch (event.button.button) {
-            case SDL_BUTTON_LEFT:
-                std::cout << "MOUSE_PRESS_LEFT" << std::endl;
-                SDL_GetMouseState(&x, &y);
-                /*if (shop) {
-                    std::optional<Message> maybe_message =
-                            shopDisplayRef.updatePointerPosition(x, y);
-                    if (maybe_message.has_value()) {
-                        inputQueue.push(maybe_message.value());
-                        std::cout << "Sent shop-related command." << std::endl;
-                    }
-                    return;
-                }
-                if (list_teams) {
-                    std::optional<Team> team_choosen = listTeamsRef.updatePointerPosition(x, y);
-                    if (team_choosen.has_value()) {
-                        inputQueue.push(Message(SelectTeamCommand(team_choosen.value())));
-                        std::cout << "Selected team" << std::endl;
-                    }
-                    return;
-                }*/
-                // output_queue.push(Message(ShootCommand()));
-                std::cout << "ShootCommand sent with coordinates: (" << x << ", " << y << ")"
-                          << std::endl;
-                break;
-            case SDL_BUTTON_RIGHT:
-                std::cout << "MOUSE_PRESS_RIGHT" << std::endl;
-                break;
-        }
-    } else if (event.type == SDL_MOUSEMOTION) {
-        SDL_GetMouseState(&x, &y);
-        sendNormalizedCoordinates(x, y);
-        // hudDisplayRef.updatePointerPosition(x, y);
-    }
+void MouseHandler::sendAimCommand(Vector2D direction) {
+    static RateController rate_controller(5);
+    if (!rate_controller.should_run())
+        return;
+
+    direction = direction.normalized(100);
+    output_queue.emplace(AimCommand(direction));  // TODO_ADD SERVER
 }

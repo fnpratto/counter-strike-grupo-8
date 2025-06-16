@@ -154,11 +154,20 @@ protected:
         return payload;
     }
 
-    payload_t serialize(const int& i) const { return serialize(static_cast<uint16_t>(i)); }
+    payload_t serialize(const int16_t& i) const {
+        payload_t payload;
+
+        int16_t data = htons(static_cast<int16_t>(i));
+        payload.insert(payload.begin(), reinterpret_cast<const char*>(&data),
+                       reinterpret_cast<const char*>(&data) + sizeof(data));
+
+        return payload;
+    }
+
+    payload_t serialize(const int& i) const { return serialize(static_cast<int16_t>(i)); }
 
     payload_t serialize(const Vector2D& vec) const {
         payload_t payload;
-        payload.reserve(2 * sizeof(uint16_t));
         payload_t x_payload = serialize(vec.get_x());
         payload_t y_payload = serialize(vec.get_y());
         payload.insert(payload.end(), x_payload.begin(), x_payload.end());
@@ -185,6 +194,28 @@ protected:
         payload.insert(payload.end(), name_payload.begin(), name_payload.end());
         payload.insert(payload.end(), count_payload.begin(), count_payload.end());
         payload.insert(payload.end(), phase_payload.begin(), phase_payload.end());
+
+        return payload;
+    }
+
+    payload_t serialize(const CharacterType& character_type) const {
+        return serialize(static_cast<uint8_t>(character_type));
+    }
+
+    payload_t serialize(const ScoreboardEntry& entry) const {
+        payload_t payload;
+
+        payload_t money_payload = serialize(entry.money);
+        payload_t kills_payload = serialize(entry.kills);
+        payload_t deaths_payload = serialize(entry.deaths);
+        payload_t score_payload = serialize(entry.score);
+
+        payload.reserve(money_payload.size() + kills_payload.size() + deaths_payload.size() +
+                        score_payload.size());
+        payload.insert(payload.end(), money_payload.begin(), money_payload.end());
+        payload.insert(payload.end(), kills_payload.begin(), kills_payload.end());
+        payload.insert(payload.end(), deaths_payload.begin(), deaths_payload.end());
+        payload.insert(payload.end(), score_payload.begin(), score_payload.end());
 
         return payload;
     }

@@ -53,7 +53,7 @@ tiles:
       y: 4
   boxes:
     - x: 2
-      y: 1
+      y: 3
 spawns_tts:
   - x: 1
     y: 1

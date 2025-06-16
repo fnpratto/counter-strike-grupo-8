@@ -6,12 +6,11 @@
 #include <utility>
 #include <vector>
 
+#include "common/errors.h"
 #include "common/message.h"
 #include "common/protocol.h"
 #include "common/socket.h"
 #include "common/updates/state_update.h"
-
-#include "errors.h"
 
 /**
  * @class ClientProtocol
@@ -45,18 +44,30 @@ public:
 
         for (size_t i = 0; i < length; i++) {
             K key = deserialize<K>(payload);
-            V value;
 
             if constexpr (std::is_base_of_v<StateUpdate, V>) {
-                value = deserialize_update<V>(payload);
+                result.emplace(key, deserialize_update<V>(payload));
             } else {
-                value = deserialize<V>(payload);
+                result.emplace(key, deserialize<V>(payload));
             }
-
-            result[key] = value;
         }
 
         return result;
+    }
+
+    template <typename T>
+    std::optional<T> deserialize_optional(payload_t& payload) const {
+        bool has_value = deserialize<bool>(payload);
+
+        if (has_value) {
+            if constexpr (std::is_base_of_v<StateUpdate, T>) {
+                return deserialize_update<T>(payload);
+            } else {
+                return deserialize<T>(payload);
+            }
+        }
+
+        return std::optional<T>{};
     }
 
     template <typename T>

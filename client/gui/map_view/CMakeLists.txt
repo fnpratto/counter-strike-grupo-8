@@ -1,7 +1,14 @@
 target_sources(taller_client
     PRIVATE
-    map_view.cpp
+    sdl_camera.cpp
+    sdl_map.cpp
+    sdl_world.cpp
+    sdl_player.cpp
 
     PUBLIC
-    map_view.h
+    sdl_camera.h
+    sdl_map.h
+    sdl_player.h
+    sdl_tile.h
+    sdl_world.h
 )

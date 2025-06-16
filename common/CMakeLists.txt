@@ -6,9 +6,11 @@ target_sources(taller_common
     resolver.cpp
     resolvererror.cpp
     socket.cpp
+    utils/rate_controller.cpp
     PUBLIC
     # .h files
     utils/vector_2d.h
+    utils/rate_controller.h
     commands.h
     updates/state_update.h
     updates/game_update.h
@@ -16,6 +18,7 @@ target_sources(taller_common
     updates/player_update.h
     updates/inventory_update.h
     updates/gun_update.h
+    updates/knife_update.h
     ../server/states/state.h
     ../server/states/game_state.h
     ../server/states/gun_state.h
