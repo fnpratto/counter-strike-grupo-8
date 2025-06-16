@@ -188,11 +188,14 @@ ShopPricesResponse ClientProtocol::deserialize_msg<ShopPricesResponse>(payload_t
     return ShopPricesResponse(gun_prices, ammo_prices);
 }
 
-// TODO: Implement
 template <>
-HitResponse ClientProtocol::deserialize_msg<HitResponse>(
-        [[maybe_unused]] payload_t& payload) const {
-    return HitResponse(Vector2D(0, 0), Vector2D(0, 0), Vector2D(0, 0), false);
+HitResponse ClientProtocol::deserialize_msg<HitResponse>(payload_t& payload) const {
+    Vector2D player_pos = deserialize<Vector2D>(payload);
+    Vector2D target_pos = deserialize<Vector2D>(payload);
+    Vector2D effect_dir = deserialize<Vector2D>(payload);
+    bool hit_status = static_cast<bool>(deserialize<uint8_t>(payload));
+
+    return HitResponse(player_pos, target_pos, effect_dir, hit_status);
 }
 
 template <>

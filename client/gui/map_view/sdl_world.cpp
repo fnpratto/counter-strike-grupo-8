@@ -47,6 +47,13 @@ Map SdlWorld::build_default_map() {
 
     return actual_map;
 }
+void SdlWorld::handleHit([[maybe_unused]] Vector2D get_origin,
+                         [[maybe_unused]] Vector2D get_hit_pos,
+                         [[maybe_unused]] Vector2D get_hit_dir, [[maybe_unused]] bool is_hit) {
+    // Handle hit logic here
+    // For now, just print the hit information
+    std::cout << "Hit detected: " << std::endl;
+}
 
 void SdlWorld::render() {
     camera.center(game_state.get_players().at(player_name).get_pos());

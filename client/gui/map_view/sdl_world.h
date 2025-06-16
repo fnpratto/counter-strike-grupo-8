@@ -37,6 +37,7 @@ public:
     SdlWorld(SdlWindow& window, const GameUpdate& game_state, const std::string& player_name);
 
     void render();
+    void handleHit(Vector2D get_origin, Vector2D get_hit_pos, Vector2D get_hit_dir, bool is_hit);
 
 private:
     Map build_default_map();

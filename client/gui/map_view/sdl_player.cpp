@@ -51,4 +51,6 @@ void SdlPlayer::render(const PlayerUpdate& state) {
 
     ItemSlot item = game_state.get_players().at(playerName).get_equipped_item();
     weapon.render(item, dest, angle);
+
+    // bullet
 }

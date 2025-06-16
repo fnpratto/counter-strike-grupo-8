@@ -92,6 +92,7 @@ void Game::perform_attacks() {
             auto closest_target = physics_system.get_closest_target(p_name, effect->get_dir(),
                                                                     effect->get_max_range());
             if (!closest_target.has_value())
+
                 continue;
 
             bool is_hit = apply_attack_effect(player, effect, closest_target.value());

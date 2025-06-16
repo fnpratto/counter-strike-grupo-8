@@ -44,8 +44,21 @@ payload_t ServerProtocol::serialize_msg(const ShopPricesResponse& response) cons
 }
 
 template <>
-payload_t ServerProtocol::serialize_msg([[maybe_unused]] const HitResponse& response) const {
-    return payload_t();
+payload_t ServerProtocol::serialize_msg(const HitResponse& response) const {
+    payload_t payload;
+
+    payload_t player_pos_payload = serialize(response.get_hit_pos());
+    payload.insert(payload.end(), player_pos_payload.begin(), player_pos_payload.end());
+
+    payload_t target_pos_payload = serialize(response.get_hit_pos());
+    payload.insert(payload.end(), target_pos_payload.begin(), target_pos_payload.end());
+
+    payload_t effect_dir_payload = serialize(response.get_origin());
+    payload.insert(payload.end(), effect_dir_payload.begin(), effect_dir_payload.end());
+
+    payload.push_back(static_cast<uint8_t>(response.is_hit()));
+
+    return payload;
 }
 
 template <>

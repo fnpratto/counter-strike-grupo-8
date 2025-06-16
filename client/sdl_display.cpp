@@ -27,7 +27,8 @@ SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue
         quit_flag(false),
         input_handler(nullptr),
         score_display(nullptr),
-        shop_display(nullptr) {
+        shop_display(nullptr),
+        world(nullptr) {
 
     std::cout << "SDLDisplay initialized with player: " << player_name << std::endl;
     SCREEN_WIDTH = 800;
@@ -68,7 +69,7 @@ void SDLDisplay::run() {
     SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
     hudDisplay hud_display(window, state, player_name);
     shop_display = std::make_unique<shopDisplay>(window, state);
-    SdlWorld world(window, state, player_name);
+    world = std::make_unique<SdlWorld>(window, state, player_name);
     listTeams list_teams(window, state, player_name);
     skinSelect list_skins(window, state, player_name);
     std::map<std::string, ScoreboardEntry> scoreboard;
@@ -95,18 +96,18 @@ void SDLDisplay::run() {
             } else if (list_skins.isActive()) {
                 list_skins.render();
             } else {
-                world.render();
+                world->render();
                 hud_display.render();
             }
         } else if (state.get_phase().get_phase() == PhaseType::Buying) {
-            world.render();
+            world->render();
             hud_display.render();
             shop_display->render();
         } else if (state.get_phase().get_phase() == PhaseType::Playing) {
-            world.render();
+            world->render();
             hud_display.render();
         } else if (state.get_phase().get_phase() == PhaseType::RoundEnd) {
-            world.render();
+            world->render();
             hud_display.render();
             end_round_display.render();
         }
@@ -171,6 +172,13 @@ void SDLDisplay::update_state() {
                 auto scoreboard = msg.get_content<ScoreboardResponse>().get_scoreboard();
                 score_display->updateScoreboard(scoreboard);
                 score_display->updateState();
+                break;
+            }
+            case MessageType::HIT_RESP: {
+                std::cout << "Received Hit response" << std::endl;
+                auto hit = msg.get_content<HitResponse>();
+                world->handleHit(hit.get_origin(), hit.get_hit_pos(), hit.get_hit_dir(),
+                                 hit.is_hit());
                 break;
             }
             default: {

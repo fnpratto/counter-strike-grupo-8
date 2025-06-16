@@ -26,7 +26,6 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
                 output_queue.push(Message(SelectTeamCommand(chosen_team.value())));
                 return;
             }
-            return;
         }
         if (skinSelectRef.isActive()) {
             std::optional<CharacterType> id_skin = skinSelectRef.updatePointerPosition(x, y);
@@ -39,10 +38,10 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
                 output_queue.push(Message(SetReadyCommand()));
                 return;
             }
-            return;
         }
+        output_queue.push(Message(AttackCommand()));
+        std::cout << "MouseHandler: AttackCommand sent" << std::endl;
         return;
-        // output_queue.push(Message(ShootCommand()));  // TODO_ADD SERVER
     } else if (event.type == SDL_MOUSEMOTION) {
         sendAimCommand(Vector2D(x, y) - Vector2D(screen_width / 2, screen_height / 2));
         hudDisplayRef.updatePointerPosition(x, y);  // TODO_ADD SERVER
