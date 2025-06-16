@@ -63,18 +63,19 @@ void hudDisplay::render() {
 }
 
 void hudDisplay::renderStartGameButton() {
-    int buttonWidth = static_cast<int>(200 * scaleRatio);
+    int buttonWidth = static_cast<int>(280 * scaleRatio);
     int buttonHeight = static_cast<int>(50 * scaleRatio);
-    const Area sizeButton(0, 0, 200, 50);
+    const Area sizeButton(0, 0, 680, 130);
     const Area destButton(SCREEN_WIDTH / 2 - buttonWidth / 2,
                           SCREEN_HEIGHT - buttonHeight - layout.padding * 2, buttonWidth,
                           buttonHeight);
     start_game_buttom.render(sizeButton, destButton);
 
     roundText.setTextString("START GAME");
-    roundText.render(Area(SCREEN_WIDTH / 2 - buttonWidth / 2 + layout.padding,
+    roundText.render(Area(SCREEN_WIDTH / 2 - buttonWidth * 0.5 / 2 + layout.padding,
                           SCREEN_HEIGHT - buttonHeight - layout.padding * 2 + layout.padding,
-                          buttonWidth - layout.padding * 2, buttonHeight - layout.padding * 2));
+                          buttonWidth * 0.5 - layout.padding * 2,
+                          buttonHeight - layout.padding * 2));
 }
 
 void hudDisplay::renderMuteIcon(bool isMuted) {
