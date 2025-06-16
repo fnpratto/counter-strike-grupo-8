@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
 #include <type_traits>
@@ -21,6 +22,25 @@ enum class CmdType : uint8_t {
 };
 
 typedef std::vector<char> payload_t;
+
+// Type traits to identify specific containers
+template <typename T>
+struct is_vector: std::false_type {};
+
+template <typename T, typename Alloc>
+struct is_vector<std::vector<T, Alloc>>: std::true_type {};
+
+template <typename T>
+struct is_map: std::false_type {};
+
+template <typename Key, typename Value, typename Compare, typename Alloc>
+struct is_map<std::map<Key, Value, Compare, Alloc>>: std::true_type {};
+
+template <typename T>
+struct is_optional: std::false_type {};
+
+template <typename T>
+struct is_optional<std::optional<T>>: std::true_type {};
 
 /**
  * @class BaseProtocol
@@ -111,113 +131,40 @@ protected:
 
     payload_t pop(payload_t& payload, size_t size) const;
 
-    payload_t serialize(const uint8_t& i) const {
-        payload_t payload(1);
-        payload[0] = static_cast<char>(i);
-        return payload;
+    // Must be defined in this header file because it's used in other TUs
+    template <typename K, typename V>
+    payload_t serialize(const std::map<K, V>& map) const {
+        payload_t result;
+
+        payload_t length = serialize(static_cast<uint16_t>(map.size()));
+        result.insert(result.begin(), length.begin(), length.end());
+        for (const auto& [key, value]: map) {
+            payload_t key_payload = serialize(key);
+            payload_t value_payload;
+
+            value_payload = serialize(value);
+
+            result.insert(result.end(), key_payload.begin(), key_payload.end());
+            result.insert(result.end(), value_payload.begin(), value_payload.end());
+        }
+
+        return result;
     }
 
-    payload_t serialize(const std::string& str) const {
-        payload_t length = serialize(static_cast<uint16_t>(str.size()));
+    template <typename T>
+    payload_t serialize(const std::optional<T>& v) const;
 
+    // Must be defined in this header file because it's used in other TUs
+    template <typename T>
+    payload_t serialize(const std::vector<T>& v) const {
         payload_t payload;
-        payload.reserve(length.size() + str.size());
 
+        payload_t length = serialize(static_cast<uint16_t>(v.size()));
         payload.insert(payload.end(), length.begin(), length.end());
-        payload.insert(payload.end(), str.data(), str.data() + str.size());
-
-        return payload;
-    }
-
-    payload_t serialize(const float& f) const {
-        payload_t payload;
-
-        float network_f = htonl(f);
-        payload.insert(payload.end(), reinterpret_cast<const char*>(&network_f),
-                       reinterpret_cast<const char*>(&network_f) + sizeof(network_f));
-
-        return payload;
-    }
-
-    payload_t serialize(const bool& b) const {
-        payload_t payload(1);
-        payload[0] = static_cast<char>(b);
-        return payload;
-    }
-
-    payload_t serialize(const uint16_t& i) const {
-        payload_t payload;
-
-        uint16_t data = htons(static_cast<uint16_t>(i));
-        payload.insert(payload.begin(), reinterpret_cast<const char*>(&data),
-                       reinterpret_cast<const char*>(&data) + sizeof(data));
-
-        return payload;
-    }
-
-    payload_t serialize(const int16_t& i) const {
-        payload_t payload;
-
-        int16_t data = htons(static_cast<int16_t>(i));
-        payload.insert(payload.begin(), reinterpret_cast<const char*>(&data),
-                       reinterpret_cast<const char*>(&data) + sizeof(data));
-
-        return payload;
-    }
-
-    payload_t serialize(const int& i) const { return serialize(static_cast<int16_t>(i)); }
-
-    payload_t serialize(const Vector2D& vec) const {
-        payload_t payload;
-        payload_t x_payload = serialize(vec.get_x());
-        payload_t y_payload = serialize(vec.get_y());
-        payload.insert(payload.end(), x_payload.begin(), x_payload.end());
-        payload.insert(payload.end(), y_payload.begin(), y_payload.end());
-        return payload;
-    }
-
-    payload_t serialize(const TimePoint& time_point) const {
-        payload_t payload;
-        payload.reserve(sizeof(uint64_t));
-        uint64_t time_ns = htonl(time_point.time_since_epoch().count());
-        payload.insert(payload.end(), reinterpret_cast<const char*>(&time_ns),
-                       reinterpret_cast<const char*>(&time_ns) + sizeof(time_ns));
-        return payload;
-    }
-
-    payload_t serialize(const GameInfo& game_info) const {
-        payload_t payload;
-
-        payload_t name_payload = serialize(game_info.name);
-        payload_t count_payload = serialize(game_info.players_count);
-        payload_t phase_payload = serialize(game_info.phase);
-        payload.reserve(name_payload.size() + count_payload.size() + phase_payload.size());
-        payload.insert(payload.end(), name_payload.begin(), name_payload.end());
-        payload.insert(payload.end(), count_payload.begin(), count_payload.end());
-        payload.insert(payload.end(), phase_payload.begin(), phase_payload.end());
-
-        return payload;
-    }
-
-    payload_t serialize(const CharacterType& character_type) const {
-        return serialize(static_cast<uint8_t>(character_type));
-    }
-
-    payload_t serialize(const ScoreboardEntry& entry) const {
-        payload_t payload;
-
-        payload_t money_payload = serialize(entry.money);
-        payload_t kills_payload = serialize(entry.kills);
-        payload_t deaths_payload = serialize(entry.deaths);
-        payload_t score_payload = serialize(entry.score);
-
-        payload.reserve(money_payload.size() + kills_payload.size() + deaths_payload.size() +
-                        score_payload.size());
-        payload.insert(payload.end(), money_payload.begin(), money_payload.end());
-        payload.insert(payload.end(), kills_payload.begin(), kills_payload.end());
-        payload.insert(payload.end(), deaths_payload.begin(), deaths_payload.end());
-        payload.insert(payload.end(), score_payload.begin(), score_payload.end());
-
+        for (const auto& item: v) {
+            auto serialized_item = serialize(item);
+            payload.insert(payload.end(), serialized_item.begin(), serialized_item.end());
+        }
         return payload;
     }
 
@@ -228,25 +175,57 @@ protected:
     }
 
     template <typename T>
-    payload_t serialize(const std::vector<T>& v) const {
-        payload_t payload;
+    typename std::enable_if<!std::is_enum<T>::value && !is_vector<T>::value &&
+                                    !is_optional<T>::value && !is_map<T>::value,
+                            payload_t>::type
+            serialize(const T& value) const;
 
-        payload_t length = serialize(static_cast<uint16_t>(v.size()));
-        payload.reserve(length.size() + sizeof(T) * v.size());
-        payload.insert(payload.end(), length.begin(), length.end());
-        for (const auto& item: v) {
-            auto serialized_item = serialize(item);
-            payload.insert(payload.end(), serialized_item.begin(), serialized_item.end());
+    template <typename T>
+    typename std::enable_if<is_optional<T>::value, T>::type deserialize(payload_t& payload) const {
+        bool has_value = deserialize<bool>(payload);
+
+        if (has_value) {
+            return std::make_optional<T>(deserialize<T>(payload));
         }
-        return payload;
+
+        return std::optional<T>{};
+    }
+
+    template <typename K, typename V>
+    std::map<K, V> deserialize(payload_t& payload) const {
+        uint16_t length = deserialize<uint16_t>(payload);
+        std::map<K, V> result;
+
+        for (size_t i = 0; i < length; i++) {
+            K key = deserialize<K>(payload);
+            result.emplace(key, deserialize<V>(payload));
+        }
+
+        return result;
     }
 
     template <typename T>
-    typename std::enable_if<!std::is_enum<T>::value, T>::type deserialize(payload_t& payload) const;
+    typename std::enable_if<is_vector<T>::value, T>::type deserialize(payload_t& payload) const {
+        uint16_t length = deserialize<uint16_t>(payload);
+
+        std::vector<typename T::value_type> result;
+        for (size_t i = 0; i < length; i++) {
+            typename T::value_type item = deserialize<typename T::value_type>(payload);
+            result.push_back(item);
+        }
+
+        return result;
+    }
 
     template <typename T>
     typename std::enable_if<std::is_enum<T>::value, T>::type deserialize(payload_t& payload) const {
         auto underlying_value = deserialize<uint8_t>(payload);
         return static_cast<T>(underlying_value);
     }
+
+    template <typename T>
+    typename std::enable_if<!std::is_enum<T>::value && !is_vector<T>::value &&
+                                    !is_optional<T>::value && !is_map<T>::value,
+                            T>::type
+            deserialize(payload_t& payload) const;
 };
