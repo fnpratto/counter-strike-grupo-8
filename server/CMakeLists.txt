@@ -56,13 +56,13 @@ target_sources(taller_server
     # physics
     physics/physics_system.h
     physics/target_type.h
-    physics/physics_config.h
+    ../common/physics/physics_config.h
     # map
     map/map_builder.h
-    map/map.h
-    map/floor.h
-    map/wall.h
-    map/box.h
+    ../common/map/map.h
+    ../common/map/floor.h
+    ../common/map/wall.h
+    ../common/map/box.h
     # player
     player/player.h
     player/player_config.h

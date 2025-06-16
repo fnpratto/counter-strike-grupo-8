@@ -13,7 +13,8 @@
     F(CharactersResponse, CHARACTERS_RESP)                                \
     F(ScoreboardResponse, SCOREBOARD_RESP)                                \
     F(TriedToJoinFullTeamErrorResponse, TRIED_TO_JOIN_FULL_TEAM_ERR_RESP) \
-    F(CannotBuyErrorResponse, CANNOT_BUY_ERR_RESP)
+    F(CannotBuyErrorResponse, CANNOT_BUY_ERR_RESP)                        \
+    F(RoundEndResponse, ROUND_END_RESP)
 
 #define LOBBY_COMMANDS_MAP(F)             \
     F(CreateGameCommand, CREATE_GAME_CMD) \

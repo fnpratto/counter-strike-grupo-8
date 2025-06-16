@@ -10,6 +10,7 @@
 #include <mutex>
 #include <queue>
 #include <stdexcept>
+#include <utility>
 
 struct ClosedQueue: public std::runtime_error {
     ClosedQueue(): std::runtime_error("The queue is closed") {}
@@ -63,6 +64,11 @@ public:
         return true;
     }
 
+    template <typename... Args>
+    bool try_emplace(Args&&... args) {
+        return try_push(T(std::forward<Args>(args)...));
+    }
+
     bool try_pop(T& val) {
         std::unique_lock<std::mutex> lck(mtx);
 
@@ -100,6 +106,10 @@ public:
         q.push(val);
     }
 
+    template <typename... Args>
+    void emplace(Args&&... args) {
+        push(T(std::forward<Args>(args)...));
+    }
 
     T pop() {
         std::unique_lock<std::mutex> lck(mtx);

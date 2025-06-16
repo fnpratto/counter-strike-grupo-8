@@ -146,7 +146,7 @@ std::optional<CharacterType> skinSelect::updatePointerPosition(int x, int y) {
                     case 1:
                         return CharacterType::L337_Krew;
                     case 2:
-                        return CharacterType::Artic_Avenger;
+                        return CharacterType::Arctic_Avenger;
                     case 3:
                         return CharacterType::Guerrilla;
                 }

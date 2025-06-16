@@ -14,10 +14,7 @@
 
 class Inventory: public Logic<InventoryState, InventoryUpdate> {
 public:
-    Inventory():
-            Logic<InventoryState, InventoryUpdate>(InventoryState(PlayerConfig::initial_money)) {
-        state.set_gun(ItemSlot::Secondary, Gun::make_glock());
-    }
+    Inventory();
 
     Inventory(const Inventory&) = delete;
     Inventory& operator=(const Inventory&) = delete;
@@ -25,8 +22,10 @@ public:
     Inventory(Inventory&&) = default;
     Inventory& operator=(Inventory&&) = default;
 
-    int get_money() const { return state.get_money(); }
-    std::unique_ptr<Gun>& get_gun(const ItemSlot& slot);
+    bool has_item_in_slot(ItemSlot slot);
+
+    int get_money() const;
+    std::map<ItemSlot, std::unique_ptr<Gun>>& get_guns();
     Knife& get_knife();
     std::optional<Bomb>& get_bomb();
 

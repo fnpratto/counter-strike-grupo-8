@@ -5,8 +5,8 @@
 #include <optional>
 #include <variant>
 
-#include "server/map/box.h"
-#include "server/map/wall.h"
+#include "common/map/box.h"
+#include "common/map/wall.h"
 #include "server/player/player.h"
 
 using WallRef = std::reference_wrapper<const Wall>;

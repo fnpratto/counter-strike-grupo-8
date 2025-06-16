@@ -28,4 +28,9 @@ public:
         time_last_attack = now;
         return effects;
     }
+
+    void stop_attacking() {
+        time_last_attack = TimePoint::min();
+        state.set_is_attacking(false);
+    }
 };

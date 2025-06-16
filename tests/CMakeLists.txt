@@ -59,13 +59,13 @@ target_sources(taller_tests
     # physics
     ../server/physics/physics_system.h
     ../server/physics/target_type.h
-    ../server/physics/physics_config.h
+    ../common/physics/physics_config.h
     # map
     ../server/map/map_builder.h
-    ../server/map/map.h
-    ../server/map/floor.h
-    ../server/map/wall.h
-    ../server/map/box.h
+    ../common/map/map.h
+    ../common/map/floor.h
+    ../common/map/wall.h
+    ../common/map/box.h
     # player
     ../server/player/player.h
     ../server/player/player_config.h
