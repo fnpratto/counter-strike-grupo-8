@@ -10,7 +10,11 @@
 #include <arpa/inet.h>
 
 #include "common/base_socket.h"
+#include "common/game/world_item.h"
+#include "common/models.h"
 #include "common/socket.h"
+#include "common/utils/container_type_traits.h"
+#include "common/utils/vector_2d.h"
 
 #include "message.h"
 
@@ -22,25 +26,6 @@ enum class CmdType : uint8_t {
 };
 
 typedef std::vector<char> payload_t;
-
-// Type traits to identify specific containers
-template <typename T>
-struct is_vector: std::false_type {};
-
-template <typename T, typename Alloc>
-struct is_vector<std::vector<T, Alloc>>: std::true_type {};
-
-template <typename T>
-struct is_map: std::false_type {};
-
-template <typename Key, typename Value, typename Compare, typename Alloc>
-struct is_map<std::map<Key, Value, Compare, Alloc>>: std::true_type {};
-
-template <typename T>
-struct is_optional: std::false_type {};
-
-template <typename T>
-struct is_optional<std::optional<T>>: std::true_type {};
 
 /**
  * @class BaseProtocol
@@ -185,10 +170,10 @@ protected:
         bool has_value = deserialize<bool>(payload);
 
         if (has_value) {
-            return std::make_optional<T>(deserialize<T>(payload));
+            return deserialize<T>(payload);
         }
 
-        return std::optional<T>{};
+        return {};
     }
 
     template <typename K, typename V>

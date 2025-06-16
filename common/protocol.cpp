@@ -10,7 +10,11 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
+#include "common/game/world_item.h"
+#include "common/models.h"
 #include "common/socket.h"
+#include "common/updates/bomb_update.h"
+#include "common/utils/vector_2d.h"
 #include "server/clock/clock.h"
 
 #include "message.h"
@@ -175,6 +179,22 @@ payload_t BaseProtocol::serialize(const ScoreboardEntry& entry) const {
     return payload;
 }
 
+template <>
+payload_t BaseProtocol::serialize(const WorldItem<GunType>& world_item) const {
+    payload_t payload;
+
+    // Serialize the gun type (enum)
+    payload_t gun_payload = serialize(world_item.item);
+    payload.insert(payload.end(), gun_payload.begin(), gun_payload.end());
+
+    // Serialize the position
+    payload_t pos_payload = serialize(world_item.pos);
+    payload.insert(payload.end(), pos_payload.begin(), pos_payload.end());
+
+    return payload;
+}
+
+
 #define X_SERIALIZE_UPDATE(type, attr)                                               \
     payload.push_back(update.has_##attr##_changed());                                \
     if (update.has_##attr##_changed()) {                                             \
@@ -187,18 +207,6 @@ payload_t BaseProtocol::serialize(const ScoreboardEntry& entry) const {
         payload_t attr##_payload = serialize(update.get_##attr());                   \
         payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end()); \
     }
-#define U_SERIALIZE_UPDATE(type, attr)                                               \
-    payload.push_back(update.has_##attr##_changed());                                \
-    if (update.has_##attr##_changed()) {                                             \
-        payload_t attr##_payload = serialize(update.get_##attr());                   \
-        payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end()); \
-    }
-#define O_SERIALIZE_UPDATE(type, attr)                                               \
-    payload.push_back(update.has_##attr##_changed());                                \
-    if (update.has_##attr##_changed()) {                                             \
-        payload_t attr##_payload = serialize(update.get_##attr());                   \
-        payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end()); \
-    }
 #define V_SERIALIZE_UPDATE(type, attr)                                               \
     payload.push_back(update.has_##attr##_changed());                                \
     if (update.has_##attr##_changed()) {                                             \
@@ -206,15 +214,14 @@ payload_t BaseProtocol::serialize(const ScoreboardEntry& entry) const {
         payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end()); \
     }
 
-#define SERIALIZE_UPDATE(CLASS, ATTRS)                                                        \
-    template <>                                                                               \
-    payload_t BaseProtocol::serialize<CLASS>(const CLASS& update) const {                     \
-        payload_t payload;                                                                    \
-                                                                                              \
-        ATTRS(X_SERIALIZE_UPDATE, M_SERIALIZE_UPDATE, U_SERIALIZE_UPDATE, O_SERIALIZE_UPDATE, \
-              V_SERIALIZE_UPDATE)                                                             \
-                                                                                              \
-        return payload;                                                                       \
+#define SERIALIZE_UPDATE(CLASS, ATTRS)                                    \
+    template <>                                                           \
+    payload_t BaseProtocol::serialize<CLASS>(const CLASS& update) const { \
+        payload_t payload;                                                \
+                                                                          \
+        ATTRS(X_SERIALIZE_UPDATE, M_SERIALIZE_UPDATE, V_SERIALIZE_UPDATE) \
+                                                                          \
+        return payload;                                                   \
     }
 
 SERIALIZE_UPDATE(BombUpdate, BOMB_ATTRS)
@@ -224,6 +231,21 @@ SERIALIZE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)
 SERIALIZE_UPDATE(PlayerUpdate, PLAYER_ATTRS)
 SERIALIZE_UPDATE(PhaseUpdate, PHASE_ATTRS)
 SERIALIZE_UPDATE(GameUpdate, GAME_ATTRS)
+
+template <>
+payload_t BaseProtocol::serialize(const WorldItem<BombUpdate>& world_item) const {
+    payload_t payload;
+
+    // Serialize the bomb update
+    payload_t bomb_payload = serialize(world_item.item);
+    payload.insert(payload.end(), bomb_payload.begin(), bomb_payload.end());
+
+    // Serialize the position
+    payload_t pos_payload = serialize(world_item.pos);
+    payload.insert(payload.end(), pos_payload.begin(), pos_payload.end());
+
+    return payload;
+}
 
 // ---------- Deserialization ----------
 
@@ -308,6 +330,13 @@ ScoreboardEntry BaseProtocol::deserialize<ScoreboardEntry>(payload_t& payload) c
     return ScoreboardEntry(money, kills, deaths, score);
 }
 
+template <>
+WorldItem<GunType> BaseProtocol::deserialize<WorldItem<GunType>>(payload_t& payload) const {
+    GunType gun_type = deserialize<GunType>(payload);
+    Vector2D pos = deserialize<Vector2D>(payload);
+
+    return WorldItem<GunType>{gun_type, pos};
+}
 
 #define X_DESERIALIZE_UPDATE(type, attr)        \
     if (deserialize<bool>(payload)) {           \
@@ -319,20 +348,10 @@ ScoreboardEntry BaseProtocol::deserialize<ScoreboardEntry>(payload_t& payload) c
         std::map<key_type, value_type> attr = deserialize<key_type, value_type>(payload); \
         result.set_##attr(attr);                                                          \
     }
-#define U_DESERIALIZE_UPDATE(type, attr)        \
-    if (deserialize<bool>(payload)) {           \
-        type attr = deserialize<type>(payload); \
-        result.set_##attr(attr);                \
-    }
-#define O_DESERIALIZE_UPDATE(type, attr)                       \
-    if (deserialize<bool>(payload)) {                          \
-        std::optional<type> attr = deserialize<type>(payload); \
-        result.set_##attr(attr);                               \
-    }
-#define V_DESERIALIZE_UPDATE(type, attr)                               \
-    if (deserialize<bool>(payload)) {                                  \
-        std::vector<ATTR type> attr = deserialize<ATTR type>(payload); \
-        result.set_##attr(attr);                                       \
+#define V_DESERIALIZE_UPDATE(type, attr)                                  \
+    if (deserialize<bool>(payload)) {                                     \
+        std::vector<type> attr = deserialize<std::vector<type>>(payload); \
+        result.set_##attr(attr);                                          \
     }
 
 #define DESERIALIZE_UPDATE(CLASS, ATTRS)                                        \
@@ -340,8 +359,7 @@ ScoreboardEntry BaseProtocol::deserialize<ScoreboardEntry>(payload_t& payload) c
     CLASS BaseProtocol::deserialize<CLASS>(payload_t & payload) const {         \
         CLASS result;                                                           \
                                                                                 \
-        ATTRS(X_DESERIALIZE_UPDATE, M_DESERIALIZE_UPDATE, U_DESERIALIZE_UPDATE, \
-              O_DESERIALIZE_UPDATE, V_DESERIALIZE_UPDATE)                       \
+        ATTRS(X_DESERIALIZE_UPDATE, M_DESERIALIZE_UPDATE, V_DESERIALIZE_UPDATE) \
                                                                                 \
         return result;                                                          \
     }
@@ -353,6 +371,14 @@ DESERIALIZE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)
 DESERIALIZE_UPDATE(PlayerUpdate, PLAYER_ATTRS)
 DESERIALIZE_UPDATE(PhaseUpdate, PHASE_ATTRS)
 DESERIALIZE_UPDATE(GameUpdate, GAME_ATTRS)
+
+template <>
+WorldItem<BombUpdate> BaseProtocol::deserialize<WorldItem<BombUpdate>>(payload_t& payload) const {
+    BombUpdate bomb_update = deserialize<BombUpdate>(payload);
+    Vector2D pos = deserialize<Vector2D>(payload);
+
+    return WorldItem<BombUpdate>{bomb_update, pos};
+}
 
 Message BaseProtocol::recv() {
     payload_t header(sizeof(uint8_t) + sizeof(uint16_t));

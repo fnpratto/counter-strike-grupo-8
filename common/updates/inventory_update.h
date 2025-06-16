@@ -11,10 +11,10 @@
 #include "knife_update.h"
 #include "state_update.h"
 
-#define INVENTORY_ATTRS(X, M, U, O, V) \
-    X(int, money)                      \
-    M(ItemSlot, GunUpdate, guns)       \
-    U(KnifeUpdate, knife)              \
-    O(BombUpdate, bomb)
+#define INVENTORY_ATTRS(X, M, V) \
+    X(int, money)                \
+    M(ItemSlot, GunUpdate, guns) \
+    X(KnifeUpdate, knife)        \
+    X(std::optional<BombUpdate>, bomb)
 
 DEFINE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)

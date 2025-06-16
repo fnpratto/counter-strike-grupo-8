@@ -50,30 +50,30 @@ TEST_F(TestGameUpdate, MapMerging) {
     GameUpdate update1;
     GameUpdate update2;
 
-    // Create player updates
-    PlayerUpdate player1;
-    player1.set_health(100);
+    // Set players in initial update
+    PlayerUpdate initial_player1;
+    initial_player1.set_health(100);
 
-    PlayerUpdate player2;
-    player2.set_health(75);
-    player2.set_team(Team::CT);
+    PlayerUpdate initial_player2;
+    initial_player2.set_health(75);
+    initial_player2.set_team(Team::CT);
 
-    PlayerUpdate player3;
-    player3.set_ready(true);
-
-    // Set players in first update
-    std::map<std::string, PlayerUpdate> players1;
-    players1["player1"] = player1;
-    players1["player2"] = player2;
-    update1.set_players(players1);
+    std::map<std::string, PlayerUpdate> initial_players;
+    initial_players["player1"] = initial_player1;
+    initial_players["player2"] = initial_player2;
+    update1.set_players(initial_players);
 
     // Set players in second update (overlapping and new players)
-    std::map<std::string, PlayerUpdate> players2;
-    players2["player2"] = player3;  // This should merge with existing player2
-    PlayerUpdate player4;
-    player4.set_pos(Vector2D(10, 0));
-    players2["player4"] = player4;  // New player
-    update2.set_players(players2);
+    PlayerUpdate player2_update;
+    player2_update.set_ready(true);
+
+    PlayerUpdate new_player;
+    new_player.set_pos(Vector2D(10, 0));
+
+    std::map<std::string, PlayerUpdate> players_update;
+    players_update["player2"] = player2_update;  // This should merge with existing player2
+    players_update["player4"] = new_player;      // New player
+    update2.set_players(players_update);
 
     // Merge the updates
     auto merged = update1.merged(update2);
@@ -93,11 +93,11 @@ TEST_F(TestGameUpdate, MapMerging) {
     EXPECT_TRUE(merged_players.count("player2"));
     auto& merged_player2 = merged_players["player2"];
     EXPECT_TRUE(merged_player2.has_health_changed());
+    EXPECT_EQ(merged_player2.get_health(), 75);  // From original player2
     EXPECT_TRUE(merged_player2.has_team_changed());
-    EXPECT_TRUE(merged_player2.has_ready_changed());
-    EXPECT_EQ(merged_player2.get_health(), 75);      // From original player2
     EXPECT_EQ(merged_player2.get_team(), Team::CT);  // From original player2
-    EXPECT_EQ(merged_player2.get_ready(), true);     // From player3
+    EXPECT_TRUE(merged_player2.has_ready_changed());
+    EXPECT_EQ(merged_player2.get_ready(), true);  // From player3
 
     // Check player4 was added
     EXPECT_TRUE(merged_players.count("player4"));
