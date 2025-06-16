@@ -24,6 +24,7 @@ struct HudLayout {
     float scale;
 };
 class hudDisplay {
+
     const GameUpdate& state;
     const std::string& player_name;
     SdlWindow& window;
@@ -52,12 +53,14 @@ class hudDisplay {
     float heightRatio;
     float scaleRatio;
     HudLayout layout;
+    SdlTexture start_game_buttom;
 
 
 public:
     explicit hudDisplay(SdlWindow& window, const GameUpdate& state, const std::string& player_name);
     void render();
     void updatePointerPosition(int x, int y);
+    bool start_game_click(int x, int y);
 
 private:
     void renderBackground();
@@ -70,8 +73,7 @@ private:
     void renderBullets();
     void renderGunIcons();
     void renderMuteIcon(bool isMuted);
-
-    void renderGunIcon(const std::string& path, const std::string& number, int x, int y);
+    void renderStartGameButton();
     void renderDigits(const std::string& str, int x, int y, BitmapFont& texture);
 };
 

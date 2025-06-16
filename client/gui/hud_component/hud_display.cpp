@@ -28,7 +28,8 @@ hudDisplay::hudDisplay(SdlWindow& window, const GameUpdate& state, const std::st
         gunNumber(std::string(GameConfig::Paths::FONT_PATH), 20, {150, 150, 150, 255}, window),
         scoreText(std::string(GameConfig::Paths::FONT_PATH), 20, {255, 255, 255, 255}, window),
         muteIcon(std::string(GameConfig::Paths::MUTE_ICON_PATH), window),
-        gunsInventoryTexture(std::string(GameConfig::Paths::GUNS_INVENTORY_PATH), window) {
+        gunsInventoryTexture(std::string(GameConfig::Paths::GUNS_INVENTORY_PATH), window),
+        start_game_buttom(std::string(GameConfig::Paths::BACKGROUND_WINNER_PATH), window) {
     float BASE_WIDTH = 800.0f;
     float BASE_HEIGHT = 600.0f;
 
@@ -56,6 +57,24 @@ void hudDisplay::render() {
     renderBullets();
     renderGunIcons();
     renderMuteIcon(false);
+    if (state.get_phase().get_phase() == PhaseType::WarmUp) {
+        renderStartGameButton();
+    }
+}
+
+void hudDisplay::renderStartGameButton() {
+    int buttonWidth = static_cast<int>(200 * scaleRatio);
+    int buttonHeight = static_cast<int>(50 * scaleRatio);
+    const Area sizeButton(0, 0, 200, 50);
+    const Area destButton(SCREEN_WIDTH / 2 - buttonWidth / 2,
+                          SCREEN_HEIGHT - buttonHeight - layout.padding * 2, buttonWidth,
+                          buttonHeight);
+    start_game_buttom.render(sizeButton, destButton);
+
+    roundText.setTextString("START GAME");
+    roundText.render(Area(SCREEN_WIDTH / 2 - buttonWidth / 2 + layout.padding,
+                          SCREEN_HEIGHT - buttonHeight - layout.padding * 2 + layout.padding,
+                          buttonWidth - layout.padding * 2, buttonHeight - layout.padding * 2));
 }
 
 void hudDisplay::renderMuteIcon(bool isMuted) {
@@ -315,4 +334,16 @@ void hudDisplay::renderDigits(const std::string& str, int x, int y, BitmapFont& 
 void hudDisplay::updatePointerPosition(int x, int y) {
     pointerX = x;
     pointerY = y;
+}
+
+bool hudDisplay::start_game_click(int x, int y) {
+    int buttonWidth = static_cast<int>(200 * scaleRatio);
+    int buttonHeight = static_cast<int>(50 * scaleRatio);
+    int buttonX = SCREEN_WIDTH / 2 - buttonWidth / 2;
+    int buttonY = SCREEN_HEIGHT - buttonHeight - layout.padding * 2;
+
+    if (x >= buttonX && x <= buttonX + buttonWidth && y >= buttonY && y <= buttonY + buttonHeight) {
+        return true;
+    }
+    return false;
 }
