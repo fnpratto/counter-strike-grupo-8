@@ -44,8 +44,9 @@ bool ConnectionHandler::connect_to_server() {
 
         auto conn_req = msg.get_content<ConnectionRequest>();
         try {
-            protocol = std::make_shared<ClientProtocol>(
-                    Socket(conn_req.get_ip().c_str(), conn_req.get_port().c_str()));
+            auto socket = std::make_shared<Socket>(conn_req.get_ip().c_str(),
+                                                   conn_req.get_port().c_str());
+            protocol = std::make_shared<ClientProtocol>(socket);
         } catch (const std::exception& e) {
             std::cerr << "Error connecting to server: " << e.what() << std::endl;
             display_queue.push(Message(false));

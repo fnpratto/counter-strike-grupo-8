@@ -8,6 +8,7 @@
 
 #include <arpa/inet.h>
 
+#include "common/base_socket.h"
 #include "common/socket.h"
 
 #include "message.h"
@@ -23,21 +24,21 @@ typedef std::vector<char> payload_t;
 
 /**
  * @class BaseProtocol
- * @brief Abstract base class for message-based protocols using a Socket.
+ * @brief Abstract base class for message-based protocols using a BaseSocket.
  *
- * Manages a Socket to send and receive Message objects over the network.
+ * Manages a BaseSocket to send and receive Message objects over the network.
  */
 class BaseProtocol {
 protected:
-    Socket socket;
+    std::shared_ptr<BaseSocket> socket;
 
 public:
     /**
      * @brief Constructs the protocol with a given socket.
-     * @param skt Shared pointer to a Socket used for communication.
+     * @param skt Shared pointer to a BaseSocket used for communication.
      * @throws std::runtime_error if the provided socket is null.
      */
-    explicit BaseProtocol(Socket&& skt);
+    explicit BaseProtocol(std::shared_ptr<BaseSocket> skt);
 
     /**
      * @brief Destructor for BaseProtocol.

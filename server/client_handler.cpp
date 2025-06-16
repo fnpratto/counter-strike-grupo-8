@@ -10,7 +10,7 @@
 #include "errors.h"
 
 ClientHandler::ClientHandler(Socket&& client_socket, LobbyMonitor& lobby_monitor):
-        protocol(ServerProtocol(std::move(client_socket))),
+        protocol(ServerProtocol(std::make_shared<Socket>(std::move(client_socket)))),
         lobby_thread(std::make_unique<LobbyThread>(
                 protocol, lobby_monitor, [this](const std::string& player_name, pipe_t pipe) {
                     this->connect(player_name, std::move(pipe));
