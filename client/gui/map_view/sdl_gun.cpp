@@ -3,36 +3,37 @@
 #include "client/game_config.h"
 
 // Constructor
-SDLGun::SDLGun(SdlWindow& window):
-        primaryTexture(GameConfig::Paths::PRIMARY_GUN_PATH, window, 32, 32),
-        secondaryTexture(GameConfig::Paths::SECONDARY_GUN_PATH, window, 32, 32),
-        meleeTexture(GameConfig::Paths::MELEE_GUN_PATH, window, 32, 32),
-        bombTexture(GameConfig::Paths::BOMB_GUN_PATH, window, 32, 32) {}
-
-// Destructor
-SDLGun::~SDLGun() {
-    // Note: Textures are managed externally, so no need to destroy them here.
-}
+SDLGun::SDLGun(SdlWindow& w):
+        window(w),
+        primaryTexture(std::string(GameConfig::Paths::PRIMARY_GUN_PATH), window),
+        secondaryTexture(std::string(GameConfig::Paths::SECONDARY_GUN_PATH), window),
+        meleeTexture(std::string(GameConfig::Paths::MELEE_GUN_PATH), window),
+        bombTexture(std::string(GameConfig::Paths::BOMB_GUN_PATH), window) {}
 
 // Render method
-void SDLGun::render(ItemSlot itemSlot, int x, int y, float angle) {
-    SDL_Texture* textureToRender = nullptr;
-
+void SDLGun::render(ItemSlot itemSlot, Area& dest, float angle) {
+    std::cout << "Rendering gun for item slot: " << static_cast<int>(itemSlot) << std::endl;
+    SDL_Rect src = {0, 0, 32, 32};
     switch (itemSlot) {
         case ItemSlot::Primary:
-            textureToRender = primaryTexture;
+            primaryTexture.render(dest.getX() - 5, dest.getY() - 5, &src, angle, nullptr,
+                                  SDL_FLIP_NONE);
             break;
         case ItemSlot::Secondary:
-            textureToRender = secondaryTexture;
+            secondaryTexture.render(dest.getX() - 5, dest.getY() - 5, &src, angle, nullptr,
+                                    SDL_FLIP_NONE);
             break;
         case ItemSlot::Melee:
-            textureToRender = meleeTexture;
+            meleeTexture.render(dest.getX() - 5, dest.getY() - 5, &src, angle, nullptr,
+                                SDL_FLIP_NONE);
             break;
         case ItemSlot::Bomb:
-            textureToRender = bombTexture;
-
+            bombTexture.render(dest.getX() - 5, dest.getY() - 5, &src, angle, nullptr,
+                               SDL_FLIP_NONE);
+            break;
+        default:
+            std::cerr << "Error: Invalid item slot passed to SDLGun::render: "
+                      << static_cast<int>(itemSlot) << std::endl;
             break;
     }
-
-    textureToRender.render(x, y, nullptr, 0.0f, nullptr, SDL_FLIP_NONE);
 }

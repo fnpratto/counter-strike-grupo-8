@@ -25,9 +25,10 @@ class SdlWorld {
 
     SdlWindow& window;
     const GameUpdate& game_state;
+
     const std::string& player_name;
     SdlCamera camera;
-    std::map<std::string, SdlPlayer> players;
+    std::map<std::string, std::unique_ptr<SdlPlayer>> players;
     SdlMap map;
 
     // SdlTexture background;  // TODO: Load a background texture

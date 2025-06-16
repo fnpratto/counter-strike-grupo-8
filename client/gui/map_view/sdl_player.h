@@ -23,6 +23,7 @@
 class SdlPlayer {
     SdlWindow& window;
     const SdlCamera& camera;
+    SdlTexture player_texture;
     SdlAnimation walk_animation;
     const GameUpdate& game_state;
     std::string playerName;

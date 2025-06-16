@@ -12,16 +12,15 @@
 
 class SDLGun {
 private:
-    SDL_Texture primaryTexture;
-    SDL_Texture secondaryTexture;
-    SDL_Texture meleeTexture;
-    SDL_Texture bombTexture;
+    SdlWindow& window;
+    SdlTexture primaryTexture;
+    SdlTexture secondaryTexture;
+    SdlTexture meleeTexture;
+    SdlTexture bombTexture;
 
 public:
     explicit SDLGun(SdlWindow& window);
-    ~SDLGun();
-
-    void render(ItemSlot itemSlot, int x, int y, float angle);
+    void render(ItemSlot itemSlot, Area& dest, float angle);
 };
 
 #endif  // SDL_GUN_H

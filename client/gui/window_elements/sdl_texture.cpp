@@ -13,11 +13,11 @@ SdlTexture::SdlTexture(const std::string& filename, const SdlWindow& window):
     this->texture = loadTexture(filename);
 }
 
-// for animations
 SdlTexture::SdlTexture(const std::string& filename, const SdlWindow& window, int width, int height):
         renderer(window.getRenderer()), width(width), height(height) {
     this->texture = loadTexture(filename);
 }
+
 
 SdlTexture::~SdlTexture() { SDL_DestroyTexture(this->texture); }
 
