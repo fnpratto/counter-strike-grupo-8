@@ -86,8 +86,6 @@ void PlayerState::set_equipped_item(ItemSlot new_equipped_item) {
     updates.set_equipped_item(new_equipped_item);
 }
 
-void PlayerState::add_bomb(Bomb&& bomb) { inventory.add_bomb(std::move(bomb)); }
-
 PlayerUpdate PlayerState::get_updates() const {
     PlayerUpdate update = updates;
     update.set_inventory(inventory.get_updates());

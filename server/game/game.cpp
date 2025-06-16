@@ -13,7 +13,8 @@
 Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map):
         Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.max_players)),
         name(name),
-        physics_system(std::move(map), state.get_players()) {}
+        physics_system(std::move(map), state.get_players(), state.get_dropped_guns(),
+                       state.get_bomb()) {}
 
 bool Game::is_full() const { return state.game_is_full(); }
 
@@ -75,7 +76,6 @@ void Game::advance_players_movement() {
         Vector2D old_pos = player->get_pos();
         Vector2D step = physics_system.calculate_step(player->get_move_dir());
         Vector2D new_pos = old_pos + step;
-        // TODO: Check collisions with items
         if (physics_system.is_walkable(new_pos))
             player->move_to_pos(new_pos);
     }
@@ -295,11 +295,26 @@ void Game::handle<DefuseBombCommand>(const std::string& player_name,
     (void)player_name;
 }
 
-// TODO: Implement
 template <>
 void Game::handle<PickUpItemCommand>(const std::string& player_name,
                                      [[maybe_unused]] const PickUpItemCommand& msg) {
-    (void)player_name;
+    auto& player = state.get_player(player_name);
+
+    if (physics_system.player_collides_with_bomb(player->get_pos())) {
+        player->pick_bomb(std::move(state.remove_bomb()));
+        return;
+    }
+
+    auto gun_pos = physics_system.get_colliding_gun_pos(player->get_pos());
+    if (!gun_pos.has_value())
+        return;
+    if (player->get_inventory().has_item_in_slot(ItemSlot::Primary)) {
+        auto old_gun = player->drop_primary_weapon();
+        auto new_gun = state.remove_dropped_gun_at_pos(gun_pos.value());
+        if (old_gun.has_value())
+            state.add_dropped_gun(std::move(old_gun.value()), player->get_pos());
+        player->pick_gun(std::move(new_gun));
+    }
 }
 
 // TODO: Implement
@@ -354,7 +369,7 @@ void Game::prepare_new_round() {
         if (bomb.has_value())
             state.add_bomb(std::move(bomb.value()), player->get_pos());
     }
-    give_bomb_to_random_tt(std::move(state.get_bomb()));
+    give_bomb_to_random_tt(std::move(state.remove_bomb()));
 }
 
 void Game::move_player_to_spawn(const std::string& player_name) {

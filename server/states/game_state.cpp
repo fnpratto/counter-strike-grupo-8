@@ -61,11 +61,11 @@ const std::unique_ptr<Player>& GameState::get_player(const std::string& player_n
     return it->second;
 }
 
-Bomb&& GameState::get_bomb() {
-    if (!bomb.has_value())
-        throw std::runtime_error("Bomb not found");
-    return std::move(bomb.value().item);
+const std::vector<WorldItem<std::unique_ptr<Gun>>>& GameState::get_dropped_guns() const {
+    return dropped_guns;
 }
+
+const std::optional<WorldItem<Bomb>>& GameState::get_bomb() const { return bomb; }
 
 void GameState::advance_round() {
     num_rounds += 1;
@@ -89,13 +89,34 @@ void GameState::add_player(const std::string& player_name, std::unique_ptr<Playe
 }
 
 void GameState::add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos) {
-    // updates.set_dropped_guns({WorldItem<GunType>{gun->get_type(), pos}});
     dropped_guns.emplace_back(std::move(gun), pos);
+    // updates.set_dropped_guns(dropped_guns);
+}
+
+std::unique_ptr<Gun>&& GameState::remove_dropped_gun_at_pos(const Vector2D& pos) {
+    auto it = std::find_if(
+            dropped_guns.begin(), dropped_guns.end(),
+            [&pos](const WorldItem<std::unique_ptr<Gun>>& item) { return item.pos == pos; });
+    if (it == dropped_guns.end())
+        throw std::runtime_error("Dropped gun not found at the specified position");
+
+    std::unique_ptr<Gun>&& gun = std::move(it->item);
+    dropped_guns.erase(it);
+    // updates.set_dropped_guns(dropped_guns);
+    return std::move(gun);
 }
 
 void GameState::add_bomb(Bomb&& bomb, const Vector2D& pos) {
     this->bomb = WorldItem<Bomb>{std::move(bomb), pos};
 }
+
+Bomb&& GameState::remove_bomb() {
+    if (!bomb.has_value())
+        throw std::runtime_error("Bomb not found");
+    // updates.set_bomb(std::optional<WorldItem<BombUpdate>>());
+    return std::move(bomb.value().item);
+}
+
 Team GameState::get_winning_team() const {
     if (is_tts_win_condition())
         return Team::TT;

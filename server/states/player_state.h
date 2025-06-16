@@ -43,8 +43,6 @@ public:
     void set_health(int new_health);
     void set_equipped_item(ItemSlot new_equipped_item);
 
-    void add_bomb(Bomb&& bomb);
-
     PlayerUpdate get_updates() const override;
 
     PlayerUpdate get_full_update() const override;  // cppcheck-suppress[virtualCallInConstructor]

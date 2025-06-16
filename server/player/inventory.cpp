@@ -34,6 +34,15 @@ Knife& Inventory::get_knife() { return state.get_knife(); }
 
 std::optional<Bomb>& Inventory::get_bomb() { return state.get_bomb(); }
 
+void Inventory::set_gun(std::unique_ptr<Gun>&& gun) {
+    if (gun->get_type() == GunType::Glock) {
+        state.set_gun(ItemSlot::Secondary, std::move(gun));
+    } else if (gun->get_type() == GunType::AK47 || gun->get_type() == GunType::M3 ||
+               gun->get_type() == GunType::AWP) {
+        state.set_gun(ItemSlot::Primary, std::move(gun));
+    }
+}
+
 void Inventory::add_primary_weapon(const GunType& gun_type) {
     if (gun_type == GunType::AK47) {
         state.set_gun(ItemSlot::Primary, Gun::make_ak47());
@@ -56,4 +65,4 @@ Bomb Inventory::remove_bomb() {
     return bomb;
 }
 
-void Inventory::add_bomb(Bomb&& bomb) { state.set_bomb(std::move(bomb)); }
+void Inventory::set_bomb(Bomb&& bomb) { state.set_bomb(std::move(bomb)); }

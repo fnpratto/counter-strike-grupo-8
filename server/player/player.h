@@ -49,6 +49,7 @@ public:
 
     void select_character(CharacterType character_type);
 
+    void pick_gun(std::unique_ptr<Gun>&& gun);
     void pick_bomb(Bomb&& bomb);
 
     void start_moving(Vector2D velocity);

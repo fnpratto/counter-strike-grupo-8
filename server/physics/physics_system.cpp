@@ -9,8 +9,10 @@
 #include "server/game/game_config.h"
 
 PhysicsSystem::PhysicsSystem(Map&& map,
-                             const std::map<std::string, std::unique_ptr<Player>>& players):
-        map(std::move(map)), players(players) {}
+                             const std::map<std::string, std::unique_ptr<Player>>& players,
+                             const std::vector<WorldItem<std::unique_ptr<Gun>>>& dropped_guns,
+                             const std::optional<WorldItem<Bomb>>& bomb):
+        map(std::move(map)), players(players), dropped_guns(dropped_guns), bomb(bomb) {}
 
 Vector2D PhysicsSystem::rand_pos_in_vector(const std::vector<Vector2D>& vector) const {
     int rand_idx = std::rand() % vector.size();
@@ -33,8 +35,10 @@ Vector2D PhysicsSystem::random_spawn_ct_pos() const {
 bool PhysicsSystem::player_in_spawn(const std::string& player_name) const {
     const std::unique_ptr<Player>& player = players.at(player_name);
     const std::vector<Vector2D>& spawns = player->is_tt() ? map.spawns_tts : map.spawns_cts;
-    for (const Vector2D& s: spawns) {  // cppcheck-suppress[useStlAlgorithm]
-        if (player_collides_with_tile(player->get_pos(), s))
+    for (const Vector2D& spawn_pos: spawns) {  // cppcheck-suppress[useStlAlgorithm]
+        if (player_hitbox_collides_with_aabb(player->get_pos(), PhysicsConfig::player_hitbox_radius,
+                                             spawn_pos, PhysicsConfig::meter_size,
+                                             PhysicsConfig::meter_size))
             return true;
     }
     return false;
@@ -47,11 +51,15 @@ Vector2D PhysicsSystem::calculate_step(const Vector2D& dir) const {
 
 bool PhysicsSystem::is_walkable(const Vector2D& pos) const {
     for (const Wall& wall: map.walls) {  // cppcheck-suppress[useStlAlgorithm]
-        if (player_collides_with_tile(pos, wall.get_pos()))
+        if (player_hitbox_collides_with_aabb(pos, PhysicsConfig::player_hitbox_radius,
+                                             wall.get_pos(), PhysicsConfig::meter_size,
+                                             PhysicsConfig::meter_size))
             return false;
     }
     for (const Box& box: map.boxes) {  // cppcheck-suppress[useStlAlgorithm]
-        if (player_collides_with_tile(pos, box.get_pos()))
+        if (player_hitbox_collides_with_aabb(pos, PhysicsConfig::player_hitbox_radius,
+                                             box.get_pos(), PhysicsConfig::meter_size,
+                                             PhysicsConfig::meter_size))
             return false;
     }
     return true;
@@ -174,12 +182,13 @@ bool PhysicsSystem::tile_is_hit(Vector2D target_pos, Vector2D player_pos, Vector
     return true;
 }
 
-bool PhysicsSystem::player_collides_with_tile(const Vector2D& player_pos,
-                                              const Vector2D& tile_pos) const {
-    float minX = tile_pos.get_x();
-    float maxX = tile_pos.get_x() + PhysicsConfig::meter_size;
-    float minY = tile_pos.get_y();
-    float maxY = tile_pos.get_y() + PhysicsConfig::meter_size;
+bool PhysicsSystem::player_hitbox_collides_with_aabb(const Vector2D& player_pos, float radius,
+                                                     const Vector2D& rect_pos, float width,
+                                                     float height) const {
+    float minX = rect_pos.get_x();
+    float maxX = rect_pos.get_x() + width;
+    float minY = rect_pos.get_y();
+    float maxY = rect_pos.get_y() + height;
 
     float closestX = std::max(minX, std::min(static_cast<float>(player_pos.get_x()), maxX));
     float closestY = std::max(minY, std::min(static_cast<float>(player_pos.get_y()), maxY));
@@ -187,8 +196,31 @@ bool PhysicsSystem::player_collides_with_tile(const Vector2D& player_pos,
     float distance =
             Vector2D(player_pos.get_x() - closestX, player_pos.get_y() - closestY).length();
 
-    if (distance <= PhysicsConfig::player_hitbox_radius)
+    if (distance <= radius)
         return true;
 
     return false;
+}
+
+// TODO: Set bomb hitbox bounds accordingly
+bool PhysicsSystem::player_collides_with_bomb(const Vector2D& player_pos) const {
+    if (!bomb.has_value())
+        return false;
+
+    Vector2D bomb_pos = bomb.value().pos;
+    return player_hitbox_collides_with_aabb(player_pos, PhysicsConfig::player_hitbox_radius,
+                                            bomb_pos, PhysicsConfig::meter_size,
+                                            PhysicsConfig::meter_size);
+}
+
+// TODO: Set guns hitbox bounds accordingly
+std::optional<Vector2D> PhysicsSystem::get_colliding_gun_pos(const Vector2D& player_pos) const {
+    for (const auto& gun_item: dropped_guns) {
+        Vector2D gun_pos = gun_item.pos;
+        if (player_hitbox_collides_with_aabb(player_pos, PhysicsConfig::player_hitbox_radius,
+                                             gun_pos, PhysicsConfig::meter_size,
+                                             PhysicsConfig::meter_size))
+            return gun_pos;
+    }
+    return std::optional<Vector2D>();
 }

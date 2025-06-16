@@ -45,7 +45,9 @@ void Player::take_damage(int damage) {
 
 void Player::heal() { state.set_health(PlayerConfig::full_health); }
 
-void Player::pick_bomb(Bomb&& bomb) { state.add_bomb(std::move(bomb)); }
+void Player::pick_gun(std::unique_ptr<Gun>&& gun) { state.get_inventory().set_gun(std::move(gun)); }
+
+void Player::pick_bomb(Bomb&& bomb) { state.get_inventory().set_bomb(std::move(bomb)); }
 
 void Player::select_team(Team team) { state.set_team(team); }
 
