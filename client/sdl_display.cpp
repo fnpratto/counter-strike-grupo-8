@@ -154,6 +154,7 @@ void SDLDisplay::update_state() {
     }
 
     for (const auto& msg: msgs) {
+        std::cout << "Received message of type: " << static_cast<int>(msg.get_type()) << std::endl;
         switch (msg.get_type()) {
             case MessageType::GAME_UPDATE: {
                 const GameUpdate& update = msg.get_content<GameUpdate>();

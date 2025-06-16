@@ -70,8 +70,6 @@ private:
     void renderBullets();
     void renderGunIcons();
     void renderMuteIcon(bool isMuted);
-
-    void renderGunIcon(const std::string& path, const std::string& number, int x, int y);
     void renderDigits(const std::string& str, int x, int y, BitmapFont& texture);
 };
 
