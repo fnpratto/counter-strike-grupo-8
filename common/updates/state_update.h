@@ -24,7 +24,15 @@ public:
 protected:
     template <typename T>
     std::optional<T> merge(const std::optional<T>& a, const std::optional<T>& b) const {
-        return merge(a.value(), b.value());
+        if (!a.has_value() && !b.has_value()) {
+            return std::nullopt;
+        } else if (!a.has_value()) {
+            return b;
+        } else if (!b.has_value()) {
+            return a;
+        } else {
+            return merge(a.value(), b.value());
+        }
     }
 
     template <typename K, typename V>
@@ -70,13 +78,19 @@ protected:
 #define M_DEFINE_MEMBER(key_type, value_type, attr) std::map<key_type, value_type> attr;
 #define V_DEFINE_MEMBER(type, attr) std::vector<type> attr;
 
-#define X_SETTER(type, attr)                                                  \
-    void set_##attr(const type& value) { attr = merge(attr.value(), value); } \
-    const std::optional<type>& get_optional_##attr() const { return attr; }   \
-    const type& get_##attr() const {                                          \
-        if (!attr.has_value())                                                \
-            throw std::runtime_error(#attr " not set");                       \
-        return attr.value();                                                  \
+#define X_SETTER(type, attr)                                                \
+    void set_##attr(const type& value) {                                    \
+        if (attr.has_value()) {                                             \
+            attr = merge(attr.value(), value);                              \
+        } else {                                                            \
+            attr = value;                                                   \
+        }                                                                   \
+    }                                                                       \
+    const std::optional<type>& get_optional_##attr() const { return attr; } \
+    const type& get_##attr() const {                                        \
+        if (!attr.has_value())                                              \
+            throw std::runtime_error(#attr " not set");                     \
+        return attr.value();                                                \
     }
 #define M_SETTER(key_type, value_type, attr)                                 \
     void set_##attr(const std::map<key_type, value_type>& value) {           \
