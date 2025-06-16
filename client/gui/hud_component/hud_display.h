@@ -75,6 +75,7 @@ private:
     void renderMuteIcon(bool isMuted);
     void renderStartGameButton();
     void renderDigits(const std::string& str, int x, int y, BitmapFont& texture);
+    void renderChat();
 };
 
 #endif  // HUD_DISPLAY_H

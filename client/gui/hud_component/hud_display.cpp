@@ -59,7 +59,32 @@ void hudDisplay::render() {
     renderMuteIcon(false);
     if (state.get_phase().get_phase() == PhaseType::WarmUp) {
         renderStartGameButton();
+        renderChat();
     }
+}
+
+void hudDisplay::renderChat() {
+    int totalPlayers = state.get_players().size();
+    int readyPlayers = 0;
+
+    for (const auto& [name, player_state]: state.get_players()) {
+        if (player_state.get_ready()) {
+            readyPlayers++;
+            roundText.setTextString(name + " join game");
+
+            Area chatArea(
+                    layout.padding,
+                    SCREEN_HEIGHT - layout.size_height * 2 - readyPlayers * layout.size_height / 2,
+                    layout.size_width * 1.2, layout.size_height / 2);
+            roundText.render(chatArea);
+        }
+    }
+
+    std::string readyStatus = std::to_string(readyPlayers) + "/" + std::to_string(totalPlayers);
+    roundText.setTextString("Ready: " + readyStatus);
+
+    Area statusArea(50, layout.size_height, layout.size_width * 2, layout.size_height * 1.2);
+    roundText.render(statusArea);
 }
 
 void hudDisplay::renderStartGameButton() {
