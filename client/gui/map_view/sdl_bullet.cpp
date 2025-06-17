@@ -3,7 +3,7 @@
 SdlBullet::SdlBullet(SdlWindow& w):
         window(w),
         laser("../assets/gfx/map/laser.xcf", window, 200, 5),
-        hit_effect("../assets/gfx/map/blood.xcf", window, 120, 120) {}  // Initialize texture
+        hit_effect("../assets/gfx/map/blood.xcf", window, 20, 20) {}  // Initialize texture
 
 void SdlBullet::render(Vector2D get_origin, Vector2D get_hit_pos, Vector2D get_hit_dir,
                        bool is_hit) {
@@ -24,7 +24,7 @@ void SdlBullet::render(Vector2D get_origin, Vector2D get_hit_pos, Vector2D get_h
               << ")" << std::endl;
     // If the bullet hits something, render the hit position
     if (is_hit) {
-        SDL_Rect hit_clip{0, 0, 120, 120};  // Clip size for hit effect
+        SDL_Rect hit_clip{0, 0, 60, 60};  // Clip size for hit effect
         hit_effect.render(get_hit_pos.get_x(), get_hit_pos.get_y(), &hit_clip, angle, nullptr,
                           SDL_FLIP_NONE);
         std::cout << "Rendering hit effect at position: (" << get_hit_pos.get_x() << ", "
