@@ -42,16 +42,25 @@ void SdlPlayer::render(const PlayerUpdate& state) {
                           nullptr, SDL_FLIP_NONE);
 
 
-    const int RADIUS = 6;  // Distance from the center
+    const float RADIUS = 64.0f;  // distancia deseada
 
-    // Calculate offsets using cosine and sine
-    int offset_x = static_cast<int>(std::round(RADIUS * std::cos(angle)));
-    int offset_y = static_cast<int>(std::round(RADIUS * std::sin(angle)));
+    float angle_rad = angle * M_PI / 180.0f;  // convertir de grados a radianes
+    float tan_alpha = std::tan(angle_rad);
 
-    // Calculate the final position of the weapon
-    Area dest(position_from_cam.get_x() + offset_x, position_from_cam.get_y() + offset_y, WIDTH,
-              HEIGHT);
-    // Render the weapon
+    // calcular x e y a partir de la fórmula
+    float denominator = 1 + tan_alpha * tan_alpha;
+    float x_offset = std::sqrt((RADIUS * RADIUS) / denominator);
+    float y_offset = tan_alpha * x_offset;
+
+    // mantener el signo correcto según la dirección
+    if (std::cos(angle_rad) < 0)
+        x_offset = -x_offset;
+    if (std::sin(angle_rad) < 0)
+        y_offset = -y_offset;
+
+    // crear la posición final del arma
+    Area dest(position_from_cam.get_x() + static_cast<int>(x_offset),
+              position_from_cam.get_y() + static_cast<int>(y_offset), WIDTH, HEIGHT);
     ItemSlot item = game_state.get_players().at(playerName).get_equipped_item();
     weapon.render(item, dest, angle);
 }
