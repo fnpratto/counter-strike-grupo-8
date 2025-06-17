@@ -1,6 +1,7 @@
 #include "editor_window.h"
 
 #include <QAction>
+#include <QActionGroup>
 #include <QDebug>
 #include <QFontDatabase>
 #include <QGridLayout>
@@ -88,10 +89,19 @@ void EditorWindow::add_tool_bar(QVBoxLayout* sidebar_layout) {
     toolbar->setIconSize(QSize(24, 24));
     // toolbar->setStyleSheet("QToolBar { border: 1px solid #ccc; }");
 
-    // Add actions to the toolbar
-    toolbar->addAction(QIcon::fromTheme("document-new"), "New");
-    toolbar->addAction(QIcon::fromTheme("document-open"), "Open");
-    toolbar->addAction(QIcon::fromTheme("document-save"), "Save");
+    QActionGroup* action_group = new QActionGroup(this);
+    action_group->setExclusive(true);
+
+    QAction* pencil = toolbar->addAction(QIcon::fromTheme("gtk-edit"), "Pencil");
+    pencil->setCheckable(true);
+    pencil->setChecked(true);
+    action_group->addAction(pencil);
+    QAction* rectangle = toolbar->addAction(QIcon::fromTheme("draw-rectangle"), "Rectangle");
+    rectangle->setCheckable(true);
+    action_group->addAction(rectangle);
+    QAction* eraser = toolbar->addAction(QIcon::fromTheme("draw-eraser"), "Eraser");
+    eraser->setCheckable(true);
+    action_group->addAction(eraser);
 
     sidebar_layout->addWidget(toolbar);
 }

@@ -40,7 +40,9 @@ void MapViewTile::dropEvent(QDropEvent* event) {
     }
 }
 
-void MapViewTile::mousePressEvent(QMouseEvent* event) {
+void MapViewTile::mousePressEvent(QMouseEvent* event) { QLabel::mousePressEvent(event); }
+
+void MapViewTile::mouseReleaseEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton && selected_tile_button) {
         QPixmap pixmap = selected_tile_button->icon()
                                  .pixmap(TILE_SIZE, TILE_SIZE)
@@ -48,5 +50,5 @@ void MapViewTile::mousePressEvent(QMouseEvent* event) {
                                          Qt::SmoothTransformation);
         this->setPixmap(pixmap);
     }
-    QLabel::mousePressEvent(event);
+    QLabel::mouseReleaseEvent(event);
 }
