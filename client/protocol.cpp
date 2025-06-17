@@ -192,12 +192,26 @@ ShopPricesResponse ClientProtocol::deserialize_msg<ShopPricesResponse>(payload_t
 
 template <>
 HitResponse ClientProtocol::deserialize_msg<HitResponse>(payload_t& payload) const {
-    Vector2D player_pos = deserialize<Vector2D>(payload);
-    Vector2D target_pos = deserialize<Vector2D>(payload);
-    Vector2D effect_dir = deserialize<Vector2D>(payload);
-    bool hit_status = static_cast<bool>(deserialize<uint8_t>(payload));
 
-    return HitResponse(player_pos, target_pos, effect_dir, hit_status);
+    // Deserialize origin Vector2D
+    int origin_x = deserialize<int>(payload);
+    int origin_y = deserialize<int>(payload);
+    Vector2D origin(origin_x, origin_y);
+
+    // Deserialize hit_pos Vector2D
+    int hit_pos_x = deserialize<int>(payload);
+    int hit_pos_y = deserialize<int>(payload);
+    Vector2D hit_pos(hit_pos_x, hit_pos_y);
+
+    // Deserialize hit_dir Vector2D
+    int hit_dir_x = deserialize<int>(payload);
+    int hit_dir_y = deserialize<int>(payload);
+    Vector2D hit_dir(hit_dir_x, hit_dir_y);
+
+    // Deserialize hit bool
+    bool hit = deserialize<bool>(payload);
+
+    return HitResponse(origin, hit_pos, hit_dir, hit);
 }
 
 template <>
@@ -213,18 +227,17 @@ ScoreboardResponse ClientProtocol::deserialize_msg<ScoreboardResponse>(payload_t
     return ScoreboardResponse(std::move(scoreboard));
 }
 
-// TODO: Implement
 template <>
-ErrorResponse ClientProtocol::deserialize_msg<ErrorResponse>(
-        [[maybe_unused]] payload_t& payload) const {
+ErrorResponse ClientProtocol::deserialize_msg<ErrorResponse>(payload_t& payload) const {
+    // ErrorResponse is an empty class, no data to deserialize
+    (void)payload;
     return ErrorResponse();
 }
 
-// TODO: Implement
 template <>
-RoundEndResponse ClientProtocol::deserialize_msg<RoundEndResponse>(
-        [[maybe_unused]] payload_t& payload) const {
-    return RoundEndResponse(Team::CT);
+RoundEndResponse ClientProtocol::deserialize_msg<RoundEndResponse>(payload_t& payload) const {
+    uint8_t team = deserialize<uint8_t>(payload);
+    return RoundEndResponse(static_cast<Team>(team));
 }
 
 template <>
