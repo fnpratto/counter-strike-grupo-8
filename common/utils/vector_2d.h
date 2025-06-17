@@ -53,7 +53,7 @@ public:
         float sin_a = std::sin(angle_rad);
         float new_x = x * cos_a - y * sin_a;
         float new_y = x * sin_a + y * cos_a;
-        return Vector2D(new_x, new_y).normalized(length());
+        return Vector2D(new_x, new_y);
     }
 
     ~Vector2D() {}
