@@ -45,10 +45,6 @@ void Inventory::set_gun(std::unique_ptr<Gun>&& gun) {
 
 std::unique_ptr<Gun> Inventory::remove_primary_weapon() { return state.remove_primary_weapon(); }
 
-Bomb Inventory::remove_bomb() {
-    auto bomb = state.remove_bomb();
-    state.get_bomb().reset();
-    return bomb;
-}
+Bomb Inventory::remove_bomb() { return state.remove_bomb(); }
 
 void Inventory::set_bomb(Bomb&& bomb) { state.set_bomb(std::move(bomb)); }
