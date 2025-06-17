@@ -11,6 +11,10 @@
 #include <sys/socket.h>
 
 #include "common/game/world_item.h"
+#include "common/map/box.h"
+#include "common/map/floor.h"
+#include "common/map/map.h"
+#include "common/map/wall.h"
 #include "common/models.h"
 #include "common/socket.h"
 #include "common/updates/bomb_update.h"
@@ -180,6 +184,60 @@ payload_t BaseProtocol::serialize(const ScoreboardEntry& entry) const {
 }
 
 template <>
+payload_t BaseProtocol::serialize(const Floor& floor) const {
+    return serialize(floor.get_pos());
+}
+
+template <>
+payload_t BaseProtocol::serialize(const Wall& wall) const {
+    return serialize(wall.get_pos());
+}
+
+template <>
+payload_t BaseProtocol::serialize(const Box& box) const {
+    return serialize(box.get_pos());
+}
+
+template <>
+payload_t BaseProtocol::serialize(const Map& map) const {
+    payload_t payload;
+
+    // Serialize name
+    payload_t name_payload = serialize(map.name);
+    payload.insert(payload.end(), name_payload.begin(), name_payload.end());
+
+    // Serialize max_players
+    payload_t max_players_payload = serialize(map.max_players);
+    payload.insert(payload.end(), max_players_payload.begin(), max_players_payload.end());
+
+    // Serialize floors
+    payload_t floors_payload = serialize(map.floors);
+    payload.insert(payload.end(), floors_payload.begin(), floors_payload.end());
+
+    // Serialize walls
+    payload_t walls_payload = serialize(map.walls);
+    payload.insert(payload.end(), walls_payload.begin(), walls_payload.end());
+
+    // Serialize boxes
+    payload_t boxes_payload = serialize(map.boxes);
+    payload.insert(payload.end(), boxes_payload.begin(), boxes_payload.end());
+
+    // Serialize spawns_tts
+    payload_t spawns_tts_payload = serialize(map.spawns_tts);
+    payload.insert(payload.end(), spawns_tts_payload.begin(), spawns_tts_payload.end());
+
+    // Serialize spawns_cts
+    payload_t spawns_cts_payload = serialize(map.spawns_cts);
+    payload.insert(payload.end(), spawns_cts_payload.begin(), spawns_cts_payload.end());
+
+    // Serialize bomb_sites
+    payload_t bomb_sites_payload = serialize(map.bomb_sites);
+    payload.insert(payload.end(), bomb_sites_payload.begin(), bomb_sites_payload.end());
+
+    return payload;
+}
+
+template <>
 payload_t BaseProtocol::serialize(const WorldItem<GunType>& world_item) const {
     payload_t payload;
 
@@ -328,6 +386,41 @@ ScoreboardEntry BaseProtocol::deserialize<ScoreboardEntry>(payload_t& payload) c
     int score = deserialize<int>(payload);
 
     return ScoreboardEntry(money, kills, deaths, score);
+}
+
+template <>
+Floor BaseProtocol::deserialize<Floor>(payload_t& payload) const {
+    Vector2D pos = deserialize<Vector2D>(payload);
+    return Floor(std::move(pos));
+}
+
+template <>
+Wall BaseProtocol::deserialize<Wall>(payload_t& payload) const {
+    Vector2D pos = deserialize<Vector2D>(payload);
+    return Wall(std::move(pos));
+}
+
+template <>
+Box BaseProtocol::deserialize<Box>(payload_t& payload) const {
+    Vector2D pos = deserialize<Vector2D>(payload);
+    return Box(std::move(pos));
+}
+
+template <>
+Map BaseProtocol::deserialize<Map>(payload_t& payload) const {
+    std::string name = deserialize<std::string>(payload);
+    int max_players = deserialize<int>(payload);
+
+    Map map(name, max_players);
+
+    map.floors = deserialize<std::vector<Floor>>(payload);
+    map.walls = deserialize<std::vector<Wall>>(payload);
+    map.boxes = deserialize<std::vector<Box>>(payload);
+    map.spawns_tts = deserialize<std::vector<Vector2D>>(payload);
+    map.spawns_cts = deserialize<std::vector<Vector2D>>(payload);
+    map.bomb_sites = deserialize<std::vector<Vector2D>>(payload);
+
+    return map;
 }
 
 template <>

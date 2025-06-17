@@ -195,6 +195,11 @@ ListMapsResponse ClientProtocol::deserialize_msg<ListMapsResponse>(payload_t& pa
 }
 
 template <>
+Map ClientProtocol::deserialize_msg<Map>(payload_t& payload) const {
+    return deserialize<Map>(payload);
+}
+
+template <>
 ShopPricesResponse ClientProtocol::deserialize_msg<ShopPricesResponse>(payload_t& payload) const {
     auto gun_prices = deserialize<GunType, int>(payload);
     auto ammo_prices = deserialize<GunType, int>(payload);

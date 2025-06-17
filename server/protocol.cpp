@@ -77,6 +77,13 @@ payload_t ServerProtocol::serialize_msg([[maybe_unused]] const RoundEndResponse&
     return payload_t();
 }
 
+
+template <>
+payload_t ServerProtocol::serialize_msg(const Map& map) const {
+    return serialize(map);
+}
+
+
 #define SERIALIZE_MSG(msg, msg_type) \
     case MessageType::msg_type:      \
         return serialize_msg(message.get_content<msg>());

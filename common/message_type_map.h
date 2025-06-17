@@ -1,6 +1,7 @@
 #pragma once
 
 #include "client/requests.h"
+#include "common/map/map.h"
 #include "common/responses.h"
 #include "common/updates/game_update.h"
 
@@ -14,7 +15,8 @@
     F(CharactersResponse, CHARACTERS_RESP)  \
     F(ScoreboardResponse, SCOREBOARD_RESP)  \
     F(ErrorResponse, ERROR_RESP)            \
-    F(RoundEndResponse, ROUND_END_RESP)
+    F(RoundEndResponse, ROUND_END_RESP)     \
+    F(Map, MAP_RESP)
 
 #define LOBBY_COMMANDS_MAP(F)             \
     F(CreateGameCommand, CREATE_GAME_CMD) \

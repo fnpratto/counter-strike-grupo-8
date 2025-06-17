@@ -502,6 +502,99 @@ TEST_F(ProtocolTest, SendListMapsCommand) {
     // ListMapsCommand has no data to verify, just verify it was deserialized correctly
 }
 
+TEST_F(ProtocolTest, SendReceiveListMapsCommand) {
+    client_mock_socket->clear_written_data();
+
+    ListMapsCommand cmd;
+    Message message(cmd);
+
+    client_protocol->send(message);
+
+    const auto& written_data = client_mock_socket->get_written_data();
+    ASSERT_FALSE(written_data.empty());
+    ASSERT_EQ(written_data[0], static_cast<char>(MessageType::LIST_MAPS_CMD));
+    ASSERT_EQ(written_data[1], 0x00);
+    ASSERT_EQ(written_data[2], 0x00);
+
+    server_mock_socket->queue_read_data(written_data);
+    Message received_message = server_protocol->recv();
+    ASSERT_EQ(received_message.get_type(), MessageType::LIST_MAPS_CMD);
+
+    ListMapsCommand received_cmd = received_message.get_content<ListMapsCommand>();
+}
+
+TEST_F(ProtocolTest, SendReceiveListMapsResponse) {
+    server_mock_socket->clear_written_data();
+
+    std::map<std::string, int> maps = {{"de_dust2", 1}, {"de_mirage", 2}, {"de_inferno", 3}};
+    ListMapsResponse resp(maps);
+    Message message(resp);
+
+    server_protocol->send(message);
+
+    const auto& written_data = server_mock_socket->get_written_data();
+    ASSERT_FALSE(written_data.empty());
+    ASSERT_EQ(written_data[0], static_cast<char>(MessageType::LIST_MAPS_RESP));
+
+    client_mock_socket->queue_read_data(written_data);
+    Message received_message = client_protocol->recv();
+    ASSERT_EQ(received_message.get_type(), MessageType::LIST_MAPS_RESP);
+
+    ListMapsResponse received_resp = received_message.get_content<ListMapsResponse>();
+    auto received_maps = received_resp.get_maps_info();
+    ASSERT_EQ(received_maps.size(), 3);
+    ASSERT_EQ(received_maps["de_dust2"], 1);
+    ASSERT_EQ(received_maps["de_mirage"], 2);
+    ASSERT_EQ(received_maps["de_inferno"], 3);
+}
+
+TEST_F(ProtocolTest, SendReceiveMapResponse) {
+    server_mock_socket->clear_written_data();
+
+    // Create a test map
+    Map test_map("test_map", 10);
+    test_map.floors = {Floor(Vector2D(0, 0)), Floor(Vector2D(1, 1))};
+    test_map.walls = {Wall(Vector2D(2, 2)), Wall(Vector2D(3, 3))};
+    test_map.boxes = {Box(Vector2D(4, 4))};
+    test_map.spawns_tts = {Vector2D(5, 5), Vector2D(6, 6)};
+    test_map.spawns_cts = {Vector2D(7, 7), Vector2D(8, 8)};
+    test_map.bomb_sites = {Vector2D(9, 9)};
+
+    Message message(test_map);
+
+    server_protocol->send(message);
+
+    const auto& written_data = server_mock_socket->get_written_data();
+    ASSERT_FALSE(written_data.empty());
+    ASSERT_EQ(written_data[0], static_cast<char>(MessageType::MAP_RESP));
+
+    client_mock_socket->queue_read_data(written_data);
+    Message received_message = client_protocol->recv();
+    ASSERT_EQ(received_message.get_type(), MessageType::MAP_RESP);
+
+    Map received_map = received_message.get_content<Map>();
+    ASSERT_EQ(received_map.name, "test_map");
+    ASSERT_EQ(received_map.max_players, 10);
+    ASSERT_EQ(received_map.floors.size(), 2);
+    ASSERT_EQ(received_map.walls.size(), 2);
+    ASSERT_EQ(received_map.boxes.size(), 1);
+    ASSERT_EQ(received_map.spawns_tts.size(), 2);
+    ASSERT_EQ(received_map.spawns_cts.size(), 2);
+    ASSERT_EQ(received_map.bomb_sites.size(), 1);
+
+    // Verify positions
+    ASSERT_EQ(received_map.floors[0].get_pos(), Vector2D(0, 0));
+    ASSERT_EQ(received_map.floors[1].get_pos(), Vector2D(1, 1));
+    ASSERT_EQ(received_map.walls[0].get_pos(), Vector2D(2, 2));
+    ASSERT_EQ(received_map.walls[1].get_pos(), Vector2D(3, 3));
+    ASSERT_EQ(received_map.boxes[0].get_pos(), Vector2D(4, 4));
+    ASSERT_EQ(received_map.spawns_tts[0], Vector2D(5, 5));
+    ASSERT_EQ(received_map.spawns_tts[1], Vector2D(6, 6));
+    ASSERT_EQ(received_map.spawns_cts[0], Vector2D(7, 7));
+    ASSERT_EQ(received_map.spawns_cts[1], Vector2D(8, 8));
+    ASSERT_EQ(received_map.bomb_sites[0], Vector2D(9, 9));
+}
+
 // Test error handling
 TEST_F(ProtocolTest, SendWhenSocketClosed) {
     server_mock_socket->set_send_closed(true);
