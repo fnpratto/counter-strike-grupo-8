@@ -33,11 +33,14 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
                 output_queue.push(Message(SelectCharacterCommand(id_skin.value())));
                 return;
             }
-            std::optional<bool> pre_game_finished = skinSelectRef.updateFinishPreGame(x, y);
-            if (pre_game_finished) {
-                output_queue.push(Message(SetReadyCommand()));
+            if (skinSelectRef.updateFinishPreGame(x, y)) {
                 return;
             }
+        }
+
+        if (hudDisplayRef.start_game_click(x, y)) {
+            output_queue.push(Message(SetReadyCommand()));  // TODO_ADD SERVER
+            return;
         }
         output_queue.push(Message(AttackCommand()));
         std::cout << "MouseHandler: AttackCommand sent" << std::endl;

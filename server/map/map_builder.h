@@ -12,8 +12,8 @@
 #include "common/physics/physics_config.h"
 #include "common/utils/vector_2d.h"
 
-// TODO: Make subclasses of MapBuilder that build specific
-//       maps such as DesertMapBuilder, AztecMapBuilder, and
+// TODO: Make MapBuilder build specific maps such as
+//       DesertMapBuilder, AztecMapBuilder, and
 //       TrainingMapBuilder from YAML files.
 
 class MapBuilder {

@@ -9,6 +9,8 @@ target_sources(taller_common
     utils/rate_controller.cpp
     PUBLIC
     # .h files
+    game/scoreboard_entry.h
+    game/world_item.h
     utils/vector_2d.h
     utils/rate_controller.h
     commands.h

@@ -29,9 +29,6 @@ public:
 
     pipe_t join_game(const std::string& player_name);
 
-    // Check if the game is full
-    bool is_full();
-
     GameInfo get_game_info();
 
     void stop() override;

@@ -9,9 +9,9 @@
 #include <arpa/inet.h>
 
 #include "common/errors.h"
+#include "common/game/scoreboard_entry.h"
 #include "common/message.h"
 #include "common/responses.h"
-#include "common/scoreboard/scoreboard_entry.h"
 #include "common/socket.h"
 #include "common/updates/bomb_update.h"
 #include "common/updates/game_update.h"
@@ -22,6 +22,8 @@
 #include "common/updates/player_update.h"
 
 #include "protocol.h"
+
+#define ATTR(...) __VA_ARGS__
 
 // === Serialization ===
 
@@ -177,13 +179,13 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
 
 template <>
 ListGamesResponse ClientProtocol::deserialize_msg<ListGamesResponse>(payload_t& payload) const {
-    return ListGamesResponse(deserialize_vector<GameInfo>(payload));
+    return ListGamesResponse(deserialize<std::vector<GameInfo>>(payload));
 }
 
 template <>
 ShopPricesResponse ClientProtocol::deserialize_msg<ShopPricesResponse>(payload_t& payload) const {
-    auto gun_prices = deserialize_map<GunType, int>(payload);
-    auto ammo_prices = deserialize_map<GunType, int>(payload);
+    auto gun_prices = deserialize<GunType, int>(payload);
+    auto ammo_prices = deserialize<GunType, int>(payload);
 
     return ShopPricesResponse(gun_prices, ammo_prices);
 }
@@ -200,29 +202,22 @@ HitResponse ClientProtocol::deserialize_msg<HitResponse>(payload_t& payload) con
 
 template <>
 CharactersResponse ClientProtocol::deserialize_msg<CharactersResponse>(payload_t& payload) const {
-    return CharactersResponse(deserialize_vector<CharacterType>(payload));
+    return CharactersResponse(deserialize<std::vector<CharacterType>>(payload));
 }
 
 
 // TODO
 template <>
 ScoreboardResponse ClientProtocol::deserialize_msg<ScoreboardResponse>(payload_t& payload) const {
-    auto scoreboard = deserialize_map<std::string, ScoreboardEntry>(payload);
+    auto scoreboard = deserialize<std::string, ScoreboardEntry>(payload);
     return ScoreboardResponse(std::move(scoreboard));
 }
 
 // TODO: Implement
 template <>
-TriedToJoinFullTeamErrorResponse ClientProtocol::deserialize_msg<TriedToJoinFullTeamErrorResponse>(
+ErrorResponse ClientProtocol::deserialize_msg<ErrorResponse>(
         [[maybe_unused]] payload_t& payload) const {
-    return TriedToJoinFullTeamErrorResponse();
-}
-
-// TODO: Implement
-template <>
-CannotBuyErrorResponse ClientProtocol::deserialize_msg<CannotBuyErrorResponse>(
-        [[maybe_unused]] payload_t& payload) const {
-    return CannotBuyErrorResponse();
+    return ErrorResponse();
 }
 
 // TODO: Implement
@@ -232,49 +227,9 @@ RoundEndResponse ClientProtocol::deserialize_msg<RoundEndResponse>(
     return RoundEndResponse(Team::CT);
 }
 
-#define X_DESERIALIZE_UPDATE(type, attr)        \
-    if (deserialize<bool>(payload)) {           \
-        type attr = deserialize<type>(payload); \
-        result.set_##attr(attr);                \
-    }
-#define M_DESERIALIZE_UPDATE(key_type, value_type, attr)                                      \
-    if (deserialize<bool>(payload)) {                                                         \
-        std::map<key_type, value_type> attr = deserialize_map<key_type, value_type>(payload); \
-        result.set_##attr(attr);                                                              \
-    }
-#define U_DESERIALIZE_UPDATE(type, attr)               \
-    if (deserialize<bool>(payload)) {                  \
-        type attr = deserialize_update<type>(payload); \
-        result.set_##attr(attr);                       \
-    }
-#define O_DESERIALIZE_UPDATE(type, attr)                                \
-    if (deserialize<bool>(payload)) {                                   \
-        std::optional<type> attr = deserialize_optional<type>(payload); \
-        result.set_##attr(attr);                                        \
-    }
-
-#define DESERIALIZE_UPDATE(CLASS, ATTRS)                                         \
-    template <>                                                                  \
-    CLASS ClientProtocol::deserialize_update<CLASS>(payload_t & payload) const { \
-        CLASS result;                                                            \
-                                                                                 \
-        ATTRS(X_DESERIALIZE_UPDATE, M_DESERIALIZE_UPDATE, U_DESERIALIZE_UPDATE,  \
-              O_DESERIALIZE_UPDATE)                                              \
-                                                                                 \
-        return result;                                                           \
-    }
-
-DESERIALIZE_UPDATE(BombUpdate, BOMB_ATTRS)
-DESERIALIZE_UPDATE(KnifeUpdate, KNIFE_ATTRS)
-DESERIALIZE_UPDATE(GunUpdate, GUN_ATTRS)
-DESERIALIZE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)
-DESERIALIZE_UPDATE(PlayerUpdate, PLAYER_ATTRS)
-DESERIALIZE_UPDATE(PhaseUpdate, PHASE_ATTRS)
-DESERIALIZE_UPDATE(GameUpdate, GAME_ATTRS)
-
 template <>
 GameUpdate ClientProtocol::deserialize_msg<GameUpdate>(payload_t& payload) const {
-    return deserialize_update<GameUpdate>(payload);
+    return deserialize<GameUpdate>(payload);
 }
 
 #define DESERIALIZE_MSG(msg, msg_type) \
