@@ -68,4 +68,7 @@ InventoryUpdate InventoryState::get_full_update() const {
 void InventoryState::clear_updates() {
     State<InventoryUpdate>::clear_updates();
     for (auto& [_, gun]: guns) gun->clear_updates();  // cppcheck-suppress[unusedVariable]
+    knife.clear_updates();
+    if (bomb.has_value())
+        bomb.value().clear_updates();
 }

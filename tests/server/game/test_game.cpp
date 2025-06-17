@@ -587,9 +587,8 @@ TEST_F(TestGame, OneTerroristHasBombWhenRoundStarts) {
     advance_secs(PhaseTimes::playing_phase_secs);
     game.tick({});
     advance_secs(PhaseTimes::round_end_phase_secs);
-    game.tick({});
-
-    updates = game.get_full_update();
+    auto player_messages = game.tick({});
+    updates = player_messages[0].get_message().get_content<GameUpdate>();
     EXPECT_TRUE(updates.get_players().at("tt").get_inventory().get_bomb().has_value());
     EXPECT_FALSE(updates.get_bomb().has_value());
 }
