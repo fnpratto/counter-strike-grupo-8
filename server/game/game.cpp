@@ -72,13 +72,7 @@ void Game::advance_players_movement() {
     for (const auto& [_, player]: state.get_players()) {  // cppcheck-suppress[unusedVariable]
         if (!player->is_moving())
             continue;
-
-        // TODO: Refactor this to use a physics system method
-        Vector2D old_pos = player->get_hitbox().center;
-        Vector2D step = physics_system.calculate_step(player->get_move_dir());
-        Vector2D new_pos = old_pos + step;
-        if (physics_system.is_walkable(new_pos))
-            player->move_to_pos(new_pos);
+        player->move_to_pos(physics_system.calculate_new_pos(player));
     }
 }
 

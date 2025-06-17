@@ -24,6 +24,9 @@ private:
     Vector2D rand_pos_in_vector(const std::vector<Vector2D>& vector) const;
     bool is_pos_in_vector(const std::vector<Vector2D>& vector, const Vector2D& pos) const;
 
+    Vector2D calculate_step(const Vector2D& dir) const;
+    bool is_walkable(const Vector2D& pos) const;
+
     template <typename T>
     std::optional<Target> get_closest_tile(const std::string& origin_p_name, const Vector2D& dir,
                                            const std::vector<T>& vector);
@@ -44,8 +47,7 @@ public:
     Vector2D random_spawn_ct_pos() const;
     bool player_in_spawn(const std::string& player_name) const;
 
-    Vector2D calculate_step(const Vector2D& dir) const;
-    bool is_walkable(const Vector2D& pos) const;
+    Vector2D calculate_new_pos(const std::unique_ptr<Player>& player) const;
 
     std::optional<Target> get_closest_target(const std::string& origin_p_name, const Vector2D& dir,
                                              int max_range);
