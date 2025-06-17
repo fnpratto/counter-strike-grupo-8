@@ -9,8 +9,8 @@
 
 #include "state_update.h"
 
-#define PHASE_ATTRS(X, M, U, O) \
-    X(PhaseType, phase)         \
+#define PHASE_ATTRS(X, M, V) \
+    X(PhaseType, phase)      \
     X(int, secs_remaining)
 
 DEFINE_UPDATE(PhaseUpdate, PHASE_ATTRS)

@@ -33,8 +33,8 @@ payload_t ServerProtocol::serialize_msg(const ListGamesResponse& response) const
 template <>
 payload_t ServerProtocol::serialize_msg(const ShopPricesResponse& response) const {
     payload_t payload;
-    payload_t gun_prices_payload = serialize_map(response.get_gun_prices());
-    payload_t ammo_prices_payload = serialize_map(response.get_ammo_prices());
+    payload_t gun_prices_payload = serialize(response.get_gun_prices());
+    payload_t ammo_prices_payload = serialize(response.get_ammo_prices());
 
     payload.reserve(gun_prices_payload.size() + ammo_prices_payload.size());
     payload.insert(payload.end(), gun_prices_payload.begin(), gun_prices_payload.end());
@@ -44,8 +44,37 @@ payload_t ServerProtocol::serialize_msg(const ShopPricesResponse& response) cons
 }
 
 template <>
-payload_t ServerProtocol::serialize_msg([[maybe_unused]] const HitResponse& response) const {
-    return payload_t();
+payload_t ServerProtocol::serialize_msg(const HitResponse& response) const {
+    payload_t payload;
+
+    // Serialize origin Vector2D
+    payload_t origin_x = serialize(response.get_origin().get_x());
+    payload_t origin_y = serialize(response.get_origin().get_y());
+
+    // Serialize hit_pos Vector2D
+    payload_t hit_pos_x = serialize(response.get_hit_pos().get_x());
+    payload_t hit_pos_y = serialize(response.get_hit_pos().get_y());
+
+    // Serialize hit_dir Vector2D
+    payload_t hit_dir_x = serialize(response.get_hit_dir().get_x());
+    payload_t hit_dir_y = serialize(response.get_hit_dir().get_y());
+
+    // Serialize hit bool
+    payload_t hit = serialize(response.is_hit());
+
+    // Reserve space and insert all data
+    payload.reserve(origin_x.size() + origin_y.size() + hit_pos_x.size() + hit_pos_y.size() +
+                    hit_dir_x.size() + hit_dir_y.size() + hit.size());
+
+    payload.insert(payload.end(), origin_x.begin(), origin_x.end());
+    payload.insert(payload.end(), origin_y.begin(), origin_y.end());
+    payload.insert(payload.end(), hit_pos_x.begin(), hit_pos_x.end());
+    payload.insert(payload.end(), hit_pos_y.begin(), hit_pos_y.end());
+    payload.insert(payload.end(), hit_dir_x.begin(), hit_dir_x.end());
+    payload.insert(payload.end(), hit_dir_y.begin(), hit_dir_y.end());
+    payload.insert(payload.end(), hit.begin(), hit.end());
+
+    return payload;
 }
 
 template <>
@@ -56,71 +85,21 @@ payload_t ServerProtocol::serialize_msg(const CharactersResponse& response) cons
 template <>
 payload_t ServerProtocol::serialize_msg([[maybe_unused]] const ScoreboardResponse& response) const {
     payload_t payload;
-    payload_t scoreboard_payload = serialize_map(response.get_scoreboard());
+    payload_t scoreboard_payload = serialize(response.get_scoreboard());
     payload.reserve(scoreboard_payload.size());
     payload.insert(payload.end(), scoreboard_payload.begin(), scoreboard_payload.end());
     return payload;
 }
 
 template <>
-payload_t ServerProtocol::serialize_msg(
-        [[maybe_unused]] const TriedToJoinFullTeamErrorResponse& response) const {
+payload_t ServerProtocol::serialize_msg([[maybe_unused]] const ErrorResponse& response) const {
     return payload_t();
 }
 
 template <>
-payload_t ServerProtocol::serialize_msg(
-        [[maybe_unused]] const CannotBuyErrorResponse& response) const {
-    return payload_t();
+payload_t ServerProtocol::serialize_msg(const RoundEndResponse& response) const {
+    return serialize(static_cast<uint8_t>(response.get_winning_team()));
 }
-
-template <>
-payload_t ServerProtocol::serialize_msg([[maybe_unused]] const RoundEndResponse& response) const {
-    return payload_t();
-}
-
-#define X_SERIALIZE_UPDATE(type, attr)                                               \
-    payload.push_back(update.has_##attr##_changed());                                \
-    if (update.has_##attr##_changed()) {                                             \
-        payload_t attr##_payload = serialize(update.get_##attr());                   \
-        payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end()); \
-    }
-#define M_SERIALIZE_UPDATE(key_type, value_type, attr)                               \
-    payload.push_back(update.has_##attr##_changed());                                \
-    if (update.has_##attr##_changed()) {                                             \
-        payload_t attr##_payload = serialize_map(update.get_##attr());               \
-        payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end()); \
-    }
-#define U_SERIALIZE_UPDATE(type, attr)                                               \
-    payload.push_back(update.has_##attr##_changed());                                \
-    if (update.has_##attr##_changed()) {                                             \
-        payload_t attr##_payload = serialize_update(update.get_##attr());            \
-        payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end()); \
-    }
-#define O_SERIALIZE_UPDATE(type, attr)                                               \
-    payload.push_back(update.has_##attr##_changed());                                \
-    if (update.has_##attr##_changed()) {                                             \
-        payload_t attr##_payload = serialize_optional(update.get_##attr());          \
-        payload.insert(payload.end(), attr##_payload.begin(), attr##_payload.end()); \
-    }
-
-#define SERIALIZE_UPDATE(CLASS, ATTRS)                                                        \
-    template <>                                                                               \
-    payload_t ServerProtocol::serialize_update(const CLASS& update) const {                   \
-        payload_t payload;                                                                    \
-                                                                                              \
-        ATTRS(X_SERIALIZE_UPDATE, M_SERIALIZE_UPDATE, U_SERIALIZE_UPDATE, O_SERIALIZE_UPDATE) \
-                                                                                              \
-        return payload;                                                                       \
-    }
-
-SERIALIZE_UPDATE(BombUpdate, BOMB_ATTRS)
-SERIALIZE_UPDATE(KnifeUpdate, KNIFE_ATTRS)
-SERIALIZE_UPDATE(GunUpdate, GUN_ATTRS)
-SERIALIZE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)
-SERIALIZE_UPDATE(PlayerUpdate, PLAYER_ATTRS)
-SERIALIZE_UPDATE(PhaseUpdate, PHASE_ATTRS)
-SERIALIZE_UPDATE(GameUpdate, GAME_ATTRS)
 
 #define SERIALIZE_MSG(msg, msg_type) \
     case MessageType::msg_type:      \
@@ -129,8 +108,9 @@ SERIALIZE_UPDATE(GameUpdate, GAME_ATTRS)
 payload_t ServerProtocol::serialize_message(const Message& message) const {
     switch (message.get_type()) {
         RESPONSES_MAP(SERIALIZE_MSG)
+
         case MessageType::GAME_UPDATE:
-            return serialize_update(message.get_content<GameUpdate>());
+            return serialize(message.get_content<GameUpdate>());
         default:
             throw std::runtime_error("Invalid message type for serialization");
     }

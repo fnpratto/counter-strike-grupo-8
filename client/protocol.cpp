@@ -9,9 +9,9 @@
 #include <arpa/inet.h>
 
 #include "common/errors.h"
+#include "common/game/scoreboard_entry.h"
 #include "common/message.h"
 #include "common/responses.h"
-#include "common/scoreboard/scoreboard_entry.h"
 #include "common/socket.h"
 #include "common/updates/bomb_update.h"
 #include "common/updates/game_update.h"
@@ -22,6 +22,8 @@
 #include "common/updates/player_update.h"
 
 #include "protocol.h"
+
+#define ATTR(...) __VA_ARGS__
 
 // === Serialization ===
 
@@ -177,101 +179,69 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
 
 template <>
 ListGamesResponse ClientProtocol::deserialize_msg<ListGamesResponse>(payload_t& payload) const {
-    return ListGamesResponse(deserialize_vector<GameInfo>(payload));
+    return ListGamesResponse(deserialize<std::vector<GameInfo>>(payload));
 }
 
 template <>
 ShopPricesResponse ClientProtocol::deserialize_msg<ShopPricesResponse>(payload_t& payload) const {
-    auto gun_prices = deserialize_map<GunType, int>(payload);
-    auto ammo_prices = deserialize_map<GunType, int>(payload);
+    auto gun_prices = deserialize<GunType, int>(payload);
+    auto ammo_prices = deserialize<GunType, int>(payload);
 
     return ShopPricesResponse(gun_prices, ammo_prices);
 }
 
-// TODO: Implement
 template <>
-HitResponse ClientProtocol::deserialize_msg<HitResponse>(
-        [[maybe_unused]] payload_t& payload) const {
-    return HitResponse(Vector2D(0, 0), Vector2D(0, 0), Vector2D(0, 0), false);
+HitResponse ClientProtocol::deserialize_msg<HitResponse>(payload_t& payload) const {
+    // Deserialize origin Vector2D
+    int origin_x = deserialize<int>(payload);
+    int origin_y = deserialize<int>(payload);
+    Vector2D origin(origin_x, origin_y);
+
+    // Deserialize hit_pos Vector2D
+    int hit_pos_x = deserialize<int>(payload);
+    int hit_pos_y = deserialize<int>(payload);
+    Vector2D hit_pos(hit_pos_x, hit_pos_y);
+
+    // Deserialize hit_dir Vector2D
+    int hit_dir_x = deserialize<int>(payload);
+    int hit_dir_y = deserialize<int>(payload);
+    Vector2D hit_dir(hit_dir_x, hit_dir_y);
+
+    // Deserialize hit bool
+    bool hit = deserialize<bool>(payload);
+
+    return HitResponse(origin, hit_pos, hit_dir, hit);
 }
 
 template <>
 CharactersResponse ClientProtocol::deserialize_msg<CharactersResponse>(payload_t& payload) const {
-    return CharactersResponse(deserialize_vector<CharacterType>(payload));
+    return CharactersResponse(deserialize<std::vector<CharacterType>>(payload));
 }
 
 
 // TODO
 template <>
 ScoreboardResponse ClientProtocol::deserialize_msg<ScoreboardResponse>(payload_t& payload) const {
-    auto scoreboard = deserialize_map<std::string, ScoreboardEntry>(payload);
+    auto scoreboard = deserialize<std::string, ScoreboardEntry>(payload);
     return ScoreboardResponse(std::move(scoreboard));
 }
 
-// TODO: Implement
 template <>
-TriedToJoinFullTeamErrorResponse ClientProtocol::deserialize_msg<TriedToJoinFullTeamErrorResponse>(
-        [[maybe_unused]] payload_t& payload) const {
-    return TriedToJoinFullTeamErrorResponse();
+ErrorResponse ClientProtocol::deserialize_msg<ErrorResponse>(payload_t& payload) const {
+    // ErrorResponse is an empty class, no data to deserialize
+    (void)payload;
+    return ErrorResponse();
 }
 
-// TODO: Implement
 template <>
-CannotBuyErrorResponse ClientProtocol::deserialize_msg<CannotBuyErrorResponse>(
-        [[maybe_unused]] payload_t& payload) const {
-    return CannotBuyErrorResponse();
+RoundEndResponse ClientProtocol::deserialize_msg<RoundEndResponse>(payload_t& payload) const {
+    uint8_t team = deserialize<uint8_t>(payload);
+    return RoundEndResponse(static_cast<Team>(team));
 }
-
-// TODO: Implement
-template <>
-RoundEndResponse ClientProtocol::deserialize_msg<RoundEndResponse>(
-        [[maybe_unused]] payload_t& payload) const {
-    return RoundEndResponse(Team::CT);
-}
-
-#define X_DESERIALIZE_UPDATE(type, attr)        \
-    if (deserialize<bool>(payload)) {           \
-        type attr = deserialize<type>(payload); \
-        result.set_##attr(attr);                \
-    }
-#define M_DESERIALIZE_UPDATE(key_type, value_type, attr)                                      \
-    if (deserialize<bool>(payload)) {                                                         \
-        std::map<key_type, value_type> attr = deserialize_map<key_type, value_type>(payload); \
-        result.set_##attr(attr);                                                              \
-    }
-#define U_DESERIALIZE_UPDATE(type, attr)               \
-    if (deserialize<bool>(payload)) {                  \
-        type attr = deserialize_update<type>(payload); \
-        result.set_##attr(attr);                       \
-    }
-#define O_DESERIALIZE_UPDATE(type, attr)                                \
-    if (deserialize<bool>(payload)) {                                   \
-        std::optional<type> attr = deserialize_optional<type>(payload); \
-        result.set_##attr(attr);                                        \
-    }
-
-#define DESERIALIZE_UPDATE(CLASS, ATTRS)                                         \
-    template <>                                                                  \
-    CLASS ClientProtocol::deserialize_update<CLASS>(payload_t & payload) const { \
-        CLASS result;                                                            \
-                                                                                 \
-        ATTRS(X_DESERIALIZE_UPDATE, M_DESERIALIZE_UPDATE, U_DESERIALIZE_UPDATE,  \
-              O_DESERIALIZE_UPDATE)                                              \
-                                                                                 \
-        return result;                                                           \
-    }
-
-DESERIALIZE_UPDATE(BombUpdate, BOMB_ATTRS)
-DESERIALIZE_UPDATE(KnifeUpdate, KNIFE_ATTRS)
-DESERIALIZE_UPDATE(GunUpdate, GUN_ATTRS)
-DESERIALIZE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)
-DESERIALIZE_UPDATE(PlayerUpdate, PLAYER_ATTRS)
-DESERIALIZE_UPDATE(PhaseUpdate, PHASE_ATTRS)
-DESERIALIZE_UPDATE(GameUpdate, GAME_ATTRS)
 
 template <>
 GameUpdate ClientProtocol::deserialize_msg<GameUpdate>(payload_t& payload) const {
-    return deserialize_update<GameUpdate>(payload);
+    return deserialize<GameUpdate>(payload);
 }
 
 #define DESERIALIZE_MSG(msg, msg_type) \

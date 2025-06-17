@@ -9,8 +9,8 @@
 #include "../window_elements/sdl_text.h"
 #include "../window_elements/sdl_texture.h"
 #include "../window_elements/sdl_window.h"
+#include "common/game/scoreboard_entry.h"
 #include "common/message.h"
-#include "common/scoreboard/scoreboard_entry.h"
 
 class EndRoundDisplay {
 private:

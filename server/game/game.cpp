@@ -3,7 +3,7 @@
 #include <optional>
 #include <utility>
 
-#include "common/scoreboard/scoreboard_entry.h"
+#include "common/game/scoreboard_entry.h"
 #include "server/attack_effects/attack_effect.h"
 #include "server/errors.h"
 #include "server/physics/target_type.h"
@@ -13,7 +13,8 @@
 Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map):
         Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.max_players)),
         name(name),
-        physics_system(std::move(map), state.get_players()) {}
+        physics_system(std::move(map), state.get_players(), state.get_dropped_guns(),
+                       state.get_bomb()) {}
 
 bool Game::is_full() const { return state.game_is_full(); }
 
@@ -71,18 +72,16 @@ void Game::advance_players_movement() {
     for (const auto& [_, player]: state.get_players()) {  // cppcheck-suppress[unusedVariable]
         if (!player->is_moving())
             continue;
-
-        Vector2D old_pos = player->get_pos();
-        Vector2D step = physics_system.calculate_step(player->get_move_dir());
-        Vector2D new_pos = old_pos + step;
-        // TODO: Check collisions with physics_system (with tiles and entities)
-        player->move_to_pos(new_pos);
+        player->move_to_pos(physics_system.calculate_new_pos(player));
     }
 }
 
 void Game::perform_attacks() {
     if (!state.get_phase().is_playing_phase())
         return;
+
+    std::vector<HitResponse> hit_responses;
+
     for (const auto& [p_name, player]: state.get_players()) {
         auto effects = player->attack(state.get_phase().get_time_now());
         if (effects.empty())
@@ -91,16 +90,23 @@ void Game::perform_attacks() {
         for (const auto& effect: effects) {
             auto closest_target = physics_system.get_closest_target(p_name, effect->get_dir(),
                                                                     effect->get_max_range());
-            if (!closest_target.has_value())
+            if (!closest_target.has_value()) {
+                Vector2D max_hit_pos =
+                        player->get_hitbox().center + effect->get_dir() * effect->get_max_range();
+                hit_responses.push_back(HitResponse(player->get_hitbox().center, max_hit_pos,
+                                                    effect->get_dir(), false));
                 continue;
+            }
 
             bool is_hit = apply_attack_effect(player, effect, closest_target.value());
 
-            HitResponse hit_response(player->get_pos(), closest_target.value().get_pos(),
-                                     effect->get_dir(), is_hit);
-            send_msg_to_all_players(Message(hit_response));
+            hit_responses.push_back(HitResponse(player->get_hitbox().center,
+                                                closest_target.value().get_pos(), effect->get_dir(),
+                                                is_hit));
         }
     }
+
+    for (const auto& hit_resp: hit_responses) send_msg_to_all_players(Message(hit_resp));
 }
 
 bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker,
@@ -112,6 +118,12 @@ bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker,
         if (target_player->is_dead()) {
             attacker->add_kill();
             attacker->add_rewards(Scores::kill, Bonifications::kill);
+            auto gun = target_player->drop_primary_weapon();
+            if (gun.has_value())
+                state.add_dropped_gun(std::move(gun.value()), target_player->get_hitbox().center);
+            auto bomb = target_player->drop_bomb();
+            if (bomb.has_value())
+                state.add_bomb(std::move(bomb.value()), target_player->get_hitbox().center);
         }
     }
     return is_hit;
@@ -125,17 +137,17 @@ void Game::join_player(const std::string& player_name) {
     Team default_team = (state.get_num_tts() > state.get_num_cts()) ? Team::CT : Team::TT;
     if (default_team == Team::TT) {
         Vector2D pos = physics_system.random_spawn_tt_pos();
-        state.add_player(player_name, std::make_unique<Player>(default_team, pos));
+        state.add_player(player_name, default_team, pos);
     } else {
         Vector2D pos = physics_system.random_spawn_ct_pos();
-        state.add_player(player_name, std::make_unique<Player>(default_team, pos));
+        state.add_player(player_name, default_team, pos);
     }
 
-    output_messages.emplace_back(player_name, Message(state.get_full_update()));
+    send_msg_to_single_player(player_name, Message(state.get_full_update()));
     for (const auto& [p_name, _]: state.get_players()) {
         if (p_name == player_name)
             continue;
-        output_messages.emplace_back(p_name, Message(state.get_updates()));
+        send_msg_to_single_player(p_name, Message(state.get_updates()));
     }
 }
 
@@ -144,7 +156,7 @@ void Game::handle<SelectTeamCommand>(const std::string& player_name, const Selec
     if (state.get_phase().is_started())
         throw SelectTeamError();
     if (state.team_is_full(msg.get_team())) {
-        output_messages.emplace_back(player_name, Message(TriedToJoinFullTeamErrorResponse()));
+        send_msg_to_single_player(player_name, Message(ErrorResponse()));
         return;
     }
 
@@ -165,7 +177,7 @@ void Game::handle<GetCharactersCommand>(const std::string& player_name,
         characters = {CharacterType::Pheonix, CharacterType::L337_Krew,
                       CharacterType::Arctic_Avenger, CharacterType::Guerrilla};
     }
-    output_messages.emplace_back(player_name, Message(CharactersResponse(std::move(characters))));
+    send_msg_to_single_player(player_name, Message(CharactersResponse(std::move(characters))));
 }
 
 template <>
@@ -183,7 +195,7 @@ void Game::handle<SetReadyCommand>(const std::string& player_name,
 
     state.get_player(player_name)->set_ready();
     if (state.all_players_ready()) {
-        give_bomb_to_random_tt();
+        give_bomb_to_random_tt(Bomb());
         state.get_phase().start_game();
         for (const auto& [p_name, _]: state.get_players()) move_player_to_spawn(p_name);
     }
@@ -192,40 +204,35 @@ void Game::handle<SetReadyCommand>(const std::string& player_name,
 template <>
 void Game::handle<GetShopPricesCommand>(const std::string& player_name,
                                         [[maybe_unused]] const GetShopPricesCommand& msg) {
-    output_messages.emplace_back(player_name, Message(ShopPricesResponse(shop.get_gun_prices(),
-                                                                         shop.get_ammo_prices())));
+    send_msg_to_single_player(player_name, Message(ShopPricesResponse(shop.get_gun_prices(),
+                                                                      shop.get_ammo_prices())));
 }
 
 template <>
 void Game::handle<BuyGunCommand>(const std::string& player_name, const BuyGunCommand& msg) {
-    if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name)) {
-        output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
-        return;
-    }
-
     auto& player = state.get_player(player_name);
-    bool success = shop.buy_gun(player->get_inventory(), msg.get_gun());
-
-    if (!success) {
-        output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
+    if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name) ||
+        !shop.can_buy_gun(msg.get_gun(), player->get_inventory())) {
+        send_msg_to_single_player(player_name, Message(ErrorResponse()));
         return;
     }
+
+    auto gun = player->drop_primary_weapon();
+    if (gun.has_value())
+        state.add_dropped_gun(std::move(gun.value()), player->get_hitbox().center);
+    shop.buy_gun(msg.get_gun(), player->get_inventory());
 }
 
 template <>
 void Game::handle<BuyAmmoCommand>(const std::string& player_name, const BuyAmmoCommand& msg) {
-    if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name)) {
-        output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
-        return;
-    }
-
     auto& player = state.get_player(player_name);
-    bool success = shop.buy_ammo(player->get_inventory(), msg.get_slot());
-
-    if (!success) {
-        output_messages.emplace_back(player_name, Message(CannotBuyErrorResponse()));
+    if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name) ||
+        !shop.can_buy_ammo(msg.get_slot(), player->get_inventory())) {
+        send_msg_to_single_player(player_name, Message(ErrorResponse()));
         return;
     }
+
+    shop.buy_ammo(msg.get_slot(), player->get_inventory());
 }
 
 template <>
@@ -276,7 +283,7 @@ void Game::handle<GetScoreboardCommand>(const std::string& player_name,
     std::map<std::string, ScoreboardEntry> scoreboard;
     for (const auto& [p_name, player]: state.get_players())
         scoreboard.emplace(p_name, player->get_scoreboard_entry());
-    output_messages.emplace_back(player_name, Message(ScoreboardResponse(std::move(scoreboard))));
+    send_msg_to_single_player(player_name, Message(ScoreboardResponse(std::move(scoreboard))));
 }
 
 // TODO: Implement
@@ -293,11 +300,26 @@ void Game::handle<DefuseBombCommand>(const std::string& player_name,
     (void)player_name;
 }
 
-// TODO: Implement
 template <>
 void Game::handle<PickUpItemCommand>(const std::string& player_name,
                                      [[maybe_unused]] const PickUpItemCommand& msg) {
-    (void)player_name;
+    auto& player = state.get_player(player_name);
+
+    if (physics_system.player_collides_with_bomb(player)) {
+        player->pick_bomb(std::move(state.remove_bomb()));
+        return;
+    }
+
+    auto gun_pos = physics_system.get_player_colliding_gun_pos(player);
+    if (!gun_pos.has_value())
+        return;
+    if (player->get_inventory().has_item_in_slot(ItemSlot::Primary)) {
+        auto old_gun = player->drop_primary_weapon();
+        auto new_gun = state.remove_dropped_gun_at_pos(gun_pos.value());
+        if (old_gun.has_value())
+            state.add_dropped_gun(std::move(old_gun.value()), player->get_hitbox().center);
+        player->pick_gun(std::move(new_gun));
+    }
 }
 
 // TODO: Implement
@@ -326,7 +348,7 @@ void Game::handle_msg(const Message& msg, const std::string& player_name) {
 
 #undef HANDLE_MSG
 
-void Game::give_bomb_to_random_tt() {
+void Game::give_bomb_to_random_tt(Bomb&& bomb) {
     if (state.get_num_tts() == 0)
         return;
 
@@ -340,8 +362,7 @@ void Game::give_bomb_to_random_tt() {
     int rand_index = rand() % state.get_num_tts();
     std::string player_name = tt_names[rand_index];
     auto& player = state.get_player(player_name);
-    // TODO: Player pick bomb stored in state
-    player->pick_bomb(Bomb());
+    player->pick_bomb(std::move(bomb));
 }
 
 void Game::prepare_new_round() {
@@ -349,9 +370,11 @@ void Game::prepare_new_round() {
     for (const auto& [p_name, player]: state.get_players()) {
         move_player_to_spawn(p_name);
         reset_for_new_round(player);
-        // TODO: Drop player bomb and unplant
+        auto bomb = player->drop_bomb();
+        if (bomb.has_value())
+            state.add_bomb(std::move(bomb.value()), player->get_hitbox().center);
     }
-    // TODO: Give dropped bomb to random TT
+    give_bomb_to_random_tt(std::move(state.remove_bomb()));
 }
 
 void Game::move_player_to_spawn(const std::string& player_name) {
@@ -369,5 +392,9 @@ void Game::reset_for_new_round(const std::unique_ptr<Player>& player) {
 }
 
 void Game::send_msg_to_all_players(const Message& msg) {
-    for (const auto& [p_name, _]: state.get_players()) output_messages.emplace_back(p_name, msg);
+    for (const auto& [p_name, _]: state.get_players()) send_msg_to_single_player(p_name, msg);
+}
+
+void Game::send_msg_to_single_player(const std::string& player_name, const Message& msg) {
+    output_messages.emplace_back(player_name, msg);
 }

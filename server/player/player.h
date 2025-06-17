@@ -1,11 +1,12 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
+#include "common/game/scoreboard_entry.h"
 #include "common/models.h"
-#include "common/scoreboard/scoreboard_entry.h"
 #include "common/updates/player_update.h"
 #include "common/utils/vector_2d.h"
 #include "server/attack_effects/attack_effect.h"
@@ -20,7 +21,7 @@ private:
     ScoreboardEntry scoreboard_entry;
 
 public:
-    Player(Team team, Vector2D pos);
+    Player(Team team, Circle hitbox);
 
     Player(const Player&) = delete;
     Player& operator=(const Player&) = delete;
@@ -34,7 +35,7 @@ public:
     bool is_moving() const;
     bool is_dead() const;
 
-    Vector2D get_pos() const;
+    Circle get_hitbox() const;
     Vector2D get_move_dir() const;
     Inventory& get_inventory();
     ScoreboardEntry get_scoreboard_entry() const;
@@ -48,6 +49,7 @@ public:
 
     void select_character(CharacterType character_type);
 
+    void pick_gun(std::unique_ptr<Gun>&& gun);
     void pick_bomb(Bomb&& bomb);
 
     void start_moving(Vector2D velocity);
@@ -67,4 +69,7 @@ public:
     void add_kill();
 
     void add_rewards(int score, int bonification);
+
+    std::optional<std::unique_ptr<Gun>> drop_primary_weapon();
+    std::optional<Bomb> drop_bomb();
 };

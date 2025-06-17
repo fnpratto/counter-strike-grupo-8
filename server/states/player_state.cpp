@@ -2,10 +2,10 @@
 
 #include <utility>
 
-PlayerState::PlayerState(Team team, Vector2D pos, Vector2D aim_direction, Vector2D velocity,
+PlayerState::PlayerState(Team team, Circle hitbox, Vector2D aim_direction, Vector2D velocity,
                          bool ready, int health, ItemSlot equipped_item):
         team(team),
-        pos(pos),
+        hitbox(hitbox),
         aim_direction(aim_direction),
         velocity(velocity),
         ready(ready),
@@ -16,7 +16,7 @@ PlayerState::PlayerState(Team team, Vector2D pos, Vector2D aim_direction, Vector
 
 Team PlayerState::get_team() const { return team; }
 
-Vector2D PlayerState::get_pos() const { return pos; }
+Circle PlayerState::get_hitbox() const { return hitbox; }
 
 Vector2D PlayerState::get_aim_direction() const { return aim_direction; }
 
@@ -45,10 +45,10 @@ void PlayerState::set_character_type(CharacterType new_character_type) {
 }
 
 void PlayerState::set_pos(Vector2D new_pos) {
-    if (pos == new_pos)
+    if (hitbox.center == new_pos)
         return;
-    pos = new_pos;
-    updates.set_pos(new_pos);
+    hitbox.center = new_pos;
+    updates.set_pos(hitbox.center);
 }
 
 void PlayerState::set_aim_direction(Vector2D new_aim_direction) {
@@ -86,8 +86,6 @@ void PlayerState::set_equipped_item(ItemSlot new_equipped_item) {
     updates.set_equipped_item(new_equipped_item);
 }
 
-void PlayerState::add_bomb(Bomb&& bomb) { inventory.add_bomb(std::move(bomb)); }
-
 PlayerUpdate PlayerState::get_updates() const {
     PlayerUpdate update = updates;
     update.set_inventory(inventory.get_updates());
@@ -97,7 +95,8 @@ PlayerUpdate PlayerState::get_updates() const {
 PlayerUpdate PlayerState::get_full_update() const {
     PlayerUpdate full_update;
     full_update.set_team(team);
-    full_update.set_pos(pos);
+    full_update.set_pos(hitbox.center);
+    full_update.set_hitbox_radius(hitbox.radius);
     full_update.set_aim_direction(aim_direction);
     full_update.set_velocity(velocity);
     full_update.set_ready(ready);

@@ -48,11 +48,6 @@ pipe_t GameThread::join_game(const std::string& player_name) {
     return {input_queue, output_queues[player_name]};
 }
 
-bool GameThread::is_full() {
-    std::lock_guard<std::mutex> lock(mtx);
-    return game.is_full();
-}
-
 GameInfo GameThread::get_game_info() {
     std::lock_guard<std::mutex> lock(mtx);
     return GameInfo(game.get_name(), game.get_player_count(), game.get_phase());

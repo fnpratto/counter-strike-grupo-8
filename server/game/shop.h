@@ -5,6 +5,7 @@
 
 #include "common/models.h"
 #include "server/player/inventory.h"
+#include "server/weapons/gun.h"
 
 #define PRICE_AK47 2700
 #define PRICE_M3 1700
@@ -41,29 +42,35 @@ public:
     std::map<GunType, int> get_gun_prices() const { return gun_prices; }
     std::map<GunType, int> get_ammo_prices() const { return ammo_prices; }
 
-    bool buy_gun(Inventory& inventory, const GunType& gun_type) const {
-        int price = gun_prices.at(gun_type);
-        if (inventory.get_money() < price)
+    bool can_buy_gun(const GunType& gun_type, Inventory& inventory) const {
+        if (gun_type == GunType::Glock)
             return false;
-
-        inventory.add_primary_weapon(gun_type);
-        inventory.set_money(inventory.get_money() - price);
-        return true;
+        return gun_prices.at(gun_type) <= inventory.get_money();
     }
 
-    bool buy_ammo(Inventory& inventory, const ItemSlot& slot) const {
+    bool can_buy_ammo(const ItemSlot& slot, Inventory& inventory) const {
         if (slot != ItemSlot::Primary && slot != ItemSlot::Secondary)
             return false;
 
         auto& gun = inventory.get_guns().at(slot);
         GunType gun_type = gun->get_type();
-        int price = ammo_prices.at(gun_type);
-        if (inventory.get_money() < price)
-            return false;
+        return ammo_prices.at(gun_type) <= inventory.get_money();
+    }
 
+    void buy_gun(const GunType& gun_type, Inventory& inventory) const {
+        if (!can_buy_gun(gun_type, inventory))
+            return;
+        inventory.set_gun(Gun::make_gun(gun_type));
+        inventory.set_money(inventory.get_money() - gun_prices.at(gun_type));
+    }
+
+    void buy_ammo(const ItemSlot& slot, Inventory& inventory) const {
+        if (!can_buy_ammo(slot, inventory))
+            return;
+        auto& gun = inventory.get_guns().at(slot);
+        GunType gun_type = gun->get_type();
         gun->add_mag();
-        inventory.set_money(inventory.get_money() - price);
-        return true;
+        inventory.set_money(inventory.get_money() - ammo_prices.at(gun_type));
     }
 
     ~Shop() {}

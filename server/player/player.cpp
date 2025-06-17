@@ -7,9 +7,9 @@
 
 #include "player_config.h"
 
-Player::Player(Team team, Vector2D pos):
+Player::Player(Team team, Circle hitbox):
         Logic<PlayerState, PlayerUpdate>(
-                PlayerState(team, pos, Vector2D(0.0f, 0.0f), Vector2D(0.0f, 0.0f), false,
+                PlayerState(team, hitbox, Vector2D(0.0f, 0.0f), Vector2D(0.0f, 0.0f), false,
                             PlayerConfig::full_health, ItemSlot::Secondary)),
         scoreboard_entry(state.get_inventory().get_money(), 0, 0, 0) {}
 
@@ -23,7 +23,7 @@ bool Player::is_moving() const { return state.get_velocity() != Vector2D(0.0f, 0
 
 bool Player::is_dead() const { return state.get_health() == 0; }
 
-Vector2D Player::get_pos() const { return state.get_pos(); }
+Circle Player::get_hitbox() const { return state.get_hitbox(); }
 
 Vector2D Player::get_move_dir() const { return state.get_velocity(); }
 
@@ -45,7 +45,9 @@ void Player::take_damage(int damage) {
 
 void Player::heal() { state.set_health(PlayerConfig::full_health); }
 
-void Player::pick_bomb(Bomb&& bomb) { state.add_bomb(std::move(bomb)); }
+void Player::pick_gun(std::unique_ptr<Gun>&& gun) { state.get_inventory().set_gun(std::move(gun)); }
+
+void Player::pick_bomb(Bomb&& bomb) { state.get_inventory().set_bomb(std::move(bomb)); }
 
 void Player::select_team(Team team) { state.set_team(team); }
 
@@ -113,4 +115,20 @@ void Player::add_rewards(int score, int bonification) {
     int old_money = state.get_inventory().get_money();
     state.get_inventory().set_money(old_money + bonification);
     scoreboard_entry.money = state.get_inventory().get_money();
+}
+
+std::optional<std::unique_ptr<Gun>> Player::drop_primary_weapon() {
+    if (!state.get_inventory().has_item_in_slot(ItemSlot::Primary))
+        return std::optional<std::unique_ptr<Gun>>();
+    equip_item(ItemSlot::Melee);
+    auto gun = state.get_inventory().remove_primary_weapon();
+    return gun;
+}
+
+std::optional<Bomb> Player::drop_bomb() {
+    if (!state.get_inventory().get_bomb().has_value())
+        return std::optional<Bomb>();
+    equip_item(ItemSlot::Melee);
+    auto bomb = state.get_inventory().remove_bomb();
+    return bomb;
 }

@@ -7,7 +7,7 @@
 
 #include "common/models.h"
 #include "common/utils/vector_2d.h"
-#include "scoreboard/scoreboard_entry.h"
+#include "game/scoreboard_entry.h"
 
 struct GameInfo {
     std::string name;
@@ -95,16 +95,10 @@ public:
 };
 
 /**
- * @class TriedToJoinFullTeamErrorResponse
- * @brief Response sent when a player attempts to join a team that is already full.
+ * @class ErrorResponse
+ * @brief Sent when a command results in an error.
  */
-class TriedToJoinFullTeamErrorResponse {};
-
-/**
- * @class CannotBuyErrorResponse
- * @brief Response sent when a player attempts to make a purchase but is not allowed to.
- */
-class CannotBuyErrorResponse {};
+class ErrorResponse {};
 
 /**
  * @class RoundEndResponse

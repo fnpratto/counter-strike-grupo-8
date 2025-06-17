@@ -1,11 +1,17 @@
 target_sources(taller_tests
     PRIVATE
     common/test_game_state_update.cpp
+    common/mock_socket.cpp
     server/map/test_map.cpp
     server/game/test_game.cpp
     server/game/test_game_phase.cpp
     server/game/test_shop.cpp
+    server/game/test_physics.cpp
     server/player/test_player.cpp
+    server/test_protocol.cpp
+    # protocol
+    ../server/protocol.cpp
+    ../client/protocol.cpp
     # attack_effects
     ../server/attack_effects/attack_effect.cpp
     ../server/attack_effects/melee_attack.cpp
@@ -15,6 +21,8 @@ target_sources(taller_tests
     ../server/game/game_phase.cpp
     # physics
     ../server/physics/physics_system.cpp
+    ../server/physics/rect_hitbox.cpp
+    ../server/physics/circular_hitbox.cpp
     # player
     ../server/player/player.cpp
     ../server/player/inventory.cpp
@@ -44,6 +52,8 @@ target_sources(taller_tests
     ../server/attack_effects/melee_attack.h
     # clock
     ../server/clock/mock_clock.h
+    # testing
+    common/mock_socket.h
     # game
     ../server/game/shop.h
     ../server/game/game.h
@@ -53,6 +63,8 @@ target_sources(taller_tests
     ../server/physics/physics_system.h
     ../server/physics/target_type.h
     ../common/physics/physics_config.h
+    ../server/physics/rect_hitbox.h
+    ../server/physics/circular_hitbox.h
     # map
     ../server/map/map_builder.h
     ../common/map/map.h
@@ -80,4 +92,6 @@ target_sources(taller_tests
     # utils
     ../common/utils/vector_2d.h
     ../common/utils/random_float_generator.h
+    ../common/utils/rectangle.h
+    ../common/utils/circle.h
     )
