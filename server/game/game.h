@@ -51,7 +51,7 @@ private:
     void give_bomb_to_random_tt(Bomb&& bomb);
 
     void prepare_new_round();
-    void move_player_to_spawn(const std::string& player_name);
+    void move_player_to_spawn(const std::unique_ptr<Player>& player);
     void reset_for_new_round(const std::unique_ptr<Player>& player);
 
     void send_msg_to_all_players(const Message& msg);
