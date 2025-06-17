@@ -31,7 +31,7 @@ public:
 
     // @brief Create a new game with the given name
     // @throws GameExistsError if the game already exists
-    pipe_t create_game(const std::string& game_name, const int& map_id,
+    pipe_t create_game(const std::string& game_name, const std::string& map_name,
                        const std::string& player_name);
 
     // @brief Join an existing game
@@ -42,7 +42,7 @@ public:
     // Get a list of available games
     std::vector<GameInfo> get_games_info();
 
-    std::map<std::string, int> get_maps_info() const;
+    std::vector<std::string> get_map_names() const;
 
     void reap();
 

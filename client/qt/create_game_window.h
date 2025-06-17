@@ -9,6 +9,7 @@
 #include <QWidget>
 #include <map>
 #include <string>
+#include <vector>
 
 #include "common/message.h"
 #include "common/queue.h"
@@ -24,7 +25,7 @@ class CreateGameWindow: public QWidget {
     QVBoxLayout* main_layout;
     QLineEdit* game_name_input;
 
-    std::map<std::string, int> maps_info;
+    std::vector<std::string> map_names;
 
 public:
     explicit CreateGameWindow(Queue<Message>& input_queue, Queue<Message>& output_queue,

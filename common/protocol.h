@@ -176,6 +176,7 @@ protected:
         return {};
     }
 
+    // TODO refactor to use is_map
     template <typename K, typename V>
     std::map<K, V> deserialize(payload_t& payload) const {
         uint16_t length = deserialize<uint16_t>(payload);

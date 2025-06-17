@@ -44,6 +44,7 @@ private:
     std::unique_ptr<shopDisplay> shop_display;
     void setup();
 
+    Map get_map();
     GameUpdate get_initial_state();
     void update_state();
 };

@@ -31,12 +31,14 @@ std::vector<PlayerMessage> Game::tick(const std::vector<PlayerMessage>& msgs) {
 
     GameUpdate update = state.get_updates();
     if (update.has_change())
-        send_msg_to_all_players(Message(update));
+        broadcast(Message(update));
 
     return std::move(output_messages);
 }
 
-std::string Game::get_name() const { return name; }
+const std::string& Game::get_name() const { return name; }
+
+const std::string& Game::get_map_name() const { return physics_system.get_map().name; }
 
 int Game::get_player_count() const { return static_cast<int>(state.get_players().size()); }
 
@@ -48,14 +50,15 @@ void Game::advance_round_logic() {
     if (phase_change) {
         if (phase.is_round_end()) {
             Team winning_team = state.get_winning_team();
-            for (const auto& [p_name, player]: state.get_players()) {
+            for (const auto& [_, player]:  // cppcheck-suppress[unusedVariable]
+                 state.get_players()) {
                 if ((winning_team == Team::TT && player->is_tt()) ||
                     (winning_team == Team::CT && player->is_ct()))
                     player->add_rewards(Scores::win, Bonifications::win);
                 else
                     player->add_rewards(Scores::loss, Bonifications::loss);
             }
-            send_msg_to_all_players(Message(RoundEndResponse(winning_team)));
+            broadcast(Message(RoundEndResponse(winning_team)));
         } else if (phase.is_buying_phase()) {
             prepare_new_round();
         }
@@ -106,7 +109,7 @@ void Game::perform_attacks() {
         }
     }
 
-    for (const auto& hit_resp: hit_responses) send_msg_to_all_players(Message(hit_resp));
+    for (const auto& hit_resp: hit_responses) broadcast(Message(hit_resp));
 }
 
 bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker,
@@ -143,11 +146,12 @@ void Game::join_player(const std::string& player_name) {
         state.add_player(player_name, default_team, pos);
     }
 
-    send_msg_to_single_player(player_name, Message(state.get_full_update()));
+    send_msg(player_name, Message(state.get_full_update()));
+    send_msg(player_name, Message(physics_system.get_map()));
     for (const auto& [p_name, _]: state.get_players()) {
         if (p_name == player_name)
             continue;
-        send_msg_to_single_player(p_name, Message(state.get_updates()));
+        send_msg(p_name, Message(state.get_updates()));
     }
 }
 
@@ -156,7 +160,7 @@ void Game::handle<SelectTeamCommand>(const std::string& player_name, const Selec
     if (state.get_phase().is_started())
         throw SelectTeamError();
     if (state.team_is_full(msg.get_team())) {
-        send_msg_to_single_player(player_name, Message(ErrorResponse()));
+        send_msg(player_name, Message(ErrorResponse()));
         return;
     }
 
@@ -177,7 +181,7 @@ void Game::handle<GetCharactersCommand>(const std::string& player_name,
         characters = {CharacterType::Pheonix, CharacterType::L337_Krew,
                       CharacterType::Arctic_Avenger, CharacterType::Guerrilla};
     }
-    send_msg_to_single_player(player_name, Message(CharactersResponse(std::move(characters))));
+    send_msg(player_name, Message(CharactersResponse(std::move(characters))));
 }
 
 template <>
@@ -204,8 +208,8 @@ void Game::handle<SetReadyCommand>(const std::string& player_name,
 template <>
 void Game::handle<GetShopPricesCommand>(const std::string& player_name,
                                         [[maybe_unused]] const GetShopPricesCommand& msg) {
-    send_msg_to_single_player(player_name, Message(ShopPricesResponse(shop.get_gun_prices(),
-                                                                      shop.get_ammo_prices())));
+    send_msg(player_name,
+             Message(ShopPricesResponse(shop.get_gun_prices(), shop.get_ammo_prices())));
 }
 
 template <>
@@ -213,7 +217,7 @@ void Game::handle<BuyGunCommand>(const std::string& player_name, const BuyGunCom
     auto& player = state.get_player(player_name);
     if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name) ||
         !shop.can_buy_gun(msg.get_gun(), player->get_inventory())) {
-        send_msg_to_single_player(player_name, Message(ErrorResponse()));
+        send_msg(player_name, Message(ErrorResponse()));
         return;
     }
 
@@ -228,7 +232,7 @@ void Game::handle<BuyAmmoCommand>(const std::string& player_name, const BuyAmmoC
     auto& player = state.get_player(player_name);
     if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name) ||
         !shop.can_buy_ammo(msg.get_slot(), player->get_inventory())) {
-        send_msg_to_single_player(player_name, Message(ErrorResponse()));
+        send_msg(player_name, Message(ErrorResponse()));
         return;
     }
 
@@ -283,7 +287,7 @@ void Game::handle<GetScoreboardCommand>(const std::string& player_name,
     std::map<std::string, ScoreboardEntry> scoreboard;
     for (const auto& [p_name, player]: state.get_players())
         scoreboard.emplace(p_name, player->get_scoreboard_entry());
-    send_msg_to_single_player(player_name, Message(ScoreboardResponse(std::move(scoreboard))));
+    send_msg(player_name, Message(ScoreboardResponse(std::move(scoreboard))));
 }
 
 // TODO: Implement
@@ -391,10 +395,10 @@ void Game::reset_for_new_round(const std::unique_ptr<Player>& player) {
     player->stop_attacking();
 }
 
-void Game::send_msg_to_all_players(const Message& msg) {
-    for (const auto& [p_name, _]: state.get_players()) send_msg_to_single_player(p_name, msg);
+void Game::broadcast(const Message& msg) {
+    for (const auto& [p_name, _]: state.get_players()) send_msg(p_name, msg);
 }
 
-void Game::send_msg_to_single_player(const std::string& player_name, const Message& msg) {
+void Game::send_msg(const std::string& player_name, const Message& msg) {
     output_messages.emplace_back(player_name, msg);
 }

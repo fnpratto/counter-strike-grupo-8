@@ -24,17 +24,17 @@ public:
  */
 class CreateGameCommand: public Command {
     std::string game_name;
-    int map_id;
+    std::string map_name;
     std::string player_name;
 
 public:
-    CreateGameCommand(const std::string& game_name, const int& map_id,
+    CreateGameCommand(const std::string& game_name, const std::string& map_name,
                       const std::string& player_name):
-            game_name(game_name), map_id(map_id), player_name(player_name) {}
+            game_name(game_name), map_name(map_name), player_name(player_name) {}
 
-    std::string get_game_name() const { return game_name; }
-    int get_map_id() const { return map_id; }
-    std::string get_player_name() const { return player_name; }
+    const std::string& get_game_name() const { return game_name; }
+    const std::string& get_map_name() const { return map_name; }
+    const std::string& get_player_name() const { return player_name; }
 };
 
 /**

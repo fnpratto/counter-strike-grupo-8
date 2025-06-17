@@ -11,8 +11,8 @@ LobbyThread::LobbyThread(ServerProtocol& proto, LobbyMonitor& lobby_monitor,
 
 template <>
 void LobbyThread::handle(const CreateGameCommand& cmd) {
-    pipe_t pipe =
-            lobby_monitor.create_game(cmd.get_game_name(), cmd.get_map_id(), cmd.get_player_name());
+    pipe_t pipe = lobby_monitor.create_game(cmd.get_game_name(), cmd.get_map_name(),
+                                            cmd.get_player_name());
 
     join_callback(cmd.get_player_name(), pipe);
 
@@ -30,7 +30,7 @@ void LobbyThread::handle(const JoinGameCommand& cmd) {
 
 template <>
 void LobbyThread::handle([[maybe_unused]] const ListMapsCommand& cmd) {
-    auto maps = lobby_monitor.get_maps_info();
+    auto maps = lobby_monitor.get_map_names();
     protocol.send(Message(ListMapsResponse(maps)));
 }
 

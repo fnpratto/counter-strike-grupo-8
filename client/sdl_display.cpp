@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <SDL.h>
@@ -28,7 +29,6 @@ SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue
         input_handler(nullptr),
         score_display(nullptr),
         shop_display(nullptr) {
-
     std::cout << "SDLDisplay initialized with player: " << player_name << std::endl;
     SCREEN_WIDTH = 800;
     SCREEN_HEIGHT = 600;
@@ -68,7 +68,8 @@ void SDLDisplay::run() {
     SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
     hudDisplay hud_display(window, state, player_name);
     shop_display = std::make_unique<shopDisplay>(window, state);
-    SdlWorld world(window, state, player_name);
+    Map map = get_map();
+    SdlWorld world(window, std::move(map), state, player_name);
     listTeams list_teams(window, state, player_name);
     skinSelect list_skins(window, state, player_name);
     std::map<std::string, ScoreboardEntry> scoreboard;
@@ -139,6 +140,19 @@ GameUpdate SDLDisplay::get_initial_state() {
         } else {
             std::cerr << "Received unexpected message type: " << static_cast<int>(msg.get_type())
                       << std::endl;
+        }
+    }
+}
+
+Map SDLDisplay::get_map() {
+    Message msg;
+    while (true) {
+        msg = input_queue.pop();
+        if (msg.get_type() == MessageType::MAP_RESP) {
+            return msg.get_content<Map>();
+        } else {
+            throw std::runtime_error("SDLDisplay::get_map: Expected MAP_RESP, but received: " +
+                                     std::to_string(static_cast<int>(msg.get_type())));
         }
     }
 }

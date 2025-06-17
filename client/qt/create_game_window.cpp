@@ -1,6 +1,7 @@
 #include "create_game_window.h"
 
 #include <QMessageBox>
+#include <vector>
 
 #define WINDOW_WIDTH 416
 #define WINDOW_HEIGHT 340
@@ -16,7 +17,7 @@ CreateGameWindow::CreateGameWindow(Queue<Message>& input_queue, Queue<Message>& 
     this->setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     output_queue.push(Message(ListMapsCommand()));
-    maps_info = input_queue.pop().get_content<ListMapsResponse>().get_maps_info();
+    map_names = input_queue.pop().get_content<ListMapsResponse>().get_map_names();
 
     this->init_gui();
 }
@@ -54,8 +55,7 @@ void CreateGameWindow::add_map_list() {
     QListWidget* map_list = new QListWidget(this);
     this->main_layout->addWidget(map_list);
 
-    const std::string maps[] = {"Map 1", "Map 2", "Map 3"};
-    for (const auto& map: maps) {
+    for (const auto& map: map_names) {
         QListWidgetItem* item = new QListWidgetItem(QString::fromStdString(map));
         map_list->addItem(item);
     }
@@ -82,7 +82,7 @@ void CreateGameWindow::add_create_button() {
 void CreateGameWindow::on_create_button_clicked() {
     std::string game_name = this->game_name_input->text().toStdString();
     std::string map_name = this->findChild<QListWidget*>()->currentItem()->text().toStdString();
-    output_queue.push(Message(CreateGameCommand(game_name, maps_info.at(map_name), player_name)));
+    output_queue.push(Message(CreateGameCommand(game_name, map_name, player_name)));
 
     auto msg = input_queue.pop();
     while (msg.get_type() != MessageType::BOOL) {

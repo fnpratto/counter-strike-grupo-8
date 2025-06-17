@@ -49,7 +49,8 @@ pipe_t GameThread::join_game(const std::string& player_name) {
 
 GameInfo GameThread::get_game_info() {
     std::lock_guard<std::mutex> lock(mtx);
-    return GameInfo(game.get_name(), game.get_player_count(), game.get_phase());
+    return GameInfo(game.get_name(), game.get_map_name(), game.get_player_count(),
+                    game.get_phase());
 }
 
 void GameThread::stop() { Thread::stop(); }  // TODO: finish game

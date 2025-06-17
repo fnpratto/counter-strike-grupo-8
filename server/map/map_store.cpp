@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "common/map/map.h"
 
@@ -15,22 +16,23 @@ MapStore::MapStore() {
         if (map_file.path().extension() == ".yaml") {
             MapBuilder builder(map_file.path().string());
             Map map = builder.build();
-            maps.emplace(maps.size(), std::move(map));
+            maps.emplace(map.name, std::move(map));
         }
     }
 }
 
-Map MapStore::get_map(int map_id) const {
-    auto it = maps.find(map_id);
+// TODO: This should "cache" the maps in memory, so that they are not loaded from disk every time.
+Map MapStore::get_map(const std::string& map_name) const {
+    auto it = maps.find(map_name);
     if (it == maps.end())
-        throw std::runtime_error("Map with ID " + std::to_string(map_id) + " not found");
+        throw std::runtime_error("Map with name " + map_name + " not found");
     return it->second;
 }
 
-std::map<std::string, int> MapStore::get_maps_info() const {
-    std::map<std::string, int> info;
-    for (const auto& [id, map]: maps) {  // cppcheck-suppress[unassignedVariable]
-        info[map.name] = id;
+std::vector<std::string> MapStore::get_map_names() const {
+    std::vector<std::string> names;
+    for (const auto& [name, _]: maps) {
+        names.push_back(name);
     }
-    return info;
+    return names;
 }

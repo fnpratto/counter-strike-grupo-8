@@ -31,12 +31,12 @@ template <>
 payload_t ClientProtocol::serialize_msg(const CreateGameCommand& cmd) const {
     payload_t payload;
     payload_t game_name = serialize(cmd.get_game_name());
-    payload_t map_id = serialize(cmd.get_map_id());
+    payload_t map_name = serialize(cmd.get_map_name());
     payload_t player_name = serialize(cmd.get_player_name());
 
-    payload.reserve(game_name.size() + map_id.size() + player_name.size());
+    payload.reserve(game_name.size() + map_name.size() + player_name.size());
     payload.insert(payload.end(), game_name.begin(), game_name.end());
-    payload.insert(payload.end(), map_id.begin(), map_id.end());
+    payload.insert(payload.end(), map_name.begin(), map_name.end());
     payload.insert(payload.end(), player_name.begin(), player_name.end());
 
     return payload;
@@ -191,7 +191,7 @@ ListGamesResponse ClientProtocol::deserialize_msg<ListGamesResponse>(payload_t& 
 
 template <>
 ListMapsResponse ClientProtocol::deserialize_msg<ListMapsResponse>(payload_t& payload) const {
-    return ListMapsResponse(deserialize<std::string, int>(payload));
+    return ListMapsResponse(deserialize<std::vector<std::string>>(payload));
 }
 
 template <>

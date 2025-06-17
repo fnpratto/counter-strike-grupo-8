@@ -23,29 +23,16 @@
 #include "sdl_player.h"
 
 
-SdlWorld::SdlWorld(SdlWindow& window, const GameUpdate& game_state, const std::string& player_name):
+SdlWorld::SdlWorld(SdlWindow& window, Map&& map, const GameUpdate& game_state,
+                   const std::string& player_name):
         window(window),
         game_state(game_state),
         player_name(player_name),
         camera(window.getWidth(), window.getHeight()),
-        map(window, camera, build_default_map()) {
+        map(window, camera, std::move(map)) {
     for (const auto& [name, player_update]: game_state.get_players()) {
         players.emplace(name, SdlPlayer(window, camera));
     }
-}
-
-Map SdlWorld::build_default_map() {
-    Map actual_map = Map("default_map", 10);
-
-    std::vector<Floor> floors;
-    for (int i = 0; i < 10; ++i) {
-        for (int j = 0; j < 10; ++j) {
-            floors.emplace_back(Vector2D(i * 32, j * 32));
-        }
-    }
-    actual_map.floors = std::move(floors);
-
-    return actual_map;
 }
 
 void SdlWorld::render() {

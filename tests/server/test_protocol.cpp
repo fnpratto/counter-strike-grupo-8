@@ -31,7 +31,7 @@ TEST_F(ProtocolTest, ReceiveCreateGameCommand) {
     // Test round-trip serialization/deserialization of CreateGameCommand
     client_mock_socket->clear_written_data();
 
-    CreateGameCommand cmd("TestGame", 1, "TestPlayer");
+    CreateGameCommand cmd("TestGame", "de_dust2", "TestPlayer");
     Message message(cmd);
 
     client_protocol->send(message);
@@ -47,7 +47,7 @@ TEST_F(ProtocolTest, ReceiveCreateGameCommand) {
 
     CreateGameCommand received_cmd = received_message.get_content<CreateGameCommand>();
     ASSERT_EQ(received_cmd.get_game_name(), "TestGame");
-    ASSERT_EQ(received_cmd.get_map_id(), 1);
+    ASSERT_EQ(received_cmd.get_map_name(), "de_dust2");
     ASSERT_EQ(received_cmd.get_player_name(), "TestPlayer");
 }
 
@@ -505,8 +505,8 @@ TEST_F(ProtocolTest, SendListMapsCommand) {
 TEST_F(ProtocolTest, SendReceiveListMapsResponse) {
     server_mock_socket->clear_written_data();
 
-    std::map<std::string, int> maps = {{"de_dust2", 1}, {"de_mirage", 2}, {"de_inferno", 3}};
-    ListMapsResponse resp(maps);
+    std::vector<std::string> map_names = {"de_dust2", "de_mirage", "de_inferno"};
+    ListMapsResponse resp(map_names);
     Message message(resp);
 
     server_protocol->send(message);
@@ -520,11 +520,11 @@ TEST_F(ProtocolTest, SendReceiveListMapsResponse) {
     ASSERT_EQ(received_message.get_type(), MessageType::LIST_MAPS_RESP);
 
     ListMapsResponse received_resp = received_message.get_content<ListMapsResponse>();
-    auto received_maps = received_resp.get_maps_info();
+    auto received_maps = received_resp.get_map_names();
     ASSERT_EQ(received_maps.size(), 3);
-    ASSERT_EQ(received_maps["de_dust2"], 1);
-    ASSERT_EQ(received_maps["de_mirage"], 2);
-    ASSERT_EQ(received_maps["de_inferno"], 3);
+    ASSERT_EQ(received_maps[0], "de_dust2");
+    ASSERT_EQ(received_maps[1], "de_mirage");
+    ASSERT_EQ(received_maps[2], "de_inferno");
 }
 
 TEST_F(ProtocolTest, SendReceiveMapResponse) {
@@ -578,7 +578,7 @@ TEST_F(ProtocolTest, SendReceiveMapResponse) {
 TEST_F(ProtocolTest, SendWhenSocketClosed) {
     server_mock_socket->set_send_closed(true);
 
-    ListGamesResponse resp({GameInfo("SmallGame", 3, PhaseType::WarmUp)});
+    ListGamesResponse resp({GameInfo("SmallGame", "de_dust2", 3, PhaseType::WarmUp)});
     Message message(resp);
 
     // Should not throw, but socket should return 0 bytes sent
@@ -592,7 +592,7 @@ TEST_F(ProtocolTest, SendWhenSocketClosed) {
 TEST_F(ProtocolTest, SendWithSocketError) {
     server_mock_socket->set_should_throw_on_send(true);
 
-    CreateGameCommand cmd("TestGame", 1, "TestPlayer");
+    CreateGameCommand cmd("TestGame", "de_dust2", "TestPlayer");
     Message message(cmd);
 
     EXPECT_THROW(server_protocol->send(message), std::runtime_error);
@@ -642,7 +642,7 @@ TEST_F(ProtocolTest, ProtocolClose) {
 TEST_F(ProtocolTest, MessageTypeSerialization) {
     server_mock_socket->clear_written_data();
 
-    ListGamesResponse resp({GameInfo("SmallGame", 3, PhaseType::WarmUp)});
+    ListGamesResponse resp({GameInfo("SmallGame", "de_dust2", 3, PhaseType::WarmUp)});
     Message msg(resp);
     server_protocol->send(msg);
 
@@ -662,13 +662,13 @@ TEST_F(ProtocolTest, MessageLengthSerialization) {
     // 53 6d 61 6c 6c 47 61 6d 65 game name "SmallGame"
     // 00 03 players count
     // 00 WarmUp phase
-    ListGamesResponse resp({GameInfo("SmallGame", 3, PhaseType::WarmUp)});
+    ListGamesResponse resp({GameInfo("SmallGame", "de_dust2", 3, PhaseType::WarmUp)});
     Message msg(resp);
     server_protocol->send(msg);
 
     const auto& written_data = server_mock_socket->get_written_data();
     ASSERT_EQ(written_data[1], 0x00);  // Length high byte
-    ASSERT_EQ(written_data[2], 0x10);  // Length low byte (15 bytes total)
+    ASSERT_EQ(written_data[2], 0x1A);  // Length low byte (15 bytes total)
 }
 
 // Test that the game update message is serialized correctly
@@ -722,7 +722,7 @@ TEST_F(ProtocolTest, GameUpdateSerialization) {
 TEST_F(ProtocolTest, SendEmptyListMapsResponse) {
     server_mock_socket->clear_written_data();
 
-    std::map<std::string, int> empty_maps;
+    std::vector<std::string> empty_maps;
     ListMapsResponse resp(empty_maps);
     Message message(resp);
 
@@ -738,7 +738,7 @@ TEST_F(ProtocolTest, SendEmptyListMapsResponse) {
     ASSERT_EQ(received_message.get_type(), MessageType::LIST_MAPS_RESP);
 
     ListMapsResponse received_resp = received_message.get_content<ListMapsResponse>();
-    auto received_maps = received_resp.get_maps_info();
+    auto received_maps = received_resp.get_map_names();
     ASSERT_EQ(received_maps.size(), 0);
 }
 

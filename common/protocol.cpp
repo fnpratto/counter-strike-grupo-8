@@ -149,11 +149,14 @@ payload_t BaseProtocol::serialize(const GameInfo& game_info) const {
     payload_t payload;
 
     payload_t name_payload = serialize(game_info.name);
-    payload_t count_payload = serialize(game_info.players_count);
+    payload_t map_name_payload = serialize(game_info.map_name);
+    payload_t players_count_payload = serialize(game_info.players_count);
     payload_t phase_payload = serialize(game_info.phase);
-    payload.reserve(name_payload.size() + count_payload.size() + phase_payload.size());
+    payload.reserve(name_payload.size() + map_name_payload.size() + players_count_payload.size() +
+                    phase_payload.size());
     payload.insert(payload.end(), name_payload.begin(), name_payload.end());
-    payload.insert(payload.end(), count_payload.begin(), count_payload.end());
+    payload.insert(payload.end(), map_name_payload.begin(), map_name_payload.end());
+    payload.insert(payload.end(), players_count_payload.begin(), players_count_payload.end());
     payload.insert(payload.end(), phase_payload.begin(), phase_payload.end());
 
     return payload;
@@ -399,9 +402,10 @@ TimePoint BaseProtocol::deserialize<TimePoint>(payload_t& payload) const {
 template <>
 GameInfo BaseProtocol::deserialize<GameInfo>(payload_t& payload) const {
     std::string name = deserialize<std::string>(payload);
+    std::string map_name = deserialize<std::string>(payload);
     int players_count = deserialize<int>(payload);
     PhaseType phase = deserialize<PhaseType>(payload);
-    return GameInfo(name, players_count, phase);
+    return GameInfo(name, map_name, players_count, phase);
 }
 
 

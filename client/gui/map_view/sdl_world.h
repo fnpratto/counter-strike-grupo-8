@@ -34,7 +34,8 @@ class SdlWorld {
     // SdlTexture background;  // TODO: Load a background texture
 
 public:
-    SdlWorld(SdlWindow& window, const GameUpdate& game_state, const std::string& player_name);
+    SdlWorld(SdlWindow& window, Map&& map, const GameUpdate& game_state,
+             const std::string& player_name);
 
     void render();
 

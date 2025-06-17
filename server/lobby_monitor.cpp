@@ -13,14 +13,14 @@
 #include "game_thread.h"
 
 
-pipe_t LobbyMonitor::create_game(const std::string& game_name, const int& map_id,
+pipe_t LobbyMonitor::create_game(const std::string& game_name, const std::string& map_name,
                                  const std::string& player_name) {
     std::lock_guard<std::mutex> lock(mtx);
 
     if (games.find(game_name) != games.end())
         throw GameExistsError();
 
-    auto game = std::make_shared<GameThread>(game_name, map_store.get_map(map_id));
+    auto game = std::make_shared<GameThread>(game_name, map_store.get_map(map_name));
     game->start();
     games[game_name] = game;
 
@@ -52,7 +52,7 @@ std::vector<GameInfo> LobbyMonitor::get_games_info() {
     return games_info;
 }
 
-std::map<std::string, int> LobbyMonitor::get_maps_info() const { return map_store.get_maps_info(); }
+std::vector<std::string> LobbyMonitor::get_map_names() const { return map_store.get_map_names(); }
 
 void LobbyMonitor::reap() {
     std::lock_guard<std::mutex> lock(mtx);
