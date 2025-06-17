@@ -204,7 +204,8 @@ TEST_F(TestGame, CounterTerroristDoesNotHaveBombWhenGameStarted) {
 
     PlayerUpdate player_updates = updates.get_players().at("test_player");
 
-    EXPECT_FALSE(player_updates.get_inventory().has_bomb_changed());
+    EXPECT_TRUE(player_updates.get_inventory().has_bomb_changed());
+    EXPECT_FALSE(player_updates.get_inventory().get_bomb().has_value());
 }
 
 TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
