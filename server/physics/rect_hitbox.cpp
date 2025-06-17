@@ -1,6 +1,8 @@
 #include "rect_hitbox.h"
 
 #include <algorithm>
+#include <cmath>
+#include <vector>
 
 #include "common/physics/physics_config.h"
 #include "common/utils/random_float_generator.h"
@@ -11,7 +13,8 @@ RectHitbox::RectHitbox(const Vector2D& pos, int width, int height, float rotatio
 }
 
 RectHitbox::RectHitbox(const Rectangle& bounds):
-        RectHitbox(bounds.pos, bounds.width, bounds.height, bounds.rotation_deg) {}
+        RectHitbox(bounds.get_pos(), bounds.get_width(), bounds.get_height(),
+                   bounds.get_rotation_deg()) {}
 
 RectHitbox RectHitbox::gun_hitbox(const Vector2D& pos) {
     float rotation = RandomFloatGenerator(-180.0f, 180.0f).generate();
@@ -29,56 +32,58 @@ RectHitbox RectHitbox::tile_hitbox(const Vector2D& pos) {
 
 Rectangle RectHitbox::get_bounds() const { return Rectangle(pos, width, height); }
 
-bool RectHitbox::collides_with_circle(const Vector2D& circle_pos, float radius) const {
-    float minX = pos.get_x();
-    float maxX = pos.get_x() + width;
-    float minY = pos.get_y();
-    float maxY = pos.get_y() + height;
-
-    float closestX = std::max(minX, std::min(static_cast<float>(circle_pos.get_x()), maxX));
-    float closestY = std::max(minY, std::min(static_cast<float>(circle_pos.get_y()), maxY));
-
-    float distance =
-            Vector2D(circle_pos.get_x() - closestX, circle_pos.get_y() - closestY).length();
-
-    if (distance <= radius)
-        return true;
-
-    return false;
+Vector2D RectHitbox::to_aabb_space(const Vector2D& global_pos, float rotation_deg) const {
+    Vector2D relative = global_pos - pos;
+    return relative.rotated(rotation_deg);
 }
 
-bool RectHitbox::is_in_same_cuadrant(const Vector2D& ray_start, const Vector2D& ray_dir) const {
-    Vector2D distance = pos - ray_start;
-    return distance.dot(ray_dir) > 0;
+Vector2D RectHitbox::closest_pos_in_aabb(const Vector2D& another_pos) const {
+    float another_x = another_pos.get_x();
+    float another_y = another_pos.get_y();
+
+    float closest_x = std::max(0.0f, std::min(another_x, static_cast<float>(width)));
+    float closest_y = std::max(0.0f, std::min(another_y, static_cast<float>(height)));
+
+    return Vector2D(closest_x, closest_y);
+}
+
+bool RectHitbox::collides_with_circle(const Vector2D& circle_pos, float radius) const {
+    Vector2D circle_relative_pos = to_aabb_space(circle_pos, rotation_deg);
+    Vector2D closest = closest_pos_in_aabb(circle_relative_pos);
+    float distance = (circle_relative_pos - closest).length();
+    return distance <= radius;
+}
+
+bool RectHitbox::is_in_same_quadrant(const Vector2D& ray_start, const Vector2D& ray_dir) const {
+    Vector2D top_left = Vector2D(pos.get_x(), pos.get_y());
+    Vector2D top_right = Vector2D(pos.get_x() + width, pos.get_y());
+    Vector2D bottom_left = Vector2D(pos.get_x(), pos.get_y() + height);
+    Vector2D bottom_right = Vector2D(pos.get_x() + width, pos.get_y() + height);
+
+    std::vector<Vector2D> corners = {
+            top_left.rotated(rotation_deg), top_right.rotated(rotation_deg),
+            bottom_right.rotated(rotation_deg), bottom_left.rotated(rotation_deg)};
+
+    return std::any_of(corners.begin(), corners.end(), [&](const Vector2D& corner) {
+        Vector2D dist_to_corner = corner - ray_start;
+        return dist_to_corner.dot(ray_dir) >= 0;
+    });
 }
 
 bool RectHitbox::is_hit(const Vector2D& ray_start, const Vector2D& ray_dir) const {
-    float minX = pos.get_x();
-    float maxX = pos.get_x() + width;
-    float minY = pos.get_y();
-    float maxY = pos.get_y() + height;
+    Vector2D relative_ray_start = (ray_start - pos).rotated(rotation_deg);
+    Vector2D relative_ray_dir = ray_dir.rotated(rotation_deg);
 
-    float aim_x = ray_dir.get_x();
-    float aim_y = ray_dir.get_y();
+    float dir_x = (relative_ray_dir.get_x() == 0) ? 1e-8f : relative_ray_dir.get_x();
+    float dir_y = (relative_ray_dir.get_y() == 0) ? 1e-8f : relative_ray_dir.get_y();
 
-    if (aim_x == 0)
-        aim_x = 1e-8;
-    if (aim_y == 0)
-        aim_y = 1e-8;
-
-    float t1 = (minX - ray_start.get_x()) / aim_x;
-    float t2 = (maxX - ray_start.get_x()) / aim_x;
-    float t3 = (minY - ray_start.get_y()) / aim_y;
-    float t4 = (maxY - ray_start.get_y()) / aim_y;
+    float t1 = -relative_ray_start.get_x() / dir_x;
+    float t2 = (width - relative_ray_start.get_x()) / dir_x;
+    float t3 = -relative_ray_start.get_y() / dir_y;
+    float t4 = (height - relative_ray_start.get_y()) / dir_y;
 
     float tmin = std::max(std::min(t1, t2), std::min(t3, t4));
     float tmax = std::min(std::max(t1, t2), std::max(t3, t4));
 
-    if (tmax < 0)
-        return false;
-
-    if (tmin > tmax)
-        return false;
-
-    return true;
+    return (tmax >= 0 && tmin <= tmax);
 }

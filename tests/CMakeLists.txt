@@ -5,6 +5,7 @@ target_sources(taller_tests
     server/game/test_game.cpp
     server/game/test_game_phase.cpp
     server/game/test_shop.cpp
+    server/game/test_physics.cpp
     server/player/test_player.cpp
     # attack_effects
     ../server/attack_effects/attack_effect.cpp

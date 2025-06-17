@@ -103,7 +103,7 @@ std::optional<Target> PhysicsSystem::get_closest_tile(const std::string& origin_
     float min_distance = std::numeric_limits<float>::max();
     for (const T& target: vector) {
         RectHitbox target_hitbox = RectHitbox::tile_hitbox(target.get_pos());
-        if (target_hitbox.is_in_same_cuadrant(origin, dir) && target_hitbox.is_hit(origin, dir)) {
+        if (target_hitbox.is_in_same_quadrant(origin, dir) && target_hitbox.is_hit(origin, dir)) {
             float distance = (target_hitbox.get_pos() - origin).length();
             if (distance < min_distance) {
                 min_distance = distance;
