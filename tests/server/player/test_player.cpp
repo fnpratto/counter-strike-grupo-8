@@ -7,6 +7,7 @@
 #include "server/clock/mock_clock.h"
 #include "server/errors.h"
 #include "server/game/shop.h"
+#include "server/physics/circular_hitbox.h"
 #include "server/player/player.h"
 #include "server/player/player_config.h"
 #include "server/weapons/gun.h"
@@ -22,7 +23,9 @@ protected:
     MockClock clock;
     Player player;
 
-    TestPlayer(): clock(std::chrono::steady_clock::now()), player(Team::TT, Vector2D(0, 0)) {}
+    TestPlayer():
+            clock(std::chrono::steady_clock::now()),
+            player(Team::TT, CircularHitbox::player_hitbox(Vector2D(0, 0))) {}
 
     void advance_secs(float secs) { clock.advance(std::chrono::duration<float>(secs)); }
 };

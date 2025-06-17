@@ -11,15 +11,20 @@ Gun::Gun(GunType gun, GunConfig gun_config):
                 GunState(gun, gun_config.init_mag_ammo, gun_config.init_reserve_ammo)),
         gun_config(gun_config) {}
 
-std::unique_ptr<Gun> Gun::make_glock() {
-    return std::make_unique<Gun>(GunType::Glock, GlockConfig);
+std::unique_ptr<Gun> Gun::make_gun(const GunType& gun_type) {
+    switch (gun_type) {
+        case GunType::Glock:
+            return std::make_unique<Gun>(GunType::Glock, GlockConfig);
+        case GunType::AK47:
+            return std::make_unique<Gun>(GunType::AK47, Ak47Config);
+        case GunType::AWP:
+            return std::make_unique<Gun>(GunType::AWP, AwpConfig);
+        case GunType::M3:
+            return std::make_unique<Gun>(GunType::M3, M3Config);
+        default:
+            throw std::invalid_argument("Unknown gun type");
+    }
 }
-
-std::unique_ptr<Gun> Gun::make_ak47() { return std::make_unique<Gun>(GunType::AK47, Ak47Config); }
-
-std::unique_ptr<Gun> Gun::make_awp() { return std::make_unique<Gun>(GunType::AWP, AwpConfig); }
-
-std::unique_ptr<Gun> Gun::make_m3() { return std::make_unique<Gun>(GunType::M3, M3Config); }
 
 bool Gun::has_ammo() { return state.get_mag_ammo() > 0; }
 

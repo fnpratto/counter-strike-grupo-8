@@ -180,6 +180,25 @@ payload_t BaseProtocol::serialize(const ScoreboardEntry& entry) const {
 }
 
 template <>
+payload_t BaseProtocol::serialize(const Rectangle& rectangle) const {
+    payload_t payload;
+
+    payload_t pos_payload = serialize(rectangle.get_pos());
+    payload_t width_payload = serialize(rectangle.get_width());
+    payload_t height_payload = serialize(rectangle.get_height());
+    payload_t rotation_payload = serialize(rectangle.get_rotation_deg());
+
+    payload.reserve(pos_payload.size() + width_payload.size() + height_payload.size() +
+                    rotation_payload.size());
+    payload.insert(payload.end(), pos_payload.begin(), pos_payload.end());
+    payload.insert(payload.end(), width_payload.begin(), width_payload.end());
+    payload.insert(payload.end(), height_payload.begin(), height_payload.end());
+    payload.insert(payload.end(), rotation_payload.begin(), rotation_payload.end());
+
+    return payload;
+}
+
+template <>
 payload_t BaseProtocol::serialize(const WorldItem<GunType>& world_item) const {
     payload_t payload;
 
@@ -187,9 +206,9 @@ payload_t BaseProtocol::serialize(const WorldItem<GunType>& world_item) const {
     payload_t gun_payload = serialize(world_item.item);
     payload.insert(payload.end(), gun_payload.begin(), gun_payload.end());
 
-    // Serialize the position
-    payload_t pos_payload = serialize(world_item.pos);
-    payload.insert(payload.end(), pos_payload.begin(), pos_payload.end());
+    // Serialize the hitbox
+    payload_t hitbox_payload = serialize(world_item.hitbox);
+    payload.insert(payload.end(), hitbox_payload.begin(), hitbox_payload.end());
 
     return payload;
 }
@@ -240,9 +259,9 @@ payload_t BaseProtocol::serialize(const WorldItem<BombUpdate>& world_item) const
     payload_t bomb_payload = serialize(world_item.item);
     payload.insert(payload.end(), bomb_payload.begin(), bomb_payload.end());
 
-    // Serialize the position
-    payload_t pos_payload = serialize(world_item.pos);
-    payload.insert(payload.end(), pos_payload.begin(), pos_payload.end());
+    // Serialize the hitbox
+    payload_t hitbox_payload = serialize(world_item.hitbox);
+    payload.insert(payload.end(), hitbox_payload.begin(), hitbox_payload.end());
 
     return payload;
 }
@@ -298,6 +317,12 @@ bool BaseProtocol::deserialize<bool>(payload_t& payload) const {
 }
 
 template <>
+float BaseProtocol::deserialize<float>(payload_t& payload) const {
+    payload_t data = pop(payload, sizeof(float));
+    return ntohl(*reinterpret_cast<const float*>(data.data()));
+}
+
+template <>
 Vector2D BaseProtocol::deserialize<Vector2D>(payload_t& payload) const {
     int x = deserialize<int>(payload);
     int y = deserialize<int>(payload);
@@ -331,11 +356,23 @@ ScoreboardEntry BaseProtocol::deserialize<ScoreboardEntry>(payload_t& payload) c
 }
 
 template <>
+Rectangle BaseProtocol::deserialize<Rectangle>(payload_t& payload) const {
+    Vector2D pos = deserialize<Vector2D>(payload);
+    int width = deserialize<int>(payload);
+    int height = deserialize<int>(payload);
+    float rotation_deg = deserialize<float>(payload);
+
+    Rectangle rectangle(pos, width, height);
+    rectangle.rotate(rotation_deg);
+    return rectangle;
+}
+
+template <>
 WorldItem<GunType> BaseProtocol::deserialize<WorldItem<GunType>>(payload_t& payload) const {
     GunType gun_type = deserialize<GunType>(payload);
-    Vector2D pos = deserialize<Vector2D>(payload);
+    Rectangle hitbox = deserialize<Rectangle>(payload);
 
-    return WorldItem<GunType>{gun_type, pos};
+    return WorldItem<GunType>{gun_type, hitbox};
 }
 
 #define X_DESERIALIZE_UPDATE(type, attr)        \
@@ -375,9 +412,9 @@ DESERIALIZE_UPDATE(GameUpdate, GAME_ATTRS)
 template <>
 WorldItem<BombUpdate> BaseProtocol::deserialize<WorldItem<BombUpdate>>(payload_t& payload) const {
     BombUpdate bomb_update = deserialize<BombUpdate>(payload);
-    Vector2D pos = deserialize<Vector2D>(payload);
+    Rectangle hitbox = deserialize<Rectangle>(payload);
 
-    return WorldItem<BombUpdate>{bomb_update, pos};
+    return WorldItem<BombUpdate>{bomb_update, hitbox};
 }
 
 Message BaseProtocol::recv() {

@@ -15,6 +15,7 @@
     X(Team, team)                    \
     X(CharacterType, character_type) \
     X(Vector2D, pos)                 \
+    X(int, hitbox_radius)            \
     X(Vector2D, aim_direction)       \
     X(Vector2D, velocity)            \
     X(bool, ready)                   \
