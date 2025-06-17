@@ -32,8 +32,6 @@ std::unique_ptr<Gun> InventoryState::remove_primary_weapon() {
 }
 
 Bomb InventoryState::remove_bomb() {
-    if (!bomb.has_value())
-        throw std::runtime_error("Bomb not found");
     updates.set_bomb(std::optional<BombUpdate>());
     Bomb removed_bomb = std::move(bomb.value());
     bomb.reset();
