@@ -19,6 +19,9 @@ SdlPlayer::SdlPlayer(SdlWindow& w, const SdlCamera& cam, const GameUpdate& game_
         weapon(window) {}
 
 void SdlPlayer::render(const PlayerUpdate& state) {
+    if (state.get_health() <= 0) {
+        return;
+    }
     if (state.get_velocity() == Vector2D(0, 0)) {
         walk_animation.reset();
     }
