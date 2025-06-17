@@ -26,6 +26,7 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
                 output_queue.push(Message(SelectTeamCommand(chosen_team.value())));
                 return;
             }
+            return;
         }
         if (skinSelectRef.isActive()) {
             std::optional<CharacterType> id_skin = skinSelectRef.updatePointerPosition(x, y);

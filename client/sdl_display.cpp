@@ -60,8 +60,10 @@ void SDLDisplay::setup() {
         exit(1);
     }
 
-    SCREEN_WIDTH = displayMode.w;
-    SCREEN_HEIGHT = displayMode.h - 150;
+    /*SCREEN_WIDTH = displayMode.w;
+    SCREEN_HEIGHT = displayMode.h - 150;*/
+    SCREEN_WIDTH = 1200;
+    SCREEN_HEIGHT = 800;
 }
 
 void SDLDisplay::run() {

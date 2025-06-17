@@ -41,26 +41,10 @@ void SdlPlayer::render(const PlayerUpdate& state) {
     player_texture.render(position_from_cam.get_x(), position_from_cam.get_y(), &clip, angle,
                           nullptr, SDL_FLIP_NONE);
 
-
-    const float RADIUS = 64.0f;  // distancia deseada
-
-    float angle_rad = angle * M_PI / 180.0f;  // convertir de grados a radianes
-    float tan_alpha = std::tan(angle_rad);
-
-    // calcular x e y a partir de la fórmula
-    float denominator = 1 + tan_alpha * tan_alpha;
-    float x_offset = std::sqrt((RADIUS * RADIUS) / denominator);
-    float y_offset = tan_alpha * x_offset;
-
-    // mantener el signo correcto según la dirección
-    if (std::cos(angle_rad) < 0)
-        x_offset = -x_offset;
-    if (std::sin(angle_rad) < 0)
-        y_offset = -y_offset;
-
+    Vector2D adjusted_position(state.get_pos().get_x() + 5, state.get_pos().get_y());
+    Vector2D position_from_cam_weapon = camera.get_screen_pos(adjusted_position);
     // crear la posición final del arma
-    Area dest(position_from_cam.get_x() + static_cast<int>(x_offset),
-              position_from_cam.get_y() + static_cast<int>(y_offset), WIDTH, HEIGHT);
+    Area dest(position_from_cam_weapon.get_x(), position_from_cam_weapon.get_y(), WIDTH, HEIGHT);
     ItemSlot item = game_state.get_players().at(playerName).get_equipped_item();
     weapon.render(item, dest, angle);
 }

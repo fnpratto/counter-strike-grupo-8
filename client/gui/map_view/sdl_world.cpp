@@ -28,7 +28,8 @@ SdlWorld::SdlWorld(SdlWindow& window, const GameUpdate& game_state, const std::s
         game_state(game_state),
         player_name(player_name),
         camera(window.getWidth(), window.getHeight()),
-        map(window, camera, build_default_map()) {
+        map(window, camera, build_default_map()),
+        bullet(window) {
     for (const auto& [name, player_update]: game_state.get_players()) {
         players.emplace(name, std::make_unique<SdlPlayer>(window, camera, game_state, name));
     }
@@ -47,12 +48,16 @@ Map SdlWorld::build_default_map() {
 
     return actual_map;
 }
-void SdlWorld::handleHit([[maybe_unused]] Vector2D get_origin,
-                         [[maybe_unused]] Vector2D get_hit_pos,
-                         [[maybe_unused]] Vector2D get_hit_dir, [[maybe_unused]] bool is_hit) {
-    // Handle hit logic here
-    // For now, just print the hit information
+void SdlWorld::handleHit(Vector2D get_origin, Vector2D get_hit_pos, Vector2D get_hit_dir,
+                         bool is_hit) {
 
+    Vector2D origin_pos_screen_pos = camera.get_screen_pos(get_origin);
+    Vector2D hit_pos_screen_pos = camera.get_screen_pos(get_hit_pos);
+    Vector2D hit_dir_screen_pos = camera.get_screen_pos(get_hit_dir);
+
+
+    bullet_info =
+            BulletInfo{origin_pos_screen_pos, hit_pos_screen_pos, hit_dir_screen_pos, is_hit, 1};
     std::cout << "Hit detected: " << std::endl;
 }
 
@@ -70,5 +75,11 @@ void SdlWorld::render() {
         if (camera.can_see(player_state)) {
             it->second->render(player_state);
         }
+    }
+
+    if (bullet_info.has_value() && bullet_info->count > 0) {
+        bullet.render(bullet_info->origin, bullet_info->hit_pos, bullet_info->hit_dir,
+                      bullet_info->is_hit);
+        bullet_info->count--;
     }
 }

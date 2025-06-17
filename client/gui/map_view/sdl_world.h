@@ -16,9 +16,18 @@
 #include "../window_elements/sdl_window.h"
 #include "common/updates/game_update.h"
 
+#include "sdl_bullet.h"
 #include "sdl_camera.h"
 #include "sdl_map.h"
 #include "sdl_player.h"
+
+struct BulletInfo {
+    Vector2D origin;
+    Vector2D hit_pos;
+    Vector2D hit_dir;
+    bool is_hit;
+    int count;
+};
 
 class SdlWorld {
     static constexpr const char* BACKGROUND_PATH = "../assets/gfx/tiles/dust.bmp";
@@ -30,6 +39,8 @@ class SdlWorld {
     SdlCamera camera;
     std::map<std::string, std::unique_ptr<SdlPlayer>> players;
     SdlMap map;
+    SdlBullet bullet;
+    std::optional<BulletInfo> bullet_info;  // Nuevo miembro
 
     // SdlTexture background;  // TODO: Load a background texture
 
