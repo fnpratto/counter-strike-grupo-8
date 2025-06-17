@@ -93,8 +93,9 @@ void GameState::add_player(const std::string& player_name, Team team, const Vect
 }
 
 void GameState::add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos) {
-    dropped_guns.emplace_back(std::move(gun), RectHitbox::gun_hitbox(pos).get_bounds());
-    // updates.set_dropped_guns(dropped_guns);
+    Rectangle gun_hitbox = RectHitbox::gun_hitbox(pos).get_bounds();
+    updates.set_dropped_guns({WorldItem<GunType>{gun->get_type(), gun_hitbox}});
+    dropped_guns.emplace_back(std::move(gun), gun_hitbox);
 }
 
 std::unique_ptr<Gun>&& GameState::remove_dropped_gun_at_pos(const Vector2D& pos) {
@@ -107,7 +108,10 @@ std::unique_ptr<Gun>&& GameState::remove_dropped_gun_at_pos(const Vector2D& pos)
 
     std::unique_ptr<Gun>&& gun = std::move(it->item);
     dropped_guns.erase(it);
-    // updates.set_dropped_guns(dropped_guns);
+
+    for (auto& dg: dropped_guns)
+        updates.set_dropped_guns({WorldItem<GunType>{dg.item->get_type(), dg.hitbox}});
+
     return std::move(gun);
 }
 
@@ -118,7 +122,7 @@ void GameState::add_bomb(Bomb&& bomb, const Vector2D& pos) {
 Bomb&& GameState::remove_bomb() {
     if (!bomb.has_value())
         throw std::runtime_error("Bomb not found");
-    // updates.set_bomb(std::optional<WorldItem<BombUpdate>>());
+    updates.set_bomb(std::optional<WorldItem<BombUpdate>>());
     return std::move(bomb.value().item);
 }
 
@@ -144,9 +148,9 @@ GameUpdate GameState::get_updates() const {
     update.set_phase(phase.get_updates());
     for (const auto& [name, player]: players)
         update.add_players_change(name, player->get_updates());
-    // if (bomb.has_value())
-    //     update.set_bomb(WorldItem<BombUpdate>{bomb.value().item.get_updates(),
-    //     bomb.value().pos});
+    if (bomb.has_value())
+        update.set_bomb(
+                WorldItem<BombUpdate>{bomb.value().item.get_updates(), bomb.value().hitbox});
 
     return update;
 }
@@ -157,10 +161,10 @@ GameUpdate GameState::get_full_update() const {
     update.set_num_rounds(num_rounds);
     for (const auto& [name, player]: players)
         update.add_players_change(name, player->get_full_update());
-    // for (const auto& dg: dropped_guns)
-    //     update.set_dropped_guns({WorldItem<GunType>{dg.item->get_type(), dg.pos}});
-    // if (bomb.has_value())
-    //     update.set_bomb(
-    //             WorldItem<BombUpdate>{bomb.value().item.get_full_update(), bomb.value().pos});
+    for (const auto& dg: dropped_guns)
+        update.set_dropped_guns({WorldItem<GunType>{dg.item->get_type(), dg.hitbox}});
+    if (bomb.has_value())
+        update.set_bomb(
+                WorldItem<BombUpdate>{bomb.value().item.get_full_update(), bomb.value().hitbox});
     return update;
 }
