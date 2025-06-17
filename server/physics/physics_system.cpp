@@ -104,7 +104,7 @@ std::optional<Target> PhysicsSystem::get_closest_tile(const std::string& origin_
     for (const T& target: vector) {
         RectHitbox target_hitbox = RectHitbox::tile_hitbox(target.get_pos());
         if (target_hitbox.is_in_same_cuadrant(origin, dir) && target_hitbox.is_hit(origin, dir)) {
-            float distance = (target_hitbox.pos - origin).length();
+            float distance = (target_hitbox.get_pos() - origin).length();
             if (distance < min_distance) {
                 min_distance = distance;
                 closest_target = target;
@@ -149,7 +149,7 @@ std::optional<Vector2D> PhysicsSystem::get_player_colliding_gun_pos(
         CircularHitbox player_hitbox = CircularHitbox(player->get_hitbox());
         RectHitbox gun_hitbox = RectHitbox(gun_item.hitbox);
         if (player_hitbox.collides_with_rectangle(gun_hitbox))
-            return gun_item.hitbox.pos;
+            return gun_item.hitbox.get_pos();
     }
     return std::optional<Vector2D>();
 }
