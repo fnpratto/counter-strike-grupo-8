@@ -502,27 +502,6 @@ TEST_F(ProtocolTest, SendListMapsCommand) {
     // ListMapsCommand has no data to verify, just verify it was deserialized correctly
 }
 
-TEST_F(ProtocolTest, SendReceiveListMapsCommand) {
-    client_mock_socket->clear_written_data();
-
-    ListMapsCommand cmd;
-    Message message(cmd);
-
-    client_protocol->send(message);
-
-    const auto& written_data = client_mock_socket->get_written_data();
-    ASSERT_FALSE(written_data.empty());
-    ASSERT_EQ(written_data[0], static_cast<char>(MessageType::LIST_MAPS_CMD));
-    ASSERT_EQ(written_data[1], 0x00);
-    ASSERT_EQ(written_data[2], 0x00);
-
-    server_mock_socket->queue_read_data(written_data);
-    Message received_message = server_protocol->recv();
-    ASSERT_EQ(received_message.get_type(), MessageType::LIST_MAPS_CMD);
-
-    ListMapsCommand received_cmd = received_message.get_content<ListMapsCommand>();
-}
-
 TEST_F(ProtocolTest, SendReceiveListMapsResponse) {
     server_mock_socket->clear_written_data();
 
@@ -737,57 +716,6 @@ TEST_F(ProtocolTest, GameUpdateSerialization) {
     ASSERT_TRUE(received_player1.get_ready());
     ASSERT_EQ(received_player1.get_health(), 100);
     ASSERT_EQ(received_player1.get_equipped_item(), ItemSlot::Primary);
-}
-
-// Test that the client can send a ListMapsCommand and server can receive it
-TEST_F(ProtocolTest, SendReceiveListMapsCommand) {
-    client_mock_socket->clear_written_data();
-
-    ListMapsCommand cmd;
-    Message message(cmd);
-
-    client_protocol->send(message);
-
-    const auto& written_data = client_mock_socket->get_written_data();
-    ASSERT_FALSE(written_data.empty());
-    ASSERT_EQ(written_data[0], static_cast<char>(MessageType::LIST_MAPS_CMD));
-    ASSERT_EQ(written_data[1], 0x00);  // Length high byte
-    ASSERT_EQ(written_data[2], 0x00);  // Length low byte (0 bytes payload)
-
-    // Test round-trip serialization/deserialization
-    server_mock_socket->queue_read_data(written_data);
-    Message received_message = server_protocol->recv();
-    ASSERT_EQ(received_message.get_type(), MessageType::LIST_MAPS_CMD);
-
-    ListMapsCommand received_cmd = received_message.get_content<ListMapsCommand>();
-    // ListMapsCommand has no data to verify, just verify it was deserialized correctly
-}
-
-// Test that the server can send a ListMapsResponse and client can receive it
-TEST_F(ProtocolTest, SendReceiveListMapsResponse) {
-    server_mock_socket->clear_written_data();
-
-    std::map<std::string, int> maps_data = {{"de_dust2", 1}, {"de_mirage", 2}, {"de_inferno", 3}};
-    ListMapsResponse resp(maps_data);
-    Message message(resp);
-
-    server_protocol->send(message);
-
-    const auto& written_data = server_mock_socket->get_written_data();
-    ASSERT_FALSE(written_data.empty());
-    ASSERT_EQ(written_data[0], static_cast<char>(MessageType::LIST_MAPS_RESP));
-
-    // Test round-trip serialization/deserialization
-    client_mock_socket->queue_read_data(written_data);
-    Message received_message = client_protocol->recv();
-    ASSERT_EQ(received_message.get_type(), MessageType::LIST_MAPS_RESP);
-
-    ListMapsResponse received_resp = received_message.get_content<ListMapsResponse>();
-    auto received_maps = received_resp.get_maps_info();
-    ASSERT_EQ(received_maps.size(), 3);
-    ASSERT_EQ(received_maps.at("de_dust2"), 1);
-    ASSERT_EQ(received_maps.at("de_mirage"), 2);
-    ASSERT_EQ(received_maps.at("de_inferno"), 3);
 }
 
 // Test sending an empty ListMapsResponse
