@@ -5,6 +5,7 @@
 
 #include "common/models.h"
 #include "server/player/inventory.h"
+#include "server/weapons/gun.h"
 
 #define PRICE_AK47 2700
 #define PRICE_M3 1700
@@ -59,7 +60,7 @@ public:
     void buy_gun(const GunType& gun_type, Inventory& inventory) const {
         if (!can_buy_gun(gun_type, inventory))
             return;
-        inventory.add_primary_weapon(gun_type);
+        inventory.set_gun(Gun::make_gun(gun_type));
         inventory.set_money(inventory.get_money() - gun_prices.at(gun_type));
     }
 

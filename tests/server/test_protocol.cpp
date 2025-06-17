@@ -813,3 +813,226 @@ TEST_F(ProtocolTest, SendEmptyListMapsResponse) {
     auto received_maps = received_resp.get_maps_info();
     ASSERT_EQ(received_maps.size(), 0);
 }
+
+// Test HitResponse serialization and deserialization
+TEST_F(ProtocolTest, HitResponseSerialization) {
+    server_mock_socket->clear_written_data();
+
+    Vector2D origin(10, 20);
+    Vector2D hit_pos(30, 40);
+    Vector2D hit_dir(1, 0);
+    bool hit = true;
+
+    HitResponse response(origin, hit_pos, hit_dir, hit);
+    Message message(response);
+
+    server_protocol->send(message);
+    const auto& written_data = server_mock_socket->get_written_data();
+
+    client_mock_socket->queue_read_data(written_data);
+    Message received_message = client_protocol->recv();
+    HitResponse received_response = received_message.get_content<HitResponse>();
+
+    ASSERT_EQ(received_message.get_type(), MessageType::HIT_RESP);
+    ASSERT_EQ(received_response.get_origin().get_x(), 10);
+    ASSERT_EQ(received_response.get_origin().get_y(), 20);
+    ASSERT_EQ(received_response.get_hit_pos().get_x(), 30);
+    ASSERT_EQ(received_response.get_hit_pos().get_y(), 40);
+    ASSERT_EQ(received_response.get_hit_dir().get_x(), 1);
+    ASSERT_EQ(received_response.get_hit_dir().get_y(), 0);
+    ASSERT_TRUE(received_response.is_hit());
+}
+
+// Test HitResponse with miss
+TEST_F(ProtocolTest, HitResponseMissSerialization) {
+    server_mock_socket->clear_written_data();
+
+    Vector2D origin(50, 60);
+    Vector2D hit_pos(70, 80);
+    Vector2D hit_dir(-1, 1);
+    bool hit = false;
+
+    HitResponse response(origin, hit_pos, hit_dir, hit);
+    Message message(response);
+
+    server_protocol->send(message);
+    const auto& written_data = server_mock_socket->get_written_data();
+
+    client_mock_socket->queue_read_data(written_data);
+    Message received_message = client_protocol->recv();
+    HitResponse received_response = received_message.get_content<HitResponse>();
+
+    ASSERT_EQ(received_message.get_type(), MessageType::HIT_RESP);
+    ASSERT_EQ(received_response.get_origin().get_x(), 50);
+    ASSERT_EQ(received_response.get_origin().get_y(), 60);
+    ASSERT_EQ(received_response.get_hit_pos().get_x(), 70);
+    ASSERT_EQ(received_response.get_hit_pos().get_y(), 80);
+    ASSERT_EQ(received_response.get_hit_dir().get_x(), -1);
+    ASSERT_EQ(received_response.get_hit_dir().get_y(), 1);
+    ASSERT_FALSE(received_response.is_hit());
+}
+
+// Test CharactersResponse serialization and deserialization
+TEST_F(ProtocolTest, CharactersResponseSerialization) {
+    server_mock_socket->clear_written_data();
+
+    std::vector<CharacterType> characters = {CharacterType::UK_SAS, CharacterType::French_GIGN,
+                                             CharacterType::German_GSG_9,
+                                             CharacterType::Seal_Force};
+
+    CharactersResponse response(characters);
+    Message message(response);
+
+    server_protocol->send(message);
+    const auto& written_data = server_mock_socket->get_written_data();
+
+    client_mock_socket->queue_read_data(written_data);
+    Message received_message = client_protocol->recv();
+    CharactersResponse received_response = received_message.get_content<CharactersResponse>();
+
+    ASSERT_EQ(received_message.get_type(), MessageType::CHARACTERS_RESP);
+    const auto& received_characters = received_response.get_characters();
+    ASSERT_EQ(received_characters.size(), 4);
+    ASSERT_EQ(received_characters[0], CharacterType::UK_SAS);
+    ASSERT_EQ(received_characters[1], CharacterType::French_GIGN);
+    ASSERT_EQ(received_characters[2], CharacterType::German_GSG_9);
+    ASSERT_EQ(received_characters[3], CharacterType::Seal_Force);
+}
+
+// Test CharactersResponse with empty list
+TEST_F(ProtocolTest, CharactersResponseEmptySerialization) {
+    server_mock_socket->clear_written_data();
+
+    std::vector<CharacterType> characters;
+    CharactersResponse response(characters);
+    Message message(response);
+
+    server_protocol->send(message);
+    const auto& written_data = server_mock_socket->get_written_data();
+
+    client_mock_socket->queue_read_data(written_data);
+    Message received_message = client_protocol->recv();
+    CharactersResponse received_response = received_message.get_content<CharactersResponse>();
+
+    ASSERT_EQ(received_message.get_type(), MessageType::CHARACTERS_RESP);
+    const auto& received_characters = received_response.get_characters();
+    ASSERT_EQ(received_characters.size(), 0);
+}
+
+// Test ScoreboardResponse serialization and deserialization
+TEST_F(ProtocolTest, ScoreboardResponseSerialization) {
+    server_mock_socket->clear_written_data();
+
+    std::map<std::string, ScoreboardEntry> scoreboard;
+    scoreboard.emplace("player1", ScoreboardEntry(2, 10, 5, 22));
+    scoreboard.emplace("player2", ScoreboardEntry(6, 8, 3, 78));
+    scoreboard.emplace("player3", ScoreboardEntry(1, 12, 7, 45));
+
+    ScoreboardResponse response(std::move(scoreboard));
+    Message message(response);
+
+    server_protocol->send(message);
+    const auto& written_data = server_mock_socket->get_written_data();
+
+    client_mock_socket->queue_read_data(written_data);
+    Message received_message = client_protocol->recv();
+    ScoreboardResponse received_response = received_message.get_content<ScoreboardResponse>();
+
+    ASSERT_EQ(received_message.get_type(), MessageType::SCOREBOARD_RESP);
+    const auto& received_scoreboard = received_response.get_scoreboard();
+    ASSERT_EQ(received_scoreboard.size(), 3);
+
+    ASSERT_TRUE(received_scoreboard.find("player1") != received_scoreboard.end());
+    ASSERT_TRUE(received_scoreboard.find("player2") != received_scoreboard.end());
+    ASSERT_TRUE(received_scoreboard.find("player3") != received_scoreboard.end());
+
+    ASSERT_EQ(received_scoreboard.at("player1").money, 2);
+    ASSERT_EQ(received_scoreboard.at("player1").kills, 10);
+    ASSERT_EQ(received_scoreboard.at("player1").deaths, 5);
+    ASSERT_EQ(received_scoreboard.at("player1").score, 22);
+
+    ASSERT_EQ(received_scoreboard.at("player2").money, 6);
+    ASSERT_EQ(received_scoreboard.at("player2").kills, 8);
+    ASSERT_EQ(received_scoreboard.at("player2").deaths, 3);
+    ASSERT_EQ(received_scoreboard.at("player2").score, 78);
+
+    ASSERT_EQ(received_scoreboard.at("player3").money, 1);
+    ASSERT_EQ(received_scoreboard.at("player3").kills, 12);
+    ASSERT_EQ(received_scoreboard.at("player3").deaths, 7);
+    ASSERT_EQ(received_scoreboard.at("player3").score, 45);
+}
+
+// Test ScoreboardResponse with empty scoreboard
+TEST_F(ProtocolTest, ScoreboardResponseEmptySerialization) {
+    server_mock_socket->clear_written_data();
+
+    std::map<std::string, ScoreboardEntry> scoreboard;
+    ScoreboardResponse response(std::move(scoreboard));
+    Message message(response);
+
+    server_protocol->send(message);
+    const auto& written_data = server_mock_socket->get_written_data();
+
+    client_mock_socket->queue_read_data(written_data);
+    Message received_message = client_protocol->recv();
+    ScoreboardResponse received_response = received_message.get_content<ScoreboardResponse>();
+
+    ASSERT_EQ(received_message.get_type(), MessageType::SCOREBOARD_RESP);
+    const auto& received_scoreboard = received_response.get_scoreboard();
+    ASSERT_EQ(received_scoreboard.size(), 0);
+}
+
+// Test ErrorResponse serialization and deserialization
+TEST_F(ProtocolTest, ErrorResponseSerialization) {
+    server_mock_socket->clear_written_data();
+
+    ErrorResponse response;
+    Message message(response);
+
+    server_protocol->send(message);
+    const auto& written_data = server_mock_socket->get_written_data();
+
+    client_mock_socket->queue_read_data(written_data);
+    Message received_message = client_protocol->recv();
+
+    // ErrorResponse is empty, so just verify it deserializes without error
+    // ErrorResponse received_response = received_message.get_content<ErrorResponse>();
+
+    ASSERT_EQ(received_message.get_type(), MessageType::ERROR_RESP);
+}
+
+// Test RoundEndResponse serialization and deserialization - CT wins
+TEST_F(ProtocolTest, RoundEndResponseCTWinSerialization) {
+    server_mock_socket->clear_written_data();
+
+    RoundEndResponse response(Team::CT);
+    Message message(response);
+
+    server_protocol->send(message);
+    const auto& written_data = server_mock_socket->get_written_data();
+
+    client_mock_socket->queue_read_data(written_data);
+    Message received_message = client_protocol->recv();
+    RoundEndResponse received_response = received_message.get_content<RoundEndResponse>();
+
+    ASSERT_EQ(received_message.get_type(), MessageType::ROUND_END_RESP);
+    ASSERT_EQ(received_response.get_winning_team(), Team::CT);
+}
+
+// Test RoundEndResponse serialization and deserialization - Terrorist wins
+TEST_F(ProtocolTest, RoundEndResponseTerroristWinSerialization) {
+    server_mock_socket->clear_written_data();
+
+    RoundEndResponse response(Team::TT);
+    Message message(response);
+
+    server_protocol->send(message);
+    const auto& written_data = server_mock_socket->get_written_data();
+
+    client_mock_socket->queue_read_data(written_data);
+    Message received_message = client_protocol->recv();
+    RoundEndResponse received_response = received_message.get_content<RoundEndResponse>();
+
+    ASSERT_EQ(received_message.get_type(), MessageType::ROUND_END_RESP);
+    ASSERT_EQ(received_response.get_winning_team(), Team::TT);
+}
