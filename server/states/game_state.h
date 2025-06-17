@@ -40,15 +40,18 @@ public:
     GamePhase& get_phase();
     const std::map<std::string, std::unique_ptr<Player>>& get_players() const;
     const std::unique_ptr<Player>& get_player(const std::string& player_name) const;
-    Bomb&& get_bomb();
+    const std::vector<WorldItem<std::unique_ptr<Gun>>>& get_dropped_guns() const;
+    const std::optional<WorldItem<Bomb>>& get_bomb() const;
 
     void advance_round();
 
     void swap_players_teams();
 
-    void add_player(const std::string& player_name, std::unique_ptr<Player> player);
+    void add_player(const std::string& player_name, Team team, const Vector2D& pos);
     void add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos);
+    std::unique_ptr<Gun>&& remove_dropped_gun_at_pos(const Vector2D& pos);
     void add_bomb(Bomb&& bomb, const Vector2D& pos);
+    Bomb&& remove_bomb();
 
     Team get_winning_team() const;
 

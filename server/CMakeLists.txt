@@ -18,6 +18,8 @@ target_sources(taller_server
     game/game_phase.cpp
     # physics
     physics/physics_system.cpp
+    physics/rect_hitbox.cpp
+    physics/circular_hitbox.cpp
     # player
     player/player.cpp
     player/inventory.cpp
@@ -56,6 +58,8 @@ target_sources(taller_server
     # physics
     physics/physics_system.h
     physics/target_type.h
+    physics/rect_hitbox.h
+    physics/circular_hitbox.h
     ../common/physics/physics_config.h
     # map
     map/map_builder.h
