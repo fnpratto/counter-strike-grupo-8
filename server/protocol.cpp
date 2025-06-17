@@ -44,8 +44,37 @@ payload_t ServerProtocol::serialize_msg(const ShopPricesResponse& response) cons
 }
 
 template <>
-payload_t ServerProtocol::serialize_msg([[maybe_unused]] const HitResponse& response) const {
-    return payload_t();
+payload_t ServerProtocol::serialize_msg(const HitResponse& response) const {
+    payload_t payload;
+
+    // Serialize origin Vector2D
+    payload_t origin_x = serialize(response.get_origin().get_x());
+    payload_t origin_y = serialize(response.get_origin().get_y());
+
+    // Serialize hit_pos Vector2D
+    payload_t hit_pos_x = serialize(response.get_hit_pos().get_x());
+    payload_t hit_pos_y = serialize(response.get_hit_pos().get_y());
+
+    // Serialize hit_dir Vector2D
+    payload_t hit_dir_x = serialize(response.get_hit_dir().get_x());
+    payload_t hit_dir_y = serialize(response.get_hit_dir().get_y());
+
+    // Serialize hit bool
+    payload_t hit = serialize(response.is_hit());
+
+    // Reserve space and insert all data
+    payload.reserve(origin_x.size() + origin_y.size() + hit_pos_x.size() + hit_pos_y.size() +
+                    hit_dir_x.size() + hit_dir_y.size() + hit.size());
+
+    payload.insert(payload.end(), origin_x.begin(), origin_x.end());
+    payload.insert(payload.end(), origin_y.begin(), origin_y.end());
+    payload.insert(payload.end(), hit_pos_x.begin(), hit_pos_x.end());
+    payload.insert(payload.end(), hit_pos_y.begin(), hit_pos_y.end());
+    payload.insert(payload.end(), hit_dir_x.begin(), hit_dir_x.end());
+    payload.insert(payload.end(), hit_dir_y.begin(), hit_dir_y.end());
+    payload.insert(payload.end(), hit.begin(), hit.end());
+
+    return payload;
 }
 
 template <>
@@ -68,8 +97,8 @@ payload_t ServerProtocol::serialize_msg([[maybe_unused]] const ErrorResponse& re
 }
 
 template <>
-payload_t ServerProtocol::serialize_msg([[maybe_unused]] const RoundEndResponse& response) const {
-    return payload_t();
+payload_t ServerProtocol::serialize_msg(const RoundEndResponse& response) const {
+    return serialize(static_cast<uint8_t>(response.get_winning_team()));
 }
 
 #define SERIALIZE_MSG(msg, msg_type) \
