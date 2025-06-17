@@ -41,16 +41,17 @@ void SdlPlayer::render(const PlayerUpdate& state) {
     player_texture.render(position_from_cam.get_x(), position_from_cam.get_y(), &clip, angle,
                           nullptr, SDL_FLIP_NONE);
 
-    // Calculate dynamic y offset based on the angle
-    float offsetX = -15;                                          // Fixed x offset
-    float offsetYBase = -15;                                      // Base y offset
-    float dynamicYOffset = std::sin(angle * M_PI / 180.0f) * 15;  // Adjust multiplier as needed
 
-    Area dest(position_from_cam.get_x() + offsetX,
-              position_from_cam.get_y() + offsetYBase + dynamicYOffset, WIDTH, HEIGHT);
+    const int RADIUS = 6;  // Distance from the center
 
+    // Calculate offsets using cosine and sine
+    int offset_x = static_cast<int>(std::round(RADIUS * std::cos(angle)));
+    int offset_y = static_cast<int>(std::round(RADIUS * std::sin(angle)));
+
+    // Calculate the final position of the weapon
+    Area dest(position_from_cam.get_x() + offset_x, position_from_cam.get_y() + offset_y, WIDTH,
+              HEIGHT);
+    // Render the weapon
     ItemSlot item = game_state.get_players().at(playerName).get_equipped_item();
     weapon.render(item, dest, angle);
-
-    // bullet
 }

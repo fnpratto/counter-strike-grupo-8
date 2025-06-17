@@ -19,6 +19,7 @@
 #include "common/updates/game_update.h"
 
 #include "sdl_camera.h"
+const double PI = 3.14159265358979323846;
 
 class SdlPlayer {
     SdlWindow& window;

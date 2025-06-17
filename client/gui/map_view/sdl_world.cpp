@@ -52,6 +52,7 @@ void SdlWorld::handleHit([[maybe_unused]] Vector2D get_origin,
                          [[maybe_unused]] Vector2D get_hit_dir, [[maybe_unused]] bool is_hit) {
     // Handle hit logic here
     // For now, just print the hit information
+
     std::cout << "Hit detected: " << std::endl;
 }
 
