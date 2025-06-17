@@ -8,9 +8,8 @@
 #include "map/map_builder.h"
 #include "server/player_message.h"
 
-GameThread::GameThread(const std::string& name):
-        game(name, std::make_unique<RealClock>(),
-             std::move(MapBuilder("./tests/server/map/map.yaml").build())),
+GameThread::GameThread(const std::string& name, Map&& map):
+        game(name, std::make_unique<RealClock>(), std::move(map)),
         input_queue(std::make_shared<Queue<PlayerMessage>>()) {}
 
 void GameThread::run() {

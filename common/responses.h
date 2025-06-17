@@ -32,6 +32,19 @@ public:
 };
 
 /**
+ * @class ListMapsResponse
+ * @brief Response containing a list of the existing maps' names and IDs.
+ */
+class ListMapsResponse {
+    std::map<std::string, int> maps;
+
+public:
+    explicit ListMapsResponse(const std::map<std::string, int>& maps): maps(maps) {}
+
+    std::map<std::string, int> get_maps_info() const { return maps; }
+};
+
+/**
  * @class CharactersResponse
  * @brief Response containing the characters information.
  */

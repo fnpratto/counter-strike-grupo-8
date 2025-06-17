@@ -7,6 +7,7 @@
 #include "commands.h"
 
 #define RESPONSES_MAP(F)                    \
+    F(ListMapsResponse, LIST_MAPS_RESP)     \
     F(ListGamesResponse, LIST_GAMES_RESP)   \
     F(ShopPricesResponse, SHOP_PRICES_RESP) \
     F(HitResponse, HIT_RESP)                \
@@ -18,6 +19,7 @@
 #define LOBBY_COMMANDS_MAP(F)             \
     F(CreateGameCommand, CREATE_GAME_CMD) \
     F(JoinGameCommand, JOIN_GAME_CMD)     \
+    F(ListMapsCommand, LIST_MAPS_CMD)     \
     F(ListGamesCommand, LIST_GAMES_CMD)
 
 #define GAME_COMMANDS_MAP(F)                        \

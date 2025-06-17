@@ -1,3 +1,4 @@
+add_subdirectory(map)
 target_sources(taller_server
     PRIVATE
     acceptor.cpp

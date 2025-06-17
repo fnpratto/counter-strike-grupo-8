@@ -31,6 +31,11 @@ payload_t ServerProtocol::serialize_msg(const ListGamesResponse& response) const
 }
 
 template <>
+payload_t ServerProtocol::serialize_msg(const ListMapsResponse& response) const {
+    return serialize(response.get_maps_info());
+}
+
+template <>
 payload_t ServerProtocol::serialize_msg(const ShopPricesResponse& response) const {
     payload_t payload;
     payload_t gun_prices_payload = serialize(response.get_gun_prices());
@@ -94,14 +99,21 @@ payload_t ServerProtocol::serialize_message(const Message& message) const {
 template <>
 CreateGameCommand ServerProtocol::deserialize_msg<CreateGameCommand>(payload_t& payload) const {
     std::string game_name = deserialize<std::string>(payload);
+    int map_id = deserialize<int>(payload);
     std::string player_name = deserialize<std::string>(payload);
-    return CreateGameCommand(game_name, player_name);
+    return CreateGameCommand(game_name, map_id, player_name);
 }
 
 template <>
 ListGamesCommand ServerProtocol::deserialize_msg<ListGamesCommand>(payload_t& payload) const {
     (void)payload;
     return ListGamesCommand();
+}
+
+template <>
+ListMapsCommand ServerProtocol::deserialize_msg<ListMapsCommand>(payload_t& payload) const {
+    (void)payload;
+    return ListMapsCommand();
 }
 
 template <>
