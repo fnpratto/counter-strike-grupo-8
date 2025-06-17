@@ -15,6 +15,8 @@ private:
 public:
     explicit TileButton(const QPixmap& tile_pixmap, QWidget* parent = nullptr);
 
+    static TileButton*& getSelectedTileButton();
+
 protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;

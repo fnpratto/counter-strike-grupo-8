@@ -31,6 +31,8 @@ TileButton::TileButton(const QPixmap& tile_pixmap, QWidget* parent):
     connect(this, &QPushButton::toggled, this, &TileButton::on_toggled);
 }
 
+TileButton*& TileButton::getSelectedTileButton() { return selected_tile_button; }
+
 void TileButton::mousePressEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
         drag_start_position = event->pos();

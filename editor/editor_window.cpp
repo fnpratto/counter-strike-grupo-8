@@ -74,7 +74,7 @@ void EditorWindow::add_map_view() {
 
     for (int row = 0; row < MAX_ROWS_MAPVIEW; ++row) {
         for (int col = 0; col < MAX_COLUMNS_MAPVIEW; ++col) {
-            MapViewTile* empty_tile = new MapViewTile(this);
+            MapViewTile* empty_tile = new MapViewTile(TileButton::getSelectedTileButton(), this);
             map_view_layout->addWidget(empty_tile, row, col);
         }
     }
