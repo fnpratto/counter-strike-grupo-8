@@ -25,6 +25,21 @@ void InventoryState::set_gun(ItemSlot slot, std::unique_ptr<Gun>&& gun) {
 
 void InventoryState::set_bomb(Bomb&& bomb) { this->bomb = std::move(bomb); }
 
+std::unique_ptr<Gun> InventoryState::remove_primary_weapon() {
+    auto gun = std::move(guns.at(ItemSlot::Primary));
+    guns.erase(ItemSlot::Primary);
+    return gun;
+}
+
+Bomb InventoryState::remove_bomb() {
+    if (!bomb.has_value())
+        throw std::runtime_error("Bomb not found");
+    updates.set_bomb(std::optional<BombUpdate>());
+    Bomb removed_bomb = std::move(bomb.value());
+    bomb.reset();
+    return removed_bomb;
+}
+
 InventoryUpdate InventoryState::get_updates() const {
     InventoryUpdate update = updates;
     for (const auto& [slot, gun]: guns) update.add_guns_change(slot, gun->get_updates());

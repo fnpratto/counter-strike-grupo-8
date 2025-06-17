@@ -119,11 +119,13 @@ void GameState::add_bomb(Bomb&& bomb, const Vector2D& pos) {
     this->bomb = WorldItem<Bomb>{std::move(bomb), RectHitbox::bomb_hitbox(pos).get_bounds()};
 }
 
-Bomb&& GameState::remove_bomb() {
+Bomb GameState::remove_bomb() {
     if (!bomb.has_value())
         throw std::runtime_error("Bomb not found");
     updates.set_bomb(std::optional<WorldItem<BombUpdate>>());
-    return std::move(bomb.value().item);
+    Bomb removed_bomb = std::move(bomb.value().item);
+    bomb.reset();
+    return removed_bomb;
 }
 
 Team GameState::get_winning_team() const {

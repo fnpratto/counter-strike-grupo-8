@@ -374,7 +374,8 @@ void Game::prepare_new_round() {
         if (bomb.has_value())
             state.add_bomb(std::move(bomb.value()), player->get_hitbox().center);
     }
-    give_bomb_to_random_tt(std::move(state.remove_bomb()));
+    if (state.get_bomb().has_value())
+        give_bomb_to_random_tt(std::move(state.remove_bomb()));
 }
 
 void Game::move_player_to_spawn(const std::string& player_name) {

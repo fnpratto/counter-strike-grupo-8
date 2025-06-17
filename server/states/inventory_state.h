@@ -31,6 +31,9 @@ public:
     void set_gun(ItemSlot slot, std::unique_ptr<Gun>&& gun);
     void set_bomb(Bomb&& bomb);
 
+    std::unique_ptr<Gun> remove_primary_weapon();
+    Bomb remove_bomb();
+
     InventoryUpdate get_updates() const override;
 
     InventoryUpdate get_full_update()  // cppcheck-suppress[virtualCallInConstructor]
