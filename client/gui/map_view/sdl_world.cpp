@@ -52,7 +52,6 @@ void SdlWorld::render() {
     camera.center(game_state.get_players().at(player_name).get_pos());
 
     map.render();
-
     for (const auto& [name, player_state]: game_state.get_players()) {
         auto [it, _] = players.emplace(name, SdlPlayer(window, camera));
         if (camera.can_see(player_state)) {

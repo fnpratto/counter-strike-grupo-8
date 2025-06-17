@@ -11,13 +11,14 @@ SdlPlayer::SdlPlayer(SdlWindow& w, const SdlCamera& camera):
         walk_animation(
                 w, WALKING_ANIMATION,
                 std::vector<SDL_Rect>(
-                        {{0, 0, WIDTH, HEIGHT}, {32, 0, WIDTH, HEIGHT}, {64, 0, WIDTH, HEIGHT}})) {}
+                        {{0, 0, WIDTH, HEIGHT}, {32, 0, WIDTH, HEIGHT}, {64, 0, WIDTH, HEIGHT}})) {
+    load_skins();
+}
 
 void SdlPlayer::render(const PlayerUpdate& state) {
     if (state.get_velocity() == Vector2D(0, 0)) {
         walk_animation.reset();
     }
-
     auto position_from_cam = camera.get_screen_pos(state.get_pos());
     auto aim_direction = state.get_aim_direction();
     float angle;
@@ -32,8 +33,43 @@ void SdlPlayer::render(const PlayerUpdate& state) {
     // Render feet
     walk_animation.render(position_from_cam.get_x(), position_from_cam.get_y(), angle);
     // Render the player texture body TODO change arms
+    render_skin(state, position_from_cam.get_x(), position_from_cam.get_y(), angle);
+}
+
+
+void SdlPlayer::render_skin(const PlayerUpdate& state, int x, int y, float angle) {
     SDL_Rect clip{32, 32, WIDTH, HEIGHT};
-    SdlTexture texture(CHARACTER_PATH, window, WIDTH, HEIGHT);
-    texture.render(position_from_cam.get_x(), position_from_cam.get_y(), &clip, angle, nullptr,
-                   SDL_FLIP_NONE);
+    SdlTexture* texture = nullptr;
+    auto& skins = (state.get_team() == Team::CT) ? ct_skins : tt_skins;
+    auto it = skins.find(static_cast<CharacterType>(state.get_character_type()));
+    if (it != skins.end()) {
+        texture = it->second.get();
+    }
+
+    if (texture != nullptr) {
+        texture->render(x, y, &clip, angle, nullptr, SDL_FLIP_NONE);
+    } else {
+        std::cerr << "Missing texture for character type "
+                  << static_cast<int>(state.get_character_type()) << std::endl;
+    }
+}
+
+void SdlPlayer::load_skins() {
+    ct_skins[CharacterType::Seal_Force] =
+            std::make_unique<SdlTexture>("../assets/gfx/player/ct1.bmp", window);
+    ct_skins[CharacterType::German_GSG_9] =
+            std::make_unique<SdlTexture>("../assets/gfx/player/ct2.bmp", window);
+    ct_skins[CharacterType::UK_SAS] =
+            std::make_unique<SdlTexture>("../assets/gfx/player/ct3.bmp", window);
+    ct_skins[CharacterType::French_GIGN] =
+            std::make_unique<SdlTexture>("../assets/gfx/player/ct4.bmp", window);
+
+    tt_skins[CharacterType::Pheonix] =
+            std::make_unique<SdlTexture>("../assets/gfx/player/t1.bmp", window);
+    tt_skins[CharacterType::L337_Krew] =
+            std::make_unique<SdlTexture>("../assets/gfx/player/t2.bmp", window);
+    tt_skins[CharacterType::Arctic_Avenger] =
+            std::make_unique<SdlTexture>("../assets/gfx/player/t3.bmp", window);
+    tt_skins[CharacterType::Guerrilla] =
+            std::make_unique<SdlTexture>("../assets/gfx/player/t4.bmp", window);
 }
