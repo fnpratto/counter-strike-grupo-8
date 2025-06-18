@@ -160,12 +160,12 @@ TEST_F(TestGame, NumberOfRoundsIncrementCorrectly) {
 
     int rounds = 3;
     for (int i = 0; i < rounds; i++) {
-        advance_secs(PhaseTimes::buying_phase_secs);
+        advance_secs(PhaseTimes::buying_duration);
         game.tick({});
-        advance_secs(PhaseTimes::playing_phase_secs);
+        advance_secs(PhaseTimes::playing_duration);
         game.tick({});
         for (int j = 0; j < 10; j++) game.tick({});
-        advance_secs(PhaseTimes::round_end_phase_secs);
+        advance_secs(PhaseTimes::round_end_duration);
         game.tick({});
     }
 
@@ -224,12 +224,12 @@ TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
 
     GameUpdate updates;
     for (int i = 0; i < GameConfig::max_rounds / 2; i++) {
-        advance_secs(PhaseTimes::buying_phase_secs);
+        advance_secs(PhaseTimes::buying_duration);
         game.tick({});
-        advance_secs(PhaseTimes::playing_phase_secs);
+        advance_secs(PhaseTimes::playing_duration);
         game.tick({});
         EXPECT_EQ(game.get_full_update().get_phase().get_phase(), PhaseType::RoundEnd);
-        advance_secs(PhaseTimes::round_end_phase_secs);
+        advance_secs(PhaseTimes::round_end_duration);
         game.tick({});
         EXPECT_EQ(game.get_full_update().get_num_rounds(), i + 1);
     }
@@ -246,7 +246,7 @@ TEST_F(TestGame, PlayerCanMove) {
     updates = game.get_full_update();
     Vector2D old_pos = updates.get_players().at("test_player").get_pos();
 
-    advance_secs(PhaseTimes::buying_phase_secs);
+    advance_secs(PhaseTimes::buying_duration);
     game.tick({});
 
     // Check velocity
@@ -274,7 +274,7 @@ TEST_F(TestGame, PlayerCanMoveInDiagonal) {
     updates = game.get_full_update();
     Vector2D old_pos = updates.get_players().at("test_player").get_pos();
 
-    advance_secs(PhaseTimes::buying_phase_secs);
+    advance_secs(PhaseTimes::buying_duration);
     game.tick({});
 
     Vector2D dir = Vector2D(1, 1).normalized(PhysicsConfig::meter_size);
@@ -327,7 +327,7 @@ TEST_F(TestGame, TargetIsHitByPlayerAttack) {
     game.tick({PlayerMessage("test_player", msg_aim), PlayerMessage("test_player", msg_switch_weap),
                PlayerMessage("test_player", msg_start), PlayerMessage("target_player", msg_start)});
 
-    advance_secs(PhaseTimes::buying_phase_secs);
+    advance_secs(PhaseTimes::buying_duration);
 
     Message msg_attack = Message(AttackCommand());
     auto player_messages = game.tick({PlayerMessage("test_player", msg_attack)});
@@ -386,7 +386,7 @@ TEST_F(TestGame, PlayerIsDeadAfterTakingAllHealthDamage) {
     game.tick({PlayerMessage("test_player", msg_aim), PlayerMessage("test_player", msg_switch_weap),
                PlayerMessage("test_player", msg_start), PlayerMessage("target_player", msg_start)});
 
-    advance_secs(PhaseTimes::buying_phase_secs);
+    advance_secs(PhaseTimes::buying_duration);
 
     Message msg_attack = Message(AttackCommand());
     std::vector<PlayerMessage> player_messages;
@@ -442,7 +442,7 @@ TEST_F(TestGame, WeaponDoesNotMakeDamageWhenTargetIsOutOfRange) {
     game.tick({PlayerMessage("test_player", msg_aim), PlayerMessage("test_player", msg_switch_weap),
                PlayerMessage("test_player", msg_start), PlayerMessage("target_player", msg_start)});
 
-    advance_secs(PhaseTimes::buying_phase_secs);
+    advance_secs(PhaseTimes::buying_duration);
 
     Message msg_attack = Message(AttackCommand());
     game.tick({PlayerMessage("test_player", msg_attack)});
@@ -471,7 +471,7 @@ TEST_F(TestGame, TTsWinIfTheyKillAllCTs) {
     Message msg_switch_weap = Message(SwitchItemCommand(ItemSlot::Secondary));
     game.tick({PlayerMessage("tt", msg_aim), PlayerMessage("tt", msg_switch_weap)});
 
-    advance_secs(PhaseTimes::buying_phase_secs);
+    advance_secs(PhaseTimes::buying_duration);
 
     Message msg_attack = Message(AttackCommand());
     std::vector<PlayerMessage> player_messages;
@@ -517,7 +517,7 @@ TEST_F(TestGame, PlayerStateResetCorrectlyWhenANewRoundStarts) {
     Vector2D tt_pos = updates.get_players().at("test_player").get_pos();
     Vector2D ct_pos = updates.get_players().at("target_player").get_pos();
 
-    advance_secs(PhaseTimes::buying_phase_secs);
+    advance_secs(PhaseTimes::buying_duration);
 
     Message msg_aim = Message(AimCommand(ct_pos - tt_pos));
     Message msg_switch_weap = Message(SwitchItemCommand(ItemSlot::Secondary));
@@ -535,9 +535,9 @@ TEST_F(TestGame, PlayerStateResetCorrectlyWhenANewRoundStarts) {
     Message msg_start_moving = Message(MoveCommand(Vector2D(1, 0)));
     game.tick({PlayerMessage("test_player", msg_start_moving)});
 
-    advance_secs(PhaseTimes::playing_phase_secs);
+    advance_secs(PhaseTimes::playing_duration);
     game.tick({});
-    advance_secs(PhaseTimes::round_end_phase_secs);
+    advance_secs(PhaseTimes::round_end_duration);
     game.tick({});
 
     updates = game.get_full_update();

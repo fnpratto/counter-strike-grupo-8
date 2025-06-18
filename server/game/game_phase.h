@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <memory>
 
 #include "common/updates/phase_update.h"
@@ -11,9 +12,8 @@ class GamePhase: public Logic<PhaseState, PhaseUpdate> {
 private:
     std::shared_ptr<Clock> game_clock;
     TimePoint phase_start;
-
-    std::chrono::seconds get_current_phase_secs() const;
-    PhaseType get_next_phase() const;
+    std::map<PhaseType, unsigned int> phase_durations;  // seconds
+    std::map<PhaseType, PhaseType> next_phase_map;
 
 public:
     explicit GamePhase(std::shared_ptr<Clock>&& game_clock);
@@ -36,6 +36,7 @@ public:
 
     void start_game();
     void end_game();
+    void start_bomb_planted_phase(unsigned int secs_to_explode);
 
     /**
      * Return true if the game phase type changed

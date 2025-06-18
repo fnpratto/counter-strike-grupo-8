@@ -7,7 +7,17 @@
 
 GamePhase::GamePhase(std::shared_ptr<Clock>&& game_clock):
         Logic<PhaseState, PhaseUpdate>(PhaseState(PhaseType::WarmUp)),
-        game_clock(std::move(game_clock)) {
+        game_clock(std::move(game_clock)),
+        phase_durations({{PhaseType::WarmUp, 0},
+                         {PhaseType::Buying, PhaseTimes::buying_duration},
+                         {PhaseType::Playing, PhaseTimes::playing_duration},
+                         {PhaseType::RoundEnd, PhaseTimes::round_end_duration},
+                         {PhaseType::GameEnd, PhaseTimes::game_end_duration}}),
+        next_phase_map({{PhaseType::WarmUp, PhaseType::Buying},
+                        {PhaseType::Buying, PhaseType::Playing},
+                        {PhaseType::Playing, PhaseType::RoundEnd},
+                        {PhaseType::BombPlanted, PhaseType::RoundEnd},
+                        {PhaseType::RoundEnd, PhaseType::Buying}}) {
     phase_start = this->game_clock->now();
 }
 
@@ -30,13 +40,22 @@ TimePoint GamePhase::get_time_now() const { return game_clock->now(); }
 void GamePhase::start_game() {
     state.set_phase(PhaseType::Buying);
     phase_start = game_clock->now();
-    state.set_secs_remaining(get_current_phase_secs().count());
+    state.set_secs_remaining(phase_durations.at(state.get_phase()));
 }
 
 void GamePhase::end_game() {
     state.set_phase(PhaseType::GameEnd);
     phase_start = game_clock->now();
-    state.set_secs_remaining(0);
+    state.set_secs_remaining(phase_durations.at(state.get_phase()));
+}
+
+void GamePhase::start_bomb_planted_phase(unsigned int secs_to_explode) {
+    if (!is_started())
+        return;
+    state.set_phase(PhaseType::BombPlanted);
+    phase_start = game_clock->now();
+    phase_durations[PhaseType::BombPlanted] = secs_to_explode;
+    state.set_secs_remaining(phase_durations.at(state.get_phase()));
 }
 
 bool GamePhase::advance() {
@@ -44,39 +63,13 @@ bool GamePhase::advance() {
     auto now = game_clock->now();
     auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - phase_start);
     if (is_started()) {
-        state.set_secs_remaining(
-                std::chrono::duration<int>(get_current_phase_secs() - elapsed).count());
-        if (elapsed >= get_current_phase_secs()) {
-            state.set_phase(get_next_phase());
+        auto current_phase_duration = phase_durations.at(state.get_phase());
+        state.set_secs_remaining(current_phase_duration - elapsed.count());
+        if (elapsed.count() >= current_phase_duration) {
+            state.set_phase(next_phase_map.at(state.get_phase()));
             phase_start = now;
         }
     }
 
     return old_phase != state.get_phase();
-}
-
-std::chrono::seconds GamePhase::get_current_phase_secs() const {
-    switch (state.get_phase()) {
-        case PhaseType::Buying:
-            return std::chrono::seconds(PhaseTimes::buying_phase_secs);
-        case PhaseType::Playing:
-            return std::chrono::seconds(PhaseTimes::playing_phase_secs);
-        case PhaseType::RoundEnd:
-            return std::chrono::seconds(PhaseTimes::round_end_phase_secs);
-        default:
-            throw std::runtime_error("Invalid phase type");
-    }
-}
-
-PhaseType GamePhase::get_next_phase() const {
-    switch (state.get_phase()) {
-        case PhaseType::Buying:
-            return PhaseType::Playing;
-        case PhaseType::Playing:
-            return PhaseType::RoundEnd;
-        case PhaseType::RoundEnd:
-            return PhaseType::Buying;
-        default:
-            throw std::runtime_error("Invalid phase type");
-    }
 }
