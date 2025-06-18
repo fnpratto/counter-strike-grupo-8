@@ -46,6 +46,7 @@ public:
     Vector2D random_spawn_tt_pos() const;
     Vector2D random_spawn_ct_pos() const;
     bool player_in_spawn(const std::string& player_name) const;
+    bool player_in_bomb_site(const std::string& player_name) const;
 
     Vector2D calculate_new_pos(const std::unique_ptr<Player>& player) const;
 

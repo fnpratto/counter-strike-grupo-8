@@ -36,12 +36,23 @@ Vector2D PhysicsSystem::random_spawn_ct_pos() const {
 }
 
 bool PhysicsSystem::player_in_spawn(const std::string& player_name) const {
-    const std::unique_ptr<Player>& player = players.at(player_name);
+    const auto& player = players.at(player_name);
     const std::vector<Vector2D>& spawns = player->is_tt() ? map.spawns_tts : map.spawns_cts;
     for (const Vector2D& spawn_pos: spawns) {  // cppcheck-suppress[useStlAlgorithm]
         CircularHitbox player_hitbox = CircularHitbox(player->get_hitbox());
         RectHitbox spawn_hitbox = RectHitbox::tile_hitbox(spawn_pos);
         if (player_hitbox.collides_with_rectangle(spawn_hitbox))
+            return true;
+    }
+    return false;
+}
+
+bool PhysicsSystem::player_in_bomb_site(const std::string& player_name) const {
+    const auto& player = players.at(player_name);
+    for (const Vector2D& bomb_site_pos: map.bomb_sites) {  // cppcheck-suppress[useStlAlgorithm]
+        CircularHitbox player_hitbox = CircularHitbox(player->get_hitbox());
+        RectHitbox bomb_site_hitbox = RectHitbox::tile_hitbox(bomb_site_pos);
+        if (player_hitbox.collides_with_rectangle(bomb_site_hitbox))
             return true;
     }
     return false;
