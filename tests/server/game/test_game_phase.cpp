@@ -64,24 +64,3 @@ TEST_F(TestGamePhase, StartAnotherRoundAfterRoundFinishedDuration) {
     PhaseUpdate updates = game_phase.get_updates();
     EXPECT_EQ(updates.get_phase(), PhaseType::Buying);
 }
-
-TEST_F(TestGamePhase, AdvanceSecondsToExplodeBombPhase) {
-    unsigned int secs_to_explode = 10;
-
-    game_phase.start_bomb_planted_phase(secs_to_explode);
-    EXPECT_EQ(game_phase.get_type(), PhaseType::WarmUp);
-
-    game_phase.start_game();
-    game_phase.start_bomb_planted_phase(secs_to_explode);
-    EXPECT_EQ(game_phase.get_type(), PhaseType::BombPlanted);
-    EXPECT_EQ(game_phase.get_updates().get_secs_remaining(), secs_to_explode);
-
-    advance_secs(secs_to_explode - 5);
-    game_phase.advance();
-    EXPECT_EQ(game_phase.get_updates().get_secs_remaining(),
-              secs_to_explode - (secs_to_explode - 5));
-
-    advance_secs(secs_to_explode - (secs_to_explode - 5));
-    game_phase.advance();
-    EXPECT_EQ(game_phase.get_updates().get_phase(), PhaseType::RoundEnd);
-}

@@ -118,3 +118,19 @@ public:
  * @brief Response sent when a bomb is planted.
  */
 class BombPlantedResponse {};
+
+/**
+ * @class BombExplodedResponse
+ * @brief Response sent when a bomb explodes.
+ */
+class BombExplodedResponse {
+    Vector2D explosion_center;
+    int explosion_radius;
+
+public:
+    explicit BombExplodedResponse(const Vector2D& center, int radius):
+            explosion_center(center), explosion_radius(radius) {}
+
+    Vector2D get_explosion_center() const { return explosion_center; }
+    int get_explosion_radius() const { return explosion_radius; }
+};

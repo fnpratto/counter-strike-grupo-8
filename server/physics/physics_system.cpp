@@ -92,8 +92,8 @@ bool PhysicsSystem::is_walkable(const Vector2D& pos) const {
     return true;
 }
 
-std::optional<Target> PhysicsSystem::get_closest_target(const std::string& origin_p_name,
-                                                        const Vector2D& dir, int max_range) {
+std::optional<Target> PhysicsSystem::get_closest_target_in_dir(const std::string& origin_p_name,
+                                                               const Vector2D& dir, int max_range) {
     auto closest_wall = get_closest_tile<Wall>(origin_p_name, dir, map.walls);
     auto closest_box = get_closest_tile<Box>(origin_p_name, dir, map.boxes);
     auto closest_player = get_closest_player(origin_p_name, dir);
@@ -158,6 +158,20 @@ std::optional<Target> PhysicsSystem::get_closest_player(const std::string& origi
         }
     }
     return closest_target;
+}
+
+std::vector<PlayerRef> PhysicsSystem::get_players_in_radius(const Vector2D& center,
+                                                            int radius) const {
+    std::vector<PlayerRef> players_in_radius;
+    CircularHitbox radius_hitbox(Circle(center, radius));
+    for (const auto& [_, player]: players) {
+        if (player->is_dead())
+            continue;
+        CircularHitbox player_hitbox = CircularHitbox(player->get_hitbox());
+        if (radius_hitbox.collides_with_circle(player_hitbox))
+            players_in_radius.push_back(PlayerRef(player));
+    }
+    return players_in_radius;
 }
 
 bool PhysicsSystem::player_collides_with_bomb(const std::unique_ptr<Player>& player) const {

@@ -1,9 +1,13 @@
 #pragma once
 
+#include "effects/effect.h"
+#include "server/clock/clock.h"
 #include "server/logic.h"
 #include "server/states/bomb_state.h"
 
 class Bomb: public Logic<BombState, BombUpdate> {
+    TimePoint plant_time;
+
 public:
     Bomb();
 
@@ -14,8 +18,14 @@ public:
     Bomb& operator=(Bomb&&) = default;
 
     bool is_planted() const;
+    bool should_explode() const;
+    bool get_is_exploded() const;
 
-    int get_secs_to_explode() const;
+    void plant(TimePoint now);
 
-    void plant();
+    void advance(TimePoint now);
+
+    Effect explode(const Vector2D& origin);
+
+    void reset();
 };

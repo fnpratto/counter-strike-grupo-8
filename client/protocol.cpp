@@ -218,8 +218,6 @@ CharactersResponse ClientProtocol::deserialize_msg<CharactersResponse>(payload_t
     return CharactersResponse(deserialize<std::vector<CharacterType>>(payload));
 }
 
-
-// TODO
 template <>
 ScoreboardResponse ClientProtocol::deserialize_msg<ScoreboardResponse>(payload_t& payload) const {
     auto scoreboard = deserialize<std::string, ScoreboardEntry>(payload);
@@ -242,6 +240,14 @@ template <>
 BombPlantedResponse ClientProtocol::deserialize_msg<BombPlantedResponse>(
         [[maybe_unused]] payload_t& payload) const {
     return BombPlantedResponse();
+}
+
+template <>
+BombExplodedResponse ClientProtocol::deserialize_msg<BombExplodedResponse>(
+        [[maybe_unused]] payload_t& payload) const {
+    Vector2D explosion_center = deserialize<Vector2D>(payload);
+    int explosion_radius = deserialize<int>(payload);
+    return BombExplodedResponse(explosion_center, explosion_radius);
 }
 
 template <>

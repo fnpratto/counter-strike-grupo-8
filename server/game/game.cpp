@@ -26,10 +26,11 @@ std::vector<PlayerMessage> Game::tick(const std::vector<PlayerMessage>& msgs) {
 
     state.clear_updates();
 
+    advance_bomb_logic();
     advance_round_logic();
     for (const PlayerMessage& msg: msgs) handle_msg(msg.get_message(), msg.get_player_name());
-    perform_attacks();
     advance_players_movement();
+    perform_attacks();
 
     GameUpdate update = state.get_updates();
     if (update.has_change())
@@ -78,6 +79,26 @@ void Game::advance_players_movement() {
     }
 }
 
+void Game::advance_bomb_logic() {
+    if (!state.get_phase().is_started() || !state.get_bomb().has_value())
+        return;
+
+    auto& bomb = state.get_bomb().value();
+    bomb.item.advance(state.get_phase().get_time_now());
+
+    if (!bomb.item.should_explode())
+        return;
+
+    auto effect = bomb.item.explode(bomb.hitbox.get_center());
+    auto players_in_explosion =
+            physics_system.get_players_in_radius(bomb.hitbox.get_center(), effect.get_max_range());
+
+    for (const auto& player: players_in_explosion) effect.apply(player);
+
+    send_msg_to_all_players(
+            Message(BombExplodedResponse(effect.get_origin(), effect.get_max_range())));
+}
+
 void Game::perform_attacks() {
     if (!state.get_phase().is_playing_phase())
         return;
@@ -90,7 +111,7 @@ void Game::perform_attacks() {
             continue;
 
         for (const auto& attack_effect: attack_effects) {
-            auto closest_target = physics_system.get_closest_target(
+            auto closest_target = physics_system.get_closest_target_in_dir(
                     p_name, attack_effect.dir, attack_effect.effect.get_max_range());
             if (!closest_target.has_value()) {
                 Vector2D max_hit_pos = attack_effect.effect.get_origin() +
@@ -100,7 +121,7 @@ void Game::perform_attacks() {
                 continue;
             }
 
-            bool is_hit = apply_effect(player, attack_effect.effect, closest_target.value());
+            bool is_hit = apply_attack_effect(player, attack_effect.effect, closest_target.value());
 
             hit_responses.push_back(HitResponse(attack_effect.effect.get_origin(),
                                                 closest_target.value().get_pos(), attack_effect.dir,
@@ -111,23 +132,24 @@ void Game::perform_attacks() {
     for (const auto& hit_resp: hit_responses) send_msg_to_all_players(Message(hit_resp));
 }
 
-bool Game::apply_effect(const std::unique_ptr<Player>& attacker, const Effect& effect,
-                        const Target& target) {
-    bool is_hit = false;
-    if (target.is_player()) {
-        auto& target_player = target.get_player().get();
-        is_hit = effect.apply(target_player);
-        if (target_player->is_dead()) {
-            attacker->add_kill();
-            attacker->add_rewards(Scores::kill, Bonifications::kill);
-            auto gun = target_player->drop_primary_weapon();
-            if (gun.has_value())
-                state.add_dropped_gun(std::move(gun.value()), target_player->get_hitbox().center);
-            auto bomb = target_player->drop_bomb();
-            if (bomb.has_value())
-                state.add_bomb(std::move(bomb.value()), target_player->get_hitbox().center);
-        }
+bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker, const Effect& effect,
+                               const Target& target) {
+    if (!target.is_player())
+        return false;
+
+    auto& target_player = target.get_player().get();
+    bool is_hit = effect.apply(target_player);
+    if (target_player->is_dead()) {
+        attacker->add_kill();
+        attacker->add_rewards(Scores::kill, Bonifications::kill);
+        auto gun = target_player->drop_primary_weapon();
+        if (gun.has_value())
+            state.add_dropped_gun(std::move(gun.value()), target_player->get_hitbox().center);
+        auto bomb = target_player->drop_bomb();
+        if (bomb.has_value())
+            state.add_bomb(std::move(bomb.value()), target_player->get_hitbox().center);
     }
+
     return is_hit;
 }
 
@@ -288,11 +310,19 @@ void Game::handle<GetScoreboardCommand>(const std::string& player_name,
     send_msg_to_single_player(player_name, Message(ScoreboardResponse(std::move(scoreboard))));
 }
 
-// TODO: Implement
 template <>
 void Game::handle<PlantBombCommand>(const std::string& player_name,
                                     [[maybe_unused]] const PlantBombCommand& msg) {
-    (void)player_name;
+    if (!state.get_phase().is_playing_phase() || !physics_system.player_in_bomb_site(player_name))
+        return;
+    auto& player = state.get_player(player_name);
+    player->plant_bomb(state.get_phase().get_time_now());
+    auto bomb = player->drop_bomb();
+    if (!bomb.has_value())
+        return;
+    state.add_bomb(std::move(bomb.value()), player->get_hitbox().center);
+    state.get_phase().start_bomb_planted_phase();
+    send_msg_to_all_players(Message(BombPlantedResponse()));
 }
 
 // TODO: Implement
@@ -371,12 +401,15 @@ void Game::prepare_new_round() {
     state.advance_round();
     for (const auto& [p_name, player]: state.get_players()) {
         move_player_to_spawn(p_name);
-        reset_for_new_round(player);
+        player->reset();
         auto bomb = player->drop_bomb();
         if (bomb.has_value())
             state.add_bomb(std::move(bomb.value()), player->get_hitbox().center);
     }
-    give_bomb_to_random_tt(std::move(state.remove_bomb()));
+    if (state.get_bomb().has_value()) {
+        state.get_bomb().value().item.reset();
+        give_bomb_to_random_tt(std::move(state.remove_bomb()));
+    }
 }
 
 void Game::move_player_to_spawn(const std::string& player_name) {
@@ -385,12 +418,6 @@ void Game::move_player_to_spawn(const std::string& player_name) {
         player->move_to_pos(physics_system.random_spawn_tt_pos());
     else
         player->move_to_pos(physics_system.random_spawn_ct_pos());
-}
-
-void Game::reset_for_new_round(const std::unique_ptr<Player>& player) {
-    player->heal();
-    player->stop_moving();
-    player->stop_attacking();
 }
 
 void Game::send_msg_to_all_players(const Message& msg) {

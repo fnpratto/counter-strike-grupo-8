@@ -32,8 +32,11 @@ bool GameState::team_is_full(const Team& team) const {
     return get_num_cts() == max_team_players;
 }
 
-// TODO: Add bomb exploded and defused conditions
-bool GameState::is_round_end_condition() const { return get_num_tts() == 0 || get_num_cts() == 0; }
+// TODO: Add bomb defused condition
+bool GameState::is_round_end_condition() const {
+    bool bomb_exploded = bomb.has_value() && bomb.value().item.get_is_exploded();
+    return get_num_tts() == 0 || get_num_cts() == 0 || bomb_exploded;
+}
 
 int GameState::get_num_rounds() const { return num_rounds; }
 
@@ -72,7 +75,7 @@ const std::vector<WorldItem<std::unique_ptr<Gun>>>& GameState::get_dropped_guns(
     return dropped_guns;
 }
 
-const std::optional<WorldItem<Bomb>>& GameState::get_bomb() const { return bomb; }
+std::optional<WorldItem<Bomb>>& GameState::get_bomb() { return bomb; }
 
 void GameState::advance_round() {
     num_rounds += 1;
@@ -137,7 +140,8 @@ Team GameState::get_winning_team() const {
 }
 
 bool GameState::is_tts_win_condition() const {
-    return get_num_cts() == 0 || (bomb.has_value() && bomb.value().item.is_planted());
+    bool bomb_exploded = bomb.has_value() && bomb.value().item.get_is_exploded();
+    return get_num_cts() == 0 || bomb_exploded;
 }
 
 void GameState::give_rewards_to_players(Team winning_team) {

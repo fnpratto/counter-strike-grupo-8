@@ -16,6 +16,11 @@ bool CircularHitbox::collides_with_rectangle(const RectHitbox& rect) const {
     return rect.collides_with_circle(center, radius);
 }
 
+bool CircularHitbox::collides_with_circle(const CircularHitbox& circle) const {
+    float distance = (center - circle.center).length();
+    return distance <= (radius + circle.radius);
+}
+
 bool CircularHitbox::is_hit(const Vector2D& ray_start, const Vector2D& ray_dir) const {
     Vector2D dir = ray_dir.normalized(PhysicsConfig::meter_size);
     Vector2D distance = center - ray_start;

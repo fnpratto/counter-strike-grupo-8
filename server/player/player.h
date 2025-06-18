@@ -43,7 +43,6 @@ public:
     void set_ready();
 
     void take_damage(int damage);
-    void heal();
 
     void select_team(Team team);
 
@@ -60,7 +59,6 @@ public:
 
     void start_attacking();
     std::vector<AttackEffect> attack(TimePoint now);
-    void stop_attacking();
 
     void equip_item(ItemSlot slot);
 
@@ -73,5 +71,7 @@ public:
     std::optional<std::unique_ptr<Gun>> drop_primary_weapon();
     std::optional<Bomb> drop_bomb();
 
-    void plant_bomb();
+    void plant_bomb(TimePoint now);
+
+    void reset();
 };

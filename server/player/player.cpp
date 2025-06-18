@@ -43,8 +43,6 @@ void Player::take_damage(int damage) {
     }
 }
 
-void Player::heal() { state.set_health(PlayerConfig::full_health); }
-
 void Player::pick_gun(std::unique_ptr<Gun>&& gun) { state.get_inventory().set_gun(std::move(gun)); }
 
 void Player::pick_bomb(Bomb&& bomb) { state.get_inventory().set_bomb(std::move(bomb)); }
@@ -73,11 +71,6 @@ void Player::start_attacking() {
         auto& gun = state.get_inventory().get_guns().at(slot);
         return gun->start_attacking();
     }
-}
-
-void Player::stop_attacking() {
-    state.get_inventory().get_knife().stop_attacking();
-    for (auto& [_, gun]: state.get_inventory().get_guns()) gun->stop_attacking();
 }
 
 std::vector<AttackEffect> Player::attack(TimePoint now) {
@@ -133,8 +126,16 @@ std::optional<Bomb> Player::drop_bomb() {
     return bomb;
 }
 
-void Player::plant_bomb() {
+void Player::plant_bomb(TimePoint now) {
     if (!state.get_inventory().get_bomb().has_value())
         return;
-    state.get_inventory().get_bomb().value().plant();
+    state.get_inventory().get_bomb().value().plant(now);
+}
+
+void Player::reset() {
+    stop_moving();
+    state.set_health(PlayerConfig::full_health);
+    state.set_equipped_item(ItemSlot::Melee);
+    state.get_inventory().get_knife().stop_attacking();
+    for (auto& [_, gun]: state.get_inventory().get_guns()) gun->stop_attacking();
 }

@@ -35,6 +35,10 @@ bool GamePhase::is_round_end() const { return state.get_phase() == PhaseType::Ro
 
 bool GamePhase::is_game_end() const { return state.get_phase() == PhaseType::GameEnd; }
 
+bool GamePhase::is_bomb_planted_phase() const {
+    return state.get_phase() == PhaseType::BombPlanted;
+}
+
 TimePoint GamePhase::get_time_now() const { return game_clock->now(); }
 
 void GamePhase::start_game() {
@@ -49,13 +53,11 @@ void GamePhase::end_game() {
     state.set_secs_remaining(phase_durations.at(state.get_phase()));
 }
 
-void GamePhase::start_bomb_planted_phase(unsigned int secs_to_explode) {
+void GamePhase::start_bomb_planted_phase() {
     if (!is_started())
         return;
     state.set_phase(PhaseType::BombPlanted);
     phase_start = game_clock->now();
-    phase_durations[PhaseType::BombPlanted] = secs_to_explode;
-    state.set_secs_remaining(phase_durations.at(state.get_phase()));
 }
 
 void GamePhase::end_round() {
@@ -70,7 +72,7 @@ bool GamePhase::advance() {
     PhaseType old_phase = state.get_phase();
     auto now = game_clock->now();
     auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - phase_start);
-    if (is_started()) {
+    if (is_started() && !is_bomb_planted_phase()) {
         auto current_phase_duration = phase_durations.at(state.get_phase());
         state.set_secs_remaining(current_phase_duration - elapsed.count());
         if (elapsed.count() >= current_phase_duration) {

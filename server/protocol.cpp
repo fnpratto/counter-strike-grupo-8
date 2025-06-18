@@ -107,6 +107,19 @@ payload_t ServerProtocol::serialize_msg(
     return payload_t();
 }
 
+template <>
+payload_t ServerProtocol::serialize_msg(const BombExplodedResponse& response) const {
+    payload_t payload;
+    payload_t explosion_center = serialize(response.get_explosion_center());
+    payload_t explosion_radius = serialize(response.get_explosion_radius());
+
+    payload.reserve(explosion_center.size() + explosion_radius.size());
+    payload.insert(payload.end(), explosion_center.begin(), explosion_center.end());
+    payload.insert(payload.end(), explosion_radius.begin(), explosion_radius.end());
+
+    return payload;
+}
+
 #define SERIALIZE_MSG(msg, msg_type) \
     case MessageType::msg_type:      \
         return serialize_msg(message.get_content<msg>());

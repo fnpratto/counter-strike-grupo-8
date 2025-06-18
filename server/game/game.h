@@ -51,7 +51,6 @@ private:
 
     void prepare_new_round();
     void move_player_to_spawn(const std::string& player_name);
-    void reset_for_new_round(const std::unique_ptr<Player>& player);
 
     void send_msg_to_all_players(const Message& msg);
     void send_msg_to_single_player(const std::string& player_name, const Message& msg);
@@ -63,7 +62,8 @@ private:
 
     void advance_round_logic();
     void advance_players_movement();
+    void advance_bomb_logic();
     void perform_attacks();
-    bool apply_effect(const std::unique_ptr<Player>& attacker, const Effect& effect,
-                      const Target& target);
+    bool apply_attack_effect(const std::unique_ptr<Player>& attacker, const Effect& effect,
+                             const Target& target);
 };

@@ -31,12 +31,13 @@ public:
     bool is_playing_phase() const;
     bool is_round_end() const;
     bool is_game_end() const;
+    bool is_bomb_planted_phase() const;
 
     TimePoint get_time_now() const;
 
     void start_game();
     void end_game();
-    void start_bomb_planted_phase(unsigned int secs_to_explode);
+    void start_bomb_planted_phase();
     void end_round();
 
     /**

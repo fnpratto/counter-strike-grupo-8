@@ -49,8 +49,9 @@ public:
 
     Vector2D calculate_new_pos(const std::unique_ptr<Player>& player) const;
 
-    std::optional<Target> get_closest_target(const std::string& origin_p_name, const Vector2D& dir,
-                                             int max_range);
+    std::optional<Target> get_closest_target_in_dir(const std::string& origin_p_name,
+                                                    const Vector2D& dir, int max_range);
+    std::vector<PlayerRef> get_players_in_radius(const Vector2D& center, int radius) const;
 
     bool player_collides_with_bomb(const std::unique_ptr<Player>& player) const;
     std::optional<Vector2D> get_player_colliding_gun_pos(
