@@ -36,6 +36,7 @@ target_sources(taller_tests
     ../server/states/bomb_state.cpp
     # weapons
     ../server/weapons/gun.cpp
+    ../server/weapons/bomb.cpp
 
     PUBLIC
     ../common/updates/state_update.h

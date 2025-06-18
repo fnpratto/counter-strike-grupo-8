@@ -78,4 +78,5 @@ static constexpr int max_range = 1 * PhysicsConfig::meter_size;
 
 namespace BombConfig {
 static constexpr int damage = 100;
-};
+static constexpr unsigned int secs_to_explode = 3;
+};  // namespace BombConfig

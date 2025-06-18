@@ -33,6 +33,7 @@ target_sources(taller_server
     states/bomb_state.cpp
     # weapons
     weapons/gun.cpp
+    weapons/bomb.cpp
 
     PUBLIC
     acceptor.h
