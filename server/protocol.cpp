@@ -101,6 +101,12 @@ payload_t ServerProtocol::serialize_msg(const RoundEndResponse& response) const 
     return serialize(static_cast<uint8_t>(response.get_winning_team()));
 }
 
+template <>
+payload_t ServerProtocol::serialize_msg(
+        [[maybe_unused]] const BombPlantedResponse& response) const {
+    return payload_t();
+}
+
 #define SERIALIZE_MSG(msg, msg_type) \
     case MessageType::msg_type:      \
         return serialize_msg(message.get_content<msg>());

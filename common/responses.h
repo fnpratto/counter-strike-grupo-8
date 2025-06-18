@@ -112,3 +112,9 @@ public:
 
     Team get_winning_team() const { return winning_team; }
 };
+
+/**
+ * @class BombPlantedResponse
+ * @brief Response sent when a bomb is planted.
+ */
+class BombPlantedResponse {};

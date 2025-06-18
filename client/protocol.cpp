@@ -227,9 +227,8 @@ ScoreboardResponse ClientProtocol::deserialize_msg<ScoreboardResponse>(payload_t
 }
 
 template <>
-ErrorResponse ClientProtocol::deserialize_msg<ErrorResponse>(payload_t& payload) const {
-    // ErrorResponse is an empty class, no data to deserialize
-    (void)payload;
+ErrorResponse ClientProtocol::deserialize_msg<ErrorResponse>(
+        [[maybe_unused]] payload_t& payload) const {
     return ErrorResponse();
 }
 
@@ -237,6 +236,12 @@ template <>
 RoundEndResponse ClientProtocol::deserialize_msg<RoundEndResponse>(payload_t& payload) const {
     uint8_t team = deserialize<uint8_t>(payload);
     return RoundEndResponse(static_cast<Team>(team));
+}
+
+template <>
+BombPlantedResponse ClientProtocol::deserialize_msg<BombPlantedResponse>(
+        [[maybe_unused]] payload_t& payload) const {
+    return BombPlantedResponse();
 }
 
 template <>
