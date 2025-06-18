@@ -9,8 +9,8 @@
 #include "common/models.h"
 #include "common/updates/player_update.h"
 #include "common/utils/vector_2d.h"
-#include "server/attack_effects/attack_effect.h"
 #include "server/clock/clock.h"
+#include "server/items/effects/attack_effect.h"
 #include "server/logic.h"
 #include "server/states/player_state.h"
 
@@ -59,7 +59,7 @@ public:
     void aim(const Vector2D& direction);
 
     void start_attacking();
-    std::vector<std::unique_ptr<AttackEffect>> attack(TimePoint now);
+    std::vector<AttackEffect> attack(TimePoint now);
     void stop_attacking();
 
     void equip_item(ItemSlot slot);

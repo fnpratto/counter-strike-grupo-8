@@ -33,6 +33,7 @@ public:
     bool all_players_ready() const;
     bool game_is_full() const;
     bool team_is_full(const Team& team) const;
+    bool is_round_end_condition() const;
 
     int get_num_rounds() const;
     int get_num_tts() const;
@@ -54,6 +55,7 @@ public:
     Bomb&& remove_bomb();
 
     Team get_winning_team() const;
+    void give_rewards_to_players(Team winning_team);
 
     GameUpdate get_updates() const override;
 

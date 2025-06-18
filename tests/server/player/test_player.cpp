@@ -7,10 +7,10 @@
 #include "server/clock/mock_clock.h"
 #include "server/errors.h"
 #include "server/game/shop.h"
+#include "server/items/gun.h"
 #include "server/physics/circular_hitbox.h"
 #include "server/player/player.h"
 #include "server/player/player_config.h"
-#include "server/weapons/gun.h"
 
 // Include shop price constants
 #define PRICE_AK47 2700

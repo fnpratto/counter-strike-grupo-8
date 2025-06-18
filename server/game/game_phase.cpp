@@ -58,6 +58,14 @@ void GamePhase::start_bomb_planted_phase(unsigned int secs_to_explode) {
     state.set_secs_remaining(phase_durations.at(state.get_phase()));
 }
 
+void GamePhase::end_round() {
+    if (!is_started())
+        return;
+    state.set_phase(PhaseType::RoundEnd);
+    phase_start = game_clock->now();
+    state.set_secs_remaining(phase_durations.at(state.get_phase()));
+}
+
 bool GamePhase::advance() {
     PhaseType old_phase = state.get_phase();
     auto now = game_clock->now();

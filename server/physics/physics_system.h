@@ -9,7 +9,6 @@
 #include "common/game/world_item.h"
 #include "common/map/map.h"
 #include "common/utils/vector_2d.h"
-#include "server/attack_effects/attack_effect.h"
 #include "server/player/player.h"
 
 #include "target_type.h"

@@ -15,7 +15,6 @@
 #include "server/player_message.h"
 #include "server/states/game_state.h"
 
-#include "game_config.h"
 #include "game_phase.h"
 #include "shop.h"
 
@@ -65,6 +64,6 @@ private:
     void advance_round_logic();
     void advance_players_movement();
     void perform_attacks();
-    bool apply_attack_effect(const std::unique_ptr<Player>& attacker,
-                             const std::unique_ptr<AttackEffect>& effect, const Target& target);
+    bool apply_effect(const std::unique_ptr<Player>& attacker, const Effect& effect,
+                      const Target& target);
 };

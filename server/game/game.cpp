@@ -4,11 +4,13 @@
 #include <utility>
 
 #include "common/game/scoreboard_entry.h"
-#include "server/attack_effects/attack_effect.h"
 #include "server/errors.h"
+#include "server/items/bomb.h"
+#include "server/items/effects/attack_effect.h"
 #include "server/physics/target_type.h"
 #include "server/player_message.h"
-#include "server/weapons/bomb.h"
+
+#include "game_config.h"
 
 Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map):
         Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.max_players)),
@@ -44,17 +46,17 @@ PhaseType Game::get_phase() { return state.get_phase().get_type(); }
 
 void Game::advance_round_logic() {
     auto& phase = state.get_phase();
-    bool phase_change = phase.advance();
-    if (phase_change) {
+    PhaseType current_phase = phase.get_type();
+
+    if (!phase.is_round_end() && state.is_round_end_condition())
+        phase.end_round();
+    else
+        phase.advance();
+
+    if (current_phase != phase.get_type()) {
         if (phase.is_round_end()) {
             Team winning_team = state.get_winning_team();
-            for (const auto& [p_name, player]: state.get_players()) {
-                if ((winning_team == Team::TT && player->is_tt()) ||
-                    (winning_team == Team::CT && player->is_ct()))
-                    player->add_rewards(Scores::win, Bonifications::win);
-                else
-                    player->add_rewards(Scores::loss, Bonifications::loss);
-            }
+            state.give_rewards_to_players(winning_team);
             send_msg_to_all_players(Message(RoundEndResponse(winning_team)));
         } else if (phase.is_buying_phase()) {
             prepare_new_round();
@@ -83,25 +85,25 @@ void Game::perform_attacks() {
     std::vector<HitResponse> hit_responses;
 
     for (const auto& [p_name, player]: state.get_players()) {
-        auto effects = player->attack(state.get_phase().get_time_now());
-        if (effects.empty())
+        auto attack_effects = player->attack(state.get_phase().get_time_now());
+        if (attack_effects.empty())
             continue;
 
-        for (const auto& effect: effects) {
-            auto closest_target = physics_system.get_closest_target(p_name, effect->get_dir(),
-                                                                    effect->get_max_range());
+        for (const auto& attack_effect: attack_effects) {
+            auto closest_target = physics_system.get_closest_target(
+                    p_name, attack_effect.dir, attack_effect.effect.get_max_range());
             if (!closest_target.has_value()) {
-                Vector2D max_hit_pos =
-                        player->get_hitbox().center + effect->get_dir() * effect->get_max_range();
-                hit_responses.push_back(HitResponse(player->get_hitbox().center, max_hit_pos,
-                                                    effect->get_dir(), false));
+                Vector2D max_hit_pos = attack_effect.effect.get_origin() +
+                                       attack_effect.dir * attack_effect.effect.get_max_range();
+                hit_responses.push_back(HitResponse(attack_effect.effect.get_origin(), max_hit_pos,
+                                                    attack_effect.dir, false));
                 continue;
             }
 
-            bool is_hit = apply_attack_effect(player, effect, closest_target.value());
+            bool is_hit = apply_effect(player, attack_effect.effect, closest_target.value());
 
-            hit_responses.push_back(HitResponse(player->get_hitbox().center,
-                                                closest_target.value().get_pos(), effect->get_dir(),
+            hit_responses.push_back(HitResponse(attack_effect.effect.get_origin(),
+                                                closest_target.value().get_pos(), attack_effect.dir,
                                                 is_hit));
         }
     }
@@ -109,12 +111,12 @@ void Game::perform_attacks() {
     for (const auto& hit_resp: hit_responses) send_msg_to_all_players(Message(hit_resp));
 }
 
-bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker,
-                               const std::unique_ptr<AttackEffect>& effect, const Target& target) {
+bool Game::apply_effect(const std::unique_ptr<Player>& attacker, const Effect& effect,
+                        const Target& target) {
     bool is_hit = false;
     if (target.is_player()) {
         auto& target_player = target.get_player().get();
-        is_hit = effect->apply(target_player);
+        is_hit = effect.apply(target_player);
         if (target_player->is_dead()) {
             attacker->add_kill();
             attacker->add_rewards(Scores::kill, Bonifications::kill);

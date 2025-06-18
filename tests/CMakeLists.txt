@@ -12,13 +12,15 @@ target_sources(taller_tests
     # protocol
     ../server/protocol.cpp
     ../client/protocol.cpp
-    # attack_effects
-    ../server/attack_effects/attack_effect.cpp
-    ../server/attack_effects/melee_attack.cpp
-    ../server/attack_effects/gun_attack.cpp
     # game
     ../server/game/game.cpp
     ../server/game/game_phase.cpp
+    # items
+    ../server/items/gun.cpp
+    ../server/items/bomb.cpp
+    ../server/items/knife.cpp
+    ../server/items/weapon.cpp
+    ../server/items/effects/effect.cpp
     # physics
     ../server/physics/physics_system.cpp
     ../server/physics/rect_hitbox.cpp
@@ -34,9 +36,6 @@ target_sources(taller_tests
     ../server/states/inventory_state.cpp
     ../server/states/knife_state.cpp
     ../server/states/bomb_state.cpp
-    # weapons
-    ../server/weapons/gun.cpp
-    ../server/weapons/bomb.cpp
 
     PUBLIC
     ../common/updates/state_update.h
@@ -47,10 +46,6 @@ target_sources(taller_tests
     ../common/updates/gun_update.h
     ../common/updates/knife_update.h
     ../server/errors.h
-    # attack_effects
-    ../server/attack_effects/attack_effect.h
-    ../server/attack_effects/gun_attack.h
-    ../server/attack_effects/melee_attack.h
     # clock
     ../server/clock/mock_clock.h
     # testing
@@ -60,6 +55,14 @@ target_sources(taller_tests
     ../server/game/game.h
     ../server/game/game_phase.h
     ../server/game/game_config.h
+    # items
+    ../server/items/gun.h
+    ../server/items/bomb.h
+    ../server/items/knife.h
+    ../server/items/weapon.h
+    ../server/items/effects/effect.h
+    ../server/items/effects/attack_effect.h
+    ../server/items/items_config.h
     # physics
     ../server/physics/physics_system.h
     ../server/physics/target_type.h
@@ -85,11 +88,6 @@ target_sources(taller_tests
     ../server/states/inventory_state.h
     ../server/states/knife_state.h
     ../server/states/bomb_state.h
-    # weapons
-    ../server/weapons/weapons_config.h
-    ../server/weapons/gun.h
-    ../server/weapons/knife.h
-    ../server/weapons/bomb.h
     # utils
     ../common/utils/vector_2d.h
     ../common/utils/random_float_generator.h

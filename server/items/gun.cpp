@@ -4,7 +4,6 @@
 #include <utility>
 
 #include "common/utils/random_float_generator.h"
-#include "server/attack_effects/gun_attack.h"
 
 Gun::Gun(GunType gun, GunConfig gun_config):
         Logic<GunState, GunUpdate>(
@@ -44,9 +43,8 @@ void Gun::reload() {
     state.set_reserve_ammo(state.get_reserve_ammo() - bullets_to_reload);
 }
 
-std::vector<std::unique_ptr<AttackEffect>> Gun::attack(Player& player_origin, const Vector2D& dir,
-                                                       TimePoint now) {
-    std::vector<std::unique_ptr<AttackEffect>> effects;
+std::vector<AttackEffect> Gun::attack(const Vector2D& origin, const Vector2D& dir, TimePoint now) {
+    std::vector<AttackEffect> effects;
     if (!state.get_is_attacking() || !has_ammo() || !can_attack(gun_config.attack_rate, now))
         return effects;
 
@@ -55,10 +53,9 @@ std::vector<std::unique_ptr<AttackEffect>> Gun::attack(Player& player_origin, co
         int damage = get_random_damage(gun_config.min_damage, gun_config.max_damage);
         Vector2D varied_dir = get_varied_direction(dir, gun_config.dir_variation_angle);
 
-        auto effect =
-                std::make_unique<GunAttack>(player_origin, damage, varied_dir, gun_config.max_range,
-                                            gun_config.precision, gun_config.falloff);
-        effects.push_back(std::move(effect));
+        Effect effect(origin, damage, gun_config.max_range, gun_config.precision,
+                      gun_config.falloff);
+        effects.push_back(AttackEffect{std::move(effect), varied_dir});
 
         decrease_mag_ammo();
         burst_bullets_fired++;

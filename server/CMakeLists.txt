@@ -9,13 +9,15 @@ target_sources(taller_server
     receiver.cpp
     sender.cpp
     main.cpp
-    # attack_effects
-    attack_effects/attack_effect.cpp
-    attack_effects/melee_attack.cpp
-    attack_effects/gun_attack.cpp
     # game
     game/game.cpp
     game/game_phase.cpp
+    # items
+    items/gun.cpp
+    items/bomb.cpp
+    items/knife.cpp
+    items/weapon.cpp
+    items/effects/effect.cpp
     # physics
     physics/physics_system.cpp
     physics/rect_hitbox.cpp
@@ -31,9 +33,6 @@ target_sources(taller_server
     states/inventory_state.cpp
     states/knife_state.cpp
     states/bomb_state.cpp
-    # weapons
-    weapons/gun.cpp
-    weapons/bomb.cpp
 
     PUBLIC
     acceptor.h
@@ -43,10 +42,6 @@ target_sources(taller_server
     protocol.h
     receiver.h
     errors.h
-    # attack_effects
-    attack_effects/attack_effect.h
-    attack_effects/gun_attack.h
-    attack_effects/melee_attack.h
     # clock
     clock/clock.h
     clock/mock_clock.h
@@ -56,6 +51,14 @@ target_sources(taller_server
     game/game.h
     game/game_phase.h
     game/game_config.h
+    # items
+    items/gun.h
+    items/bomb.h
+    items/knife.h
+    items/weapon.h
+    items/effects/effect.h
+    items/effects/attack_effect.h
+    items/items_config.h
     # physics
     physics/physics_system.h
     physics/target_type.h
@@ -81,9 +84,4 @@ target_sources(taller_server
     states/inventory_state.h
     states/knife_state.h
     states/bomb_state.h
-    # weapons
-    weapons/weapons_config.h
-    weapons/gun.h
-    weapons/knife.h
-    weapons/bomb.h
 )

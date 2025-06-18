@@ -4,7 +4,7 @@
 #include <utility>
 
 #include "common/models.h"
-#include "server/weapons/knife.h"
+#include "server/items/knife.h"
 
 Inventory::Inventory():
         Logic<InventoryState, InventoryUpdate>(InventoryState(PlayerConfig::initial_money)) {

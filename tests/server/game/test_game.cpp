@@ -151,12 +151,13 @@ TEST_F(TestGame, PlayerCannotSelectTeamWhenStartedGame) {
 }
 
 TEST_F(TestGame, NumberOfRoundsIncrementCorrectly) {
-    game.join_player("test_player");
+    game.join_player("tt");
+    game.join_player("ct");
     GameUpdate updates = game.get_full_update();
     EXPECT_EQ(updates.get_num_rounds(), 0);
 
     Message msg_start = Message(SetReadyCommand());
-    game.tick({PlayerMessage("test_player", msg_start)});
+    game.tick({PlayerMessage("tt", msg_start), PlayerMessage("ct", msg_start)});
 
     int rounds = 3;
     for (int i = 0; i < rounds; i++) {

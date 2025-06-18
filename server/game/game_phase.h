@@ -37,6 +37,7 @@ public:
     void start_game();
     void end_game();
     void start_bomb_planted_phase(unsigned int secs_to_explode);
+    void end_round();
 
     /**
      * Return true if the game phase type changed

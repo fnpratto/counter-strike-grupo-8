@@ -80,15 +80,15 @@ void Player::stop_attacking() {
     for (auto& [_, gun]: state.get_inventory().get_guns()) gun->stop_attacking();
 }
 
-std::vector<std::unique_ptr<AttackEffect>> Player::attack(TimePoint now) {
+std::vector<AttackEffect> Player::attack(TimePoint now) {
     ItemSlot slot = state.get_equipped_item();
     if (slot == ItemSlot::Melee) {
         auto& knife = state.get_inventory().get_knife();
-        return knife.attack(*this, state.get_aim_direction(), now);
+        return knife.attack(state.get_hitbox().center, state.get_aim_direction(), now);
     }
     if (slot == ItemSlot::Primary || slot == ItemSlot::Secondary) {
         auto& gun = state.get_inventory().get_guns().at(slot);
-        return gun->attack(*this, state.get_aim_direction(), now);
+        return gun->attack(state.get_hitbox().center, state.get_aim_direction(), now);
     }
     return {};
 }

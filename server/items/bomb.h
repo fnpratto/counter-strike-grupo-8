@@ -1,15 +1,9 @@
 #pragma once
 
-#include <optional>
-
-#include "common/models.h"
-#include "common/utils/vector_2d.h"
 #include "server/logic.h"
 #include "server/states/bomb_state.h"
 
 class Bomb: public Logic<BombState, BombUpdate> {
-    int secs_to_explode;
-
 public:
     Bomb();
 
@@ -18,6 +12,8 @@ public:
 
     Bomb(Bomb&&) = default;
     Bomb& operator=(Bomb&&) = default;
+
+    bool is_planted() const;
 
     int get_secs_to_explode() const;
 

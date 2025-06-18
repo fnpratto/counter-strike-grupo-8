@@ -5,13 +5,13 @@
 
 #include "common/models.h"
 #include "common/utils/vector_2d.h"
-#include "server/attack_effects/attack_effect.h"
+#include "effects/attack_effect.h"
 #include "server/clock/clock.h"
 #include "server/logic.h"
 #include "server/states/gun_state.h"
 
+#include "items_config.h"
 #include "weapon.h"
-#include "weapons_config.h"
 
 class Gun: public Logic<GunState, GunUpdate>, public Weapon {
     GunConfig gun_config;
@@ -39,8 +39,8 @@ public:
 
     void reload();
 
-    std::vector<std::unique_ptr<AttackEffect>> attack(Player& player_origin, const Vector2D& dir,
-                                                      TimePoint now) override;
+    std::vector<AttackEffect> attack(const Vector2D& origin, const Vector2D& dir,
+                                     TimePoint now) override;
 
     void stop_attacking();
 };
