@@ -72,4 +72,6 @@ public:
 
     std::optional<std::unique_ptr<Gun>> drop_primary_weapon();
     std::optional<Bomb> drop_bomb();
+
+    void plant_bomb();
 };

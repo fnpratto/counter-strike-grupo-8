@@ -132,3 +132,9 @@ std::optional<Bomb> Player::drop_bomb() {
     auto bomb = state.get_inventory().remove_bomb();
     return bomb;
 }
+
+void Player::plant_bomb() {
+    if (!state.get_inventory().get_bomb().has_value())
+        return;
+    state.get_inventory().get_bomb().value().plant();
+}
