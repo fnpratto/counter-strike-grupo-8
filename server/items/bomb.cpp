@@ -10,7 +10,9 @@ Bomb::Bomb():
 
 bool Bomb::is_planted() const { return state.get_bomb_phase() == BombPhaseType::Planted; }
 
-bool Bomb::should_explode() const { return state.get_secs_to_explode() == 0; }
+bool Bomb::should_explode() const {
+    return state.get_bomb_phase() == BombPhaseType::Planted && state.get_secs_to_explode() == 0;
+}
 
 bool Bomb::get_is_exploded() const { return state.get_bomb_phase() == BombPhaseType::Exploded; }
 
