@@ -81,3 +81,18 @@ TEST_F(TestGameBomb, PlayerPlantBombAfterPlantingForSecondsToPlantTime) {
     auto& bomb = updates.get_bomb().value().item;
     EXPECT_EQ(bomb.get_bomb_phase(), BombPhaseType::Planted);
 }
+
+TEST_F(TestGameBomb, PlayerDoesNotPlantBombIfStopPlantingBeforeSecondsToPlantTime) {
+    Message msg_start_planting = Message(StartPlantingBombCommand());
+    game.tick({PlayerMessage("tt", msg_start_planting)});
+
+    advance_secs(BombConfig::secs_to_plant / 2.0f);
+    Message msg_stop_planting = Message(StopPlantingBombCommand());
+    auto player_messages = game.tick({PlayerMessage("tt", msg_stop_planting)});
+    GameUpdate updates = player_messages[0].get_message().get_content<GameUpdate>();
+
+    EXPECT_TRUE(updates.get_players().at("tt").get_inventory().get_bomb().has_value());
+    const BombUpdate& bomb_update =
+            updates.get_players().at("tt").get_inventory().get_bomb().value();
+    EXPECT_EQ(bomb_update.get_bomb_phase(), BombPhaseType::NotPlanted);
+}

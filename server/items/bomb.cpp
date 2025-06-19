@@ -50,11 +50,11 @@ void Bomb::stop_defusing() {
 
 void Bomb::advance(TimePoint now) {
     if (is_planting()) {
-        if (now - action_start_time <= std::chrono::seconds(BombConfig::secs_to_plant))
+        if (now - action_start_time >= std::chrono::seconds(BombConfig::secs_to_plant))
             state.set_bomb_phase(BombPhaseType::Planted);
     }
     if (is_defusing()) {
-        if (now - action_start_time <= std::chrono::seconds(BombConfig::secs_to_defuse))
+        if (now - action_start_time >= std::chrono::seconds(BombConfig::secs_to_defuse))
             state.set_bomb_phase(BombPhaseType::Defused);
     }
     if (!is_planted())
