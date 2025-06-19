@@ -63,6 +63,9 @@ TEST_F(TestGameBomb, PlayerCanStartPlantingBomb) {
     const BombUpdate& bomb_update =
             updates.get_players().at("tt").get_inventory().get_bomb().value();
     EXPECT_EQ(bomb_update.get_bomb_phase(), BombPhaseType::Planting);
+
+    game.tick({});
+    EXPECT_EQ(game.get_full_update().get_phase().get_phase(), PhaseType::Playing);
 }
 
 TEST_F(TestGameBomb, PlayerPlantBombAfterPlantingForSecondsToPlantTime) {
@@ -103,6 +106,9 @@ TEST_F(TestGameBomb, PlayerDoesNotPlantBombIfStopPlantingBeforeSecondsToPlantTim
     const BombUpdate& bomb_update =
             updates.get_players().at("tt").get_inventory().get_bomb().value();
     EXPECT_EQ(bomb_update.get_bomb_phase(), BombPhaseType::NotPlanted);
+
+    game.tick({});
+    EXPECT_EQ(game.get_full_update().get_phase().get_phase(), PhaseType::Playing);
 }
 
 TEST_F(TestGameBomb, BombExplodeAfterSecondsToExplode) {
@@ -137,6 +143,7 @@ TEST_F(TestGameBomb, BombExplodeAfterSecondsToExplode) {
     EXPECT_EQ(updates.get_bomb().value().item.get_bomb_phase(), BombPhaseType::Exploded);
     EXPECT_LE(updates.get_players().at("tt").get_health(), PlayerConfig::full_health);
     EXPECT_LE(updates.get_players().at("ct").get_health(), PlayerConfig::full_health);
+    EXPECT_EQ(updates.get_phase().get_phase(), PhaseType::RoundEnd);
 }
 
 TEST_F(TestGameBomb, PlayerCannotDefuseBombIfItIsNotPlanted) {
@@ -182,6 +189,7 @@ TEST_F(TestGameBomb, PlayerDefuseBombAfterDefusingForSecondsToDefuseTime) {
     EXPECT_EQ(updates.get_bomb().value().item.get_bomb_phase(), BombPhaseType::Defused);
     EXPECT_EQ(updates.get_players().at("tt").get_health(), PlayerConfig::full_health);
     EXPECT_EQ(updates.get_players().at("ct").get_health(), PlayerConfig::full_health);
+    EXPECT_EQ(updates.get_phase().get_phase(), PhaseType::RoundEnd);
 }
 
 TEST_F(TestGameBomb, BombExplodeIfReachingSecondsToExplodeBeforeDefusing) {
@@ -217,4 +225,21 @@ TEST_F(TestGameBomb, BombExplodeIfReachingSecondsToExplodeBeforeDefusing) {
     EXPECT_EQ(updates.get_bomb().value().item.get_bomb_phase(), BombPhaseType::Exploded);
     EXPECT_LE(updates.get_players().at("tt").get_health(), PlayerConfig::full_health);
     EXPECT_LE(updates.get_players().at("ct").get_health(), PlayerConfig::full_health);
+    EXPECT_EQ(updates.get_phase().get_phase(), PhaseType::RoundEnd);
+}
+
+TEST_F(TestGameBomb, PlayerDoesNotDefuseBombIfStopDefusingBeforeSecondsToDefuseTime) {
+    SetUpBombPlanted();
+
+    Message msg_start_defusing = Message(StartDefusingBombCommand());
+    game.tick({PlayerMessage("ct", msg_start_defusing)});
+
+    advance_secs(BombConfig::secs_to_defuse / 2.0f);
+    Message msg_stop_defusing = Message(StopDefusingBombCommand());
+    auto player_messages = game.tick({PlayerMessage("ct", msg_stop_defusing)});
+
+    GameUpdate updates = player_messages[0].get_message().get_content<GameUpdate>();
+    EXPECT_TRUE(updates.get_bomb().has_value());
+    EXPECT_EQ(updates.get_bomb().value().item.get_bomb_phase(), BombPhaseType::Planted);
+    EXPECT_EQ(game.get_full_update().get_phase().get_phase(), PhaseType::BombPlanted);
 }
