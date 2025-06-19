@@ -81,11 +81,7 @@ void SdlWorld::render() {
             it = players.find(name);
         }
         if (camera.can_see(player_state)) {
-            try {
-                it->second->render(player_state);
-            } catch (const std::exception& e) {
-                std::cerr << "Error rendering player " << name << ": " << e.what() << std::endl;
-            }
+            it->second->render();
         }
     }
 

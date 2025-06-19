@@ -36,12 +36,12 @@ private:
     static constexpr const char* WALKING_ANIMATION = "../assets/gfx/player/legs_animation.xcf";
     std::unordered_map<CharacterType, std::unique_ptr<SdlTexture>> ct_skins;  // Use unique_ptr
     std::unordered_map<CharacterType, std::unique_ptr<SdlTexture>> tt_skins;  // Use unique_ptr
-    void render_skin(const PlayerUpdate& state, int x, int y, float angle);
+    void render_skin(int x, int y, float angle);
     void load_skins();
 
 public:
     explicit SdlPlayer(SdlWindow& w, const SdlCamera& camera, const GameUpdate& game_state,
                        const std::string& playerName);
 
-    void render(const PlayerUpdate& state);
+    void render();
 };
