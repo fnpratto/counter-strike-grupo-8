@@ -261,18 +261,19 @@ void hudDisplay::renderBullets() {
     std::string bulletsStr = std::to_string(gun.get_mag_ammo());
     std::string bulletsReserve = std::to_string(gun.get_reserve_ammo());
 
+
     int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 40 - layout.padding * 8;
     int y = SCREEN_HEIGHT - iconHeight * 3;
+
     renderDigits(bulletsStr, x, y, equipedBulletsAmount);
 
     x += layout.digitSpacing * bulletsStr.size();
 
-    const Area sizeWhiteLine(0, 0, 30, 300);  // Adjust dimensions as needed
-    const Area destWhiteLine(x + 5, y, 5 * scaleRatio,
-                             32 * scaleRatio);  // Adjust dimensions as needed
+    const Area sizeWhiteLine(0, 0, 30, 300);
+    const Area destWhiteLine(x + 5, y, 5 * scaleRatio, 32 * scaleRatio);
     white_line.render(sizeWhiteLine, destWhiteLine);
 
-    x += 5 * scaleRatio + 5;  // Move x position after rendering the white line
+    x += 5 * scaleRatio + 5;
 
     renderDigits(bulletsReserve, x, y, equipedBulletsAmount);
 }
@@ -361,7 +362,10 @@ bool hudDisplay::start_game_click(int x, int y) {
     int buttonY = SCREEN_HEIGHT - buttonHeight - layout.padding * 2;
 
     if (x >= buttonX && x <= buttonX + buttonWidth && y >= buttonY && y <= buttonY + buttonHeight) {
-        return true;
+        if (!in_game) {
+            in_game = true;
+            return true;
+        }
     }
     return false;
 }
