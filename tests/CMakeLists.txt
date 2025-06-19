@@ -28,6 +28,9 @@ target_sources(taller_tests
     # player
     ../server/player/player.cpp
     ../server/player/inventory.cpp
+    ../server/player/statuses/idle_status.cpp
+    ../server/player/statuses/moving_status.cpp
+    ../server/player/statuses/planting_bomb_status.cpp
     # states
     ../server/states/game_state.cpp
     ../server/states/gun_state.cpp
@@ -79,6 +82,10 @@ target_sources(taller_tests
     ../server/player/player.h
     ../server/player/player_config.h
     ../server/player/inventory.h
+    ../server/player/statuses/idle_status.h
+    ../server/player/statuses/moving_status.h
+    ../server/player/statuses/planting_bomb_status.h
+    ../server/player/statuses/player_status.h
     # states
     ../server/states/state.h
     ../server/states/game_state.h

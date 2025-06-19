@@ -4,6 +4,7 @@
 
 #include "common/models.h"
 #include "server/errors.h"
+#include "statuses/idle_status.h"
 
 #include "player_config.h"
 
@@ -11,7 +12,8 @@ Player::Player(Team team, Circle hitbox):
         Logic<PlayerState, PlayerUpdate>(
                 PlayerState(team, hitbox, Vector2D(0.0f, 0.0f), Vector2D(0.0f, 0.0f), false,
                             PlayerConfig::full_health, ItemSlot::Secondary)),
-        scoreboard_entry(state.get_inventory().get_money(), 0, 0, 0) {}
+        scoreboard_entry(state.get_inventory().get_money(), 0, 0, 0),
+        status(std::make_unique<IdleStatus>()) {}
 
 bool Player::is_ready() const { return state.get_ready(); }
 
@@ -22,6 +24,15 @@ bool Player::is_ct() const { return state.get_team() == Team::CT; }
 bool Player::is_moving() const { return state.get_velocity() != Vector2D(0.0f, 0.0f); }
 
 bool Player::is_dead() const { return state.get_health() == 0; }
+
+bool Player::is_attacking() {
+    ItemSlot slot = state.get_equipped_item();
+    if (slot == ItemSlot::Melee)
+        return state.get_inventory().get_knife().is_attacking();
+    if (slot == ItemSlot::Primary || slot == ItemSlot::Secondary)
+        return state.get_inventory().get_guns().at(slot)->is_attacking();
+    return false;
+}
 
 Circle Player::get_hitbox() const { return state.get_hitbox(); }
 
@@ -61,16 +72,21 @@ void Player::move_to_pos(Vector2D new_pos) { state.set_pos(new_pos); }
 
 void Player::aim(const Vector2D& direction) { state.set_aim_direction(direction); }
 
-void Player::start_attacking() {
+void Player::start_attacking_with_equipped_weapon() {
     ItemSlot slot = state.get_equipped_item();
     if (slot == ItemSlot::Melee) {
         auto& knife = state.get_inventory().get_knife();
-        return knife.start_attacking();
+        knife.start_attacking();
     }
     if (slot == ItemSlot::Primary || slot == ItemSlot::Secondary) {
         auto& gun = state.get_inventory().get_guns().at(slot);
-        return gun->start_attacking();
+        gun->start_attacking();
     }
+}
+
+void Player::stop_attacking() {
+    state.get_inventory().get_knife().stop_attacking();
+    for (auto& [_, gun]: state.get_inventory().get_guns()) gun->stop_attacking();
 }
 
 std::vector<AttackEffect> Player::attack(TimePoint now) {
@@ -87,12 +103,15 @@ std::vector<AttackEffect> Player::attack(TimePoint now) {
 }
 
 void Player::equip_item(ItemSlot slot) {
-    if (!state.get_inventory().has_item_in_slot(slot))
+    if (!state.get_inventory().has_item_in_slot(slot) || is_attacking())
         return;
     state.set_equipped_item(slot);
 }
 
 void Player::reload() {
+    if (is_attacking())
+        return;
+
     ItemSlot slot = state.get_equipped_item();
     if (slot != ItemSlot::Primary && slot != ItemSlot::Secondary)
         return;
@@ -126,14 +145,43 @@ std::optional<Bomb> Player::drop_bomb() {
     return bomb;
 }
 
-void Player::plant_bomb(TimePoint now) {
-    if (!state.get_inventory().get_bomb().has_value())
-        return;
-    state.get_inventory().get_bomb().value().plant(now);
+void Player::start_planting_bomb(TimePoint now) {
+    state.get_inventory().get_bomb().value().start_planting(now);
 }
 
+void Player::stop_planting_bomb(TimePoint now) {
+    state.get_inventory().get_bomb().value().stop_planting(now);
+}
+
+void Player::set_status(PlayerStatus&& new_status) {
+    status = std::make_unique<PlayerStatus>(std::move(new_status));
+}
+
+void Player::handle_start_moving(const Vector2D& velocity) {
+    status->handle_start_moving(*this, velocity);
+}
+
+void Player::handle_stop_moving() { status->handle_stop_moving(*this); }
+
+void Player::handle_start_attacking() { status->handle_start_attacking(*this); }
+
+void Player::handle_switch_item(ItemSlot slot) {
+    if (!state.get_inventory().has_item_in_slot(slot) || is_attacking())
+        return;
+    status->handle_switch_item(*this, slot);
+}
+
+void Player::handle_start_planting(TimePoint now) {
+    if (!state.get_inventory().get_bomb().has_value())
+        return;
+    status->handle_start_planting(*this, now);
+}
+
+void Player::handle_stop_planting(TimePoint now) { status->handle_stop_planting(*this, now); }
+
 void Player::reset() {
-    stop_moving();
+    status = std::make_unique<IdleStatus>();
+    state.set_velocity(Vector2D(0.0f, 0.0f));
     state.set_health(PlayerConfig::full_health);
     state.set_equipped_item(ItemSlot::Melee);
     state.get_inventory().get_knife().stop_attacking();

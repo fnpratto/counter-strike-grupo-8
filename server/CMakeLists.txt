@@ -25,6 +25,9 @@ target_sources(taller_server
     # player
     player/player.cpp
     player/inventory.cpp
+    player/statuses/idle_status.cpp
+    player/statuses/moving_status.cpp
+    player/statuses/planting_bomb_status.cpp
     # states
     states/game_state.cpp
     states/gun_state.cpp
@@ -75,6 +78,10 @@ target_sources(taller_server
     player/player.h
     player/player_config.h
     player/inventory.h
+    player/statuses/player_status.h
+    player/statuses/idle_status.h
+    player/statuses/moving_status.h
+    player/statuses/planting_bomb_status.h
     # states
     states/state.h
     states/game_state.h

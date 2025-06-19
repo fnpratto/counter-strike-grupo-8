@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <optional>
+#include <stack>
 #include <utility>
 #include <vector>
 
@@ -13,12 +14,14 @@
 #include "server/items/effects/attack_effect.h"
 #include "server/logic.h"
 #include "server/states/player_state.h"
+#include "statuses/player_status.h"
 
 #include "inventory.h"
 
 class Player: public Logic<PlayerState, PlayerUpdate> {
 private:
     ScoreboardEntry scoreboard_entry;
+    std::unique_ptr<PlayerStatus> status;
 
 public:
     Player(Team team, Circle hitbox);
@@ -34,6 +37,7 @@ public:
     bool is_ct() const;
     bool is_moving() const;
     bool is_dead() const;
+    bool is_attacking();
 
     Circle get_hitbox() const;
     Vector2D get_move_dir() const;
@@ -57,7 +61,8 @@ public:
 
     void aim(const Vector2D& direction);
 
-    void start_attacking();
+    void start_attacking_with_equipped_weapon();
+    void stop_attacking();
     std::vector<AttackEffect> attack(TimePoint now);
 
     void equip_item(ItemSlot slot);
@@ -71,7 +76,17 @@ public:
     std::optional<std::unique_ptr<Gun>> drop_primary_weapon();
     std::optional<Bomb> drop_bomb();
 
-    void plant_bomb(TimePoint now);
+    void start_planting_bomb(TimePoint now);
+    void stop_planting_bomb(TimePoint now);
 
     void reset();
+
+    void set_status(PlayerStatus&& new_status);
+    void handle_start_moving(const Vector2D& velocity);
+    void handle_stop_moving();
+    void handle_start_attacking();
+    void handle_switch_item(ItemSlot slot);
+    void handle_start_planting(TimePoint now);
+    void handle_stop_planting(TimePoint now);
+    // TODO: Defusing
 };
