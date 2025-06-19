@@ -27,6 +27,7 @@ public:
 
     static std::unique_ptr<Gun> make_gun(const GunType& gun_type);
 
+    bool is_attacking() const;
     bool has_ammo();
 
     GunType get_type() const;

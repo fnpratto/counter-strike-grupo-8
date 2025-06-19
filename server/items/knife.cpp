@@ -6,12 +6,14 @@
 
 Knife::Knife(): Logic<KnifeState, KnifeUpdate>(KnifeState()) {}
 
+bool Knife::is_attacking() const { return state.get_is_attacking(); }
+
 void Knife::start_attacking() { state.set_is_attacking(true); }
 
 std::vector<AttackEffect> Knife::attack(const Vector2D& origin, const Vector2D& dir,
                                         TimePoint now) {
     std::vector<AttackEffect> effects;
-    if (!can_attack(KnifeConfig::attack_rate, now))
+    if (!state.get_is_attacking() || !can_attack(KnifeConfig::attack_rate, now))
         return effects;
     int damage = get_random_damage(KnifeConfig::min_damage, KnifeConfig::max_damage);
 

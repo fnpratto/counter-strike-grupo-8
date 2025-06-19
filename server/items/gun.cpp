@@ -25,6 +25,8 @@ std::unique_ptr<Gun> Gun::make_gun(const GunType& gun_type) {
     }
 }
 
+bool Gun::is_attacking() const { return state.get_is_attacking(); }
+
 bool Gun::has_ammo() { return state.get_mag_ammo() > 0; }
 
 GunType Gun::get_type() const { return state.get_gun(); }
@@ -45,7 +47,7 @@ void Gun::reload() {
 
 std::vector<AttackEffect> Gun::attack(const Vector2D& origin, const Vector2D& dir, TimePoint now) {
     std::vector<AttackEffect> effects;
-    if (!state.get_is_attacking() || !has_ammo() || !can_attack(gun_config.attack_rate, now))
+    if (!is_attacking() || !has_ammo() || !can_attack(gun_config.attack_rate, now))
         return effects;
 
     int bullets = get_bullets_ready_to_fire(now);

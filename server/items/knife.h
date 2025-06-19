@@ -13,6 +13,8 @@ class Knife: public Logic<KnifeState, KnifeUpdate>, public Weapon {
 public:
     Knife();
 
+    bool is_attacking() const;
+
     void start_attacking();
 
     std::vector<AttackEffect> attack(const Vector2D& origin, const Vector2D& dir,
