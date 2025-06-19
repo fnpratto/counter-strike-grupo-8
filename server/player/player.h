@@ -81,7 +81,7 @@ public:
     void start_defusing_bomb(Bomb& bomb, TimePoint now);
     void stop_defusing_bomb(Bomb& bomb);
 
-    void set_status(PlayerStatus&& new_status);
+    void set_status(std::unique_ptr<PlayerStatus> new_status);
     void handle_start_moving(const Vector2D& velocity);
     void handle_stop_moving();
     void handle_start_attacking();

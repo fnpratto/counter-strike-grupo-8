@@ -155,8 +155,8 @@ void Player::start_defusing_bomb(Bomb& bomb, TimePoint now) { bomb.start_defusin
 
 void Player::stop_defusing_bomb(Bomb& bomb) { bomb.stop_defusing(); }
 
-void Player::set_status(PlayerStatus&& new_status) {
-    status = std::make_unique<PlayerStatus>(std::move(new_status));
+void Player::set_status(std::unique_ptr<PlayerStatus> new_status) {
+    status = std::move(new_status);
 }
 
 void Player::handle_start_moving(const Vector2D& velocity) {
