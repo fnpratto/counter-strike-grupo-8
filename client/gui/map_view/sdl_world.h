@@ -26,7 +26,7 @@ struct BulletInfo {
     Vector2D hit_pos;
     Vector2D hit_dir;
     bool is_hit;
-    int count;
+    // int range_item; TODO
 };
 
 class SdlWorld {
@@ -40,7 +40,7 @@ class SdlWorld {
     std::map<std::string, std::unique_ptr<SdlPlayer>> players;
     SdlMap map;
     SdlBullet bullet;
-    std::optional<BulletInfo> bullet_info;  // Nuevo miembro
+    std::vector<BulletInfo> bullets_info;
 
     // SdlTexture background;  // TODO: Load a background texture
 

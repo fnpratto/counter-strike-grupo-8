@@ -55,3 +55,9 @@ void SdlTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* c
         std::cout << "Render failed: " << SDL_GetError() << std::endl;
     }
 }
+
+void SdlTexture::render(int x, int y, int w, int h, SDL_Rect* clip, double angle, SDL_Point* center,
+                        SDL_RendererFlip flip) {
+    SDL_Rect renderQuad = {x, y, w, h};
+    SDL_RenderCopyEx(renderer, texture, clip, &renderQuad, angle, center, flip);
+}

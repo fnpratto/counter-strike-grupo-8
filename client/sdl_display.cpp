@@ -29,9 +29,7 @@ SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue
         score_display(nullptr),
         shop_display(nullptr),
         world(nullptr) {
-
-    std::cout << "SDLDisplay initialized with player: " << player_name << std::endl;
-    SCREEN_WIDTH = 800;
+    SCREEN_WIDTH = 1200;
     SCREEN_HEIGHT = 600;
 }
 
@@ -63,7 +61,7 @@ void SDLDisplay::setup() {
     /*SCREEN_WIDTH = displayMode.w;
     SCREEN_HEIGHT = displayMode.h - 150;*/
     SCREEN_WIDTH = 1200;
-    SCREEN_HEIGHT = 800;
+    SCREEN_HEIGHT = 600;
 }
 
 void SDLDisplay::run() {

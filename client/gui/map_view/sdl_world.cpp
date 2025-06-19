@@ -48,17 +48,29 @@ Map SdlWorld::build_default_map() {
 
     return actual_map;
 }
+
 void SdlWorld::handleHit(Vector2D get_origin, Vector2D get_hit_pos, Vector2D get_hit_dir,
                          bool is_hit) {
 
-    Vector2D origin_pos_screen_pos = camera.get_screen_pos(get_origin);
-    Vector2D hit_pos_screen_pos = camera.get_screen_pos(get_hit_pos);
-    Vector2D hit_dir_screen_pos = camera.get_screen_pos(get_hit_dir);
+    std::cout << "Handling bullet hit: "
+              << " origin: (" << get_origin.get_x() << ", " << get_origin.get_y()
+              << "), hit position: (" << get_hit_pos.get_x() << ", " << get_hit_pos.get_y()
+              << "), hit direction: (" << get_hit_dir.get_x() << ", " << get_hit_dir.get_y()
+              << "), is hit: " << is_hit << std::endl;
+    Vector2D origin_screen = camera.get_screen_pos(get_origin);
+    Vector2D hit_screen = camera.get_screen_pos(get_hit_pos);
+    Vector2D dir_screen = camera.get_screen_pos(get_hit_dir);
 
+    std::cout << "Converted to screen coordinates: "
+              << " origin: (" << origin_screen.get_x() << ", " << origin_screen.get_y() << "), "
+              << " hit position: (" << hit_screen.get_x() << ", " << hit_screen.get_y() << "), "
+              << " hit direction: (" << dir_screen.get_x() << ", " << dir_screen.get_y() << ")"
+              << std::endl;
 
-    bullet_info =
-            BulletInfo{origin_pos_screen_pos, hit_pos_screen_pos, hit_dir_screen_pos, is_hit, 1};
-    std::cout << "Hit detected: " << std::endl;
+    BulletInfo info{origin_screen, hit_screen, dir_screen, is_hit};
+    bullets_info.push_back(info);
+
+    std::cout << "New bullet hit registered.\n";
 }
 
 void SdlWorld::render() {
@@ -77,9 +89,8 @@ void SdlWorld::render() {
         }
     }
 
-    if (bullet_info.has_value() && bullet_info->count > 0) {
-        bullet.render(bullet_info->origin, bullet_info->hit_pos, bullet_info->hit_dir,
-                      bullet_info->is_hit);
-        bullet_info->count--;
+    for (const BulletInfo& info: bullets_info) {
+        bullet.render(info.origin, info.hit_pos, info.hit_dir, info.is_hit);
     }
+    bullets_info.clear();
 }

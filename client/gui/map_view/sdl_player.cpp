@@ -44,10 +44,7 @@ void SdlPlayer::render(const PlayerUpdate& state) {
     player_texture.render(position_from_cam.get_x(), position_from_cam.get_y(), &clip, angle,
                           nullptr, SDL_FLIP_NONE);
 
-    Vector2D adjusted_position(state.get_pos().get_x() + 5, state.get_pos().get_y());
-    Vector2D position_from_cam_weapon = camera.get_screen_pos(adjusted_position);
-    // crear la posición final del arma
-    Area dest(position_from_cam_weapon.get_x(), position_from_cam_weapon.get_y(), WIDTH, HEIGHT);
+    Area dest(position_from_cam.get_x() - 5, position_from_cam.get_y() - 5, 42, 42);
     ItemSlot item = game_state.get_players().at(playerName).get_equipped_item();
     weapon.render(item, dest, angle);
 }
