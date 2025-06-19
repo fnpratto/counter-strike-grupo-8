@@ -85,6 +85,7 @@ void SDLDisplay::run() {
     update_state();
 
     RateController rate_controller(60);  // 60 FPS
+    rate_controller.set_debug_mode(true);
     rate_controller.run_at_rate([&]() {
         // Update game state and display
         update_state();
