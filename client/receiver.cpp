@@ -12,8 +12,6 @@ void ClientReceiver::run() {
 
             if (message.get_type() != MessageType::NONE)
                 queue.push(message);
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     } catch (const ServerDisconnectError& e) {
         stop();
