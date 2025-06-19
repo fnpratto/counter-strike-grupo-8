@@ -28,6 +28,18 @@ void KeyboardHandler::handleEvent(const SDL_Event& event) {
                     score_displayRef.updateState();
                 }
                 break;
+            case SDLK_1:
+                output_queue.push(Message(SwitchItemCommand(ItemSlot::Primary)));
+                break;
+            case SDLK_2:
+                output_queue.push(Message(SwitchItemCommand(ItemSlot::Secondary)));
+                break;
+            case SDLK_3:
+                output_queue.push(Message(SwitchItemCommand(ItemSlot::Melee)));
+                break;
+            case SDLK_4:
+                output_queue.push(Message(SwitchItemCommand(ItemSlot::Bomb)));
+                break;
             case SDLK_r:
                 output_queue.push(Message(ReloadCommand()));
                 break;

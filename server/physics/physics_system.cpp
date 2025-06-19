@@ -8,9 +8,14 @@
 #include "common/physics/physics_config.h"
 #include "server/game/game_config.h"
 
+#include "circular_hitbox.h"
+#include "rect_hitbox.h"
+
 PhysicsSystem::PhysicsSystem(Map&& map,
-                             const std::map<std::string, std::unique_ptr<Player>>& players):
-        map(std::move(map)), players(players) {}
+                             const std::map<std::string, std::unique_ptr<Player>>& players,
+                             const std::vector<WorldItem<std::unique_ptr<Gun>>>& dropped_guns,
+                             const std::optional<WorldItem<Bomb>>& bomb):
+        map(std::move(map)), players(players), dropped_guns(dropped_guns), bomb(bomb) {}
 
 Vector2D PhysicsSystem::rand_pos_in_vector(const std::vector<Vector2D>& vector) const {
     int rand_idx = std::rand() % vector.size();
@@ -22,21 +27,58 @@ bool PhysicsSystem::is_pos_in_vector(const std::vector<Vector2D>& vector,
     return std::any_of(vector.begin(), vector.end(), [&](const Vector2D& p) { return p == pos; });
 }
 
-Vector2D PhysicsSystem::random_spawn_tt_pos() const { return rand_pos_in_vector(map.spawns_tts); }
+Vector2D PhysicsSystem::random_spawn_tt_pos() const {
+    return rand_pos_in_vector(map.spawns_tts) + (PhysicsConfig::meter_size / 2);
+}
 
-Vector2D PhysicsSystem::random_spawn_ct_pos() const { return rand_pos_in_vector(map.spawns_cts); }
+Vector2D PhysicsSystem::random_spawn_ct_pos() const {
+    return rand_pos_in_vector(map.spawns_cts) + (PhysicsConfig::meter_size / 2);
+}
 
-// TODO: Fix this to check if any part of player hitbox radius is on spawn
 bool PhysicsSystem::player_in_spawn(const std::string& player_name) const {
     const std::unique_ptr<Player>& player = players.at(player_name);
-    if (player->is_tt())
-        return is_pos_in_vector(map.spawns_tts, player->get_pos());
-    return is_pos_in_vector(map.spawns_cts, player->get_pos());
+    const std::vector<Vector2D>& spawns = player->is_tt() ? map.spawns_tts : map.spawns_cts;
+    for (const Vector2D& spawn_pos: spawns) {  // cppcheck-suppress[useStlAlgorithm]
+        CircularHitbox player_hitbox = CircularHitbox(player->get_hitbox());
+        RectHitbox spawn_hitbox = RectHitbox::tile_hitbox(spawn_pos);
+        if (player_hitbox.collides_with_rectangle(spawn_hitbox))
+            return true;
+    }
+    return false;
+}
+
+Vector2D PhysicsSystem::calculate_new_pos(const std::unique_ptr<Player>& player) const {
+    Vector2D move_dir = player->get_move_dir();
+    if (move_dir == Vector2D(0, 0))
+        return player->get_hitbox().center;
+
+    Vector2D step = calculate_step(move_dir);
+    Vector2D new_pos = player->get_hitbox().center + step;
+
+    if (!is_walkable(new_pos))
+        return player->get_hitbox().center;
+
+    return new_pos;
 }
 
 Vector2D PhysicsSystem::calculate_step(const Vector2D& dir) const {
     float tick_duration = 1.0f / GameConfig::tickrate;  // TODO use clock
     return dir.normalized(PhysicsConfig::meter_size) * GameConfig::player_speed * tick_duration;
+}
+
+bool PhysicsSystem::is_walkable(const Vector2D& pos) const {
+    CircularHitbox player_hitbox = CircularHitbox::player_hitbox(pos);
+    for (const Wall& wall: map.walls) {  // cppcheck-suppress[useStlAlgorithm]
+        RectHitbox wall_hitbox = RectHitbox::tile_hitbox(wall.get_pos());
+        if (player_hitbox.collides_with_rectangle(wall_hitbox))
+            return false;
+    }
+    for (const Box& box: map.boxes) {  // cppcheck-suppress[useStlAlgorithm]
+        RectHitbox box_hitbox = RectHitbox::tile_hitbox(box.get_pos());
+        if (player_hitbox.collides_with_rectangle(box_hitbox))
+            return false;
+    }
+    return true;
 }
 
 std::optional<Target> PhysicsSystem::get_closest_target(const std::string& origin_p_name,
@@ -52,7 +94,7 @@ std::optional<Target> PhysicsSystem::get_closest_target(const std::string& origi
     for (const auto& t: closests) {
         if (!t.has_value())
             continue;
-        Vector2D origin = players.at(origin_p_name)->get_pos();
+        Vector2D origin = players.at(origin_p_name)->get_hitbox().center;
         float distance = (t->get_pos() - origin).length();
         if (distance < min_distance) {
             min_distance = distance;
@@ -71,15 +113,15 @@ std::optional<Target> PhysicsSystem::get_closest_tile(const std::string& origin_
                                                       const Vector2D& dir,
                                                       const std::vector<T>& vector) {
     std::optional<Target> closest_target;
-    Vector2D origin = players.at(origin_p_name)->get_pos();
+    Vector2D origin = players.at(origin_p_name)->get_hitbox().center;
     float min_distance = std::numeric_limits<float>::max();
-    for (const T& t: vector) {
-        Vector2D target_pos = t.get_pos();
-        if (is_in_same_cuadrant(target_pos, origin, dir) && tile_is_hit(target_pos, origin, dir)) {
-            float distance = (target_pos - origin).length();
+    for (const T& target: vector) {
+        RectHitbox target_hitbox = RectHitbox::tile_hitbox(target.get_pos());
+        if (target_hitbox.is_in_same_quadrant(origin, dir) && target_hitbox.is_hit(origin, dir)) {
+            float distance = (target_hitbox.get_pos() - origin).length();
             if (distance < min_distance) {
                 min_distance = distance;
-                closest_target = t;
+                closest_target = target;
             }
         }
     }
@@ -89,70 +131,39 @@ std::optional<Target> PhysicsSystem::get_closest_tile(const std::string& origin_
 std::optional<Target> PhysicsSystem::get_closest_player(const std::string& origin_p_name,
                                                         const Vector2D& dir) {
     std::optional<Target> closest_target;
-    Vector2D origin = players.at(origin_p_name)->get_pos();
+    Vector2D origin = players.at(origin_p_name)->get_hitbox().center;
     float min_distance = std::numeric_limits<float>::max();
-    for (const auto& [p_name, p]: players) {  // cppcheck-suppress[unassignedVariable]
-        if (origin_p_name == p_name)
+    for (const auto& [target_name, target]: players) {  // cppcheck-suppress[unassignedVariable]
+        if (origin_p_name == target_name)
             continue;
-        Vector2D target_pos = p->get_pos();
-        if (!p->is_dead() && is_in_same_cuadrant(target_pos, origin, dir) &&
-            player_is_hit(target_pos, origin, dir)) {
-            float distance = (target_pos - origin).length();
+        CircularHitbox player_hitbox = CircularHitbox(target->get_hitbox());
+        if (!target->is_dead() && player_hitbox.is_in_same_cuadrant(origin, dir) &&
+            player_hitbox.is_hit(origin, dir)) {
+            float distance = (target->get_hitbox().center - origin).length();
             if (distance < min_distance) {
                 min_distance = distance;
-                closest_target = PlayerRef(p);
+                closest_target = PlayerRef(target);
             }
         }
     }
     return closest_target;
 }
 
-bool PhysicsSystem::is_in_same_cuadrant(Vector2D target_pos, Vector2D player_pos,
-                                        Vector2D aim_dir) {
-    Vector2D dir_to_target = target_pos - player_pos;
-    return dir_to_target.dot(aim_dir) > 0;
+bool PhysicsSystem::player_collides_with_bomb(const std::unique_ptr<Player>& player) const {
+    if (!bomb.has_value())
+        return false;
+    CircularHitbox player_hitbox = CircularHitbox(player->get_hitbox());
+    RectHitbox bomb_hitbox = RectHitbox(bomb.value().hitbox);
+    return player_hitbox.collides_with_rectangle(bomb_hitbox);
 }
 
-bool PhysicsSystem::player_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir) {
-    Vector2D target_distance = target_pos - player_pos;
-    float orthogonal_distance = std::abs(target_distance.cross(aim_dir));
-    return orthogonal_distance <= PhysicsConfig::player_hitbox_radius;
-}
-
-bool PhysicsSystem::tile_is_hit(Vector2D target_pos, Vector2D player_pos, Vector2D aim_dir) {
-    // AABB bounds
-    float minX = target_pos.get_x();
-    float maxX = target_pos.get_x();
-    float minY = target_pos.get_y();
-    float maxY = target_pos.get_y();
-
-    // Ray direction
-    float aim_x = aim_dir.get_x();
-    float aim_y = aim_dir.get_y();
-
-    // Avoid division by zero
-    if (aim_x == 0)
-        aim_x = 1e-8;
-    if (aim_y == 0)
-        aim_y = 1e-8;
-
-    // Calculate intersections with vertical and horizontal slabs
-    float t1 = (minX - player_pos.get_x()) / aim_x;
-    float t2 = (maxX - player_pos.get_x()) / aim_x;
-    float t3 = (minY - player_pos.get_y()) / aim_y;
-    float t4 = (maxY - player_pos.get_y()) / aim_y;
-
-    // Find intersection intervals
-    float tmin = std::max(std::min(t1, t2), std::min(t3, t4));
-    float tmax = std::min(std::max(t1, t2), std::max(t3, t4));
-
-    // If tmax < 0, the square is behind the ray
-    if (tmax < 0)
-        return false;
-
-    // If tmin > tmax, there is no intersection
-    if (tmin > tmax)
-        return false;
-
-    return true;
+std::optional<Vector2D> PhysicsSystem::get_player_colliding_gun_pos(
+        const std::unique_ptr<Player>& player) const {
+    for (const auto& gun_item: dropped_guns) {
+        CircularHitbox player_hitbox = CircularHitbox(player->get_hitbox());
+        RectHitbox gun_hitbox = RectHitbox(gun_item.hitbox);
+        if (player_hitbox.collides_with_rectangle(gun_hitbox))
+            return gun_item.hitbox.get_pos();
+    }
+    return std::optional<Vector2D>();
 }

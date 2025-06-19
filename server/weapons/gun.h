@@ -25,10 +25,7 @@ class Gun: public Logic<GunState, GunUpdate>, public Weapon {
 public:
     Gun(GunType gun, GunConfig initial_config);
 
-    static std::unique_ptr<Gun> make_glock();
-    static std::unique_ptr<Gun> make_ak47();
-    static std::unique_ptr<Gun> make_awp();
-    static std::unique_ptr<Gun> make_m3();
+    static std::unique_ptr<Gun> make_gun(const GunType& gun_type);
 
     bool has_ammo();
 

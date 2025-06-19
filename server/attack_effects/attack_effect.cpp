@@ -10,7 +10,7 @@ Vector2D AttackEffect::get_dir() const { return dir; }
 int AttackEffect::get_max_range() const { return max_range; }
 
 bool AttackEffect::apply(const std::unique_ptr<Player>& player) {
-    int distance = (player->get_pos() - player_origin.get_pos()).length();
+    int distance = (player->get_hitbox().center - player_origin.get_hitbox().center).length();
     if (!is_target_hit(distance))
         return false;
     int final_damage = compute_damage(distance);

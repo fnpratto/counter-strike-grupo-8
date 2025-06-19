@@ -5,17 +5,24 @@
 #include <SDL2/SDL.h>
 
 
-SdlPlayer::SdlPlayer(SdlWindow& w, const SdlCamera& camera):
+SdlPlayer::SdlPlayer(SdlWindow& w, const SdlCamera& cam, const GameUpdate& game_state_param,
+                     const std::string& player_name_param):
         window(w),
-        camera(camera),
+        camera(cam),
         walk_animation(
                 w, WALKING_ANIMATION,
                 std::vector<SDL_Rect>(
-                        {{0, 0, WIDTH, HEIGHT}, {32, 0, WIDTH, HEIGHT}, {64, 0, WIDTH, HEIGHT}})) {
+                        {{0, 0, WIDTH, HEIGHT}, {32, 0, WIDTH, HEIGHT}, {64, 0, WIDTH, HEIGHT}})),
+        game_state(game_state_param),
+        playerName(player_name_param),
+        weapon(window) {
     load_skins();
 }
 
 void SdlPlayer::render(const PlayerUpdate& state) {
+    if (state.get_health() <= 0) {
+        return;
+    }
     if (state.get_velocity() == Vector2D(0, 0)) {
         walk_animation.reset();
     }
@@ -23,16 +30,12 @@ void SdlPlayer::render(const PlayerUpdate& state) {
     auto aim_direction = state.get_aim_direction();
     float angle;
     if (aim_direction != Vector2D(0, 0)) {
-        // Calculate angle based on aim direction
         angle = std::atan2(aim_direction.get_y(), aim_direction.get_x()) * 180 / M_PI;
-        angle += 90.0f;  // Adjust so that 0 degrees is right
+        angle += 90.0f;
     } else {
-        angle = 0.0f;  // Default angle if no aim direction is provided
+        angle = 0.0f;
     }
 
-    // Render feet
-    walk_animation.render(position_from_cam.get_x(), position_from_cam.get_y(), angle);
-    // Render the player texture body TODO change arms
     render_skin(state, position_from_cam.get_x(), position_from_cam.get_y(), angle);
 }
 
@@ -43,11 +46,16 @@ void SdlPlayer::render_skin(const PlayerUpdate& state, int x, int y, float angle
     auto& skins = (state.get_team() == Team::CT) ? ct_skins : tt_skins;
     auto it = skins.find(static_cast<CharacterType>(state.get_character_type()));
     if (it != skins.end()) {
+        std::cout << "found player" << std::endl;
         texture = it->second.get();
     }
 
     if (texture != nullptr) {
+        walk_animation.render(x, y, angle);
         texture->render(x, y, &clip, angle, nullptr, SDL_FLIP_NONE);
+        Area dest(x - 5, y - 5, 42, 42);
+        ItemSlot item = game_state.get_players().at(playerName).get_equipped_item();
+        weapon.render(item, dest, angle);
     } else {
         std::cerr << "Missing texture for character type "
                   << static_cast<int>(state.get_character_type()) << std::endl;

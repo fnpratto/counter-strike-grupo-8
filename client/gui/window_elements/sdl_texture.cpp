@@ -13,11 +13,11 @@ SdlTexture::SdlTexture(const std::string& filename, const SdlWindow& window):
     this->texture = loadTexture(filename);
 }
 
-// for animations
 SdlTexture::SdlTexture(const std::string& filename, const SdlWindow& window, int width, int height):
         renderer(window.getRenderer()), width(width), height(height) {
     this->texture = loadTexture(filename);
 }
+
 
 SdlTexture::~SdlTexture() { SDL_DestroyTexture(this->texture); }
 
@@ -54,4 +54,10 @@ void SdlTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* c
         0) {
         std::cout << "Render failed: " << SDL_GetError() << std::endl;
     }
+}
+
+void SdlTexture::render(int x, int y, int w, int h, SDL_Rect* clip, double angle, SDL_Point* center,
+                        SDL_RendererFlip flip) {
+    SDL_Rect renderQuad = {x, y, w, h};
+    SDL_RenderCopyEx(renderer, texture, clip, &renderQuad, angle, center, flip);
 }

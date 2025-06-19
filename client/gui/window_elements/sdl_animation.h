@@ -15,6 +15,9 @@
 #include "../window_elements/sdl_window.h"
 #include "common/updates/game_update.h"
 
+#include "sdl_texture.h"
+#include "sdl_window.h"
+
 class SdlAnimation {
     SdlTexture texture;
     std::vector<SDL_Rect> clips;

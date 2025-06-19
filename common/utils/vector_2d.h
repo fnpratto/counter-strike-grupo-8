@@ -22,6 +22,10 @@ public:
 
     Vector2D operator+(const Vector2D& other) const { return Vector2D(x + other.x, y + other.y); }
 
+    Vector2D operator+(float n) const { return Vector2D(x + n, y + n); }
+
+    Vector2D operator-(float n) const { return Vector2D(x - n, y - n); }
+
     Vector2D operator*(float n) const { return Vector2D(x * n, y * n); }
 
     Vector2D operator/(float n) const { return Vector2D(x / n, y / n); }
@@ -45,10 +49,11 @@ public:
 
     Vector2D rotated(float angle_deg) const {
         float angle_rad = angle_deg * M_PI / 180.0f;
-        float base_angle = std::atan2(y, x);
-        float rotated_angle = base_angle + angle_rad;
-        float len = this->length();
-        return Vector2D(std::cos(rotated_angle) * len, std::sin(rotated_angle) * len);
+        float cos_a = std::cos(angle_rad);
+        float sin_a = std::sin(angle_rad);
+        float new_x = x * cos_a - y * sin_a;
+        float new_y = x * sin_a + y * cos_a;
+        return Vector2D(new_x, new_y);
     }
 
     ~Vector2D() {}

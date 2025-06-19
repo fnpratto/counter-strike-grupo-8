@@ -31,7 +31,7 @@ public:
         else if (is_box())
             return get_box().get().get_pos();
         else if (is_player())
-            return get_player().get()->get_pos();
+            return get_player().get()->get_hitbox().center;
         throw std::bad_variant_access();
     }
 };
