@@ -80,11 +80,31 @@ void Game::advance_players_movement() {
 }
 
 void Game::advance_bomb_logic() {
-    if (!state.get_phase().is_started() || !state.get_bomb().has_value())
+    if (!state.get_phase().is_started())
         return;
+
+    if (!state.get_bomb().has_value()) {
+        for (const auto& [_, player]: state.get_players()) {
+            if (player->get_inventory().get_bomb().has_value()) {
+                auto& bomb = player->get_inventory().get_bomb().value();
+                bomb.advance(state.get_phase().get_time_now());
+                if (!bomb.is_planted())
+                    return;
+                state.add_bomb(std::move(player->drop_bomb().value()), player->get_hitbox().center);
+                state.get_phase().start_bomb_planted_phase();
+                send_msg_to_all_players(Message(BombPlantedResponse()));
+            }
+        }
+        return;
+    }
 
     auto& bomb = state.get_bomb().value();
     bomb.item.advance(state.get_phase().get_time_now());
+
+    if (bomb.item.is_defused()) {
+        send_msg_to_all_players(Message(BombDefusedResponse()));
+        return;
+    }
 
     if (!bomb.item.should_explode())
         return;
@@ -92,9 +112,7 @@ void Game::advance_bomb_logic() {
     auto effect = bomb.item.explode(bomb.hitbox.get_center());
     auto players_in_explosion =
             physics_system.get_players_in_radius(bomb.hitbox.get_center(), effect.get_max_range());
-
     for (const auto& player: players_in_explosion) effect.apply(player);
-
     send_msg_to_all_players(
             Message(BombExplodedResponse(effect.get_origin(), effect.get_max_range())));
 }
@@ -327,16 +345,7 @@ void Game::handle<StopPlantingBombCommand>(const std::string& player_name,
         return;
 
     auto& player = state.get_player(player_name);
-    if (!player->get_inventory().get_bomb().has_value())
-        return;
-
-    player->handle_stop_planting(state.get_phase().get_time_now());
-    if (!player->get_inventory().get_bomb().value().is_planted())
-        return;
-
-    state.add_bomb(std::move(player->drop_bomb().value()), player->get_hitbox().center);
-    state.get_phase().start_bomb_planted_phase();
-    send_msg_to_all_players(Message(BombPlantedResponse()));
+    player->handle_stop_planting();
 }
 
 template <>
@@ -347,7 +356,8 @@ void Game::handle<StartDefusingBombCommand>(const std::string& player_name,
         !physics_system.player_collides_with_bomb(player))
         return;
 
-    player->handle_start_defusing(state.get_bomb().value().item, state.get_phase().get_time_now());
+    auto& bomb = state.get_bomb().value().item;
+    player->handle_start_defusing(bomb, state.get_phase().get_time_now());
 }
 
 template <>
@@ -359,12 +369,7 @@ void Game::handle<StopDefusingBombCommand>(const std::string& player_name,
         return;
 
     auto& bomb = state.get_bomb().value().item;
-    player->handle_stop_defusing(bomb, state.get_phase().get_time_now());
-
-    if (!bomb.get_is_defused())
-        return;
-
-    send_msg_to_all_players(Message(BombDefusedResponse()));
+    player->handle_stop_defusing(bomb);
 }
 
 template <>

@@ -57,3 +57,27 @@ TEST_F(TestGameBomb, PlayerCanStartPlantingBomb) {
             updates.get_players().at("tt").get_inventory().get_bomb().value();
     EXPECT_EQ(bomb_update.get_bomb_phase(), BombPhaseType::Planting);
 }
+
+TEST_F(TestGameBomb, PlayerPlantBombAfterPlantingForSecondsToPlantTime) {
+    Message msg_start_planting = Message(StartPlantingBombCommand());
+    game.tick({PlayerMessage("tt", msg_start_planting)});
+
+    advance_secs(BombConfig::secs_to_plant);
+    auto player_messages = game.tick({});
+
+    bool found_bomb_planted_resp = false;
+    for (const auto& player_msg: player_messages) {
+        if (player_msg.get_message().get_type() ==
+            MessageType::BOMB_PLANTED_RESP) {  // cppcheck-suppress[useStlAlgorithm]
+            found_bomb_planted_resp = true;
+            break;
+        }
+    }
+    EXPECT_TRUE(found_bomb_planted_resp);
+
+    GameUpdate updates = game.get_full_update();
+    EXPECT_FALSE(updates.get_players().at("tt").get_inventory().get_bomb().has_value());
+    EXPECT_TRUE(updates.get_bomb().has_value());
+    auto& bomb = updates.get_bomb().value().item;
+    EXPECT_EQ(bomb.get_bomb_phase(), BombPhaseType::Planted);
+}

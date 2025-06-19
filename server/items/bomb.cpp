@@ -8,15 +8,19 @@ Bomb::Bomb():
         Logic<BombState, BombUpdate>(
                 BombState(BombConfig::secs_to_explode, BombPhaseType::NotPlanted)) {}
 
+bool Bomb::is_planting() const { return state.get_bomb_phase() == BombPhaseType::Planting; }
+
 bool Bomb::is_planted() const { return state.get_bomb_phase() == BombPhaseType::Planted; }
+
+bool Bomb::is_defusing() const { return state.get_bomb_phase() == BombPhaseType::Defusing; }
+
+bool Bomb::is_defused() const { return state.get_bomb_phase() == BombPhaseType::Defused; }
+
+bool Bomb::is_exploded() const { return state.get_bomb_phase() == BombPhaseType::Exploded; }
 
 bool Bomb::should_explode() const {
     return state.get_bomb_phase() == BombPhaseType::Planted && state.get_secs_to_explode() == 0;
 }
-
-bool Bomb::get_is_exploded() const { return state.get_bomb_phase() == BombPhaseType::Exploded; }
-
-bool Bomb::get_is_defused() const { return state.get_bomb_phase() == BombPhaseType::Defused; }
 
 void Bomb::start_planting(TimePoint now) {
     if (state.get_bomb_phase() != BombPhaseType::NotPlanted)
@@ -25,13 +29,10 @@ void Bomb::start_planting(TimePoint now) {
     state.set_bomb_phase(BombPhaseType::Planting);
 }
 
-void Bomb::stop_planting(TimePoint now) {
+void Bomb::stop_planting() {
     if (state.get_bomb_phase() != BombPhaseType::Planting)
         return;
-    if (now - action_start_time < std::chrono::seconds(BombConfig::secs_to_plant))
-        state.set_bomb_phase(BombPhaseType::Planted);
-    else
-        state.set_bomb_phase(BombPhaseType::NotPlanted);
+    state.set_bomb_phase(BombPhaseType::NotPlanted);
 }
 
 void Bomb::start_defusing(TimePoint now) {
@@ -41,16 +42,21 @@ void Bomb::start_defusing(TimePoint now) {
     state.set_bomb_phase(BombPhaseType::Defusing);
 }
 
-void Bomb::stop_defusing(TimePoint now) {
+void Bomb::stop_defusing() {
     if (state.get_bomb_phase() != BombPhaseType::Defusing)
         return;
-    if (now - action_start_time < std::chrono::seconds(BombConfig::secs_to_defuse))
-        state.set_bomb_phase(BombPhaseType::Defused);
-    else
-        state.set_bomb_phase(BombPhaseType::Planted);
+    state.set_bomb_phase(BombPhaseType::Planted);
 }
 
 void Bomb::advance(TimePoint now) {
+    if (is_planting()) {
+        if (now - action_start_time <= std::chrono::seconds(BombConfig::secs_to_plant))
+            state.set_bomb_phase(BombPhaseType::Planted);
+    }
+    if (is_defusing()) {
+        if (now - action_start_time <= std::chrono::seconds(BombConfig::secs_to_defuse))
+            state.set_bomb_phase(BombPhaseType::Defused);
+    }
     if (!is_planted())
         return;
     float new_secs_to_explode =

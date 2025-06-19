@@ -33,8 +33,8 @@ bool GameState::team_is_full(const Team& team) const {
 }
 
 bool GameState::is_round_end_condition() const {
-    bool bomb_exploded = bomb.has_value() && bomb.value().item.get_is_exploded();
-    bool bomb_defused = bomb.has_value() && bomb.value().item.get_is_defused();
+    bool bomb_exploded = bomb.has_value() && bomb.value().item.is_exploded();
+    bool bomb_defused = bomb.has_value() && bomb.value().item.is_defused();
     return get_num_tts() == 0 || get_num_cts() == 0 || bomb_exploded || bomb_defused;
 }
 
@@ -140,7 +140,7 @@ Team GameState::get_winning_team() const {
 }
 
 bool GameState::is_tts_win_condition() const {
-    bool bomb_exploded = bomb.has_value() && bomb.value().item.get_is_exploded();
+    bool bomb_exploded = bomb.has_value() && bomb.value().item.is_exploded();
     return get_num_cts() == 0 || bomb_exploded;
 }
 

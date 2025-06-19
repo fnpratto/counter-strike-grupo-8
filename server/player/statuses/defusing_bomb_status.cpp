@@ -4,7 +4,7 @@
 
 #include "idle_status.h"
 
-void DefusingBombStatus::handle_stop_defusing(Player& player, Bomb& bomb, TimePoint now) {
+void DefusingBombStatus::handle_stop_defusing(Player& player, Bomb& bomb) {
     player.set_status(IdleStatus());
-    player.stop_defusing_bomb(bomb, now);
+    player.stop_defusing_bomb(bomb);
 }

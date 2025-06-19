@@ -4,7 +4,7 @@
 
 #include "idle_status.h"
 
-void PlantingBombStatus::handle_stop_planting(Player& player, TimePoint now) {
+void PlantingBombStatus::handle_stop_planting(Player& player) {
     player.set_status(IdleStatus());
-    player.stop_planting_bomb(now);
+    player.stop_planting_bomb();
 }

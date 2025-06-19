@@ -17,15 +17,17 @@ public:
     Bomb(Bomb&&) = default;
     Bomb& operator=(Bomb&&) = default;
 
+    bool is_planting() const;
     bool is_planted() const;
+    bool is_defusing() const;
+    bool is_defused() const;
+    bool is_exploded() const;
     bool should_explode() const;
-    bool get_is_exploded() const;
-    bool get_is_defused() const;
 
     void start_planting(TimePoint now);
-    void stop_planting(TimePoint now);
+    void stop_planting();
     void start_defusing(TimePoint now);
-    void stop_defusing(TimePoint now);
+    void stop_defusing();
 
     void advance(TimePoint now);
 
