@@ -7,7 +7,7 @@
 #include "common/physics/physics_config.h"
 #include "common/utils/random_float_generator.h"
 
-RectHitbox::RectHitbox(const Vector2D& pos, int width, int height, float rotation = 0.0f):
+RectHitbox::RectHitbox(const Vector2D& pos, int width, int height, int rotation = 0):
         Rectangle(pos, width, height) {
     this->rotate(rotation);
 }
@@ -17,12 +17,12 @@ RectHitbox::RectHitbox(const Rectangle& bounds):
                    bounds.get_rotation_deg()) {}
 
 RectHitbox RectHitbox::gun_hitbox(const Vector2D& pos) {
-    float rotation = RandomFloatGenerator(-180.0f, 180.0f).generate();
+    int rotation = RandomFloatGenerator(-180, 180).generate();
     return RectHitbox(pos, PhysicsConfig::meter_size / 2, PhysicsConfig::meter_size / 4, rotation);
 }
 
 RectHitbox RectHitbox::bomb_hitbox(const Vector2D& pos) {
-    float rotation = RandomFloatGenerator(-180.0f, 180.0f).generate();
+    int rotation = RandomFloatGenerator(-180, 180).generate();
     return RectHitbox(pos, PhysicsConfig::meter_size / 2, PhysicsConfig::meter_size / 2, rotation);
 }
 
@@ -32,22 +32,22 @@ RectHitbox RectHitbox::tile_hitbox(const Vector2D& pos) {
 
 Rectangle RectHitbox::get_bounds() const { return Rectangle(pos, width, height); }
 
-Vector2D RectHitbox::to_aabb_space(const Vector2D& global_pos, float rotation_deg) const {
+Vector2D RectHitbox::to_aabb_space(const Vector2D& global_pos, int rotation_deg) const {
     Vector2D relative = global_pos - pos;
     return relative.rotated(rotation_deg);
 }
 
 Vector2D RectHitbox::closest_pos_in_aabb(const Vector2D& another_pos) const {
-    float another_x = another_pos.get_x();
-    float another_y = another_pos.get_y();
+    int another_x = another_pos.get_x();
+    int another_y = another_pos.get_y();
 
-    float closest_x = std::max(0.0f, std::min(another_x, static_cast<float>(width)));
-    float closest_y = std::max(0.0f, std::min(another_y, static_cast<float>(height)));
+    int closest_x = std::max(0, std::min(another_x, width));
+    int closest_y = std::max(0, std::min(another_y, height));
 
     return Vector2D(closest_x, closest_y);
 }
 
-bool RectHitbox::collides_with_circle(const Vector2D& circle_pos, float radius) const {
+bool RectHitbox::collides_with_circle(const Vector2D& circle_pos, int radius) const {
     Vector2D circle_relative_pos = to_aabb_space(circle_pos, rotation_deg);
     Vector2D closest = closest_pos_in_aabb(circle_relative_pos);
     float distance = (circle_relative_pos - closest).length();

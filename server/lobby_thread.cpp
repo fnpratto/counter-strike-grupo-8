@@ -30,7 +30,7 @@ void LobbyThread::run() {
                         break;
                     }
                     default:
-                        std::cerr << "Unknown command type: " << static_cast<int>(msg.get_type())
+                        std::cerr << "LobbyThread::run: Unknown command type: " << msg.get_type()
                                   << std::endl;
                         break;
                 }

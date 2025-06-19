@@ -119,11 +119,12 @@ void GameState::add_bomb(Bomb&& bomb, const Vector2D& pos) {
     this->bomb = WorldItem<Bomb>{std::move(bomb), RectHitbox::bomb_hitbox(pos).get_bounds()};
 }
 
-Bomb&& GameState::remove_bomb() {
+Bomb GameState::remove_bomb() {
     if (!bomb.has_value())
         throw std::runtime_error("Bomb not found");
-    updates.set_bomb(std::optional<WorldItem<BombUpdate>>());
-    return std::move(bomb.value().item);
+    Bomb removed_bomb = std::move(bomb.value().item);
+    bomb.reset();
+    return removed_bomb;
 }
 
 Team GameState::get_winning_team() const {
@@ -140,31 +141,45 @@ void GameState::clear_updates() {
     phase.clear_updates();
     for (auto& [_, player]: players)  // cppcheck-suppress[unusedVariable]
         player->clear_updates();
+    for (auto& dg: dropped_guns) dg.item->clear_updates();
+    if (bomb.has_value())
+        bomb.value().item.clear_updates();
 }
 
 GameUpdate GameState::get_updates() const {
     GameUpdate update = updates;
 
     update.set_phase(phase.get_updates());
+
     for (const auto& [name, player]: players)
         update.add_players_change(name, player->get_updates());
+
     if (bomb.has_value())
         update.set_bomb(
                 WorldItem<BombUpdate>{bomb.value().item.get_updates(), bomb.value().hitbox});
+    else
+        update.set_bomb(std::optional<WorldItem<BombUpdate>>());
 
     return update;
 }
 
 GameUpdate GameState::get_full_update() const {
     GameUpdate update;
+
     update.set_phase(phase.get_full_update());
     update.set_num_rounds(num_rounds);
+
     for (const auto& [name, player]: players)
         update.add_players_change(name, player->get_full_update());
+
     for (const auto& dg: dropped_guns)
         update.set_dropped_guns({WorldItem<GunType>{dg.item->get_type(), dg.hitbox}});
+
     if (bomb.has_value())
         update.set_bomb(
                 WorldItem<BombUpdate>{bomb.value().item.get_full_update(), bomb.value().hitbox});
+    else
+        update.set_bomb(std::optional<WorldItem<BombUpdate>>());
+
     return update;
 }

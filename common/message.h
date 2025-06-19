@@ -31,6 +31,28 @@ enum class MessageType : uint8_t {
 #undef GET_ENUM_NAME
 #undef GET_ENUM_NAME_NC
 
+/**
+ * @brief Stream output operator for MessageType enum.
+ * @param os Output stream
+ * @param type MessageType to output
+ * @return Reference to the output stream
+ */
+inline std::ostream& operator<<(std::ostream& os, MessageType type) {
+    switch (type) {
+#define PRINT_MESSAGE_TYPE(type_name, enum_name) \
+    case MessageType::enum_name:                 \
+        os << #enum_name;                        \
+        break;
+        MESSAGE_TYPE_MAP(PRINT_MESSAGE_TYPE)
+        MESSAGE_TYPE_MAP_LAST(PRINT_MESSAGE_TYPE)
+#undef PRINT_MESSAGE_TYPE
+        default:
+            os << "UNKNOWN";
+            break;
+    }
+    return os;
+}
+
 // Trait forward declaration
 template <typename T>
 struct MessageTypeTrait;
