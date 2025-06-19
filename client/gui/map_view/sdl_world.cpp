@@ -51,29 +51,23 @@ Map SdlWorld::build_default_map() {
 
 void SdlWorld::handleHit(Vector2D get_origin, Vector2D get_hit_pos, Vector2D get_hit_dir,
                          bool is_hit) {
-
-    std::cout << "Handling bullet hit: "
-              << " origin: (" << get_origin.get_x() << ", " << get_origin.get_y()
-              << "), hit position: (" << get_hit_pos.get_x() << ", " << get_hit_pos.get_y()
-              << "), hit direction: (" << get_hit_dir.get_x() << ", " << get_hit_dir.get_y()
-              << "), is hit: " << is_hit << std::endl;
     Vector2D origin_screen = camera.get_screen_pos(get_origin);
     Vector2D hit_screen = camera.get_screen_pos(get_hit_pos);
     Vector2D dir_screen = camera.get_screen_pos(get_hit_dir);
 
-    if (game_state.get_players().at(player_name).get_equipped_item() == ItemSlot::Melee) {
-        BulletInfo info{origin_screen, hit_screen, dir_screen, is_hit, true};
-        for (int i = 0; i < 5; ++i) {
-            bullets_info.push_back(info);
-        }
+    bool is_melee =
+            (game_state.get_players().at(player_name).get_equipped_item() == ItemSlot::Melee);
+    addBulletInfo(origin_screen, hit_screen, dir_screen, is_hit, is_melee);
+}
 
-    } else {
-        BulletInfo info{origin_screen, hit_screen, dir_screen, is_hit, false};
-        for (int i = 0; i < 5; ++i) {
-            bullets_info.push_back(info);
-        }
+void SdlWorld::addBulletInfo(const Vector2D& origin, const Vector2D& hit, const Vector2D& dir,
+                             bool is_hit, bool is_melee) {
+    BulletInfo info{origin, hit, dir, is_hit, is_melee};
+    for (int i = 0; i < 5; ++i) {
+        bullets_info.push_back(info);
     }
 }
+
 
 void SdlWorld::render() {
     camera.center(game_state.get_players().at(player_name).get_pos());

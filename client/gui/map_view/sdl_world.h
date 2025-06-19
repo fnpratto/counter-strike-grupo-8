@@ -42,6 +42,8 @@ class SdlWorld {
     SdlMap map;
     SdlBullet bullet;
     std::vector<BulletInfo> bullets_info;
+    void addBulletInfo(const Vector2D& origin, const Vector2D& hit, const Vector2D& dir,
+                       bool is_hit, bool is_melee);
 
     // SdlTexture background;  // TODO: Load a background texture
 
