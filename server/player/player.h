@@ -79,6 +79,7 @@ public:
     void start_planting_bomb(TimePoint now);
     void stop_planting_bomb(TimePoint now);
     void start_defusing_bomb(Bomb& bomb, TimePoint now);
+    void stop_defusing_bomb(Bomb& bomb, TimePoint now);
 
     void set_status(PlayerStatus&& new_status);
     void handle_start_moving(const Vector2D& velocity);
@@ -88,6 +89,7 @@ public:
     void handle_start_planting(TimePoint now);
     void handle_stop_planting(TimePoint now);
     void handle_start_defusing(Bomb& bomb, TimePoint now);
+    void handle_stop_defusing(Bomb& bomb, TimePoint now);
 
     void reset();
 };

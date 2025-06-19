@@ -24,8 +24,8 @@ public:
 
     void start_planting(TimePoint now);
     void stop_planting(TimePoint now);
-
     void start_defusing(TimePoint now);
+    void stop_defusing(TimePoint now);
 
     void advance(TimePoint now);
 

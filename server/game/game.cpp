@@ -350,11 +350,21 @@ void Game::handle<StartDefusingBombCommand>(const std::string& player_name,
     player->handle_start_defusing(state.get_bomb().value().item, state.get_phase().get_time_now());
 }
 
-// TODO: Implement
 template <>
 void Game::handle<StopDefusingBombCommand>(const std::string& player_name,
                                            [[maybe_unused]] const StopDefusingBombCommand& msg) {
-    (void)player_name;
+    auto& player = state.get_player(player_name);
+    if (!state.get_phase().is_bomb_planted_phase() ||
+        !physics_system.player_collides_with_bomb(player))
+        return;
+
+    auto& bomb = state.get_bomb().value().item;
+    player->handle_stop_defusing(bomb, state.get_phase().get_time_now());
+
+    if (!bomb.get_is_defused())
+        return;
+
+    send_msg_to_all_players(Message(BombDefusedResponse()));
 }
 
 template <>

@@ -31,6 +31,7 @@ target_sources(taller_tests
     ../server/player/statuses/idle_status.cpp
     ../server/player/statuses/moving_status.cpp
     ../server/player/statuses/planting_bomb_status.cpp
+    ../server/player/statuses/defusing_bomb_status.cpp
     # states
     ../server/states/game_state.cpp
     ../server/states/gun_state.cpp
