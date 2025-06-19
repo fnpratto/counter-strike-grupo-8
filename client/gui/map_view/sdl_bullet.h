@@ -25,9 +25,13 @@
 
 
 class SdlBullet {
+private:
     SdlWindow& window;
     SdlTexture laser;
     SdlTexture hit_effect;
+    void render_laser(const Vector2D& origin, float length, float angle);
+    void render_hit_effect(const Vector2D& pos, float angle);
+
 
 public:
     explicit SdlBullet(SdlWindow& w);
