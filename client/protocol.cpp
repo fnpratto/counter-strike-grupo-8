@@ -192,6 +192,7 @@ ShopPricesResponse ClientProtocol::deserialize_msg<ShopPricesResponse>(payload_t
 
 template <>
 HitResponse ClientProtocol::deserialize_msg<HitResponse>(payload_t& payload) const {
+
     // Deserialize origin Vector2D
     int origin_x = deserialize<int>(payload);
     int origin_y = deserialize<int>(payload);

@@ -46,7 +46,6 @@ payload_t ServerProtocol::serialize_msg(const ShopPricesResponse& response) cons
 template <>
 payload_t ServerProtocol::serialize_msg(const HitResponse& response) const {
     payload_t payload;
-
     // Serialize origin Vector2D
     payload_t origin_x = serialize(response.get_origin().get_x());
     payload_t origin_y = serialize(response.get_origin().get_y());
