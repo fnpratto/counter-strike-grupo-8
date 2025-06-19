@@ -44,6 +44,13 @@ protected:
         game.tick({});
     }
 
+    void SetUpBombPlanted() {
+        Message msg_start_planting = Message(StartPlantingBombCommand());
+        game.tick({PlayerMessage("tt", msg_start_planting)});
+        advance_secs(BombConfig::secs_to_plant);
+        game.tick({});
+    }
+
     void advance_secs(float secs) { clock->advance(std::chrono::duration<float>(secs)); }
 };
 
@@ -78,8 +85,9 @@ TEST_F(TestGameBomb, PlayerPlantBombAfterPlantingForSecondsToPlantTime) {
     GameUpdate updates = game.get_full_update();
     EXPECT_FALSE(updates.get_players().at("tt").get_inventory().get_bomb().has_value());
     EXPECT_TRUE(updates.get_bomb().has_value());
-    auto& bomb = updates.get_bomb().value().item;
-    EXPECT_EQ(bomb.get_bomb_phase(), BombPhaseType::Planted);
+    EXPECT_EQ(updates.get_bomb().value().item.get_bomb_phase(), BombPhaseType::Planted);
+    EXPECT_EQ(updates.get_bomb().value().hitbox.get_pos(),
+              updates.get_players().at("tt").get_pos());
 }
 
 TEST_F(TestGameBomb, PlayerDoesNotPlantBombIfStopPlantingBeforeSecondsToPlantTime) {
@@ -95,4 +103,38 @@ TEST_F(TestGameBomb, PlayerDoesNotPlantBombIfStopPlantingBeforeSecondsToPlantTim
     const BombUpdate& bomb_update =
             updates.get_players().at("tt").get_inventory().get_bomb().value();
     EXPECT_EQ(bomb_update.get_bomb_phase(), BombPhaseType::NotPlanted);
+}
+
+TEST_F(TestGameBomb, BombExplodeAfterSecondsToExplode) {
+    SetUpBombPlanted();
+    advance_secs(BombConfig::secs_to_explode);
+    auto player_messages = game.tick({});
+
+    bool found_bomb_exploded_resp = false;
+    bool found_round_end_resp = false;
+    for (const auto& player_msg: player_messages) {
+        if (player_msg.get_message().get_type() ==
+            MessageType::BOMB_EXPLODED_RESP) {  // cppcheck-suppress[useStlAlgorithm]
+            found_bomb_exploded_resp = true;
+            auto bomb_exploded_resp = player_msg.get_message().get_content<BombExplodedResponse>();
+
+            GameUpdate updates = game.get_full_update();
+            EXPECT_TRUE(bomb_exploded_resp.get_explosion_center() ==
+                        updates.get_bomb().value().hitbox.get_center());
+            EXPECT_EQ(bomb_exploded_resp.get_explosion_radius(), BombConfig::max_range);
+        } else if (player_msg.get_message().get_type() ==
+                   MessageType::ROUND_END_RESP) {  // cppcheck-suppress[useStlAlgorithm]
+            found_round_end_resp = true;
+            auto round_end_resp = player_msg.get_message().get_content<RoundEndResponse>();
+            EXPECT_EQ(round_end_resp.get_winning_team(), Team::TT);
+        }
+    }
+    EXPECT_TRUE(found_bomb_exploded_resp);
+    EXPECT_TRUE(found_round_end_resp);
+
+    GameUpdate updates = game.get_full_update();
+    EXPECT_TRUE(updates.get_bomb().has_value());
+    EXPECT_EQ(updates.get_bomb().value().item.get_bomb_phase(), BombPhaseType::Exploded);
+    EXPECT_LT(updates.get_players().at("tt").get_health(), PlayerConfig::full_health);
+    EXPECT_LT(updates.get_players().at("ct").get_health(), PlayerConfig::full_health);
 }
