@@ -79,8 +79,9 @@ static constexpr float falloff = 0;
 };  // namespace KnifeConfig
 
 namespace BombConfig {
+static constexpr unsigned int secs_to_plant = 3;
+static constexpr unsigned int secs_to_explode = 40;
 static constexpr int damage = 100;
-static constexpr unsigned int secs_to_explode = 3;
 static constexpr int max_range = 15 * PhysicsConfig::meter_size;
 static constexpr float precision = 1.0f;
 static constexpr float falloff = 0.5f;

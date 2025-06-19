@@ -139,9 +139,14 @@ payload_t ClientProtocol::serialize_msg([[maybe_unused]] const GetScoreboardComm
     return payload_t();
 }
 
+template <>
+payload_t ClientProtocol::serialize_msg(
+        [[maybe_unused]] const StartPlantingBombCommand& cmd) const {
+    return payload_t();
+}
 
 template <>
-payload_t ClientProtocol::serialize_msg([[maybe_unused]] const PlantBombCommand& cmd) const {
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const StopPlantingBombCommand& cmd) const {
     return payload_t();
 }
 

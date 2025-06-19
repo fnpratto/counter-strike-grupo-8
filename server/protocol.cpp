@@ -250,9 +250,17 @@ GetScoreboardCommand ServerProtocol::deserialize_msg<GetScoreboardCommand>(
 }
 
 template <>
-PlantBombCommand ServerProtocol::deserialize_msg<PlantBombCommand>(payload_t& payload) const {
+StartPlantingBombCommand ServerProtocol::deserialize_msg<StartPlantingBombCommand>(
+        payload_t& payload) const {
     (void)payload;
-    return PlantBombCommand();
+    return StartPlantingBombCommand();
+}
+
+template <>
+StopPlantingBombCommand ServerProtocol::deserialize_msg<StopPlantingBombCommand>(
+        payload_t& payload) const {
+    (void)payload;
+    return StopPlantingBombCommand();
 }
 
 template <>

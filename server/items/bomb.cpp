@@ -16,9 +16,18 @@ bool Bomb::should_explode() const {
 
 bool Bomb::get_is_exploded() const { return state.get_bomb_phase() == BombPhaseType::Exploded; }
 
-void Bomb::plant(TimePoint now) {
-    state.set_bomb_phase(BombPhaseType::Planted);
+void Bomb::start_planting(TimePoint now) {
     plant_time = now;
+    state.set_bomb_phase(BombPhaseType::Planting);
+}
+
+void Bomb::stop_planting(TimePoint now) {
+    if (state.get_bomb_phase() != BombPhaseType::Planting)
+        return;
+    if (now - plant_time < std::chrono::seconds(BombConfig::secs_to_plant))
+        state.set_bomb_phase(BombPhaseType::Planted);
+    else
+        state.set_bomb_phase(BombPhaseType::NotPlanted);
 }
 
 void Bomb::advance(TimePoint now) {

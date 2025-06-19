@@ -187,12 +187,17 @@ class ReloadCommand: public Command {};
  */
 class GetScoreboardCommand: public Command {};
 
+/**
+ * @class StartPlantingBombCommand
+ * @brief Command to start the bomb planting process.
+ */
+class StartPlantingBombCommand: public Command {};
 
 /**
- * @class PlantBombCommand
- * @brief Command to plant the bomb at the current position.
+ * @class StopPlantingBombCommand
+ * @brief Command to stop the bomb planting process.
  */
-class PlantBombCommand: public Command {};
+class StopPlantingBombCommand: public Command {};
 
 /**
  * @class DefuseBombCommand

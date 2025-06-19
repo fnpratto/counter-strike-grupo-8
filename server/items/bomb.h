@@ -6,7 +6,7 @@
 #include "server/states/bomb_state.h"
 
 class Bomb: public Logic<BombState, BombUpdate> {
-    TimePoint plant_time;
+    TimePoint plant_time = TimePoint::max();
 
 public:
     Bomb();
@@ -21,7 +21,8 @@ public:
     bool should_explode() const;
     bool get_is_exploded() const;
 
-    void plant(TimePoint now);
+    void start_planting(TimePoint now);
+    void stop_planting(TimePoint now);
 
     void advance(TimePoint now);
 

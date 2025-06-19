@@ -265,14 +265,14 @@ void Game::handle<MoveCommand>(const std::string& player_name, const MoveCommand
         return;
 
     auto& player = state.get_player(player_name);
-    player->start_moving(msg.get_direction());
+    player->handle_start_moving(msg.get_direction());
 }
 
 template <>
 void Game::handle<StopPlayerCommand>(const std::string& player_name,
                                      [[maybe_unused]] const StopPlayerCommand& msg) {
     auto& player = state.get_player(player_name);
-    player->stop_moving();
+    player->handle_stop_moving();
 }
 
 template <>
@@ -285,13 +285,13 @@ template <>
 void Game::handle<AttackCommand>(const std::string& player_name,
                                  [[maybe_unused]] const AttackCommand& msg) {
     auto& player = state.get_player(player_name);
-    player->start_attacking();
+    player->handle_start_attacking();
 }
 
 template <>
 void Game::handle<SwitchItemCommand>(const std::string& player_name, const SwitchItemCommand& msg) {
     auto& player = state.get_player(player_name);
-    player->equip_item(msg.get_slot());
+    player->handle_switch_item(msg.get_slot());
 }
 
 template <>
@@ -311,16 +311,30 @@ void Game::handle<GetScoreboardCommand>(const std::string& player_name,
 }
 
 template <>
-void Game::handle<PlantBombCommand>(const std::string& player_name,
-                                    [[maybe_unused]] const PlantBombCommand& msg) {
+void Game::handle<StartPlantingBombCommand>(const std::string& player_name,
+                                            [[maybe_unused]] const StartPlantingBombCommand& msg) {
     if (!state.get_phase().is_playing_phase() || !physics_system.player_in_bomb_site(player_name))
         return;
+
     auto& player = state.get_player(player_name);
-    player->plant_bomb(state.get_phase().get_time_now());
-    auto bomb = player->drop_bomb();
-    if (!bomb.has_value())
+    player->handle_start_planting(state.get_phase().get_time_now());
+}
+
+template <>
+void Game::handle<StopPlantingBombCommand>(const std::string& player_name,
+                                           [[maybe_unused]] const StopPlantingBombCommand& msg) {
+    if (!state.get_phase().is_playing_phase() || !physics_system.player_in_bomb_site(player_name))
         return;
-    state.add_bomb(std::move(bomb.value()), player->get_hitbox().center);
+
+    auto& player = state.get_player(player_name);
+    if (!player->get_inventory().get_bomb().has_value())
+        return;
+
+    player->handle_stop_planting(state.get_phase().get_time_now());
+    if (!player->get_inventory().get_bomb().value().is_planted())
+        return;
+
+    state.add_bomb(std::move(player->drop_bomb().value()), player->get_hitbox().center);
     state.get_phase().start_bomb_planted_phase();
     send_msg_to_all_players(Message(BombPlantedResponse()));
 }
