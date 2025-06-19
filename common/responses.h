@@ -134,3 +134,9 @@ public:
     Vector2D get_explosion_center() const { return explosion_center; }
     int get_explosion_radius() const { return explosion_radius; }
 };
+
+/**
+ * @class BombDefusedResponse
+ * @brief Response sent when a bomb is defused.
+ */
+class BombDefusedResponse {};

@@ -200,10 +200,16 @@ class StartPlantingBombCommand: public Command {};
 class StopPlantingBombCommand: public Command {};
 
 /**
- * @class DefuseBombCommand
- * @brief Command to defuse the bomb.
+ * @class StartDefusingBombCommand
+ * @brief Command to start the bomb defusing process.
  */
-class DefuseBombCommand: public Command {};
+class StartDefusingBombCommand: public Command {};
+
+/**
+ * @class StopDefusingBombCommand
+ * @brief Command to stop the bomb defusing process.
+ */
+class StopDefusingBombCommand: public Command {};
 
 /**
  * @class PickUpItemCommand

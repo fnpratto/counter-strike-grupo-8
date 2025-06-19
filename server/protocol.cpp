@@ -120,6 +120,12 @@ payload_t ServerProtocol::serialize_msg(const BombExplodedResponse& response) co
     return payload;
 }
 
+template <>
+payload_t ServerProtocol::serialize_msg(
+        [[maybe_unused]] const BombDefusedResponse& response) const {
+    return payload_t();
+}
+
 #define SERIALIZE_MSG(msg, msg_type) \
     case MessageType::msg_type:      \
         return serialize_msg(message.get_content<msg>());
@@ -264,9 +270,17 @@ StopPlantingBombCommand ServerProtocol::deserialize_msg<StopPlantingBombCommand>
 }
 
 template <>
-DefuseBombCommand ServerProtocol::deserialize_msg<DefuseBombCommand>(payload_t& payload) const {
+StartDefusingBombCommand ServerProtocol::deserialize_msg<StartDefusingBombCommand>(
+        payload_t& payload) const {
     (void)payload;
-    return DefuseBombCommand();
+    return StartDefusingBombCommand();
+}
+
+template <>
+StopDefusingBombCommand ServerProtocol::deserialize_msg<StopDefusingBombCommand>(
+        payload_t& payload) const {
+    (void)payload;
+    return StopDefusingBombCommand();
 }
 
 template <>

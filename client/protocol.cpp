@@ -151,7 +151,13 @@ payload_t ClientProtocol::serialize_msg([[maybe_unused]] const StopPlantingBombC
 }
 
 template <>
-payload_t ClientProtocol::serialize_msg([[maybe_unused]] const DefuseBombCommand& cmd) const {
+payload_t ClientProtocol::serialize_msg(
+        [[maybe_unused]] const StartDefusingBombCommand& cmd) const {
+    return payload_t();
+}
+
+template <>
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const StopDefusingBombCommand& cmd) const {
     return payload_t();
 }
 
@@ -253,6 +259,12 @@ BombExplodedResponse ClientProtocol::deserialize_msg<BombExplodedResponse>(
     Vector2D explosion_center = deserialize<Vector2D>(payload);
     int explosion_radius = deserialize<int>(payload);
     return BombExplodedResponse(explosion_center, explosion_radius);
+}
+
+template <>
+BombDefusedResponse ClientProtocol::deserialize_msg<BombDefusedResponse>(
+        [[maybe_unused]] payload_t& payload) const {
+    return BombDefusedResponse();
 }
 
 template <>

@@ -327,8 +327,15 @@ Message TextDisplay::build_message<StopPlantingBombCommand>(
 }
 
 template <>
-Message TextDisplay::build_message<DefuseBombCommand>([[maybe_unused]] std::istringstream& iss) {
-    return Message(DefuseBombCommand());
+Message TextDisplay::build_message<StartDefusingBombCommand>(
+        [[maybe_unused]] std::istringstream& iss) {
+    return Message(StartDefusingBombCommand());
+}
+
+template <>
+Message TextDisplay::build_message<StopDefusingBombCommand>(
+        [[maybe_unused]] std::istringstream& iss) {
+    return Message(StopDefusingBombCommand());
 }
 
 template <>
@@ -392,8 +399,14 @@ Message TextDisplay::parse_line(const std::string& line) {
              [this](std::istringstream& is) {
                  return this->build_message<StopPlantingBombCommand>(is);
              }},
-            {"defuse",
-             [this](std::istringstream& is) { return this->build_message<DefuseBombCommand>(is); }},
+            {"start defusing",
+             [this](std::istringstream& is) {
+                 return this->build_message<StartDefusingBombCommand>(is);
+             }},
+            {"stop defusing",
+             [this](std::istringstream& is) {
+                 return this->build_message<StopDefusingBombCommand>(is);
+             }},
             {"pickup",
              [this](std::istringstream& is) { return this->build_message<PickUpItemCommand>(is); }},
             {"leave",

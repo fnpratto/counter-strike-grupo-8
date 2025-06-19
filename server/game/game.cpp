@@ -341,8 +341,15 @@ void Game::handle<StopPlantingBombCommand>(const std::string& player_name,
 
 // TODO: Implement
 template <>
-void Game::handle<DefuseBombCommand>(const std::string& player_name,
-                                     [[maybe_unused]] const DefuseBombCommand& msg) {
+void Game::handle<StartDefusingBombCommand>(const std::string& player_name,
+                                            [[maybe_unused]] const StartDefusingBombCommand& msg) {
+    (void)player_name;
+}
+
+// TODO: Implement
+template <>
+void Game::handle<StopDefusingBombCommand>(const std::string& player_name,
+                                           [[maybe_unused]] const StopDefusingBombCommand& msg) {
     (void)player_name;
 }
 
