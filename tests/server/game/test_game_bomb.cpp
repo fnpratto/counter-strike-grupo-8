@@ -32,21 +32,28 @@ protected:
             max_players(map.max_players),
             game("test_game", clock, std::move(map)) {}
 
+    void SetUp() override {
+        game.join_player("tt");
+        game.join_player("ct");
+        Message msg_select_team_tt = Message(SelectTeamCommand(Team::TT));
+        Message msg_select_team_ct = Message(SelectTeamCommand(Team::CT));
+        Message msg_set_ready = Message(SetReadyCommand());
+        game.tick({PlayerMessage("tt", msg_select_team_tt), PlayerMessage("ct", msg_select_team_ct),
+                   PlayerMessage("tt", msg_set_ready), PlayerMessage("ct", msg_set_ready)});
+        advance_secs(PhaseTimes::buying_duration);
+        game.tick({});
+    }
+
     void advance_secs(float secs) { clock->advance(std::chrono::duration<float>(secs)); }
 };
 
-TEST_F(TestGameBomb, PlayerCannotPlantBombWhenNotInPlayingPhase) {
-    game.join_player("tt");
-
-    Message msg_select_team = Message(SelectTeamCommand(Team::TT));
-    Message msg_set_ready = Message(SetReadyCommand());
-    game.tick({PlayerMessage("tt", msg_select_team), PlayerMessage("tt", msg_set_ready)});
-
+TEST_F(TestGameBomb, PlayerCanStartPlantingBomb) {
     Message msg_start_planting = Message(StartPlantingBombCommand());
-    game.tick({PlayerMessage("tt", msg_start_planting)});
-    GameUpdate updates = game.get_full_update();
+    auto player_messages = game.tick({PlayerMessage("tt", msg_start_planting)});
+    GameUpdate updates = player_messages[0].get_message().get_content<GameUpdate>();
 
     EXPECT_TRUE(updates.get_players().at("tt").get_inventory().get_bomb().has_value());
-    const BombUpdate& bomb = updates.get_players().at("tt").get_inventory().get_bomb().value();
-    EXPECT_EQ(bomb.get_bomb_phase(), BombPhaseType::NotPlanted);
+    const BombUpdate& bomb_update =
+            updates.get_players().at("tt").get_inventory().get_bomb().value();
+    EXPECT_EQ(bomb_update.get_bomb_phase(), BombPhaseType::Planting);
 }

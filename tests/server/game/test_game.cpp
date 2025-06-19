@@ -553,3 +553,19 @@ TEST_F(TestGame, PlayerStateResetCorrectlyWhenANewRoundStarts) {
     EXPECT_EQ(updates.get_players().at("target_player").get_inventory().get_money(),
               PlayerConfig::initial_money + Bonifications::win);
 }
+
+TEST_F(TestGame, PlayerCannotPlantBombWhenNotInPlayingPhase) {
+    game.join_player("tt");
+
+    Message msg_select_team = Message(SelectTeamCommand(Team::TT));
+    Message msg_set_ready = Message(SetReadyCommand());
+    game.tick({PlayerMessage("tt", msg_select_team), PlayerMessage("tt", msg_set_ready)});
+
+    Message msg_start_planting = Message(StartPlantingBombCommand());
+    game.tick({PlayerMessage("tt", msg_start_planting)});
+    GameUpdate updates = game.get_full_update();
+
+    EXPECT_TRUE(updates.get_players().at("tt").get_inventory().get_bomb().has_value());
+    const BombUpdate& bomb = updates.get_players().at("tt").get_inventory().get_bomb().value();
+    EXPECT_EQ(bomb.get_bomb_phase(), BombPhaseType::NotPlanted);
+}
