@@ -7,5 +7,5 @@
 
 class DefusingBombStatus: public PlayerStatus {
 public:
-    void handle_stop_defusing(Player& player, Bomb& bomb) override;
+    void handle_stop_defusing(Player& player, Bomb& bomb, TimePoint now) override;
 };

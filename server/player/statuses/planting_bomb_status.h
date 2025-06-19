@@ -6,5 +6,5 @@
 
 class PlantingBombStatus: public PlayerStatus {
 public:
-    void handle_stop_planting(Player& player) override;
+    void handle_stop_planting(Player& player, TimePoint now) override;
 };

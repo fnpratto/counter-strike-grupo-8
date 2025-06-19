@@ -149,11 +149,13 @@ void Player::start_planting_bomb(TimePoint now) {
     state.get_inventory().get_bomb().value().start_planting(now);
 }
 
-void Player::stop_planting_bomb() { state.get_inventory().get_bomb().value().stop_planting(); }
+void Player::stop_planting_bomb(TimePoint now) {
+    state.get_inventory().get_bomb().value().stop_planting(now);
+}
 
 void Player::start_defusing_bomb(Bomb& bomb, TimePoint now) { bomb.start_defusing(now); }
 
-void Player::stop_defusing_bomb(Bomb& bomb) { bomb.stop_defusing(); }
+void Player::stop_defusing_bomb(Bomb& bomb, TimePoint now) { bomb.stop_defusing(now); }
 
 void Player::set_status(std::unique_ptr<PlayerStatus> new_status) {
     status = std::move(new_status);
@@ -179,10 +181,10 @@ void Player::handle_start_planting(TimePoint now) {
     status->handle_start_planting(*this, now);
 }
 
-void Player::handle_stop_planting() {
+void Player::handle_stop_planting(TimePoint now) {
     if (!is_tt() || !state.get_inventory().get_bomb().has_value())
         return;
-    status->handle_stop_planting(*this);
+    status->handle_stop_planting(*this, now);
 }
 
 void Player::handle_start_defusing(Bomb& bomb, TimePoint now) {
@@ -191,10 +193,10 @@ void Player::handle_start_defusing(Bomb& bomb, TimePoint now) {
     status->handle_start_defusing(*this, bomb, now);
 }
 
-void Player::handle_stop_defusing(Bomb& bomb) {
+void Player::handle_stop_defusing(Bomb& bomb, TimePoint now) {
     if (!is_ct())
         return;
-    status->handle_stop_defusing(*this, bomb);
+    status->handle_stop_defusing(*this, bomb, now);
 }
 
 void Player::reset() {

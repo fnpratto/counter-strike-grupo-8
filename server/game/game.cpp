@@ -345,7 +345,7 @@ void Game::handle<StopPlantingBombCommand>(const std::string& player_name,
         return;
 
     auto& player = state.get_player(player_name);
-    player->handle_stop_planting();
+    player->handle_stop_planting(state.get_phase().get_time_now());
 }
 
 template <>
@@ -369,7 +369,7 @@ void Game::handle<StopDefusingBombCommand>(const std::string& player_name,
         return;
 
     auto& bomb = state.get_bomb().value().item;
-    player->handle_stop_defusing(bomb);
+    player->handle_stop_defusing(bomb, state.get_phase().get_time_now());
 }
 
 template <>

@@ -18,11 +18,12 @@ public:
                                     [[maybe_unused]] ItemSlot slot) {}
     virtual void handle_start_planting([[maybe_unused]] Player& player,
                                        [[maybe_unused]] TimePoint now) {}
-    virtual void handle_stop_planting([[maybe_unused]] Player& player) {}
+    virtual void handle_stop_planting([[maybe_unused]] Player& player,
+                                      [[maybe_unused]] TimePoint now) {}
     virtual void handle_start_defusing([[maybe_unused]] Player& player, [[maybe_unused]] Bomb& bomb,
                                        [[maybe_unused]] TimePoint now) {}
-    virtual void handle_stop_defusing([[maybe_unused]] Player& player,
-                                      [[maybe_unused]] Bomb& bomb) {}
+    virtual void handle_stop_defusing([[maybe_unused]] Player& player, [[maybe_unused]] Bomb& bomb,
+                                      [[maybe_unused]] TimePoint now) {}
 
     virtual ~PlayerStatus() = default;
 };

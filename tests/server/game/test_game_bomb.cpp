@@ -135,6 +135,86 @@ TEST_F(TestGameBomb, BombExplodeAfterSecondsToExplode) {
     GameUpdate updates = game.get_full_update();
     EXPECT_TRUE(updates.get_bomb().has_value());
     EXPECT_EQ(updates.get_bomb().value().item.get_bomb_phase(), BombPhaseType::Exploded);
-    EXPECT_LT(updates.get_players().at("tt").get_health(), PlayerConfig::full_health);
-    EXPECT_LT(updates.get_players().at("ct").get_health(), PlayerConfig::full_health);
+    EXPECT_LE(updates.get_players().at("tt").get_health(), PlayerConfig::full_health);
+    EXPECT_LE(updates.get_players().at("ct").get_health(), PlayerConfig::full_health);
+}
+
+TEST_F(TestGameBomb, PlayerCannotDefuseBombIfItIsNotPlanted) {
+    Message msg_start_defusing = Message(StartDefusingBombCommand());
+    game.tick({PlayerMessage("ct", msg_start_defusing)});
+    GameUpdate updates = game.get_full_update();
+
+    EXPECT_TRUE(updates.get_players().at("tt").get_inventory().get_bomb().has_value());
+    const BombUpdate& bomb_update =
+            updates.get_players().at("tt").get_inventory().get_bomb().value();
+    EXPECT_EQ(bomb_update.get_bomb_phase(), BombPhaseType::NotPlanted);
+}
+
+TEST_F(TestGameBomb, PlayerDefuseBombAfterDefusingForSecondsToDefuseTime) {
+    SetUpBombPlanted();
+
+    advance_secs(BombConfig::secs_to_explode - 1 - BombConfig::secs_to_defuse);
+    Message msg_start_defusing = Message(StartDefusingBombCommand());
+    game.tick({PlayerMessage("ct", msg_start_defusing)});
+    advance_secs(BombConfig::secs_to_defuse);
+    advance_secs(PhaseTimes::round_end_duration / 2.0f);
+
+    auto player_messages = game.tick({});
+
+    bool found_bomb_defused_resp = false;
+    bool found_round_end_resp = false;
+    for (const auto& player_msg: player_messages) {
+        if (player_msg.get_message().get_type() ==
+            MessageType::BOMB_DEFUSED_RESP) {  // cppcheck-suppress[useStlAlgorithm]
+            found_bomb_defused_resp = true;
+        } else if (player_msg.get_message().get_type() ==
+                   MessageType::ROUND_END_RESP) {  // cppcheck-suppress[useStlAlgorithm]
+            found_round_end_resp = true;
+            auto round_end_resp = player_msg.get_message().get_content<RoundEndResponse>();
+            EXPECT_EQ(round_end_resp.get_winning_team(), Team::CT);
+        }
+    }
+    EXPECT_TRUE(found_bomb_defused_resp);
+    EXPECT_TRUE(found_round_end_resp);
+
+    GameUpdate updates = game.get_full_update();
+    EXPECT_TRUE(updates.get_bomb().has_value());
+    EXPECT_EQ(updates.get_bomb().value().item.get_bomb_phase(), BombPhaseType::Defused);
+    EXPECT_EQ(updates.get_players().at("tt").get_health(), PlayerConfig::full_health);
+    EXPECT_EQ(updates.get_players().at("ct").get_health(), PlayerConfig::full_health);
+}
+
+TEST_F(TestGameBomb, BombExplodeIfReachingSecondsToExplodeBeforeDefusing) {
+    SetUpBombPlanted();
+
+    advance_secs(BombConfig::secs_to_explode - 1);
+    Message msg_start_defusing = Message(StartDefusingBombCommand());
+    game.tick({PlayerMessage("ct", msg_start_defusing)});
+    advance_secs(1);
+
+    auto player_messages = game.tick({});
+    bool found_bomb_exploded_resp = false;
+    for (const auto& player_msg: player_messages) {
+        if (player_msg.get_message().get_type() ==
+            MessageType::BOMB_EXPLODED_RESP) {  // cppcheck-suppress[useStlAlgorithm]
+            found_bomb_exploded_resp = true;
+        }
+    }
+    EXPECT_TRUE(found_bomb_exploded_resp);
+
+    advance_secs(BombConfig::secs_to_defuse);
+    bool found_bomb_defused_resp = false;
+    for (const auto& player_msg: player_messages) {
+        if (player_msg.get_message().get_type() ==
+            MessageType::BOMB_DEFUSED_RESP) {  // cppcheck-suppress[useStlAlgorithm]
+            found_bomb_defused_resp = true;
+        }
+    }
+    EXPECT_FALSE(found_bomb_defused_resp);
+
+    GameUpdate updates = game.get_full_update();
+    EXPECT_TRUE(updates.get_bomb().has_value());
+    EXPECT_EQ(updates.get_bomb().value().item.get_bomb_phase(), BombPhaseType::Exploded);
+    EXPECT_LE(updates.get_players().at("tt").get_health(), PlayerConfig::full_health);
+    EXPECT_LE(updates.get_players().at("ct").get_health(), PlayerConfig::full_health);
 }

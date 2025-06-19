@@ -6,7 +6,7 @@
 
 #include "idle_status.h"
 
-void DefusingBombStatus::handle_stop_defusing(Player& player, Bomb& bomb) {
+void DefusingBombStatus::handle_stop_defusing(Player& player, Bomb& bomb, TimePoint now) {
     player.set_status(std::make_unique<IdleStatus>());
-    player.stop_defusing_bomb(bomb);
+    player.stop_defusing_bomb(bomb, now);
 }
