@@ -569,3 +569,23 @@ TEST_F(TestGame, PlayerCannotPlantBombWhenNotInPlayingPhase) {
     const BombUpdate& bomb = updates.get_players().at("tt").get_inventory().get_bomb().value();
     EXPECT_EQ(bomb.get_bomb_phase(), BombPhaseType::NotPlanted);
 }
+
+TEST_F(TestGame, PlayerCannotPlantBombWhenNotInBombSite) {
+    game.join_player("tt");
+    game.join_player("ct");
+    Message msg_select_team_tt = Message(SelectTeamCommand(Team::TT));
+    Message msg_select_team_ct = Message(SelectTeamCommand(Team::CT));
+    Message msg_set_ready = Message(SetReadyCommand());
+    game.tick({PlayerMessage("tt", msg_select_team_tt), PlayerMessage("ct", msg_select_team_ct),
+               PlayerMessage("tt", msg_set_ready), PlayerMessage("ct", msg_set_ready)});
+    advance_secs(PhaseTimes::buying_duration);
+    game.tick({});
+
+    Message msg_start_planting = Message(StartPlantingBombCommand());
+    game.tick({PlayerMessage("tt", msg_start_planting)});
+
+    EXPECT_TRUE(
+            game.get_full_update().get_players().at("tt").get_inventory().get_bomb().has_value());
+    auto bomb = game.get_full_update().get_players().at("tt").get_inventory().get_bomb().value();
+    EXPECT_EQ(bomb.get_bomb_phase(), BombPhaseType::NotPlanted);
+}
