@@ -137,8 +137,8 @@ GameUpdate SDLDisplay::get_initial_state() {
         if (msg.get_type() == MessageType::GAME_UPDATE) {
             return msg.get_content<GameUpdate>();
         } else {
-            std::cerr << "Received unexpected message type: " << static_cast<int>(msg.get_type())
-                      << std::endl;
+            std::cerr << "SDLDisplay::get_initial_state: Received unexpected message type: "
+                      << msg.get_type() << std::endl;
         }
     }
 }
@@ -174,8 +174,8 @@ void SDLDisplay::update_state() {
                 break;
             }
             default: {
-                std::cerr << "Received unexpected message type: "
-                          << static_cast<int>(msg.get_type()) << std::endl;
+                std::cerr << "SDLDisplay::update_state: Received unexpected message type: "
+                          << msg.get_type() << std::endl;
                 break;
             }
         }
