@@ -4,6 +4,7 @@ target_sources(taller_tests
     common/mock_socket.cpp
     server/map/test_map.cpp
     server/game/test_game.cpp
+    server/game/test_game_bomb.cpp
     server/game/test_game_phase.cpp
     server/game/test_shop.cpp
     server/game/test_physics.cpp
