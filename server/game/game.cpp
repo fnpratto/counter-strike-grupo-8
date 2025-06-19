@@ -339,11 +339,15 @@ void Game::handle<StopPlantingBombCommand>(const std::string& player_name,
     send_msg_to_all_players(Message(BombPlantedResponse()));
 }
 
-// TODO: Implement
 template <>
 void Game::handle<StartDefusingBombCommand>(const std::string& player_name,
                                             [[maybe_unused]] const StartDefusingBombCommand& msg) {
-    (void)player_name;
+    auto& player = state.get_player(player_name);
+    if (!state.get_phase().is_bomb_planted_phase() ||
+        !physics_system.player_collides_with_bomb(player))
+        return;
+
+    player->handle_start_defusing(state.get_bomb().value().item, state.get_phase().get_time_now());
 }
 
 // TODO: Implement

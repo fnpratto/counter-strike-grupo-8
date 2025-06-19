@@ -82,6 +82,7 @@ target_sources(taller_server
     player/statuses/idle_status.h
     player/statuses/moving_status.h
     player/statuses/planting_bomb_status.h
+    player/statuses/defusing_bomb_status.h
     # states
     states/state.h
     states/game_state.h

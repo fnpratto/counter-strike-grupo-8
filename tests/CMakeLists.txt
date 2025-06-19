@@ -86,6 +86,7 @@ target_sources(taller_tests
     ../server/player/statuses/moving_status.h
     ../server/player/statuses/planting_bomb_status.h
     ../server/player/statuses/player_status.h
+    ../server/player/statuses/defusing_bomb_status.h
     # states
     ../server/states/state.h
     ../server/states/game_state.h

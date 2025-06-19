@@ -153,6 +153,8 @@ void Player::stop_planting_bomb(TimePoint now) {
     state.get_inventory().get_bomb().value().stop_planting(now);
 }
 
+void Player::start_defusing_bomb(Bomb& bomb, TimePoint now) { bomb.start_defusing(now); }
+
 void Player::set_status(PlayerStatus&& new_status) {
     status = std::make_unique<PlayerStatus>(std::move(new_status));
 }
@@ -178,6 +180,12 @@ void Player::handle_start_planting(TimePoint now) {
 }
 
 void Player::handle_stop_planting(TimePoint now) { status->handle_stop_planting(*this, now); }
+
+void Player::handle_start_defusing(Bomb& bomb, TimePoint now) {
+    if (!state.get_inventory().get_bomb().has_value())
+        return;
+    status->handle_start_defusing(*this, bomb, now);
+}
 
 void Player::reset() {
     status = std::make_unique<IdleStatus>();

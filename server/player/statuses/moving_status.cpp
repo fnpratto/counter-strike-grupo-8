@@ -2,6 +2,7 @@
 
 #include "server/player/player.h"
 
+#include "defusing_bomb_status.h"
 #include "idle_status.h"
 #include "planting_bomb_status.h"
 
@@ -21,8 +22,13 @@ void MovingStatus::handle_start_attacking(Player& player) {
 void MovingStatus::handle_switch_item(Player& player, ItemSlot slot) { player.equip_item(slot); }
 
 void MovingStatus::handle_start_planting(Player& player, TimePoint now) {
-    if (!player.get_inventory().get_bomb().has_value())
-        return;
     player.set_status(PlantingBombStatus());
+    player.stop_moving();
     player.start_planting_bomb(now);
+}
+
+void MovingStatus::handle_start_defusing(Player& player, Bomb& bomb, TimePoint now) {
+    player.set_status(DefusingBombStatus());
+    player.stop_moving();
+    player.start_defusing_bomb(bomb, now);
 }
