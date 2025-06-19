@@ -174,22 +174,28 @@ void Player::handle_switch_item(ItemSlot slot) {
 }
 
 void Player::handle_start_planting(TimePoint now) {
-    if (!state.get_inventory().get_bomb().has_value())
+    if (!is_tt() || !state.get_inventory().get_bomb().has_value())
         return;
     status->handle_start_planting(*this, now);
 }
 
 void Player::handle_stop_planting() {
-    if (!state.get_inventory().get_bomb().has_value())
+    if (!is_tt() || !state.get_inventory().get_bomb().has_value())
         return;
     status->handle_stop_planting(*this);
 }
 
 void Player::handle_start_defusing(Bomb& bomb, TimePoint now) {
+    if (!is_ct())
+        return;
     status->handle_start_defusing(*this, bomb, now);
 }
 
-void Player::handle_stop_defusing(Bomb& bomb) { status->handle_stop_defusing(*this, bomb); }
+void Player::handle_stop_defusing(Bomb& bomb) {
+    if (!is_ct())
+        return;
+    status->handle_stop_defusing(*this, bomb);
+}
 
 void Player::reset() {
     status = std::make_unique<IdleStatus>();
