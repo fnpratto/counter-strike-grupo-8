@@ -61,16 +61,18 @@ void SdlWorld::handleHit(Vector2D get_origin, Vector2D get_hit_pos, Vector2D get
     Vector2D hit_screen = camera.get_screen_pos(get_hit_pos);
     Vector2D dir_screen = camera.get_screen_pos(get_hit_dir);
 
-    std::cout << "Converted to screen coordinates: "
-              << " origin: (" << origin_screen.get_x() << ", " << origin_screen.get_y() << "), "
-              << " hit position: (" << hit_screen.get_x() << ", " << hit_screen.get_y() << "), "
-              << " hit direction: (" << dir_screen.get_x() << ", " << dir_screen.get_y() << ")"
-              << std::endl;
+    if (game_state.get_players().at(player_name).get_equipped_item() == ItemSlot::Melee) {
+        BulletInfo info{origin_screen, hit_screen, dir_screen, is_hit, true};
+        for (int i = 0; i < 5; ++i) {
+            bullets_info.push_back(info);
+        }
 
-    BulletInfo info{origin_screen, hit_screen, dir_screen, is_hit};
-    bullets_info.push_back(info);
-
-    std::cout << "New bullet hit registered.\n";
+    } else {
+        BulletInfo info{origin_screen, hit_screen, dir_screen, is_hit, false};
+        for (int i = 0; i < 5; ++i) {
+            bullets_info.push_back(info);
+        }
+    }
 }
 
 void SdlWorld::render() {
@@ -90,7 +92,7 @@ void SdlWorld::render() {
     }
 
     for (const BulletInfo& info: bullets_info) {
-        bullet.render(info.origin, info.hit_pos, info.hit_dir, info.is_hit);
+        bullet.render(info.origin, info.hit_pos, info.hit_dir, info.is_hit, info.is_knife);
     }
     bullets_info.clear();
 }

@@ -32,5 +32,6 @@ class SdlBullet {
 public:
     explicit SdlBullet(SdlWindow& w);
 
-    void render(Vector2D get_origin, Vector2D get_hit_pos, Vector2D get_hit_dir, bool is_hit);
+    void render(Vector2D get_origin, Vector2D get_hit_pos, Vector2D get_hit_dir, bool is_hit,
+                bool is_knife);
 };

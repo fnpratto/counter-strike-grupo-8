@@ -370,7 +370,10 @@ bool hudDisplay::start_game_click(int x, int y) {
     int buttonY = SCREEN_HEIGHT - buttonHeight - layout.padding * 2;
 
     if (x >= buttonX && x <= buttonX + buttonWidth && y >= buttonY && y <= buttonY + buttonHeight) {
-        return true;
+        if (!in_game) {
+            in_game = true;
+            return true;
+        }
     }
     return false;
 }

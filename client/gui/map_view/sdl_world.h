@@ -26,6 +26,7 @@ struct BulletInfo {
     Vector2D hit_pos;
     Vector2D hit_dir;
     bool is_hit;
+    bool is_knife;
     // int range_item; TODO
 };
 
