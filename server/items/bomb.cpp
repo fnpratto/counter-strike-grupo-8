@@ -16,6 +16,8 @@ bool Bomb::should_explode() const {
 
 bool Bomb::get_is_exploded() const { return state.get_bomb_phase() == BombPhaseType::Exploded; }
 
+bool Bomb::get_is_defused() const { return state.get_bomb_phase() == BombPhaseType::Defused; }
+
 void Bomb::start_planting(TimePoint now) {
     plant_time = now;
     state.set_bomb_phase(BombPhaseType::Planting);

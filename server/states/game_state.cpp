@@ -32,10 +32,10 @@ bool GameState::team_is_full(const Team& team) const {
     return get_num_cts() == max_team_players;
 }
 
-// TODO: Add bomb defused condition
 bool GameState::is_round_end_condition() const {
     bool bomb_exploded = bomb.has_value() && bomb.value().item.get_is_exploded();
-    return get_num_tts() == 0 || get_num_cts() == 0 || bomb_exploded;
+    bool bomb_defused = bomb.has_value() && !bomb.value().item.get_is_defused();
+    return get_num_tts() == 0 || get_num_cts() == 0 || bomb_exploded || bomb_defused;
 }
 
 int GameState::get_num_rounds() const { return num_rounds; }

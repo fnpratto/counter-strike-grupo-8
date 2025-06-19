@@ -20,6 +20,7 @@ public:
     bool is_planted() const;
     bool should_explode() const;
     bool get_is_exploded() const;
+    bool get_is_defused() const;
 
     void start_planting(TimePoint now);
     void stop_planting(TimePoint now);
