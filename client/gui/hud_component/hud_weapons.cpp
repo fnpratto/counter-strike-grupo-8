@@ -29,21 +29,17 @@ void HudWeapons::render_bullets(const GameUpdate& state, const std::string& play
                             64 * layout.scale);
     equipped_bullets.render(size_bullets, dest_bullets);
 
-    std::string bullets_str =
-            std::to_string(state.get_players()
-                                   .at(player_name)
-                                   .get_inventory()
-                                   .get_guns()
-                                   .at(state.get_players().at(player_name).get_equipped_item())
-                                   .get_mag_ammo());
+    auto player = state.get_players().at(player_name);
+    auto equipped_item = player.get_equipped_item();
+    auto player_guns = player.get_inventory().get_guns();
 
-    std::string bullets_reserve =
-            std::to_string(state.get_players()
-                                   .at(player_name)
-                                   .get_inventory()
-                                   .get_guns()
-                                   .at(state.get_players().at(player_name).get_equipped_item())
-                                   .get_reserve_ammo());
+    // If the equipped item is not a gun, return early
+    if (player_guns.find(equipped_item) == player_guns.end())
+        return;
+
+    auto gun = player_guns.at(equipped_item);
+    std::string bullets_str = std::to_string(gun.get_mag_ammo());
+    std::string bullets_reserve = std::to_string(gun.get_reserve_ammo());
 
     int x = window.getWidth() - layout.size_width - window.getWidth() / 40 - layout.padding * 8;
     int y = window.getHeight() - icon_height * 3;
@@ -108,14 +104,9 @@ void HudWeapons::render_gun_icons(const GameUpdate& state, const std::string& pl
 
     y += spacing;
 
-    // Only render bomb if it exists
-    try {
-        if (!inventory.get_bomb().has_value()) {
-            return;
-        }
-    } catch (const std::exception& e) {
+    if (!inventory.get_bomb().has_value())
         return;
-    }
+
     int bomb_index = GameConfig::offsetInventory["bomb"];
     Area bomb_src(bomb_index * icon_width, 0, icon_width, icon_height);
     Area bomb_dest(x, y, window.getWidth() / 14, 34);
