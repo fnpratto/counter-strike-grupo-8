@@ -113,12 +113,10 @@ payload_t BaseProtocol::serialize(const std::optional<T>& v) const {
     payload.insert(payload.end(), has_value_payload.begin(), has_value_payload.end());
 
     if (has_value) {
-        payload_t value_payload;
-
-        value_payload = serialize(v.value());
-
+        payload_t value_payload = serialize(v.value());
         payload.insert(payload.end(), value_payload.begin(), value_payload.end());
     }
+
     return payload;
 }
 
@@ -252,13 +250,11 @@ payload_t BaseProtocol::serialize(const Map& map) const {
 template <>
 payload_t BaseProtocol::serialize(const WorldItem<GunType>& world_item) const {
     payload_t payload;
-
-    // Serialize the gun type (enum)
     payload_t gun_payload = serialize(world_item.item);
-    payload.insert(payload.end(), gun_payload.begin(), gun_payload.end());
-
-    // Serialize the hitbox
     payload_t hitbox_payload = serialize(world_item.hitbox);
+
+    payload.reserve(gun_payload.size() + hitbox_payload.size());
+    payload.insert(payload.end(), gun_payload.begin(), gun_payload.end());
     payload.insert(payload.end(), hitbox_payload.begin(), hitbox_payload.end());
 
     return payload;
@@ -300,18 +296,48 @@ SERIALIZE_UPDATE(GunUpdate, GUN_ATTRS)
 SERIALIZE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)
 SERIALIZE_UPDATE(PlayerUpdate, PLAYER_ATTRS)
 SERIALIZE_UPDATE(PhaseUpdate, PHASE_ATTRS)
-SERIALIZE_UPDATE(GameUpdate, GAME_ATTRS)
+// SERIALIZE_UPDATE(GameUpdate, GAME_ATTRS)
+
+template <>
+payload_t BaseProtocol::serialize<GameUpdate>(const GameUpdate& update) const {
+    payload_t payload;
+    payload.push_back(update.has_phase_changed());
+    if (update.has_phase_changed()) {
+        payload_t phase_payload = serialize(update.get_phase());
+        payload.insert(payload.end(), phase_payload.begin(), phase_payload.end());
+    }
+    payload.push_back(update.has_num_rounds_changed());
+    if (update.has_num_rounds_changed()) {
+        payload_t num_rounds_payload = serialize(update.get_num_rounds());
+        payload.insert(payload.end(), num_rounds_payload.begin(), num_rounds_payload.end());
+    }
+    payload.push_back(update.has_players_changed());
+    if (update.has_players_changed()) {
+        payload_t players_payload = serialize(update.get_players());
+        payload.insert(payload.end(), players_payload.begin(), players_payload.end());
+    }
+    payload.push_back(update.has_dropped_guns_changed());
+    if (update.has_dropped_guns_changed()) {
+        payload_t dropped_guns_payload = serialize(update.get_dropped_guns());
+        payload.insert(payload.end(), dropped_guns_payload.begin(), dropped_guns_payload.end());
+    }
+    payload.push_back(update.has_bomb_changed());
+    if (update.has_bomb_changed()) {
+        payload_t bomb_payload = serialize(update.get_bomb());
+        payload.insert(payload.end(), bomb_payload.begin(), bomb_payload.end());
+    }
+    return payload;
+}
 
 template <>
 payload_t BaseProtocol::serialize(const WorldItem<BombUpdate>& world_item) const {
     payload_t payload;
 
-    // Serialize the bomb update
     payload_t bomb_payload = serialize(world_item.item);
-    payload.insert(payload.end(), bomb_payload.begin(), bomb_payload.end());
-
-    // Serialize the hitbox
     payload_t hitbox_payload = serialize(world_item.hitbox);
+    payload.reserve(bomb_payload.size() + hitbox_payload.size());
+
+    payload.insert(payload.end(), bomb_payload.begin(), bomb_payload.end());
     payload.insert(payload.end(), hitbox_payload.begin(), hitbox_payload.end());
 
     return payload;
@@ -365,14 +391,6 @@ template <>
 bool BaseProtocol::deserialize<bool>(payload_t& payload) const {
     payload_t data = pop(payload, sizeof(uint8_t));
     return static_cast<bool>(data[0]);
-}
-
-// TODO: esto está bien???? el casteo tira error de cppcheck directamente
-template <>
-float BaseProtocol::deserialize<float>(payload_t& payload) const {
-    payload_t data = pop(payload, sizeof(float));
-    return ntohl(*reinterpret_cast<const float*>(  // cppcheck-suppress[invalidPointerCast]
-            data.data()));
 }
 
 template <>
@@ -494,7 +512,37 @@ DESERIALIZE_UPDATE(GunUpdate, GUN_ATTRS)
 DESERIALIZE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)
 DESERIALIZE_UPDATE(PlayerUpdate, PLAYER_ATTRS)
 DESERIALIZE_UPDATE(PhaseUpdate, PHASE_ATTRS)
-DESERIALIZE_UPDATE(GameUpdate, GAME_ATTRS)
+// DESERIALIZE_UPDATE(GameUpdate, GAME_ATTRS)
+
+template <>
+GameUpdate BaseProtocol::deserialize<GameUpdate>(payload_t& payload) const {
+    GameUpdate result;
+    if (deserialize<bool>(payload)) {
+        PhaseUpdate phase = deserialize<PhaseUpdate>(payload);
+        result.set_phase(phase);
+    }
+    if (deserialize<bool>(payload)) {
+        int num_rounds = deserialize<int>(payload);
+        result.set_num_rounds(num_rounds);
+    }
+    if (deserialize<bool>(payload)) {
+        std::map<std::string, PlayerUpdate> players =
+                deserialize<std::string, PlayerUpdate>(payload);
+        result.set_players(players);
+    }
+    if (deserialize<bool>(payload)) {
+        std::vector<WorldItem<GunType>> dropped_guns =
+                deserialize<std::vector<WorldItem<GunType>>>(payload);
+        result.set_dropped_guns(dropped_guns);
+    }
+    if (deserialize<bool>(payload)) {
+        std::optional<WorldItem<BombUpdate>> bomb =
+                deserialize<std::optional<WorldItem<BombUpdate>>>(payload);
+        result.set_bomb(bomb);
+    }
+    return result;
+}
+
 
 template <>
 WorldItem<BombUpdate> BaseProtocol::deserialize<WorldItem<BombUpdate>>(payload_t& payload) const {
