@@ -257,9 +257,9 @@ BombExplodedResponse ClientProtocol::deserialize_msg<BombExplodedResponse>(
 }
 
 template <>
-SwitchTeamsResponse ClientProtocol::deserialize_msg<SwitchTeamsResponse>(
+SwapTeamsResponse ClientProtocol::deserialize_msg<SwapTeamsResponse>(
         [[maybe_unused]] payload_t& payload) const {
-    return SwitchTeamsResponse();
+    return SwapTeamsResponse();
 }
 
 template <>

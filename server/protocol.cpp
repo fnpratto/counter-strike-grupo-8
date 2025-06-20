@@ -114,8 +114,7 @@ payload_t ServerProtocol::serialize_msg(const BombExplodedResponse& response) co
 }
 
 template <>
-payload_t ServerProtocol::serialize_msg(
-        [[maybe_unused]] const SwitchTeamsResponse& response) const {
+payload_t ServerProtocol::serialize_msg([[maybe_unused]] const SwapTeamsResponse& response) const {
     return payload_t();
 }
 

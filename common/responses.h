@@ -130,7 +130,7 @@ public:
 };
 
 /**
- * @class SwitchTeamsResponse
- * @brief Response sent when players switch teams.
+ * @class SwapTeamsResponse
+ * @brief Response sent when players swap teams.
  */
-class SwitchTeamsResponse {};
+class SwapTeamsResponse {};
