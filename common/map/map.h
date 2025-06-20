@@ -1,13 +1,14 @@
 #pragma once
 
+#include <functional>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
 #include "tile.h"
 
 class Map {
-private:
     std::string name;
     int max_players;
     int height;

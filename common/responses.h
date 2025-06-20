@@ -11,11 +11,13 @@
 
 struct GameInfo {
     std::string name;
+    std::string map_name;
     int players_count;
     PhaseType phase;
 
-    GameInfo(const std::string& game_name, int count, PhaseType game_phase):
-            name(game_name), players_count(count), phase(game_phase) {}
+    GameInfo(const std::string& game_name, const std::string& map_name, int count,
+             PhaseType game_phase):
+            name(game_name), map_name(map_name), players_count(count), phase(game_phase) {}
 };
 
 /**
@@ -29,6 +31,19 @@ public:
     explicit ListGamesResponse(const std::vector<GameInfo>& games): games_info(games) {}
 
     std::vector<GameInfo> get_games_info() const { return games_info; }
+};
+
+/**
+ * @class ListMapsResponse
+ * @brief Response containing a list of the existing maps' names and IDs.
+ */
+class ListMapsResponse {
+    std::vector<std::string> map_names;
+
+public:
+    explicit ListMapsResponse(const std::vector<std::string>& maps): map_names(maps) {}
+
+    std::vector<std::string> get_map_names() const { return map_names; }
 };
 
 /**

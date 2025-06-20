@@ -1,25 +1,29 @@
 #pragma once
 
 #include "client/requests.h"
+#include "common/map/map.h"
 #include "common/responses.h"
 #include "common/updates/game_update.h"
 
 #include "commands.h"
 
-#define RESPONSES_MAP(F)                        \
-    F(ListGamesResponse, LIST_GAMES_RESP)       \
-    F(ShopPricesResponse, SHOP_PRICES_RESP)     \
-    F(HitResponse, HIT_RESP)                    \
-    F(CharactersResponse, CHARACTERS_RESP)      \
-    F(ScoreboardResponse, SCOREBOARD_RESP)      \
-    F(ErrorResponse, ERROR_RESP)                \
-    F(RoundEndResponse, ROUND_END_RESP)         \
-    F(BombExplodedResponse, BOMB_EXPLODED_RESP) \
-    F(SwapTeamsResponse, SWAP_TEAMS_RESP)
+#define RESPONSES_MAP(F)                    \
+    F(ListMapsResponse, LIST_MAPS_RESP)     \
+    F(ListGamesResponse, LIST_GAMES_RESP)   \
+    F(ShopPricesResponse, SHOP_PRICES_RESP) \
+    F(HitResponse, HIT_RESP)                \
+    F(CharactersResponse, CHARACTERS_RESP)  \
+    F(ScoreboardResponse, SCOREBOARD_RESP)  \
+    F(ErrorResponse, ERROR_RESP)            \
+    F(RoundEndResponse, ROUND_END_RESP)     \
+    F(Map, MAP_RESP)                        \
+    F(SwapTeamsResponse, SWAP_TEAMS_RESP)   \
+    F(BombExplodedResponse, BOMB_EXPLODED_RESP)
 
 #define LOBBY_COMMANDS_MAP(F)             \
     F(CreateGameCommand, CREATE_GAME_CMD) \
     F(JoinGameCommand, JOIN_GAME_CMD)     \
+    F(ListMapsCommand, LIST_MAPS_CMD)     \
     F(ListGamesCommand, LIST_GAMES_CMD)
 
 #define GAME_COMMANDS_MAP(F)                             \

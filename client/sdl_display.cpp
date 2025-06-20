@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <SDL.h>
@@ -69,7 +70,8 @@ void SDLDisplay::run() {
     SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
     SdlHud hud_display(window, state, player_name);
     shop_display = std::make_unique<shopDisplay>(window, state);
-    world = std::make_unique<SdlWorld>(window, state, player_name);
+    Map map = get_map();
+    world = std::make_unique<SdlWorld>(window, std::move(map), state, player_name);
     listTeams list_teams(window, state, player_name);
     skinSelect list_skins(window, state, player_name);
     std::map<std::string, ScoreboardEntry> scoreboard;
@@ -141,6 +143,19 @@ GameUpdate SDLDisplay::get_initial_state() {
         } else {
             std::cerr << "SDLDisplay::get_initial_state: Received unexpected message type: "
                       << msg.get_type() << std::endl;
+        }
+    }
+}
+
+Map SDLDisplay::get_map() {
+    Message msg;
+    while (true) {
+        msg = input_queue.pop();
+        if (msg.get_type() == MessageType::MAP_RESP) {
+            return msg.get_content<Map>();
+        } else {
+            throw std::runtime_error("SDLDisplay::get_map: Expected MAP_RESP, but received: " +
+                                     std::to_string(static_cast<int>(msg.get_type())));
         }
     }
 }

@@ -43,7 +43,8 @@ public:
 
     std::vector<PlayerMessage> tick(const std::vector<PlayerMessage>& msgs);
 
-    std::string get_name() const;
+    const std::string& get_name() const;
+    std::string get_map_name() const;
     int get_player_count() const;
     PhaseType get_phase();
 
@@ -53,8 +54,8 @@ private:
     void prepare_new_round();
     void move_player_to_spawn(const std::unique_ptr<Player>& player);
 
-    void send_msg_to_all_players(const Message& msg);
-    void send_msg_to_single_player(const std::string& player_name, const Message& msg);
+    void broadcast(const Message& msg);
+    void send_msg(const std::string& player_name, const Message& msg);
 
     void handle_msg(const Message& msg, const std::string& player_name);
 

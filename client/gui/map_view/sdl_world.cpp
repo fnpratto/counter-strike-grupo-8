@@ -23,27 +23,17 @@
 #include "sdl_player.h"
 
 
-SdlWorld::SdlWorld(SdlWindow& window, const GameUpdate& game_state, const std::string& player_name):
+SdlWorld::SdlWorld(SdlWindow& window, Map&& map, const GameUpdate& game_state,
+                   const std::string& player_name):
         window(window),
         game_state(game_state),
         player_name(player_name),
         camera(window.getWidth(), window.getHeight()),
-        map(window, camera, build_default_map()),
+        map(window, camera, std::move(map)),
         bullet(window) {
     for (const auto& [name, player_update]: game_state.get_players()) {
         players.emplace(name, std::make_unique<SdlPlayer>(window, camera, game_state, name));
     }
-}
-
-Map SdlWorld::build_default_map() {
-    Map actual_map = Map("default_map", 10, 10, 10);
-
-    for (int i = 0; i < 10; ++i) {
-        for (int j = 0; j < 10; ++j)
-            actual_map.add_tile(Tile{Vector2D(i * 32, j * 32), 0, false, false, false, false});
-    }
-
-    return actual_map;
 }
 
 void SdlWorld::handleHit(Vector2D get_origin, Vector2D get_hit_pos, Vector2D get_hit_dir,
@@ -64,7 +54,6 @@ void SdlWorld::addBulletInfo(const Vector2D& origin, const Vector2D& hit, const 
         bullets_info.push_back(info);  // TODO RC
     }
 }
-
 
 void SdlWorld::render() {
     camera.center(game_state.get_players().at(player_name).get_pos());

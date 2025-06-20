@@ -176,9 +176,10 @@ Message TextDisplay::build_message<ConnectionRequest>(std::istringstream& iss) {
 template <>
 Message TextDisplay::build_message<CreateGameCommand>(std::istringstream& iss) {
     std::string game_name;
+    std::string map_name;
     std::string player_name;
-    iss >> game_name >> player_name;
-    return Message(CreateGameCommand(game_name, player_name));
+    iss >> game_name >> map_name >> player_name;
+    return Message(CreateGameCommand(game_name, map_name, player_name));
 }
 
 template <>

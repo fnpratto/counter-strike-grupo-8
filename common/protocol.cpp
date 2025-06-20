@@ -11,6 +11,8 @@
 #include <sys/socket.h>
 
 #include "common/game/world_item.h"
+#include "common/map/map.h"
+#include "common/map/tile.h"
 #include "common/models.h"
 #include "common/socket.h"
 #include "common/updates/bomb_update.h"
@@ -143,11 +145,14 @@ payload_t BaseProtocol::serialize(const GameInfo& game_info) const {
     payload_t payload;
 
     payload_t name_payload = serialize(game_info.name);
-    payload_t count_payload = serialize(game_info.players_count);
+    payload_t map_name_payload = serialize(game_info.map_name);
+    payload_t players_count_payload = serialize(game_info.players_count);
     payload_t phase_payload = serialize(game_info.phase);
-    payload.reserve(name_payload.size() + count_payload.size() + phase_payload.size());
+    payload.reserve(name_payload.size() + map_name_payload.size() + players_count_payload.size() +
+                    phase_payload.size());
     payload.insert(payload.end(), name_payload.begin(), name_payload.end());
-    payload.insert(payload.end(), count_payload.begin(), count_payload.end());
+    payload.insert(payload.end(), map_name_payload.begin(), map_name_payload.end());
+    payload.insert(payload.end(), players_count_payload.begin(), players_count_payload.end());
     payload.insert(payload.end(), phase_payload.begin(), phase_payload.end());
 
     return payload;
@@ -192,6 +197,52 @@ payload_t BaseProtocol::serialize(const Rectangle& rectangle) const {
     payload.insert(payload.end(), width_payload.begin(), width_payload.end());
     payload.insert(payload.end(), height_payload.begin(), height_payload.end());
     payload.insert(payload.end(), rotation_payload.begin(), rotation_payload.end());
+
+    return payload;
+}
+
+template <>
+payload_t BaseProtocol::serialize(const Tile& tile) const {
+    payload_t payload;
+
+    payload_t pos_payload = serialize(tile.pos);
+    payload_t id_payload = serialize(tile.id);
+    payload_t is_collidable_payload = serialize(tile.is_collidable);
+    payload_t is_spawn_tt_payload = serialize(tile.is_spawn_tt);
+    payload_t is_spawn_ct_payload = serialize(tile.is_spawn_ct);
+    payload_t is_bomb_site_payload = serialize(tile.is_bomb_site);
+
+    payload.reserve(pos_payload.size() + id_payload.size() + is_collidable_payload.size() +
+                    is_spawn_tt_payload.size() + is_spawn_ct_payload.size() +
+                    is_bomb_site_payload.size());
+
+    payload.insert(payload.end(), pos_payload.begin(), pos_payload.end());
+    payload.insert(payload.end(), id_payload.begin(), id_payload.end());
+    payload.insert(payload.end(), is_collidable_payload.begin(), is_collidable_payload.end());
+    payload.insert(payload.end(), is_spawn_tt_payload.begin(), is_spawn_tt_payload.end());
+    payload.insert(payload.end(), is_spawn_ct_payload.begin(), is_spawn_ct_payload.end());
+    payload.insert(payload.end(), is_bomb_site_payload.begin(), is_bomb_site_payload.end());
+
+    return payload;
+}
+
+template <>
+payload_t BaseProtocol::serialize(const Map& map) const {
+    payload_t payload;
+
+    payload_t name_payload = serialize(map.get_name());
+    payload_t max_players_payload = serialize(map.get_max_players());
+    payload_t height_payload = serialize(map.get_height());
+    payload_t width_payload = serialize(map.get_width());
+    payload_t tiles_payload = serialize(map.get_tiles());
+
+    payload.reserve(name_payload.size() + max_players_payload.size() + tiles_payload.size());
+
+    payload.insert(payload.end(), name_payload.begin(), name_payload.end());
+    payload.insert(payload.end(), max_players_payload.begin(), max_players_payload.end());
+    payload.insert(payload.end(), height_payload.begin(), height_payload.end());
+    payload.insert(payload.end(), width_payload.begin(), width_payload.end());
+    payload.insert(payload.end(), tiles_payload.begin(), tiles_payload.end());
 
     return payload;
 }
@@ -359,9 +410,10 @@ TimePoint BaseProtocol::deserialize<TimePoint>(payload_t& payload) const {
 template <>
 GameInfo BaseProtocol::deserialize<GameInfo>(payload_t& payload) const {
     std::string name = deserialize<std::string>(payload);
+    std::string map_name = deserialize<std::string>(payload);
     int players_count = deserialize<int>(payload);
     PhaseType phase = deserialize<PhaseType>(payload);
-    return GameInfo(name, players_count, phase);
+    return GameInfo(name, map_name, players_count, phase);
 }
 
 
@@ -385,6 +437,39 @@ Rectangle BaseProtocol::deserialize<Rectangle>(payload_t& payload) const {
     Rectangle rectangle(pos, width, height);
     rectangle.rotate(rotation_deg);
     return rectangle;
+}
+
+template <>
+Tile BaseProtocol::deserialize<Tile>(payload_t& payload) const {
+    Vector2D pos = deserialize<Vector2D>(payload);
+    int id = deserialize<int>(payload);
+    bool is_collidable = deserialize<bool>(payload);
+    bool is_spawn_tt = deserialize<bool>(payload);
+    bool is_spawn_ct = deserialize<bool>(payload);
+    bool is_bomb_site = deserialize<bool>(payload);
+
+    return Tile(std::move(pos), id, is_collidable, is_spawn_tt, is_spawn_ct, is_bomb_site);
+}
+
+template <>
+Map BaseProtocol::deserialize<Map>(payload_t& payload) const {
+    std::string name = deserialize<std::string>(payload);
+    int max_players = deserialize<int>(payload);
+    int height = deserialize<int>(payload);
+    int width = deserialize<int>(payload);
+
+    Map map(name, max_players, height, width);
+
+    auto tiles = deserialize<std::vector<std::vector<std::optional<Tile>>>>(payload);
+    for (auto& row: tiles) {
+        for (auto& tile: row) {
+            if (tile) {
+                map.add_tile(std::move(tile.value()));
+            }
+        }
+    }
+
+    return map;
 }
 
 template <>
