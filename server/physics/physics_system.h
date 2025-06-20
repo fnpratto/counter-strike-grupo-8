@@ -20,9 +20,12 @@ private:
     const std::vector<WorldItem<std::unique_ptr<Gun>>>& dropped_guns;
     const std::optional<WorldItem<Bomb>>& bomb;
 
+    Vector2D translate_to_tile_pos(const Vector2D& pos) const;
+    bool is_pos_out_of_bounds(const Vector2D& pos) const;
+
     Vector2D rand_pos_in_vector(const std::vector<std::reference_wrapper<Tile>>& vector) const;
 
-    Vector2D calculate_step(const Vector2D& dir) const;
+    Vector2D calculate_step(const Vector2D& dir, float tick_duration) const;
     bool can_move_to_pos(const Vector2D& pos) const;
 
     std::optional<Target> get_closest_collidable_tile(const std::string& origin_p_name,
@@ -45,7 +48,7 @@ public:
     bool player_in_spawn(const std::string& player_name) const;
     bool player_in_bomb_site(const std::string& player_name) const;
 
-    Vector2D calculate_new_pos(const std::unique_ptr<Player>& player) const;
+    Vector2D calculate_new_pos(const std::unique_ptr<Player>& player, float tick_duration) const;
 
     std::optional<Target> get_closest_target_in_dir(const std::string& origin_p_name,
                                                     const Vector2D& dir, int max_range);

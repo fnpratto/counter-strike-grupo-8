@@ -36,6 +36,7 @@ std::vector<PlayerMessage> Game::tick(const std::vector<PlayerMessage>& msgs) {
     if (update.has_change())
         send_msg_to_all_players(Message(update));
 
+    last_tick = state.get_phase().get_time_now();
     return std::move(output_messages);
 }
 
@@ -75,7 +76,7 @@ void Game::advance_players_movement() {
     for (const auto& [_, player]: state.get_players()) {  // cppcheck-suppress[unusedVariable]
         if (!player->is_moving())
             continue;
-        player->move_to_pos(physics_system.calculate_new_pos(player));
+        player->move_to_pos(physics_system.calculate_new_pos(player, get_tick_duration()));
     }
 }
 
@@ -115,11 +116,7 @@ void Game::advance_bomb_logic() {
 }
 
 void Game::perform_attacks() {
-    if (!state.get_phase().is_playing_phase())
-        return;
-
     std::vector<HitResponse> hit_responses;
-
     for (const auto& [p_name, player]: state.get_players()) {
         auto attack_effects = player->attack(state.get_phase().get_time_now());
         if (attack_effects.empty())
@@ -136,7 +133,9 @@ void Game::perform_attacks() {
                 continue;
             }
 
-            bool is_hit = apply_attack_effect(player, attack_effect.effect, closest_target.value());
+            bool is_hit = false;
+            if (state.get_phase().is_playing_phase())
+                is_hit = apply_attack_effect(player, attack_effect.effect, closest_target.value());
 
             hit_responses.push_back(HitResponse(attack_effect.effect.get_origin(),
                                                 closest_target.value().get_pos(), attack_effect.dir,
@@ -416,6 +415,22 @@ void Game::handle_msg(const Message& msg, const std::string& player_name) {
 }
 
 #undef HANDLE_MSG
+
+float Game::get_tick_duration() {
+    TimePoint now = state.get_phase().get_time_now();
+    if (last_tick == TimePoint()) {
+        return 1.0f / GameConfig::tickrate;
+    } else {
+        if (now < last_tick)
+            last_tick = now;
+        if (last_tick == now) {
+            return 1.0f / GameConfig::tickrate;
+        } else {
+            float elapsed = std::chrono::duration<float>(now - last_tick).count();
+            return elapsed;
+        }
+    }
+}
 
 void Game::give_bomb_to_random_tt(Bomb&& bomb) {
     if (state.get_num_tts() == 0)
