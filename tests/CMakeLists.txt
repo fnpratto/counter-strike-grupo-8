@@ -26,6 +26,9 @@ target_sources(taller_tests
     ../server/physics/physics_system.cpp
     ../server/physics/rect_hitbox.cpp
     ../server/physics/circular_hitbox.cpp
+    # map
+    ../server/map/map_builder.cpp
+    ../common/map/map.cpp
     # player
     ../server/player/player.cpp
     ../server/player/inventory.cpp
@@ -77,9 +80,7 @@ target_sources(taller_tests
     # map
     ../server/map/map_builder.h
     ../common/map/map.h
-    ../common/map/floor.h
-    ../common/map/wall.h
-    ../common/map/box.h
+    ../common/map/tile.h
     # player
     ../server/player/player.h
     ../server/player/player_config.h

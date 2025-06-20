@@ -3,17 +3,34 @@
 #include <stdexcept>
 #include <utility>
 
-Map::Map(const std::string& name, int max_players): name(name), max_players(max_players) {}
+#include "common/physics/physics_config.h"
+
+Map::Map(const std::string& name, int max_players, int height, int width):
+        name(name),
+        max_players(max_players),
+        height(height),
+        width(width),
+        tiles(height, std::vector<std::optional<Tile>>(width)) {}
 
 std::string Map::get_name() const { return name; }
 
 int Map::get_max_players() const { return max_players; }
 
-const std::map<Vector2D, const Tile>& Map::get_tiles() const { return tiles; }
+int Map::get_height() const { return height; }
 
-const std::vector<const Tile&>& Map::get_spawns_tts() const { return spawns_tts; }
+int Map::get_width() const { return width; }
 
-const std::vector<const Tile&>& Map::get_spawns_cts() const { return spawns_cts; }
+const std::vector<std::vector<std::optional<Tile>>>& Map::get_tiles() const { return tiles; }
+
+const std::vector<std::reference_wrapper<Tile>>& Map::get_collidables() const {
+    return collidables;
+}
+
+const std::vector<std::reference_wrapper<Tile>>& Map::get_spawns_tts() const { return spawns_tts; }
+
+const std::vector<std::reference_wrapper<Tile>>& Map::get_spawns_cts() const { return spawns_cts; }
+
+const std::vector<std::reference_wrapper<Tile>>& Map::get_bomb_sites() const { return bomb_sites; }
 
 void Map::validate() const {
     if (spawns_tts.empty())
@@ -23,11 +40,16 @@ void Map::validate() const {
 }
 
 void Map::add_tile(Tile&& tile) {
-    tiles.emplace(tile.pos, std::move(tile));
-    if (tile.is_spawn_tt)
-        spawns_tts.push_back(tiles.at(tile.pos));
-    if (tile.is_spawn_ct)
-        spawns_cts.push_back(tiles.at(tile.pos));
-    if (tile.is_bomb_site)
-        bomb_sites.push_back(tiles.at(tile.pos));
+    int x = tile.pos.get_x() / PhysicsConfig::meter_size;
+    int y = tile.pos.get_y() / PhysicsConfig::meter_size;
+    tiles[x][y] = std::move(tile);
+    Tile& added_tile = tiles.at(x).at(y).value();
+    if (added_tile.is_collidable)
+        collidables.emplace_back(added_tile);
+    if (added_tile.is_spawn_tt)
+        spawns_tts.emplace_back(added_tile);
+    if (added_tile.is_spawn_ct)
+        spawns_cts.emplace_back(added_tile);
+    if (added_tile.is_bomb_site)
+        bomb_sites.emplace_back(added_tile);
 }

@@ -1,5 +1,7 @@
 name: test_map
 max_players: 10
+height: 5
+width: 5
 tiles:
   - x: 1
     y: 1
