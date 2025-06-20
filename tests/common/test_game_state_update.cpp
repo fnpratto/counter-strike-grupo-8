@@ -159,9 +159,9 @@ TEST_F(TestGameUpdate, SettersAndGetters) {
 
     // Test phase setting
     PhaseUpdate phase;
-    phase.set_phase(PhaseType::Playing);
+    phase.set_phase(PhaseType::InRound);
     game_update.set_phase(phase);
-    EXPECT_EQ(game_update.get_phase().get_phase(), PhaseType::Playing);
+    EXPECT_EQ(game_update.get_phase().get_phase(), PhaseType::InRound);
 }
 
 class TestPlayerUpdate: public ::testing::Test {

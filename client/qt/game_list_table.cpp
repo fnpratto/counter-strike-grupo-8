@@ -68,11 +68,13 @@ void GameListTable::update_game_list(const std::vector<GameInfo>& game_list) {
                 new QTableWidgetItem(QString::number(game_info.players_count));
         players_count_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         this->setItem(row, 1, players_count_item);
-        QTableWidgetItem* status_item = new QTableWidgetItem(
-                QString::fromStdString(game_info.phase == PhaseType::WarmUp  ? "Warm Up" :
-                                       game_info.phase == PhaseType::Buying  ? "Buying" :
-                                       game_info.phase == PhaseType::Playing ? "Playing" :
-                                                                               "Round Finished"));
+        QTableWidgetItem* status_item = new QTableWidgetItem(QString::fromStdString(
+                game_info.phase == PhaseType::WarmUp      ? "Warm Up" :
+                game_info.phase == PhaseType::Buying      ? "Buying" :
+                game_info.phase == PhaseType::InRound     ? "In round" :
+                game_info.phase == PhaseType::RoundEnd    ? "Round End" :
+                game_info.phase == PhaseType::BombPlanted ? "Bomb Planted" :
+                                                            "Game Finished"));
         status_item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         this->setItem(row, 2, status_item);
     }

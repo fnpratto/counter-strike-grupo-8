@@ -163,7 +163,7 @@ TEST_F(TestGame, NumberOfRoundsIncrementCorrectly) {
     for (int i = 0; i < rounds; i++) {
         advance_secs(PhaseTimes::buying_duration);
         game.tick({});
-        advance_secs(PhaseTimes::playing_duration);
+        advance_secs(PhaseTimes::round_duration);
         game.tick({});
         for (int j = 0; j < 10; j++) game.tick({});
         advance_secs(PhaseTimes::round_end_duration);
@@ -219,15 +219,27 @@ TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
     msg_select_team = Message(SelectTeamCommand(Team::CT));
     game.tick({PlayerMessage("test_player2", msg_select_team)});
 
+    GetCharactersCommand msg_get_characters;
+    auto player_messages = game.tick({PlayerMessage("test_player1", Message(msg_get_characters))});
+    auto characters_tt =
+            player_messages[0].get_message().get_content<CharactersResponse>().get_characters();
+    player_messages = game.tick({PlayerMessage("test_player2", Message(msg_get_characters))});
+    auto characters_ct =
+            player_messages[0].get_message().get_content<CharactersResponse>().get_characters();
+
+    Message msg_select_character_tt = Message(SelectCharacterCommand(characters_tt[0]));
+    Message msg_select_character_ct = Message(SelectCharacterCommand(characters_ct[0]));
     Message msg_start = Message(SetReadyCommand());
-    game.tick({PlayerMessage("test_player1", msg_start)});
-    game.tick({PlayerMessage("test_player2", msg_start)});
+    game.tick({PlayerMessage("test_player1", msg_start),
+               PlayerMessage("test_player1", msg_select_character_tt),
+               PlayerMessage("test_player2", msg_start),
+               PlayerMessage("test_player2", msg_select_character_ct)});
 
     GameUpdate updates;
     for (int i = 0; i < GameConfig::max_rounds / 2; i++) {
         advance_secs(PhaseTimes::buying_duration);
         game.tick({});
-        advance_secs(PhaseTimes::playing_duration);
+        advance_secs(PhaseTimes::round_duration);
         game.tick({});
         EXPECT_EQ(game.get_full_update().get_phase().get_phase(), PhaseType::RoundEnd);
         advance_secs(PhaseTimes::round_end_duration);
@@ -237,7 +249,9 @@ TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
 
     std::map<std::string, PlayerUpdate> player_updates = game.get_full_update().get_players();
     EXPECT_EQ(player_updates.at("test_player1").get_team(), Team::CT);
+    EXPECT_EQ(player_updates.at("test_player1").get_character_type(), characters_ct[0]);
     EXPECT_EQ(player_updates.at("test_player2").get_team(), Team::TT);
+    EXPECT_EQ(player_updates.at("test_player2").get_character_type(), characters_tt[0]);
 }
 
 TEST_F(TestGame, PlayerCanMove) {
@@ -536,7 +550,7 @@ TEST_F(TestGame, PlayerStateResetCorrectlyWhenANewRoundStarts) {
     Message msg_start_moving = Message(MoveCommand(Vector2D(1, 0)));
     game.tick({PlayerMessage("test_player", msg_start_moving)});
 
-    advance_secs(PhaseTimes::playing_duration);
+    advance_secs(PhaseTimes::round_duration);
     game.tick({});
     advance_secs(PhaseTimes::round_end_duration);
     game.tick({});
@@ -621,7 +635,7 @@ TEST_F(TestGame, OneTerroristHasBombWhenRoundStarts) {
     EXPECT_TRUE(updates.get_bomb().has_value());
     EXPECT_EQ(updates.get_bomb().value().hitbox.get_pos(), tt_pos);
 
-    advance_secs(PhaseTimes::playing_duration);
+    advance_secs(PhaseTimes::round_duration);
     game.tick({});
     advance_secs(PhaseTimes::round_end_duration);
     auto player_messages = game.tick({});

@@ -26,6 +26,7 @@ public:
                 int health, ItemSlot equipped_item);
 
     Team get_team() const;
+    CharacterType get_character_type() const;
     Circle get_hitbox() const;
     Vector2D get_aim_direction() const;
     Vector2D get_velocity() const;

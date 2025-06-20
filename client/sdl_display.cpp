@@ -104,7 +104,7 @@ void SDLDisplay::run() {
             world->render();
             hud_display.render();
             shop_display->render();
-        } else if (state.get_phase().get_phase() == PhaseType::Playing) {
+        } else if (state.get_phase().get_phase() == PhaseType::InRound) {
             world->render();
             hud_display.render();
         } else if (state.get_phase().get_phase() == PhaseType::RoundEnd) {

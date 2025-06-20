@@ -54,6 +54,8 @@ public:
     void add_bomb(Bomb&& bomb, const Vector2D& pos);
     Bomb remove_bomb();
 
+    std::vector<CharacterType> get_characters_tt() const;
+    std::vector<CharacterType> get_characters_ct() const;
     Team get_winning_team() const;
     void give_rewards_to_players(Team winning_team);
 
