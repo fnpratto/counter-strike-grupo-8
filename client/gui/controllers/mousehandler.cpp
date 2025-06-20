@@ -39,7 +39,7 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
             }
         }
         if (hudDisplayRef.start_game_click(x, y)) {
-            output_queue.push(Message(SetReadyCommand()));  // TODO_ADD SERVER
+            output_queue.push(Message(SetReadyCommand()));
             return;
         }
 
@@ -47,15 +47,15 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
         // output_queue.push(Message(ShootCommand()));  // TODO_ADD SERVER
     } else if (event.type == SDL_MOUSEMOTION) {
         sendAimCommand(Vector2D(x, y) - Vector2D(screen_width / 2, screen_height / 2));
-        hudDisplayRef.updatePointerPosition(x, y);  // TODO_ADD SERVER
+        hudDisplayRef.updatePointerPosition(x, y);
     }
 }
 
 void MouseHandler::sendAimCommand(Vector2D direction) {
-    static RateController rate_controller(5);
+    static RateController rate_controller(60);
     if (!rate_controller.should_run())
         return;
 
     direction = direction.normalized(100);
-    output_queue.emplace(AimCommand(direction));  // TODO_ADD SERVER
+    output_queue.emplace(AimCommand(direction));
 }
