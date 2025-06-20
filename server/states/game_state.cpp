@@ -2,6 +2,7 @@
 
 #include <utility>
 
+#include "server/game/game_config.h"
 #include "server/physics/circular_hitbox.h"
 #include "server/physics/rect_hitbox.h"
 
@@ -29,6 +30,12 @@ bool GameState::team_is_full(const Team& team) const {
     if (team == Team::TT)
         return get_num_tts() == max_team_players;
     return get_num_cts() == max_team_players;
+}
+
+bool GameState::is_round_end_condition() const {
+    bool bomb_exploded = bomb.has_value() && bomb.value().item.is_exploded();
+    bool bomb_defused = bomb.has_value() && bomb.value().item.is_defused();
+    return get_num_tts() == 0 || get_num_cts() == 0 || bomb_exploded || bomb_defused;
 }
 
 int GameState::get_num_rounds() const { return num_rounds; }
@@ -64,11 +71,9 @@ const std::unique_ptr<Player>& GameState::get_player(const std::string& player_n
     return it->second;
 }
 
-const std::vector<WorldItem<std::unique_ptr<Gun>>>& GameState::get_dropped_guns() const {
-    return dropped_guns;
-}
+std::vector<WorldItem<std::unique_ptr<Gun>>>& GameState::get_dropped_guns() { return dropped_guns; }
 
-const std::optional<WorldItem<Bomb>>& GameState::get_bomb() const { return bomb; }
+std::optional<WorldItem<Bomb>>& GameState::get_bomb() { return bomb; }
 
 void GameState::advance_round() {
     num_rounds += 1;
@@ -119,11 +124,12 @@ void GameState::add_bomb(Bomb&& bomb, const Vector2D& pos) {
     this->bomb = WorldItem<Bomb>{std::move(bomb), RectHitbox::bomb_hitbox(pos).get_bounds()};
 }
 
-Bomb&& GameState::remove_bomb() {
+Bomb GameState::remove_bomb() {
     if (!bomb.has_value())
         throw std::runtime_error("Bomb not found");
-    updates.set_bomb(std::optional<WorldItem<BombUpdate>>());
-    return std::move(bomb.value().item);
+    Bomb removed_bomb = std::move(bomb.value().item);
+    bomb.reset();
+    return removed_bomb;
 }
 
 Team GameState::get_winning_team() const {
@@ -132,39 +138,65 @@ Team GameState::get_winning_team() const {
     return Team::CT;
 }
 
-// TODO: Add bomb planted win condition
-bool GameState::is_tts_win_condition() const { return get_num_cts() == 0; }
+bool GameState::is_tts_win_condition() const {
+    bool bomb_exploded = bomb.has_value() && bomb.value().item.is_exploded();
+    return get_num_cts() == 0 || bomb_exploded;
+}
+
+void GameState::give_rewards_to_players(Team winning_team) {
+    for (const auto& [p_name, player]: players) {
+        if ((winning_team == Team::TT && player->is_tt()) ||
+            (winning_team == Team::CT && player->is_ct()))
+            player->add_rewards(Scores::win, Bonifications::win);
+        else
+            player->add_rewards(Scores::loss, Bonifications::loss);
+    }
+}
 
 void GameState::clear_updates() {
     State<GameUpdate>::clear_updates();
     phase.clear_updates();
     for (auto& [_, player]: players)  // cppcheck-suppress[unusedVariable]
         player->clear_updates();
+    for (auto& dg: dropped_guns) dg.item->clear_updates();
+    if (bomb.has_value())
+        bomb.value().item.clear_updates();
 }
 
 GameUpdate GameState::get_updates() const {
     GameUpdate update = updates;
 
     update.set_phase(phase.get_updates());
+
     for (const auto& [name, player]: players)
         update.add_players_change(name, player->get_updates());
+
     if (bomb.has_value())
         update.set_bomb(
                 WorldItem<BombUpdate>{bomb.value().item.get_updates(), bomb.value().hitbox});
+    else
+        update.set_bomb(std::optional<WorldItem<BombUpdate>>());
 
     return update;
 }
 
 GameUpdate GameState::get_full_update() const {
     GameUpdate update;
+
     update.set_phase(phase.get_full_update());
     update.set_num_rounds(num_rounds);
+
     for (const auto& [name, player]: players)
         update.add_players_change(name, player->get_full_update());
+
     for (const auto& dg: dropped_guns)
         update.set_dropped_guns({WorldItem<GunType>{dg.item->get_type(), dg.hitbox}});
+
     if (bomb.has_value())
         update.set_bomb(
                 WorldItem<BombUpdate>{bomb.value().item.get_full_update(), bomb.value().hitbox});
+    else
+        update.set_bomb(std::optional<WorldItem<BombUpdate>>());
+
     return update;
 }

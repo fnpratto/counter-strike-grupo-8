@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <optional>
+#include <stack>
 #include <utility>
 #include <vector>
 
@@ -9,16 +10,18 @@
 #include "common/models.h"
 #include "common/updates/player_update.h"
 #include "common/utils/vector_2d.h"
-#include "server/attack_effects/attack_effect.h"
 #include "server/clock/clock.h"
+#include "server/items/effects/attack_effect.h"
 #include "server/logic.h"
 #include "server/states/player_state.h"
+#include "statuses/player_status.h"
 
 #include "inventory.h"
 
 class Player: public Logic<PlayerState, PlayerUpdate> {
 private:
     ScoreboardEntry scoreboard_entry;
+    std::unique_ptr<PlayerStatus> status;
 
 public:
     Player(Team team, Circle hitbox);
@@ -34,6 +37,7 @@ public:
     bool is_ct() const;
     bool is_moving() const;
     bool is_dead() const;
+    bool is_attacking();
 
     Circle get_hitbox() const;
     Vector2D get_move_dir() const;
@@ -43,7 +47,6 @@ public:
     void set_ready();
 
     void take_damage(int damage);
-    void heal();
 
     void select_team(Team team);
 
@@ -58,9 +61,9 @@ public:
 
     void aim(const Vector2D& direction);
 
-    void start_attacking();
-    std::vector<std::unique_ptr<AttackEffect>> attack(TimePoint now);
+    void start_attacking_with_equipped_weapon();
     void stop_attacking();
+    std::vector<AttackEffect> attack(TimePoint now);
 
     void equip_item(ItemSlot slot);
 
@@ -72,4 +75,21 @@ public:
 
     std::optional<std::unique_ptr<Gun>> drop_primary_weapon();
     std::optional<Bomb> drop_bomb();
+
+    void start_planting_bomb(TimePoint now);
+    void stop_planting_bomb(TimePoint now);
+    void start_defusing_bomb(Bomb& bomb, TimePoint now);
+    void stop_defusing_bomb(Bomb& bomb, TimePoint now);
+
+    void set_status(std::unique_ptr<PlayerStatus> new_status);
+    void handle_start_moving(const Vector2D& velocity);
+    void handle_stop_moving();
+    void handle_start_attacking();
+    void handle_switch_item(ItemSlot slot);
+    void handle_start_planting(TimePoint now);
+    void handle_stop_planting(TimePoint now);
+    void handle_start_defusing(Bomb& bomb, TimePoint now);
+    void handle_stop_defusing(Bomb& bomb, TimePoint now);
+
+    void reset();
 };

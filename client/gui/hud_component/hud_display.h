@@ -51,6 +51,7 @@ public:
     void update_pointer_position(int x, int y);
     bool start_game_click(int x, int y);
 
+
 private:
     void initialize_layout();
 };

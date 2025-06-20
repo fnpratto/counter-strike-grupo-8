@@ -4,8 +4,8 @@
 #include <memory>
 
 #include "common/models.h"
+#include "server/items/gun.h"
 #include "server/player/inventory.h"
-#include "server/weapons/gun.h"
 
 #define PRICE_AK47 2700
 #define PRICE_M3 1700

@@ -5,8 +5,8 @@
 
 #include "sdl_camera.h"
 
-SdlMap::SdlMap(SdlWindow& window, const SdlCamera& camera, Map&& map):
-        window(window), camera(camera), map(std::move(map)), tile(window, camera) {}
+SdlMap::SdlMap(SdlWindow& w, const SdlCamera& camera, Map&& map):
+        window(w), camera(camera), map(std::move(map)), tile(w, camera) {}
 
 void SdlMap::render() {
     for (const auto& map_wall: map.walls)

@@ -33,6 +33,7 @@ public:
     bool all_players_ready() const;
     bool game_is_full() const;
     bool team_is_full(const Team& team) const;
+    bool is_round_end_condition() const;
 
     int get_num_rounds() const;
     int get_num_tts() const;
@@ -40,8 +41,8 @@ public:
     GamePhase& get_phase();
     const std::map<std::string, std::unique_ptr<Player>>& get_players() const;
     const std::unique_ptr<Player>& get_player(const std::string& player_name) const;
-    const std::vector<WorldItem<std::unique_ptr<Gun>>>& get_dropped_guns() const;
-    const std::optional<WorldItem<Bomb>>& get_bomb() const;
+    std::vector<WorldItem<std::unique_ptr<Gun>>>& get_dropped_guns();
+    std::optional<WorldItem<Bomb>>& get_bomb();
 
     void advance_round();
 
@@ -51,9 +52,10 @@ public:
     void add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos);
     std::unique_ptr<Gun>&& remove_dropped_gun_at_pos(const Vector2D& pos);
     void add_bomb(Bomb&& bomb, const Vector2D& pos);
-    Bomb&& remove_bomb();
+    Bomb remove_bomb();
 
     Team get_winning_team() const;
+    void give_rewards_to_players(Team winning_team);
 
     GameUpdate get_updates() const override;
 

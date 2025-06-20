@@ -360,7 +360,7 @@ Rectangle BaseProtocol::deserialize<Rectangle>(payload_t& payload) const {
     Vector2D pos = deserialize<Vector2D>(payload);
     int width = deserialize<int>(payload);
     int height = deserialize<int>(payload);
-    float rotation_deg = deserialize<float>(payload);
+    int rotation_deg = deserialize<int>(payload);
 
     Rectangle rectangle(pos, width, height);
     rectangle.rotate(rotation_deg);
