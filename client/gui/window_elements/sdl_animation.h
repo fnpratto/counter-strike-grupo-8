@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <cstdint>
 #include <iostream>
 #include <memory>
@@ -21,14 +22,20 @@
 class SdlAnimation {
     SdlTexture texture;
     std::vector<SDL_Rect> clips;
-    int animation_frame;
+
+    // Time-based animation properties
+    std::chrono::steady_clock::time_point start_time;
+    std::chrono::milliseconds animation_duration;
+    bool repeats;
+    bool is_finished;
 
 public:
     SdlAnimation(const SdlWindow& window, const std::string& path,
-                 const std::vector<SDL_Rect>& clips);
+                 const std::vector<SDL_Rect>& clips, std::chrono::milliseconds duration,
+                 bool repeats = true);
 
     void reset();
+    bool finished() const;
 
-    // TODO animations should be independent of the framerate
     void render(int x, int y, double angle);
 };

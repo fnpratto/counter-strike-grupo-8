@@ -1,5 +1,6 @@
 #include "sdl_player.h"
 
+#include <chrono>
 #include <cmath>
 
 #include <SDL2/SDL.h>
@@ -12,7 +13,9 @@ SdlPlayer::SdlPlayer(SdlWindow& w, const SdlCamera& cam, const GameUpdate& game_
         walk_animation(
                 w, WALKING_ANIMATION,
                 std::vector<SDL_Rect>(
-                        {{0, 0, WIDTH, HEIGHT}, {32, 0, WIDTH, HEIGHT}, {64, 0, WIDTH, HEIGHT}})),
+                        {{0, 0, WIDTH, HEIGHT}, {32, 0, WIDTH, HEIGHT}, {64, 0, WIDTH, HEIGHT}}),
+                std::chrono::milliseconds(600),  // 600ms for complete walk cycle
+                true),                           // repeating animation
         game_state(game_state_param),
         playerName(player_name_param),
         weapon(window) {
