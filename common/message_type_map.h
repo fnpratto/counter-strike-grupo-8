@@ -6,38 +6,43 @@
 
 #include "commands.h"
 
-#define RESPONSES_MAP(F)                    \
-    F(ListGamesResponse, LIST_GAMES_RESP)   \
-    F(ShopPricesResponse, SHOP_PRICES_RESP) \
-    F(HitResponse, HIT_RESP)                \
-    F(CharactersResponse, CHARACTERS_RESP)  \
-    F(ScoreboardResponse, SCOREBOARD_RESP)  \
-    F(ErrorResponse, ERROR_RESP)            \
-    F(RoundEndResponse, ROUND_END_RESP)
+#define RESPONSES_MAP(F)                        \
+    F(ListGamesResponse, LIST_GAMES_RESP)       \
+    F(ShopPricesResponse, SHOP_PRICES_RESP)     \
+    F(HitResponse, HIT_RESP)                    \
+    F(CharactersResponse, CHARACTERS_RESP)      \
+    F(ScoreboardResponse, SCOREBOARD_RESP)      \
+    F(ErrorResponse, ERROR_RESP)                \
+    F(RoundEndResponse, ROUND_END_RESP)         \
+    F(BombPlantedResponse, BOMB_PLANTED_RESP)   \
+    F(BombExplodedResponse, BOMB_EXPLODED_RESP) \
+    F(BombDefusedResponse, BOMB_DEFUSED_RESP)
 
 #define LOBBY_COMMANDS_MAP(F)             \
     F(CreateGameCommand, CREATE_GAME_CMD) \
     F(JoinGameCommand, JOIN_GAME_CMD)     \
     F(ListGamesCommand, LIST_GAMES_CMD)
 
-#define GAME_COMMANDS_MAP(F)                        \
-    F(SelectTeamCommand, SELECT_TEAM_CMD)           \
-    F(GetCharactersCommand, GET_CHARACTERS_CMD)     \
-    F(SelectCharacterCommand, SELECT_CHARACTER_CMD) \
-    F(SetReadyCommand, START_GAME_CMD)              \
-    F(GetShopPricesCommand, GET_SHOP_PRICES_CMD)    \
-    F(BuyGunCommand, BUY_GUN_CMD)                   \
-    F(BuyAmmoCommand, BUY_AMMO_CMD)                 \
-    F(MoveCommand, MOVE_CMD)                        \
-    F(StopPlayerCommand, STOP_PLAYER_CMD)           \
-    F(AimCommand, AIM_CMD)                          \
-    F(AttackCommand, ATTACK_CMD)                    \
-    F(SwitchItemCommand, SWITCH_ITEM_CMD)           \
-    F(ReloadCommand, RELOAD_CMD)                    \
-    F(GetScoreboardCommand, GET_SCOREBOARD_CMD)     \
-    F(PlantBombCommand, PLANT_BOMB_CMD)             \
-    F(DefuseBombCommand, DEFUSE_BOMB_CMD)           \
-    F(PickUpItemCommand, PICK_UP_ITEM_CMD)          \
+#define GAME_COMMANDS_MAP(F)                             \
+    F(SelectTeamCommand, SELECT_TEAM_CMD)                \
+    F(GetCharactersCommand, GET_CHARACTERS_CMD)          \
+    F(SelectCharacterCommand, SELECT_CHARACTER_CMD)      \
+    F(SetReadyCommand, START_GAME_CMD)                   \
+    F(GetShopPricesCommand, GET_SHOP_PRICES_CMD)         \
+    F(BuyGunCommand, BUY_GUN_CMD)                        \
+    F(BuyAmmoCommand, BUY_AMMO_CMD)                      \
+    F(MoveCommand, MOVE_CMD)                             \
+    F(StopPlayerCommand, STOP_PLAYER_CMD)                \
+    F(AimCommand, AIM_CMD)                               \
+    F(AttackCommand, ATTACK_CMD)                         \
+    F(SwitchItemCommand, SWITCH_ITEM_CMD)                \
+    F(ReloadCommand, RELOAD_CMD)                         \
+    F(GetScoreboardCommand, GET_SCOREBOARD_CMD)          \
+    F(StartPlantingBombCommand, START_PLANTING_BOMB_CMD) \
+    F(StopPlantingBombCommand, STOP_PLANTING_BOMB_CMD)   \
+    F(StartDefusingBombCommand, START_DEFUSING_BOMB_CMD) \
+    F(StopDefusingBombCommand, STOP_DEFUSING_BOMB_CMD)   \
+    F(PickUpItemCommand, PICK_UP_ITEM_CMD)               \
     F(LeaveGameCommand, LEAVE_GAME_CMD)
 
 #define UPDATES_MAP(F) F(GameUpdate, GAME_UPDATE)

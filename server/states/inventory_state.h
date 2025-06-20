@@ -7,9 +7,9 @@
 
 #include "common/models.h"
 #include "common/updates/inventory_update.h"
-#include "server/weapons/bomb.h"
-#include "server/weapons/gun.h"
-#include "server/weapons/knife.h"
+#include "server/items/bomb.h"
+#include "server/items/gun.h"
+#include "server/items/knife.h"
 
 #include "state.h"
 

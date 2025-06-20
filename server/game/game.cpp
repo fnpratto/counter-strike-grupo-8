@@ -4,11 +4,13 @@
 #include <utility>
 
 #include "common/game/scoreboard_entry.h"
-#include "server/attack_effects/attack_effect.h"
 #include "server/errors.h"
+#include "server/items/bomb.h"
+#include "server/items/effects/attack_effect.h"
 #include "server/physics/target_type.h"
 #include "server/player_message.h"
-#include "server/weapons/bomb.h"
+
+#include "game_config.h"
 
 Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map):
         Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.max_players)),
@@ -24,10 +26,11 @@ std::vector<PlayerMessage> Game::tick(const std::vector<PlayerMessage>& msgs) {
 
     state.clear_updates();
 
+    advance_bomb_logic();
     advance_round_logic();
     for (const PlayerMessage& msg: msgs) handle_msg(msg.get_message(), msg.get_player_name());
-    perform_attacks();
     advance_players_movement();
+    perform_attacks();
 
     GameUpdate update = state.get_updates();
     if (update.has_change())
@@ -44,17 +47,17 @@ PhaseType Game::get_phase() { return state.get_phase().get_type(); }
 
 void Game::advance_round_logic() {
     auto& phase = state.get_phase();
-    bool phase_change = phase.advance();
-    if (phase_change) {
+    PhaseType current_phase = phase.get_type();
+
+    if (!phase.is_round_end() && state.is_round_end_condition())
+        phase.end_round();
+    else
+        phase.advance();
+
+    if (current_phase != phase.get_type()) {
         if (phase.is_round_end()) {
             Team winning_team = state.get_winning_team();
-            for (const auto& [p_name, player]: state.get_players()) {
-                if ((winning_team == Team::TT && player->is_tt()) ||
-                    (winning_team == Team::CT && player->is_ct()))
-                    player->add_rewards(Scores::win, Bonifications::win);
-                else
-                    player->add_rewards(Scores::loss, Bonifications::loss);
-            }
+            state.give_rewards_to_players(winning_team);
             send_msg_to_all_players(Message(RoundEndResponse(winning_team)));
         } else if (phase.is_buying_phase()) {
             prepare_new_round();
@@ -76,6 +79,44 @@ void Game::advance_players_movement() {
     }
 }
 
+void Game::advance_bomb_logic() {
+    if (!state.get_phase().is_started())
+        return;
+
+    if (!state.get_bomb().has_value()) {
+        for (const auto& [_, player]: state.get_players()) {
+            if (player->get_inventory().get_bomb().has_value()) {
+                auto& bomb = player->get_inventory().get_bomb().value();
+                bomb.advance(state.get_phase().get_time_now());
+                if (!bomb.is_planted())
+                    return;
+                state.add_bomb(std::move(player->drop_bomb().value()), player->get_hitbox().center);
+                state.get_phase().start_bomb_planted_phase();
+                send_msg_to_all_players(Message(BombPlantedResponse()));
+            }
+        }
+        return;
+    }
+
+    auto& bomb = state.get_bomb().value();
+    bomb.item.advance(state.get_phase().get_time_now());
+
+    if (bomb.item.is_defused()) {
+        send_msg_to_all_players(Message(BombDefusedResponse()));
+        return;
+    }
+
+    if (!bomb.item.should_explode())
+        return;
+
+    auto effect = bomb.item.explode(bomb.hitbox.get_center());
+    auto players_in_explosion =
+            physics_system.get_players_in_radius(bomb.hitbox.get_center(), effect.get_max_range());
+    for (const auto& player: players_in_explosion) effect.apply(player);
+    send_msg_to_all_players(
+            Message(BombExplodedResponse(effect.get_origin(), effect.get_max_range())));
+}
+
 void Game::perform_attacks() {
     if (!state.get_phase().is_playing_phase())
         return;
@@ -83,25 +124,25 @@ void Game::perform_attacks() {
     std::vector<HitResponse> hit_responses;
 
     for (const auto& [p_name, player]: state.get_players()) {
-        auto effects = player->attack(state.get_phase().get_time_now());
-        if (effects.empty())
+        auto attack_effects = player->attack(state.get_phase().get_time_now());
+        if (attack_effects.empty())
             continue;
 
-        for (const auto& effect: effects) {
-            auto closest_target = physics_system.get_closest_target(p_name, effect->get_dir(),
-                                                                    effect->get_max_range());
+        for (const auto& attack_effect: attack_effects) {
+            auto closest_target = physics_system.get_closest_target_in_dir(
+                    p_name, attack_effect.dir, attack_effect.effect.get_max_range());
             if (!closest_target.has_value()) {
-                Vector2D max_hit_pos =
-                        player->get_hitbox().center + effect->get_dir() * effect->get_max_range();
-                hit_responses.push_back(HitResponse(player->get_hitbox().center, max_hit_pos,
-                                                    effect->get_dir(), false));
+                Vector2D max_hit_pos = attack_effect.effect.get_origin() +
+                                       attack_effect.dir * attack_effect.effect.get_max_range();
+                hit_responses.push_back(HitResponse(attack_effect.effect.get_origin(), max_hit_pos,
+                                                    attack_effect.dir, false));
                 continue;
             }
 
-            bool is_hit = apply_attack_effect(player, effect, closest_target.value());
+            bool is_hit = apply_attack_effect(player, attack_effect.effect, closest_target.value());
 
-            hit_responses.push_back(HitResponse(player->get_hitbox().center,
-                                                closest_target.value().get_pos(), effect->get_dir(),
+            hit_responses.push_back(HitResponse(attack_effect.effect.get_origin(),
+                                                closest_target.value().get_pos(), attack_effect.dir,
                                                 is_hit));
         }
     }
@@ -109,23 +150,24 @@ void Game::perform_attacks() {
     for (const auto& hit_resp: hit_responses) send_msg_to_all_players(Message(hit_resp));
 }
 
-bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker,
-                               const std::unique_ptr<AttackEffect>& effect, const Target& target) {
-    bool is_hit = false;
-    if (target.is_player()) {
-        auto& target_player = target.get_player().get();
-        is_hit = effect->apply(target_player);
-        if (target_player->is_dead()) {
-            attacker->add_kill();
-            attacker->add_rewards(Scores::kill, Bonifications::kill);
-            auto gun = target_player->drop_primary_weapon();
-            if (gun.has_value())
-                state.add_dropped_gun(std::move(gun.value()), target_player->get_hitbox().center);
-            auto bomb = target_player->drop_bomb();
-            if (bomb.has_value())
-                state.add_bomb(std::move(bomb.value()), target_player->get_hitbox().center);
-        }
+bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker, const Effect& effect,
+                               const Target& target) {
+    if (!target.is_player())
+        return false;
+
+    auto& target_player = target.get_player().get();
+    bool is_hit = effect.apply(target_player);
+    if (target_player->is_dead()) {
+        attacker->add_kill();
+        attacker->add_rewards(Scores::kill, Bonifications::kill);
+        auto gun = target_player->drop_primary_weapon();
+        if (gun.has_value())
+            state.add_dropped_gun(std::move(gun.value()), target_player->get_hitbox().center);
+        auto bomb = target_player->drop_bomb();
+        if (bomb.has_value())
+            state.add_bomb(std::move(bomb.value()), target_player->get_hitbox().center);
     }
+
     return is_hit;
 }
 
@@ -241,14 +283,14 @@ void Game::handle<MoveCommand>(const std::string& player_name, const MoveCommand
         return;
 
     auto& player = state.get_player(player_name);
-    player->start_moving(msg.get_direction());
+    player->handle_start_moving(msg.get_direction());
 }
 
 template <>
 void Game::handle<StopPlayerCommand>(const std::string& player_name,
                                      [[maybe_unused]] const StopPlayerCommand& msg) {
     auto& player = state.get_player(player_name);
-    player->stop_moving();
+    player->handle_stop_moving();
 }
 
 template <>
@@ -261,13 +303,13 @@ template <>
 void Game::handle<AttackCommand>(const std::string& player_name,
                                  [[maybe_unused]] const AttackCommand& msg) {
     auto& player = state.get_player(player_name);
-    player->start_attacking();
+    player->handle_start_attacking();
 }
 
 template <>
 void Game::handle<SwitchItemCommand>(const std::string& player_name, const SwitchItemCommand& msg) {
     auto& player = state.get_player(player_name);
-    player->equip_item(msg.get_slot());
+    player->handle_switch_item(msg.get_slot());
 }
 
 template <>
@@ -286,18 +328,48 @@ void Game::handle<GetScoreboardCommand>(const std::string& player_name,
     send_msg_to_single_player(player_name, Message(ScoreboardResponse(std::move(scoreboard))));
 }
 
-// TODO: Implement
 template <>
-void Game::handle<PlantBombCommand>(const std::string& player_name,
-                                    [[maybe_unused]] const PlantBombCommand& msg) {
-    (void)player_name;
+void Game::handle<StartPlantingBombCommand>(const std::string& player_name,
+                                            [[maybe_unused]] const StartPlantingBombCommand& msg) {
+    if (!state.get_phase().is_playing_phase() || !physics_system.player_in_bomb_site(player_name))
+        return;
+
+    auto& player = state.get_player(player_name);
+    player->handle_start_planting(state.get_phase().get_time_now());
 }
 
-// TODO: Implement
 template <>
-void Game::handle<DefuseBombCommand>(const std::string& player_name,
-                                     [[maybe_unused]] const DefuseBombCommand& msg) {
-    (void)player_name;
+void Game::handle<StopPlantingBombCommand>(const std::string& player_name,
+                                           [[maybe_unused]] const StopPlantingBombCommand& msg) {
+    if (!state.get_phase().is_playing_phase() || !physics_system.player_in_bomb_site(player_name))
+        return;
+
+    auto& player = state.get_player(player_name);
+    player->handle_stop_planting(state.get_phase().get_time_now());
+}
+
+template <>
+void Game::handle<StartDefusingBombCommand>(const std::string& player_name,
+                                            [[maybe_unused]] const StartDefusingBombCommand& msg) {
+    auto& player = state.get_player(player_name);
+    if (!state.get_phase().is_bomb_planted_phase() ||
+        !physics_system.player_collides_with_bomb(player))
+        return;
+
+    auto& bomb = state.get_bomb().value().item;
+    player->handle_start_defusing(bomb, state.get_phase().get_time_now());
+}
+
+template <>
+void Game::handle<StopDefusingBombCommand>(const std::string& player_name,
+                                           [[maybe_unused]] const StopDefusingBombCommand& msg) {
+    auto& player = state.get_player(player_name);
+    if (!state.get_phase().is_bomb_planted_phase() ||
+        !physics_system.player_collides_with_bomb(player))
+        return;
+
+    auto& bomb = state.get_bomb().value().item;
+    player->handle_stop_defusing(bomb, state.get_phase().get_time_now());
 }
 
 template <>
@@ -367,15 +439,18 @@ void Game::give_bomb_to_random_tt(Bomb&& bomb) {
 
 void Game::prepare_new_round() {
     state.advance_round();
-    for (const auto& [_, player]: state.get_players()) {
+    for (const auto& [p_name, player]: state.get_players()) {
         move_player_to_spawn(player);
-        reset_for_new_round(player);
+        player->reset();
         auto bomb = player->drop_bomb();
         if (bomb.has_value())
             state.add_bomb(std::move(bomb.value()), player->get_hitbox().center);
     }
-    if (state.get_bomb().has_value())
+    if (state.get_bomb().has_value()) {
+        state.get_bomb().value().item.reset();
         give_bomb_to_random_tt(std::move(state.remove_bomb()));
+    }
+    state.get_dropped_guns().clear();
 }
 
 void Game::move_player_to_spawn(const std::unique_ptr<Player>& player) {
@@ -383,12 +458,6 @@ void Game::move_player_to_spawn(const std::unique_ptr<Player>& player) {
         player->move_to_pos(physics_system.random_spawn_tt_pos());
     else
         player->move_to_pos(physics_system.random_spawn_ct_pos());
-}
-
-void Game::reset_for_new_round(const std::unique_ptr<Player>& player) {
-    player->heal();
-    player->stop_moving();
-    player->stop_attacking();
 }
 
 void Game::send_msg_to_all_players(const Message& msg) {

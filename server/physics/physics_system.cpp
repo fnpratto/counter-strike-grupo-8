@@ -36,12 +36,23 @@ Vector2D PhysicsSystem::random_spawn_ct_pos() const {
 }
 
 bool PhysicsSystem::player_in_spawn(const std::string& player_name) const {
-    const std::unique_ptr<Player>& player = players.at(player_name);
+    const auto& player = players.at(player_name);
     const std::vector<Vector2D>& spawns = player->is_tt() ? map.spawns_tts : map.spawns_cts;
     for (const Vector2D& spawn_pos: spawns) {  // cppcheck-suppress[useStlAlgorithm]
         CircularHitbox player_hitbox = CircularHitbox(player->get_hitbox());
         RectHitbox spawn_hitbox = RectHitbox::tile_hitbox(spawn_pos);
         if (player_hitbox.collides_with_rectangle(spawn_hitbox))
+            return true;
+    }
+    return false;
+}
+
+bool PhysicsSystem::player_in_bomb_site(const std::string& player_name) const {
+    const auto& player = players.at(player_name);
+    for (const Vector2D& bomb_site_pos: map.bomb_sites) {  // cppcheck-suppress[useStlAlgorithm]
+        CircularHitbox player_hitbox = CircularHitbox(player->get_hitbox());
+        RectHitbox bomb_site_hitbox = RectHitbox::tile_hitbox(bomb_site_pos);
+        if (player_hitbox.collides_with_rectangle(bomb_site_hitbox))
             return true;
     }
     return false;
@@ -81,8 +92,8 @@ bool PhysicsSystem::is_walkable(const Vector2D& pos) const {
     return true;
 }
 
-std::optional<Target> PhysicsSystem::get_closest_target(const std::string& origin_p_name,
-                                                        const Vector2D& dir, int max_range) {
+std::optional<Target> PhysicsSystem::get_closest_target_in_dir(const std::string& origin_p_name,
+                                                               const Vector2D& dir, int max_range) {
     auto closest_wall = get_closest_tile<Wall>(origin_p_name, dir, map.walls);
     auto closest_box = get_closest_tile<Box>(origin_p_name, dir, map.boxes);
     auto closest_player = get_closest_player(origin_p_name, dir);
@@ -147,6 +158,20 @@ std::optional<Target> PhysicsSystem::get_closest_player(const std::string& origi
         }
     }
     return closest_target;
+}
+
+std::vector<PlayerRef> PhysicsSystem::get_players_in_radius(const Vector2D& center,
+                                                            int radius) const {
+    std::vector<PlayerRef> players_in_radius;
+    CircularHitbox radius_hitbox(Circle(center, radius));
+    for (const auto& [_, player]: players) {
+        if (player->is_dead())
+            continue;
+        CircularHitbox player_hitbox = CircularHitbox(player->get_hitbox());
+        if (radius_hitbox.collides_with_circle(player_hitbox))
+            players_in_radius.push_back(PlayerRef(player));
+    }
+    return players_in_radius;
 }
 
 bool PhysicsSystem::player_collides_with_bomb(const std::unique_ptr<Player>& player) const {

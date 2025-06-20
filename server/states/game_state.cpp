@@ -2,6 +2,7 @@
 
 #include <utility>
 
+#include "server/game/game_config.h"
 #include "server/physics/circular_hitbox.h"
 #include "server/physics/rect_hitbox.h"
 
@@ -29,6 +30,12 @@ bool GameState::team_is_full(const Team& team) const {
     if (team == Team::TT)
         return get_num_tts() == max_team_players;
     return get_num_cts() == max_team_players;
+}
+
+bool GameState::is_round_end_condition() const {
+    bool bomb_exploded = bomb.has_value() && bomb.value().item.is_exploded();
+    bool bomb_defused = bomb.has_value() && bomb.value().item.is_defused();
+    return get_num_tts() == 0 || get_num_cts() == 0 || bomb_exploded || bomb_defused;
 }
 
 int GameState::get_num_rounds() const { return num_rounds; }
@@ -64,11 +71,9 @@ const std::unique_ptr<Player>& GameState::get_player(const std::string& player_n
     return it->second;
 }
 
-const std::vector<WorldItem<std::unique_ptr<Gun>>>& GameState::get_dropped_guns() const {
-    return dropped_guns;
-}
+std::vector<WorldItem<std::unique_ptr<Gun>>>& GameState::get_dropped_guns() { return dropped_guns; }
 
-const std::optional<WorldItem<Bomb>>& GameState::get_bomb() const { return bomb; }
+std::optional<WorldItem<Bomb>>& GameState::get_bomb() { return bomb; }
 
 void GameState::advance_round() {
     num_rounds += 1;
@@ -133,8 +138,20 @@ Team GameState::get_winning_team() const {
     return Team::CT;
 }
 
-// TODO: Add bomb planted win condition
-bool GameState::is_tts_win_condition() const { return get_num_cts() == 0; }
+bool GameState::is_tts_win_condition() const {
+    bool bomb_exploded = bomb.has_value() && bomb.value().item.is_exploded();
+    return get_num_cts() == 0 || bomb_exploded;
+}
+
+void GameState::give_rewards_to_players(Team winning_team) {
+    for (const auto& [p_name, player]: players) {
+        if ((winning_team == Team::TT && player->is_tt()) ||
+            (winning_team == Team::CT && player->is_ct()))
+            player->add_rewards(Scores::win, Bonifications::win);
+        else
+            player->add_rewards(Scores::loss, Bonifications::loss);
+    }
+}
 
 void GameState::clear_updates() {
     State<GameUpdate>::clear_updates();

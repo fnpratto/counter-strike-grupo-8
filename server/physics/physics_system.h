@@ -9,7 +9,6 @@
 #include "common/game/world_item.h"
 #include "common/map/map.h"
 #include "common/utils/vector_2d.h"
-#include "server/attack_effects/attack_effect.h"
 #include "server/player/player.h"
 
 #include "target_type.h"
@@ -46,11 +45,13 @@ public:
     Vector2D random_spawn_tt_pos() const;
     Vector2D random_spawn_ct_pos() const;
     bool player_in_spawn(const std::string& player_name) const;
+    bool player_in_bomb_site(const std::string& player_name) const;
 
     Vector2D calculate_new_pos(const std::unique_ptr<Player>& player) const;
 
-    std::optional<Target> get_closest_target(const std::string& origin_p_name, const Vector2D& dir,
-                                             int max_range);
+    std::optional<Target> get_closest_target_in_dir(const std::string& origin_p_name,
+                                                    const Vector2D& dir, int max_range);
+    std::vector<PlayerRef> get_players_in_radius(const Vector2D& center, int radius) const;
 
     bool player_collides_with_bomb(const std::unique_ptr<Player>& player) const;
     std::optional<Vector2D> get_player_colliding_gun_pos(
