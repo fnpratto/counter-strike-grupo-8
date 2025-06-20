@@ -67,7 +67,7 @@ void SDLDisplay::setup() {
 void SDLDisplay::run() {
     setup();
     SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
-    hudDisplay hud_display(window, state, player_name);
+    SdlHud hud_display(window, state, player_name);
     shop_display = std::make_unique<shopDisplay>(window, state);
     world = std::make_unique<SdlWorld>(window, state, player_name);
     listTeams list_teams(window, state, player_name);
@@ -86,6 +86,7 @@ void SDLDisplay::run() {
     update_state();
 
     RateController rate_controller(60);  // 60 FPS
+    rate_controller.set_debug_mode(true);
     rate_controller.run_at_rate([&]() {
         // Update game state and display
         update_state();
