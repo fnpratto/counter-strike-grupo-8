@@ -36,15 +36,12 @@ SdlWorld::SdlWorld(SdlWindow& window, const GameUpdate& game_state, const std::s
 }
 
 Map SdlWorld::build_default_map() {
-    Map actual_map = Map("default_map", 10);
+    Map actual_map = Map("default_map", 10, 10, 10);
 
-    std::vector<Floor> floors;
     for (int i = 0; i < 10; ++i) {
-        for (int j = 0; j < 10; ++j) {
-            floors.emplace_back(Vector2D(i * 32, j * 32));
-        }
+        for (int j = 0; j < 10; ++j)
+            actual_map.add_tile(Tile{Vector2D(i * 32, j * 32), 0, false, false, false, false});
     }
-    actual_map.floors = std::move(floors);
 
     return actual_map;
 }
