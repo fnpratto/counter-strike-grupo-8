@@ -81,11 +81,21 @@ void GameState::advance_round() {
 }
 
 void GameState::swap_players_teams() {
+    auto characters_tt = get_characters_tt();
+    auto characters_ct = get_characters_ct();
     for (auto& [_, player]: players) {  // cppcheck-suppress[unusedVariable]
         if (player->is_tt()) {
+            CharacterType actual_character = player->get_character_type();
+            auto it = std::find(characters_tt.begin(), characters_tt.end(), actual_character);
+            int idx_character = std::distance(characters_tt.begin(), it);
             player->select_team(Team::CT);
-        } else if (player->is_ct()) {
+            player->select_character(characters_ct[idx_character]);
+        } else {
+            CharacterType actual_character = player->get_character_type();
+            auto it = std::find(characters_ct.begin(), characters_ct.end(), actual_character);
+            int idx_character = std::distance(characters_ct.begin(), it);
             player->select_team(Team::TT);
+            player->select_character(characters_tt[idx_character]);
         }
     }
 }
@@ -130,6 +140,16 @@ Bomb GameState::remove_bomb() {
     Bomb removed_bomb = std::move(bomb.value().item);
     bomb.reset();
     return removed_bomb;
+}
+
+std::vector<CharacterType> GameState::get_characters_tt() const {
+    return {CharacterType::Pheonix, CharacterType::L337_Krew, CharacterType::Arctic_Avenger,
+            CharacterType::Guerrilla};
+}
+
+std::vector<CharacterType> GameState::get_characters_ct() const {
+    return {CharacterType::Seal_Force, CharacterType::German_GSG_9, CharacterType::UK_SAS,
+            CharacterType::French_GIGN};
 }
 
 Team GameState::get_winning_team() const {

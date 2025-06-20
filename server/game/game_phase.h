@@ -26,12 +26,10 @@ public:
 
     PhaseType get_type() const;
 
-    bool is_started() const;
+    bool is_playing() const;
     bool is_buying_phase() const;
-    bool is_playing_phase() const;
     bool is_round_end() const;
     bool is_game_end() const;
-    bool is_bomb_planted_phase() const;
 
     TimePoint get_time_now() const;
 

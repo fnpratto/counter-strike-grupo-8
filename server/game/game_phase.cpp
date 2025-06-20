@@ -10,12 +10,12 @@ GamePhase::GamePhase(std::shared_ptr<Clock>&& game_clock):
         game_clock(std::move(game_clock)),
         phase_durations({{PhaseType::WarmUp, 0},
                          {PhaseType::Buying, PhaseTimes::buying_duration},
-                         {PhaseType::Playing, PhaseTimes::playing_duration},
+                         {PhaseType::InRound, PhaseTimes::round_duration},
                          {PhaseType::RoundEnd, PhaseTimes::round_end_duration},
                          {PhaseType::GameEnd, PhaseTimes::game_end_duration}}),
         next_phase_map({{PhaseType::WarmUp, PhaseType::Buying},
-                        {PhaseType::Buying, PhaseType::Playing},
-                        {PhaseType::Playing, PhaseType::RoundEnd},
+                        {PhaseType::Buying, PhaseType::InRound},
+                        {PhaseType::InRound, PhaseType::RoundEnd},
                         {PhaseType::BombPlanted, PhaseType::RoundEnd},
                         {PhaseType::RoundEnd, PhaseType::Buying}}) {
     phase_start = this->game_clock->now();
@@ -23,21 +23,15 @@ GamePhase::GamePhase(std::shared_ptr<Clock>&& game_clock):
 
 PhaseType GamePhase::get_type() const { return state.get_phase(); }
 
-bool GamePhase::is_started() const {
+bool GamePhase::is_playing() const {
     return state.get_phase() != PhaseType::WarmUp && state.get_phase() != PhaseType::GameEnd;
 }
 
 bool GamePhase::is_buying_phase() const { return state.get_phase() == PhaseType::Buying; }
 
-bool GamePhase::is_playing_phase() const { return state.get_phase() == PhaseType::Playing; }
-
 bool GamePhase::is_round_end() const { return state.get_phase() == PhaseType::RoundEnd; }
 
 bool GamePhase::is_game_end() const { return state.get_phase() == PhaseType::GameEnd; }
-
-bool GamePhase::is_bomb_planted_phase() const {
-    return state.get_phase() == PhaseType::BombPlanted;
-}
 
 TimePoint GamePhase::get_time_now() const { return game_clock->now(); }
 
@@ -54,14 +48,14 @@ void GamePhase::end_game() {
 }
 
 void GamePhase::start_bomb_planted_phase() {
-    if (!is_started())
+    if (!is_playing())
         return;
     state.set_phase(PhaseType::BombPlanted);
     phase_start = game_clock->now();
 }
 
 void GamePhase::end_round() {
-    if (!is_started())
+    if (!is_playing())
         return;
     state.set_phase(PhaseType::RoundEnd);
     phase_start = game_clock->now();
@@ -72,7 +66,7 @@ bool GamePhase::advance() {
     PhaseType old_phase = state.get_phase();
     auto now = game_clock->now();
     auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - phase_start);
-    if (is_started() && !is_bomb_planted_phase()) {
+    if (is_playing() && state.get_phase() != PhaseType::BombPlanted) {
         auto current_phase_duration = phase_durations.at(state.get_phase());
         state.set_secs_remaining(current_phase_duration - elapsed.count());
         if (elapsed.count() >= current_phase_duration) {

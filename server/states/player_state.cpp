@@ -16,6 +16,8 @@ PlayerState::PlayerState(Team team, Circle hitbox, Vector2D aim_direction, Vecto
 
 Team PlayerState::get_team() const { return team; }
 
+CharacterType PlayerState::get_character_type() const { return character_type; }
+
 Circle PlayerState::get_hitbox() const { return hitbox; }
 
 Vector2D PlayerState::get_aim_direction() const { return aim_direction; }
@@ -95,6 +97,7 @@ PlayerUpdate PlayerState::get_updates() const {
 PlayerUpdate PlayerState::get_full_update() const {
     PlayerUpdate full_update;
     full_update.set_team(team);
+    full_update.set_character_type(character_type);
     full_update.set_pos(hitbox.center);
     full_update.set_hitbox_radius(hitbox.radius);
     full_update.set_aim_direction(aim_direction);

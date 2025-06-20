@@ -65,7 +65,7 @@ TEST_F(TestGameBomb, PlayerCanStartPlantingBomb) {
     EXPECT_EQ(bomb_update.get_bomb_phase(), BombPhaseType::Planting);
 
     game.tick({});
-    EXPECT_EQ(game.get_full_update().get_phase().get_phase(), PhaseType::Playing);
+    EXPECT_EQ(game.get_full_update().get_phase().get_phase(), PhaseType::InRound);
 }
 
 TEST_F(TestGameBomb, PlayerPlantBombAfterPlantingForSecondsToPlantTime) {
@@ -101,7 +101,7 @@ TEST_F(TestGameBomb, PlayerDoesNotPlantBombIfStopPlantingBeforeSecondsToPlantTim
     EXPECT_EQ(bomb_update.get_bomb_phase(), BombPhaseType::NotPlanted);
 
     game.tick({});
-    EXPECT_EQ(game.get_full_update().get_phase().get_phase(), PhaseType::Playing);
+    EXPECT_EQ(game.get_full_update().get_phase().get_phase(), PhaseType::InRound);
 }
 
 TEST_F(TestGameBomb, BombExplodeAfterSecondsToExplode) {

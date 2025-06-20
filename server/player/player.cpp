@@ -34,6 +34,8 @@ bool Player::is_attacking() {
     return false;
 }
 
+CharacterType Player::get_character_type() const { return state.get_character_type(); }
+
 Circle Player::get_hitbox() const { return state.get_hitbox(); }
 
 Vector2D Player::get_move_dir() const { return state.get_velocity(); }

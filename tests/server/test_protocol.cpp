@@ -169,7 +169,7 @@ TEST_F(ProtocolTest, GameUpdateSerialization) {
 
     // Set up phase update
     PhaseUpdate phase_update;
-    phase_update.set_phase(PhaseType::Playing);
+    phase_update.set_phase(PhaseType::InRound);
     phase_update.set_secs_remaining(30);
     update.set_phase(phase_update);
 
@@ -354,7 +354,7 @@ TEST_F(ProtocolTest, GameUpdateSerialization) {
 
     // Verify phase update
     PhaseUpdate received_phase = received_update.get_phase();
-    ASSERT_EQ(received_phase.get_phase(), PhaseType::Playing);
+    ASSERT_EQ(received_phase.get_phase(), PhaseType::InRound);
     ASSERT_EQ(received_phase.get_secs_remaining(), 30);
 
     // Verify game state
@@ -754,7 +754,7 @@ TEST_F(ProtocolTest, WorldItemGunTypeSerialization) {
 
     // Set minimal required fields
     PhaseUpdate phase_update;
-    phase_update.set_phase(PhaseType::Playing);
+    phase_update.set_phase(PhaseType::InRound);
     phase_update.set_secs_remaining(60);
     update.set_phase(phase_update);
 
@@ -841,7 +841,7 @@ TEST_F(ProtocolTest, WorldItemGunTypeSerialization) {
 
     // Verify no other data was corrupted
     PhaseUpdate received_phase = received_update.get_phase();
-    ASSERT_EQ(received_phase.get_phase(), PhaseType::Playing);
+    ASSERT_EQ(received_phase.get_phase(), PhaseType::InRound);
     ASSERT_EQ(received_phase.get_secs_remaining(), 60);
     ASSERT_EQ(received_update.get_num_rounds(), 1);
 
