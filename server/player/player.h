@@ -39,6 +39,7 @@ public:
     bool is_dead() const;
     bool is_attacking();
 
+    CharacterType get_character_type() const;
     Circle get_hitbox() const;
     Vector2D get_move_dir() const;
     Inventory& get_inventory();

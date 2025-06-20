@@ -74,10 +74,12 @@ void TextDisplay::draw(const Message& message) {
             for (const auto& game_info: game_list) {
                 std::cout << "Game Name: " << game_info.name
                           << ", Players: " << game_info.players_count << ", Status: "
-                          << (game_info.phase == PhaseType::WarmUp  ? "WarmUp" :
-                              game_info.phase == PhaseType::Buying  ? "Buying" :
-                              game_info.phase == PhaseType::Playing ? "Playing" :
-                                                                      "Round Finished")
+                          << (game_info.phase == PhaseType::WarmUp      ? "WarmUp" :
+                              game_info.phase == PhaseType::Buying      ? "Buying" :
+                              game_info.phase == PhaseType::InRound     ? "In round" :
+                              game_info.phase == PhaseType::RoundEnd    ? "Round End" :
+                              game_info.phase == PhaseType::BombPlanted ? "Bomb Planted" :
+                                                                          "Game Finished")
                           << "\n";
             }
             break;
@@ -88,10 +90,12 @@ void TextDisplay::draw(const Message& message) {
 
             std::cout << "Game Update:" << std::endl;
             std::string phase_str =
-                    (state.get_phase().get_phase() == PhaseType::Buying)   ? "Buying" :
-                    (state.get_phase().get_phase() == PhaseType::Playing)  ? "Playing" :
-                    (state.get_phase().get_phase() == PhaseType::RoundEnd) ? "Round Finished" :
-                                                                             "Warm Up";
+                    (state.get_phase().get_phase() == PhaseType::WarmUp)      ? "Warm Up" :
+                    (state.get_phase().get_phase() == PhaseType::Buying)      ? "Buying" :
+                    (state.get_phase().get_phase() == PhaseType::InRound)     ? "In round" :
+                    (state.get_phase().get_phase() == PhaseType::RoundEnd)    ? "Round Finished" :
+                    (state.get_phase().get_phase() == PhaseType::BombPlanted) ? "Bomb Planted" :
+                                                                                "Game Finished";
             std::cout << "Phase: " << phase_str << std::endl;
             std::cout << "Players:" << std::endl;
             for (const auto& [player_name, player]:  // cppcheck-suppress[unassignedVariable]

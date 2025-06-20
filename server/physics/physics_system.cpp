@@ -87,10 +87,22 @@ Vector2D PhysicsSystem::calculate_new_pos(const std::unique_ptr<Player>& player,
     Vector2D step = calculate_step(move_dir, tick_duration);
     Vector2D new_pos = player->get_hitbox().center + step;
 
-    if (!can_move_to_pos(new_pos))
-        return player->get_hitbox().center;
+    if (can_move_to_pos(new_pos))
+        return new_pos;
 
-    return new_pos;
+    // Try moving only in X
+    Vector2D step_x(step.get_x(), 0);
+    Vector2D new_pos_x = player->get_hitbox().center + step_x;
+    if (can_move_to_pos(new_pos_x))
+        return new_pos_x;
+
+    // Try moving only in Y
+    Vector2D step_y(0, step.get_y());
+    Vector2D new_pos_y = player->get_hitbox().center + step_y;
+    if (can_move_to_pos(new_pos_y))
+        return new_pos_y;
+
+    return player->get_hitbox().center;
 }
 
 Vector2D PhysicsSystem::calculate_step(const Vector2D& dir, float tick_duration) const {

@@ -67,8 +67,11 @@ void Game::advance_round_logic() {
         }
     }
 
-    if (state.get_num_rounds() == GameConfig::max_rounds / 2)
+    if (state.get_num_rounds() == GameConfig::max_rounds / 2) {
         state.swap_players_teams();
+        broadcast(Message(SwapTeamsResponse()));
+        return;
+    }
 
     if (state.get_num_rounds() == GameConfig::max_rounds)
         phase.end_game();
@@ -83,7 +86,7 @@ void Game::advance_players_movement() {
 }
 
 void Game::advance_bomb_logic() {
-    if (!state.get_phase().is_started())
+    if (!state.get_phase().is_playing())
         return;
 
     if (!state.get_bomb().has_value()) {
@@ -135,7 +138,7 @@ void Game::perform_attacks() {
             }
 
             bool is_hit = false;
-            if (state.get_phase().is_playing_phase())
+            if (state.get_phase().is_playing())
                 is_hit = apply_attack_effect(player, attack_effect.effect, closest_target.value());
 
             hit_responses.push_back(HitResponse(attack_effect.effect.get_origin(),
@@ -170,7 +173,7 @@ bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker, const Ef
 
 void Game::join_player(const std::string& player_name) {
     if (player_name.empty() || state.player_is_in_game(player_name) || is_full() ||
-        state.get_phase().is_started())
+        state.get_phase().is_playing())
         return;
 
     Team default_team = (state.get_num_tts() > state.get_num_cts()) ? Team::CT : Team::TT;
@@ -193,7 +196,7 @@ void Game::join_player(const std::string& player_name) {
 
 template <>
 void Game::handle<SelectTeamCommand>(const std::string& player_name, const SelectTeamCommand& msg) {
-    if (state.get_phase().is_started())
+    if (state.get_phase().is_playing())
         throw SelectTeamError();
     if (state.team_is_full(msg.get_team())) {
         send_msg(player_name, Message(ErrorResponse()));
@@ -209,15 +212,11 @@ template <>
 void Game::handle<GetCharactersCommand>(const std::string& player_name,
                                         [[maybe_unused]] const GetCharactersCommand& msg) {
     auto& player = state.get_player(player_name);
-    std::vector<CharacterType> characters;
-    if (player->is_ct()) {
-        characters = {CharacterType::Seal_Force, CharacterType::German_GSG_9, CharacterType::UK_SAS,
-                      CharacterType::French_GIGN};
-    } else if (player->is_tt()) {
-        characters = {CharacterType::Pheonix, CharacterType::L337_Krew,
-                      CharacterType::Arctic_Avenger, CharacterType::Guerrilla};
+    if (player->is_tt()) {
+        send_msg(player_name, Message(CharactersResponse(state.get_characters_tt())));
+    } else {
+        send_msg(player_name, Message(CharactersResponse(state.get_characters_ct())));
     }
-    send_msg(player_name, Message(CharactersResponse(std::move(characters))));
 }
 
 template <>
@@ -230,7 +229,7 @@ void Game::handle<SelectCharacterCommand>(const std::string& player_name,
 template <>
 void Game::handle<SetReadyCommand>(const std::string& player_name,
                                    [[maybe_unused]] const SetReadyCommand& msg) {
-    if (state.get_phase().is_started())
+    if (state.get_phase().is_playing())
         throw SetReadyError();
 
     state.get_player(player_name)->set_ready();
@@ -330,7 +329,7 @@ void Game::handle<GetScoreboardCommand>(const std::string& player_name,
 template <>
 void Game::handle<StartPlantingBombCommand>(const std::string& player_name,
                                             [[maybe_unused]] const StartPlantingBombCommand& msg) {
-    if (!state.get_phase().is_playing_phase() || !physics_system.player_in_bomb_site(player_name))
+    if (!state.get_phase().is_playing() || !physics_system.player_in_bomb_site(player_name))
         return;
 
     auto& player = state.get_player(player_name);
@@ -340,7 +339,7 @@ void Game::handle<StartPlantingBombCommand>(const std::string& player_name,
 template <>
 void Game::handle<StopPlantingBombCommand>(const std::string& player_name,
                                            [[maybe_unused]] const StopPlantingBombCommand& msg) {
-    if (!state.get_phase().is_playing_phase() || !physics_system.player_in_bomb_site(player_name))
+    if (!state.get_phase().is_playing() || !physics_system.player_in_bomb_site(player_name))
         return;
 
     auto& player = state.get_player(player_name);
@@ -351,8 +350,7 @@ template <>
 void Game::handle<StartDefusingBombCommand>(const std::string& player_name,
                                             [[maybe_unused]] const StartDefusingBombCommand& msg) {
     auto& player = state.get_player(player_name);
-    if (!state.get_phase().is_bomb_planted_phase() ||
-        !physics_system.player_collides_with_bomb(player))
+    if (!state.get_phase().is_playing() || !physics_system.player_collides_with_bomb(player))
         return;
 
     auto& bomb = state.get_bomb().value().item;
@@ -363,8 +361,7 @@ template <>
 void Game::handle<StopDefusingBombCommand>(const std::string& player_name,
                                            [[maybe_unused]] const StopDefusingBombCommand& msg) {
     auto& player = state.get_player(player_name);
-    if (!state.get_phase().is_bomb_planted_phase() ||
-        !physics_system.player_collides_with_bomb(player))
+    if (!state.get_phase().is_playing() || !physics_system.player_collides_with_bomb(player))
         return;
 
     auto& bomb = state.get_bomb().value().item;

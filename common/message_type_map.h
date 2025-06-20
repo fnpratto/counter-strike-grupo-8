@@ -17,6 +17,7 @@
     F(ErrorResponse, ERROR_RESP)            \
     F(RoundEndResponse, ROUND_END_RESP)     \
     F(Map, MAP_RESP)                        \
+    F(SwapTeamsResponse, SWAP_TEAMS_RESP)   \
     F(BombExplodedResponse, BOMB_EXPLODED_RESP)
 
 #define LOBBY_COMMANDS_MAP(F)             \

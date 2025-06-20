@@ -22,7 +22,7 @@ protected:
     void advance_secs(int secs) { clock->advance(std::chrono::seconds(secs)); }
 };
 
-TEST_F(TestGamePhase, NotStartedWhenInitialized) { EXPECT_FALSE(game_phase.is_started()); }
+TEST_F(TestGamePhase, NotStartedWhenInitialized) { EXPECT_FALSE(game_phase.is_playing()); }
 
 TEST_F(TestGamePhase, StartInBuyingPhase) {
     game_phase.start_game();
@@ -36,7 +36,7 @@ TEST_F(TestGamePhase, StartPlayingAfterBuyingDuration) {
     game_phase.advance();
 
     PhaseUpdate updates = game_phase.get_updates();
-    EXPECT_EQ(updates.get_phase(), PhaseType::Playing);
+    EXPECT_EQ(updates.get_phase(), PhaseType::InRound);
 }
 
 TEST_F(TestGamePhase, FinishOneRoundAfterRoundDuration) {
@@ -44,7 +44,7 @@ TEST_F(TestGamePhase, FinishOneRoundAfterRoundDuration) {
 
     advance_secs(PhaseTimes::buying_duration);
     game_phase.advance();
-    advance_secs(PhaseTimes::playing_duration);
+    advance_secs(PhaseTimes::round_duration);
     game_phase.advance();
 
     PhaseUpdate updates = game_phase.get_updates();
@@ -56,7 +56,7 @@ TEST_F(TestGamePhase, StartAnotherRoundAfterRoundFinishedDuration) {
 
     advance_secs(PhaseTimes::buying_duration);
     game_phase.advance();
-    advance_secs(PhaseTimes::playing_duration);
+    advance_secs(PhaseTimes::round_duration);
     game_phase.advance();
     advance_secs(PhaseTimes::round_end_duration);
     game_phase.advance();
