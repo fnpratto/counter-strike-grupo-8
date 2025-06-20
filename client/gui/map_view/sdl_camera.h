@@ -42,6 +42,12 @@ public:
         return offset.get_x() >= 0 && offset.get_x() < screen_width && offset.get_y() >= 0 &&
                offset.get_y() < screen_height;
     }
+
+    bool can_see(const Vector2D& pos) const {
+        Vector2D offset = get_screen_pos(pos);
+        return offset.get_x() >= 0 && offset.get_x() < screen_width && offset.get_y() >= 0 &&
+               offset.get_y() < screen_height;
+    }
 };
 
 
