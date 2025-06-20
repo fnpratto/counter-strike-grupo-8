@@ -116,11 +116,7 @@ void Game::advance_bomb_logic() {
 }
 
 void Game::perform_attacks() {
-    if (!state.get_phase().is_playing_phase())
-        return;
-
     std::vector<HitResponse> hit_responses;
-
     for (const auto& [p_name, player]: state.get_players()) {
         auto attack_effects = player->attack(state.get_phase().get_time_now());
         if (attack_effects.empty())
@@ -137,7 +133,9 @@ void Game::perform_attacks() {
                 continue;
             }
 
-            bool is_hit = apply_attack_effect(player, attack_effect.effect, closest_target.value());
+            bool is_hit = false;
+            if (state.get_phase().is_playing_phase())
+                is_hit = apply_attack_effect(player, attack_effect.effect, closest_target.value());
 
             hit_responses.push_back(HitResponse(attack_effect.effect.get_origin(),
                                                 closest_target.value().get_pos(), attack_effect.dir,
