@@ -31,16 +31,28 @@ bool PhysicsSystem::is_pos_out_of_bounds(const Vector2D& pos) const {
 
 Vector2D PhysicsSystem::rand_pos_in_vector(
         const std::vector<std::reference_wrapper<Tile>>& vector) const {
-    int rand_idx = std::rand() % vector.size();
-    return vector.at(rand_idx).get().pos;
+    std::vector<std::reference_wrapper<Tile>> filtered_vector;
+    std::copy_if(vector.begin(), vector.end(), std::back_inserter(filtered_vector),
+                 [](const Tile& tile) { return !tile.is_collidable; });
+
+    for (const auto& tile: filtered_vector) {
+        Vector2D pos = tile.get().pos + (PhysicsConfig::meter_size / 2);
+        if (can_move_to_pos(pos))
+            return pos;
+    }
+
+    if (!filtered_vector.empty())
+        return filtered_vector.front().get().pos + (PhysicsConfig::meter_size / 2);
+
+    return Vector2D(0, 0) + (PhysicsConfig::meter_size / 2);
 }
 
 Vector2D PhysicsSystem::random_spawn_tt_pos() const {
-    return rand_pos_in_vector(map.get_spawns_tts()) + (PhysicsConfig::meter_size / 2);
+    return rand_pos_in_vector(map.get_spawns_tts());
 }
 
 Vector2D PhysicsSystem::random_spawn_ct_pos() const {
-    return rand_pos_in_vector(map.get_spawns_cts()) + (PhysicsConfig::meter_size / 2);
+    return rand_pos_in_vector(map.get_spawns_cts());
 }
 
 bool PhysicsSystem::player_in_spawn(const std::string& player_name) const {
