@@ -24,4 +24,6 @@ void Map::add_tile(Tile&& tile) {
         spawns_tts.push_back(tiles.at(tile.pos));
     if (tile.is_spawn_ct)
         spawns_cts.push_back(tiles.at(tile.pos));
+    if (tile.is_bomb_site)
+        bomb_sites.push_back(tiles.at(tile.pos));
 }
