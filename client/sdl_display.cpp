@@ -66,7 +66,7 @@ void SDLDisplay::setup() {
 void SDLDisplay::run() {
     setup();
     SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
-    hudDisplay hud_display(window, state, player_name);
+    SdlHud hud_display(window, state, player_name);
     shop_display = std::make_unique<shopDisplay>(window, state);
     SdlWorld world(window, state, player_name);
     listTeams list_teams(window, state, player_name);

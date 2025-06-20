@@ -47,7 +47,7 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
         // output_queue.push(Message(ShootCommand()));  // TODO_ADD SERVER
     } else if (event.type == SDL_MOUSEMOTION) {
         sendAimCommand(Vector2D(x, y) - Vector2D(screen_width / 2, screen_height / 2));
-        hudDisplayRef.updatePointerPosition(x, y);
+        hudDisplayRef.update_pointer_position(x, y);
     }
 }
 

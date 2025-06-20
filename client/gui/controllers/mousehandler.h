@@ -20,12 +20,12 @@ class MouseHandler {
     int screen_height;
     shopDisplay& shopDisplayRef;
     listTeams& listTeamsRef;
-    hudDisplay& hudDisplayRef;
+    SdlHud& hudDisplayRef;
     skinSelect& skinSelectRef;
 
 public:
     explicit MouseHandler(Queue<Message>& output_queue, int screen_width, int screen_height,
-                          listTeams& listRef, shopDisplay& shopRef, hudDisplay& hudRef,
+                          listTeams& listRef, shopDisplay& shopRef, SdlHud& hudRef,
                           skinSelect& skinRef):
             output_queue(output_queue),
             screen_width(screen_width),
