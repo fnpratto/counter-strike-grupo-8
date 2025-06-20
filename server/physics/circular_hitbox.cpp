@@ -28,7 +28,7 @@ bool CircularHitbox::is_hit(const Vector2D& ray_start, const Vector2D& ray_dir) 
     return orthogonal_distance <= radius;
 }
 
-bool CircularHitbox::is_in_same_cuadrant(const Vector2D& ray_start, const Vector2D& ray_dir) const {
+bool CircularHitbox::is_in_same_quadrant(const Vector2D& ray_start, const Vector2D& ray_dir) const {
     Vector2D dir = ray_dir.normalized(PhysicsConfig::meter_size);
     Vector2D distance = center - ray_start;
     float projected_length = distance.dot(dir) / PhysicsConfig::meter_size;

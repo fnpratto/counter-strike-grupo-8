@@ -1,67 +1,180 @@
 name: test_map
 max_players: 10
+height: 5
+width: 5
 tiles:
-  floors:
-    - x: 1
-      y: 1
-    - x: 3
-      y: 1
-    - x: 1
-      y: 2
-    - x: 2
-      y: 1
-    - x: 2
-      y: 2
-    - x: 3
-      y: 2
-    - x: 1
-      y: 3
-    - x: 2
-      y: 3
-    - x: 3
-      y: 3
-  walls:
-    - x: 0
-      y: 0
-    - x: 1
-      y: 0
-    - x: 2
-      y: 0
-    - x: 3
-      y: 0
-    - x: 4
-      y: 0
-    - x: 0
-      y: 1
-    - x: 4
-      y: 1
-    - x: 0
-      y: 2
-    - x: 4
-      y: 2
-    - x: 0
-      y: 3
-    - x: 4
-      y: 3
-    - x: 0
-      y: 4
-    - x: 1
-      y: 4
-    - x: 2
-      y: 4
-    - x: 3
-      y: 4
-    - x: 4
-      y: 4
-  boxes:
-    - x: 1
-      y: 3
-spawns_tts:
   - x: 1
     y: 1
-spawns_cts:
+    id: 1
+    is_collidable: false
+    is_spawn_tt: true
+    is_spawn_ct: true
+    is_bomb_site: true
+  - x: 3
+    y: 3
+    id: 1
+    is_collidable: false
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
   - x: 1
+    y: 2
+    id: 1
+    is_collidable: false
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 2
     y: 1
-bomb_sites:
+    id: 1
+    is_collidable: false
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 2
+    y: 2
+    id: 1
+    is_collidable: false
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 3
+    y: 2
+    id: 1
+    is_collidable: false
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
   - x: 1
+    y: 3
+    id: 1
+    is_collidable: true
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 2
+    y: 3
+    id: 1
+    is_collidable: false
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 0
+    y: 0
+    id: 1
+    is_collidable: true
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 1
+    y: 0
+    id: 1
+    is_collidable: true
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 2
+    y: 0
+    id: 1
+    is_collidable: true
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 3
+    y: 0
+    id: 1
+    is_collidable: true
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 4
+    y: 0
+    id: 1
+    is_collidable: true
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 0
     y: 1
+    id: 1
+    is_collidable: true
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 4
+    y: 1
+    id: 1
+    is_collidable: true
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 0
+    y: 2
+    id: 1
+    is_collidable: true
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 4
+    y: 2
+    id: 1
+    is_collidable: true
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 0
+    y: 3
+    id: 1
+    is_collidable: true
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 4
+    y: 3
+    id: 1
+    is_collidable: true
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 0
+    y: 4
+    id: 1
+    is_collidable: true
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 1
+    y: 4
+    id: 1
+    is_collidable: true
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 2
+    y: 4
+    id: 1
+    is_collidable: true
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 3
+    y: 4
+    id: 1
+    is_collidable: true
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 4
+    y: 4
+    id: 1
+    is_collidable: true
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false
+  - x: 3
+    y: 1
+    id: 1
+    is_collidable: false
+    is_spawn_tt: false
+    is_spawn_ct: false
+    is_bomb_site: false

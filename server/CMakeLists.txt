@@ -22,6 +22,8 @@ target_sources(taller_server
     physics/physics_system.cpp
     physics/rect_hitbox.cpp
     physics/circular_hitbox.cpp
+    # map
+    map/map_builder.cpp
     # player
     player/player.cpp
     player/inventory.cpp
@@ -71,10 +73,6 @@ target_sources(taller_server
     ../common/physics/physics_config.h
     # map
     map/map_builder.h
-    ../common/map/map.h
-    ../common/map/floor.h
-    ../common/map/wall.h
-    ../common/map/box.h
     # player
     player/player.h
     player/player_config.h

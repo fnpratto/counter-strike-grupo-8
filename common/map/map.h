@@ -1,31 +1,38 @@
 #pragma once
 
+#include <optional>
 #include <string>
 #include <vector>
 
-#include "common/utils/vector_2d.h"
+#include "tile.h"
 
-#include "box.h"
-#include "floor.h"
-#include "wall.h"
-
-struct Map {
+class Map {
+private:
     std::string name;
     int max_players;
+    int height;
+    int width;
 
-    std::vector<Floor> floors;
-    std::vector<Wall> walls;
-    std::vector<Box> boxes;
-    std::vector<Vector2D> spawns_tts;
-    std::vector<Vector2D> spawns_cts;
-    std::vector<Vector2D> bomb_sites;
+    std::vector<std::vector<std::optional<Tile>>> tiles;
+    std::vector<std::reference_wrapper<Tile>> collidables;
+    std::vector<std::reference_wrapper<Tile>> spawns_tts;
+    std::vector<std::reference_wrapper<Tile>> spawns_cts;
+    std::vector<std::reference_wrapper<Tile>> bomb_sites;
 
-    Map(const std::string& name, int max_players): name(name), max_players(max_players) {}
+public:
+    Map(const std::string& name, int max_players, int height, int width);
 
-    void validate() const {
-        if (spawns_tts.empty())
-            throw std::runtime_error("Map '" + name + "' has no Terrorist spawns");
-        if (spawns_cts.empty())
-            throw std::runtime_error("Map '" + name + "' has no Counter-Terrorist spawns");
-    }
+    std::string get_name() const;
+    int get_max_players() const;
+    int get_height() const;
+    int get_width() const;
+    const std::vector<std::vector<std::optional<Tile>>>& get_tiles() const;
+    const std::vector<std::reference_wrapper<Tile>>& get_collidables() const;
+    const std::vector<std::reference_wrapper<Tile>>& get_spawns_tts() const;
+    const std::vector<std::reference_wrapper<Tile>>& get_spawns_cts() const;
+    const std::vector<std::reference_wrapper<Tile>>& get_bomb_sites() const;
+
+    void validate() const;
+
+    void add_tile(Tile&& tile);
 };

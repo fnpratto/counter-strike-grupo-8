@@ -7,10 +7,13 @@ target_sources(taller_common
     resolvererror.cpp
     socket.cpp
     utils/rate_controller.cpp
+    map/map.cpp
     PUBLIC
     # .h files
     game/scoreboard_entry.h
     game/world_item.h
+    map/map.h
+    map/tile.h
     utils/vector_2d.h
     utils/rate_controller.h
     utils/rectangle.h
