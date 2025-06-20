@@ -19,5 +19,5 @@ public:
     bool collides_with_circle(const CircularHitbox& circle) const;
 
     bool is_hit(const Vector2D& ray_start, const Vector2D& ray_dir) const;
-    bool is_in_same_cuadrant(const Vector2D& ray_start, const Vector2D& ray_dir) const;
+    bool is_in_same_quadrant(const Vector2D& ray_start, const Vector2D& ray_dir) const;
 };
