@@ -6,15 +6,16 @@
 
 #include "commands.h"
 
-#define RESPONSES_MAP(F)                    \
-    F(ListGamesResponse, LIST_GAMES_RESP)   \
-    F(ShopPricesResponse, SHOP_PRICES_RESP) \
-    F(HitResponse, HIT_RESP)                \
-    F(CharactersResponse, CHARACTERS_RESP)  \
-    F(ScoreboardResponse, SCOREBOARD_RESP)  \
-    F(ErrorResponse, ERROR_RESP)            \
-    F(RoundEndResponse, ROUND_END_RESP)     \
-    F(BombExplodedResponse, BOMB_EXPLODED_RESP)
+#define RESPONSES_MAP(F)                        \
+    F(ListGamesResponse, LIST_GAMES_RESP)       \
+    F(ShopPricesResponse, SHOP_PRICES_RESP)     \
+    F(HitResponse, HIT_RESP)                    \
+    F(CharactersResponse, CHARACTERS_RESP)      \
+    F(ScoreboardResponse, SCOREBOARD_RESP)      \
+    F(ErrorResponse, ERROR_RESP)                \
+    F(RoundEndResponse, ROUND_END_RESP)         \
+    F(BombExplodedResponse, BOMB_EXPLODED_RESP) \
+    F(SwitchTeamsResponse, SWITCH_TEAMS_RESP)
 
 #define LOBBY_COMMANDS_MAP(F)             \
     F(CreateGameCommand, CREATE_GAME_CMD) \

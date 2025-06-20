@@ -257,6 +257,12 @@ BombExplodedResponse ClientProtocol::deserialize_msg<BombExplodedResponse>(
 }
 
 template <>
+SwitchTeamsResponse ClientProtocol::deserialize_msg<SwitchTeamsResponse>(
+        [[maybe_unused]] payload_t& payload) const {
+    return SwitchTeamsResponse();
+}
+
+template <>
 GameUpdate ClientProtocol::deserialize_msg<GameUpdate>(payload_t& payload) const {
     return deserialize<GameUpdate>(payload);
 }
