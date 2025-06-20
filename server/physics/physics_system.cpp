@@ -17,6 +17,18 @@ PhysicsSystem::PhysicsSystem(Map&& map,
                              const std::optional<WorldItem<Bomb>>& bomb):
         map(std::move(map)), players(players), dropped_guns(dropped_guns), bomb(bomb) {}
 
+Vector2D PhysicsSystem::translate_to_tile_pos(const Vector2D& pos) const {
+    int x = static_cast<int>(pos.get_x() / PhysicsConfig::meter_size);
+    int y = static_cast<int>(pos.get_y() / PhysicsConfig::meter_size);
+    return Vector2D(x * PhysicsConfig::meter_size, y * PhysicsConfig::meter_size);
+}
+
+bool PhysicsSystem::is_pos_out_of_bounds(const Vector2D& pos) const {
+    return pos.get_x() < 0 || pos.get_y() < 0 ||
+           pos.get_x() >= map.get_width() * PhysicsConfig::meter_size ||
+           pos.get_y() >= map.get_height() * PhysicsConfig::meter_size;
+}
+
 Vector2D PhysicsSystem::rand_pos_in_vector(
         const std::vector<std::reference_wrapper<Tile>>& vector) const {
     int rand_idx = std::rand() % vector.size();
@@ -73,27 +85,29 @@ Vector2D PhysicsSystem::calculate_step(const Vector2D& dir) const {
     return dir.normalized(PhysicsConfig::meter_size) * GameConfig::player_speed * tick_duration;
 }
 
-// TODO: Refactor collision detection to avoid iterating over all tiles
 bool PhysicsSystem::can_move_to_pos(const Vector2D& pos) const {
+    Vector2D translated_pos = translate_to_tile_pos(pos);
+    if (is_pos_out_of_bounds(translated_pos))
+        return false;
+
+    int collision_check_radius = 2;
     CircularHitbox player_hitbox = CircularHitbox::player_hitbox(pos);
-    for (int x = 0; x < map.get_width(); ++x) {
-        for (int y = 0; y < map.get_height(); ++y) {
-            RectHitbox tile_hitbox =
-                    RectHitbox::tile_hitbox(Vector2D(x, y) * PhysicsConfig::meter_size);
+    for (int dx = -collision_check_radius; dx <= collision_check_radius; ++dx) {
+        for (int dy = -collision_check_radius; dy <= collision_check_radius; ++dy) {
+            Vector2D offset = Vector2D(dx, dy) * PhysicsConfig::meter_size;
+            Vector2D translated_pos_with_offset = translated_pos + offset;
+            if (is_pos_out_of_bounds(translated_pos_with_offset))
+                continue;
+
+            RectHitbox tile_hitbox = RectHitbox::tile_hitbox(translated_pos_with_offset);
+            int x = translated_pos_with_offset.get_x() / PhysicsConfig::meter_size;
+            int y = translated_pos_with_offset.get_y() / PhysicsConfig::meter_size;
             const auto& tile_opt = map.get_tiles().at(x).at(y);
 
-            if (!tile_opt.has_value()) {
+            if (!tile_opt.has_value() || tile_opt.value().is_collidable) {
                 if (player_hitbox.collides_with_rectangle(tile_hitbox))
                     return false;
-                continue;
             }
-
-            const Tile& tile = tile_opt.value();
-            if (!tile.is_collidable)
-                continue;
-
-            if (player_hitbox.collides_with_rectangle(tile_hitbox))
-                return false;
         }
     }
     return true;
