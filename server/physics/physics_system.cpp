@@ -78,12 +78,13 @@ bool PhysicsSystem::player_in_bomb_site(const std::string& player_name) const {
     return false;
 }
 
-Vector2D PhysicsSystem::calculate_new_pos(const std::unique_ptr<Player>& player) const {
+Vector2D PhysicsSystem::calculate_new_pos(const std::unique_ptr<Player>& player,
+                                          float tick_duration) const {
     Vector2D move_dir = player->get_move_dir();
     if (move_dir == Vector2D(0, 0))
         return player->get_hitbox().center;
 
-    Vector2D step = calculate_step(move_dir);
+    Vector2D step = calculate_step(move_dir, tick_duration);
     Vector2D new_pos = player->get_hitbox().center + step;
 
     if (!can_move_to_pos(new_pos))
@@ -92,8 +93,7 @@ Vector2D PhysicsSystem::calculate_new_pos(const std::unique_ptr<Player>& player)
     return new_pos;
 }
 
-Vector2D PhysicsSystem::calculate_step(const Vector2D& dir) const {
-    float tick_duration = 1.0f / GameConfig::tickrate;  // TODO use clock
+Vector2D PhysicsSystem::calculate_step(const Vector2D& dir, float tick_duration) const {
     return dir.normalized(PhysicsConfig::meter_size) * GameConfig::player_speed * tick_duration;
 }
 

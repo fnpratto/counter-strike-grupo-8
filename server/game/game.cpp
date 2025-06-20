@@ -36,6 +36,7 @@ std::vector<PlayerMessage> Game::tick(const std::vector<PlayerMessage>& msgs) {
     if (update.has_change())
         send_msg_to_all_players(Message(update));
 
+    last_tick = state.get_phase().get_time_now();
     return std::move(output_messages);
 }
 
@@ -75,7 +76,7 @@ void Game::advance_players_movement() {
     for (const auto& [_, player]: state.get_players()) {  // cppcheck-suppress[unusedVariable]
         if (!player->is_moving())
             continue;
-        player->move_to_pos(physics_system.calculate_new_pos(player));
+        player->move_to_pos(physics_system.calculate_new_pos(player, get_tick_duration()));
     }
 }
 
@@ -416,6 +417,22 @@ void Game::handle_msg(const Message& msg, const std::string& player_name) {
 }
 
 #undef HANDLE_MSG
+
+float Game::get_tick_duration() {
+    TimePoint now = state.get_phase().get_time_now();
+    if (last_tick == TimePoint()) {
+        return 1.0f / GameConfig::tickrate;
+    } else {
+        if (now < last_tick)
+            last_tick = now;
+        if (last_tick == now) {
+            return 1.0f / GameConfig::tickrate;
+        } else {
+            float elapsed = std::chrono::duration<float>(now - last_tick).count();
+            return 1.0f / elapsed;
+        }
+    }
+}
 
 void Game::give_bomb_to_random_tt(Bomb&& bomb) {
     if (state.get_num_tts() == 0)

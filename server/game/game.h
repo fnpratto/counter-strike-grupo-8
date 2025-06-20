@@ -21,6 +21,7 @@
 class Game: public Logic<GameState, GameUpdate> {
 private:
     std::string name;
+    TimePoint last_tick;
 
     Shop shop;
     PhysicsSystem physics_system;
@@ -47,8 +48,8 @@ public:
     PhaseType get_phase();
 
 private:
+    float get_tick_duration();
     void give_bomb_to_random_tt(Bomb&& bomb);
-
     void prepare_new_round();
     void move_player_to_spawn(const std::unique_ptr<Player>& player);
 
