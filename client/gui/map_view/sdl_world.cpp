@@ -64,7 +64,7 @@ void SdlWorld::addBulletInfo(const Vector2D& origin, const Vector2D& hit, const 
                              bool is_hit, bool is_melee) {
     BulletInfo info{origin, hit, dir, is_hit, is_melee};
     for (int i = 0; i < 5; ++i) {
-        bullets_info.push_back(info);
+        bullets_info.push_back(info);  // TODO RC
     }
 }
 
@@ -73,15 +73,15 @@ void SdlWorld::render() {
     camera.center(game_state.get_players().at(player_name).get_pos());
 
     map.render();
-
     for (const auto& [name, player_state]: game_state.get_players()) {
         auto it = players.find(name);
         if (it == players.end()) {
+            std::cout << "Adding new player: " << name << std::endl;
             players.emplace(name, std::make_unique<SdlPlayer>(window, camera, game_state, name));
             it = players.find(name);
         }
         if (camera.can_see(player_state)) {
-            it->second->render(player_state);
+            it->second->render();
         }
     }
 
