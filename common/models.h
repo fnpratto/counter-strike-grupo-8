@@ -3,7 +3,8 @@
 enum class Team { TT, CT };
 enum class GunType { AK47, M3, AWP, Glock };
 enum class ItemSlot { Primary, Secondary, Melee, Bomb };
-enum class PhaseType { WarmUp, Buying, Playing, RoundEnd, GameEnd };
+enum class PhaseType { WarmUp, Buying, Playing, BombPlanted, RoundEnd, GameEnd };
+enum class BombPhaseType { NotPlanted, Planted, Exploded, Defused, Planting, Defusing };
 enum class CharacterType {
     // Terrorists
     Pheonix,

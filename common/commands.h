@@ -196,18 +196,29 @@ class ReloadCommand: public Command {};
  */
 class GetScoreboardCommand: public Command {};
 
+/**
+ * @class StartPlantingBombCommand
+ * @brief Command to start the bomb planting process.
+ */
+class StartPlantingBombCommand: public Command {};
 
 /**
- * @class PlantBombCommand
- * @brief Command to plant the bomb at the current position.
+ * @class StopPlantingBombCommand
+ * @brief Command to stop the bomb planting process.
  */
-class PlantBombCommand: public Command {};
+class StopPlantingBombCommand: public Command {};
 
 /**
- * @class DefuseBombCommand
- * @brief Command to defuse the bomb.
+ * @class StartDefusingBombCommand
+ * @brief Command to start the bomb defusing process.
  */
-class DefuseBombCommand: public Command {};
+class StartDefusingBombCommand: public Command {};
+
+/**
+ * @class StopDefusingBombCommand
+ * @brief Command to stop the bomb defusing process.
+ */
+class StopDefusingBombCommand: public Command {};
 
 /**
  * @class PickUpItemCommand

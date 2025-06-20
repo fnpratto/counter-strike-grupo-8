@@ -1,30 +1,62 @@
 #include "sdl_animation.h"
 
+#include <algorithm>
+
 SdlAnimation::SdlAnimation(const SdlWindow& window, const std::string& path,
-                           const std::vector<SDL_Rect>& clips):
-        texture(path, window, 32, 32), clips(clips) {
-    animation_frame = 0;
+                           const std::vector<SDL_Rect>& clips, std::chrono::milliseconds duration,
+                           bool repeats):
+        texture(path, window, 32, 32),
+        clips(clips),
+        animation_duration(duration),
+        repeats(repeats),
+        is_finished(false) {
+    if (clips.empty())
+        throw std::runtime_error("No animation clips provided for SdlAnimation.");
+    if (duration.count() <= 0)
+        throw std::runtime_error("Animation duration must be positive.");
+    start_time = std::chrono::steady_clock::now();
 }
 
-void SdlAnimation::reset() { animation_frame = 0; }
+void SdlAnimation::reset() {
+    start_time = std::chrono::steady_clock::now();
+    is_finished = false;
+}
 
-// TODO animations should be independent of the framerate
+bool SdlAnimation::finished() const { return is_finished; }
+
 void SdlAnimation::render(int x, int y, double angle) {
-
-    if (clips.empty()) {
-        throw std::runtime_error("No animation clips provided for SdlAnimation.");
+    if (is_finished && !repeats) {
+        // If animation is finished and doesn't repeat, render the last frame
+        texture.render(x, y, &clips[clips.size() - 1], angle, nullptr, SDL_FLIP_NONE);
+        return;
     }
 
-    const SDL_Rect& clip = clips[animation_frame];
-    std::cout << "Rendering frame " << animation_frame << " at (" << x << "," << y
-              << ") clip: " << clip.x << "," << clip.y << "," << clip.w << "," << clip.h
-              << std::endl;
+    auto current_time = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
 
-    // Render the current animation frame
-    texture.render(x, y, &clips[animation_frame], angle, nullptr, SDL_FLIP_NONE);
+    if (!repeats && elapsed >= animation_duration) {
+        // Animation finished and doesn't repeat
+        is_finished = true;
+        texture.render(x, y, &clips[clips.size() - 1], angle, nullptr, SDL_FLIP_NONE);
+        return;
+    }
 
-    // Advance to the next frame in the animation
-    animation_frame = (animation_frame + 1) % clips.size();
-    std::cout << "SIZE: " << clips.size() << std::endl;
-    std::cout << "Rendering animation frame: " << animation_frame << std::endl;
+    // Calculate current frame based on elapsed time
+    auto time_per_frame = animation_duration / clips.size();
+    int frame_index;
+
+    if (repeats) {
+        // For repeating animations, use modulo to loop
+        auto cycle_time = elapsed % animation_duration;
+        frame_index = static_cast<int>(cycle_time / time_per_frame);
+    } else {
+        // For non-repeating animations, clamp to last frame
+        frame_index = static_cast<int>(elapsed / time_per_frame);
+        frame_index = std::min(frame_index, static_cast<int>(clips.size() - 1));
+    }
+
+    // Ensure frame_index is within bounds
+    frame_index = std::max(0, std::min(frame_index, static_cast<int>(clips.size() - 1)));
+
+    texture.render(x, y, &clips[frame_index], angle, nullptr, SDL_FLIP_NONE);
 }

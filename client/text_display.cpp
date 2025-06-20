@@ -316,13 +316,27 @@ Message TextDisplay::build_message<SwitchItemCommand>(std::istringstream& iss) {
 }
 
 template <>
-Message TextDisplay::build_message<PlantBombCommand>([[maybe_unused]] std::istringstream& iss) {
-    return Message(PlantBombCommand());
+Message TextDisplay::build_message<StartPlantingBombCommand>(
+        [[maybe_unused]] std::istringstream& iss) {
+    return Message(StartPlantingBombCommand());
 }
 
 template <>
-Message TextDisplay::build_message<DefuseBombCommand>([[maybe_unused]] std::istringstream& iss) {
-    return Message(DefuseBombCommand());
+Message TextDisplay::build_message<StopPlantingBombCommand>(
+        [[maybe_unused]] std::istringstream& iss) {
+    return Message(StopPlantingBombCommand());
+}
+
+template <>
+Message TextDisplay::build_message<StartDefusingBombCommand>(
+        [[maybe_unused]] std::istringstream& iss) {
+    return Message(StartDefusingBombCommand());
+}
+
+template <>
+Message TextDisplay::build_message<StopDefusingBombCommand>(
+        [[maybe_unused]] std::istringstream& iss) {
+    return Message(StopDefusingBombCommand());
 }
 
 template <>
@@ -378,10 +392,22 @@ Message TextDisplay::parse_line(const std::string& line) {
              [this](std::istringstream& is) { return this->build_message<ReloadCommand>(is); }},
             {"switch",
              [this](std::istringstream& is) { return this->build_message<SwitchItemCommand>(is); }},
-            {"plant",
-             [this](std::istringstream& is) { return this->build_message<PlantBombCommand>(is); }},
-            {"defuse",
-             [this](std::istringstream& is) { return this->build_message<DefuseBombCommand>(is); }},
+            {"start planting",
+             [this](std::istringstream& is) {
+                 return this->build_message<StartPlantingBombCommand>(is);
+             }},
+            {"stop planting",
+             [this](std::istringstream& is) {
+                 return this->build_message<StopPlantingBombCommand>(is);
+             }},
+            {"start defusing",
+             [this](std::istringstream& is) {
+                 return this->build_message<StartDefusingBombCommand>(is);
+             }},
+            {"stop defusing",
+             [this](std::istringstream& is) {
+                 return this->build_message<StopDefusingBombCommand>(is);
+             }},
             {"pickup",
              [this](std::istringstream& is) { return this->build_message<PickUpItemCommand>(is); }},
             {"leave",

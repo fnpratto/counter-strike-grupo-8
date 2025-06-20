@@ -51,7 +51,6 @@ payload_t ServerProtocol::serialize_msg(const ShopPricesResponse& response) cons
 template <>
 payload_t ServerProtocol::serialize_msg(const HitResponse& response) const {
     payload_t payload;
-
     // Serialize origin Vector2D
     payload_t origin_x = serialize(response.get_origin().get_x());
     payload_t origin_y = serialize(response.get_origin().get_y());
@@ -106,12 +105,23 @@ payload_t ServerProtocol::serialize_msg(const RoundEndResponse& response) const 
     return serialize(static_cast<uint8_t>(response.get_winning_team()));
 }
 
-
 template <>
 payload_t ServerProtocol::serialize_msg(const Map& map) const {
     return serialize(map);
 }
 
+template <>
+payload_t ServerProtocol::serialize_msg(const BombExplodedResponse& response) const {
+    payload_t payload;
+    payload_t explosion_center = serialize(response.get_explosion_center());
+    payload_t explosion_radius = serialize(response.get_explosion_radius());
+
+    payload.reserve(explosion_center.size() + explosion_radius.size());
+    payload.insert(payload.end(), explosion_center.begin(), explosion_center.end());
+    payload.insert(payload.end(), explosion_radius.begin(), explosion_radius.end());
+
+    return payload;
+}
 
 #define SERIALIZE_MSG(msg, msg_type) \
     case MessageType::msg_type:      \
@@ -250,15 +260,31 @@ GetScoreboardCommand ServerProtocol::deserialize_msg<GetScoreboardCommand>(
 }
 
 template <>
-PlantBombCommand ServerProtocol::deserialize_msg<PlantBombCommand>(payload_t& payload) const {
+StartPlantingBombCommand ServerProtocol::deserialize_msg<StartPlantingBombCommand>(
+        payload_t& payload) const {
     (void)payload;
-    return PlantBombCommand();
+    return StartPlantingBombCommand();
 }
 
 template <>
-DefuseBombCommand ServerProtocol::deserialize_msg<DefuseBombCommand>(payload_t& payload) const {
+StopPlantingBombCommand ServerProtocol::deserialize_msg<StopPlantingBombCommand>(
+        payload_t& payload) const {
     (void)payload;
-    return DefuseBombCommand();
+    return StopPlantingBombCommand();
+}
+
+template <>
+StartDefusingBombCommand ServerProtocol::deserialize_msg<StartDefusingBombCommand>(
+        payload_t& payload) const {
+    (void)payload;
+    return StartDefusingBombCommand();
+}
+
+template <>
+StopDefusingBombCommand ServerProtocol::deserialize_msg<StopDefusingBombCommand>(
+        payload_t& payload) const {
+    (void)payload;
+    return StopDefusingBombCommand();
 }
 
 template <>

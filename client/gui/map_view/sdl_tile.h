@@ -31,11 +31,10 @@ class SdlTile {
 
 public:
     explicit SdlTile(SdlWindow& window, const SdlCamera& camera):
-            window(window), camera(camera), sheet(TILES_PATH, window, WIDTH, HEIGHT) {}
+            window(window), camera(camera), sheet(TILES_PATH, window) {}
 
-    template <typename T>
-    void render(const T& tile) {
-        auto position_from_cam = camera.get_screen_pos(tile.get_pos());
+    void render(const Tile& tile) {
+        auto position_from_cam = camera.get_screen_pos(tile.pos);
 
         // TODO : Implement proper tile rendering based on tile type
         SDL_Rect src_rect = {WIDTH, 0, WIDTH, HEIGHT};

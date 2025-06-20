@@ -42,6 +42,7 @@ private:
     int SCREEN_HEIGHT;
     std::unique_ptr<ScoreDisplay> score_display;
     std::unique_ptr<shopDisplay> shop_display;
+    std::unique_ptr<SdlWorld> world;
     void setup();
 
     Map get_map();

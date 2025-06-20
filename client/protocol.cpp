@@ -146,14 +146,25 @@ payload_t ClientProtocol::serialize_msg([[maybe_unused]] const GetScoreboardComm
     return payload_t();
 }
 
-
 template <>
-payload_t ClientProtocol::serialize_msg([[maybe_unused]] const PlantBombCommand& cmd) const {
+payload_t ClientProtocol::serialize_msg(
+        [[maybe_unused]] const StartPlantingBombCommand& cmd) const {
     return payload_t();
 }
 
 template <>
-payload_t ClientProtocol::serialize_msg([[maybe_unused]] const DefuseBombCommand& cmd) const {
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const StopPlantingBombCommand& cmd) const {
+    return payload_t();
+}
+
+template <>
+payload_t ClientProtocol::serialize_msg(
+        [[maybe_unused]] const StartDefusingBombCommand& cmd) const {
+    return payload_t();
+}
+
+template <>
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const StopDefusingBombCommand& cmd) const {
     return payload_t();
 }
 
@@ -209,6 +220,7 @@ ShopPricesResponse ClientProtocol::deserialize_msg<ShopPricesResponse>(payload_t
 
 template <>
 HitResponse ClientProtocol::deserialize_msg<HitResponse>(payload_t& payload) const {
+
     // Deserialize origin Vector2D
     int origin_x = deserialize<int>(payload);
     int origin_y = deserialize<int>(payload);
@@ -235,8 +247,6 @@ CharactersResponse ClientProtocol::deserialize_msg<CharactersResponse>(payload_t
     return CharactersResponse(deserialize<std::vector<CharacterType>>(payload));
 }
 
-
-// TODO
 template <>
 ScoreboardResponse ClientProtocol::deserialize_msg<ScoreboardResponse>(payload_t& payload) const {
     auto scoreboard = deserialize<std::string, ScoreboardEntry>(payload);
@@ -244,9 +254,8 @@ ScoreboardResponse ClientProtocol::deserialize_msg<ScoreboardResponse>(payload_t
 }
 
 template <>
-ErrorResponse ClientProtocol::deserialize_msg<ErrorResponse>(payload_t& payload) const {
-    // ErrorResponse is an empty class, no data to deserialize
-    (void)payload;
+ErrorResponse ClientProtocol::deserialize_msg<ErrorResponse>(
+        [[maybe_unused]] payload_t& payload) const {
     return ErrorResponse();
 }
 
@@ -254,6 +263,14 @@ template <>
 RoundEndResponse ClientProtocol::deserialize_msg<RoundEndResponse>(payload_t& payload) const {
     uint8_t team = deserialize<uint8_t>(payload);
     return RoundEndResponse(static_cast<Team>(team));
+}
+
+template <>
+BombExplodedResponse ClientProtocol::deserialize_msg<BombExplodedResponse>(
+        [[maybe_unused]] payload_t& payload) const {
+    Vector2D explosion_center = deserialize<Vector2D>(payload);
+    int explosion_radius = deserialize<int>(payload);
+    return BombExplodedResponse(explosion_center, explosion_radius);
 }
 
 template <>

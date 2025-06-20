@@ -6,6 +6,7 @@
 #include "common/map/map.h"
 #include "common/utils/rate_controller.h"
 #include "map/map_builder.h"
+#include "server/game/game_config.h"
 #include "server/player_message.h"
 
 GameThread::GameThread(const std::string& name, Map&& map):
