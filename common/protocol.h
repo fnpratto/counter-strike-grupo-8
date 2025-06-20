@@ -170,7 +170,7 @@ protected:
         bool has_value = deserialize<bool>(payload);
 
         if (has_value) {
-            return deserialize<T>(payload);
+            return deserialize<typename T::value_type>(payload);
         }
 
         return {};
