@@ -3,6 +3,9 @@
 SdlAnimation::SdlAnimation(const SdlWindow& window, const std::string& path,
                            const std::vector<SDL_Rect>& clips):
         texture(path, window, 32, 32), clips(clips) {
+    if (clips.empty())
+        throw std::runtime_error("SdlAnimation: No animation clips provided.");
+
     animation_frame = 0;
 }
 
@@ -10,21 +13,10 @@ void SdlAnimation::reset() { animation_frame = 0; }
 
 // TODO animations should be independent of the framerate
 void SdlAnimation::render(int x, int y, double angle) {
-
     if (clips.empty()) {
         throw std::runtime_error("No animation clips provided for SdlAnimation.");
     }
 
-    const SDL_Rect& clip = clips[animation_frame];
-    std::cout << "Rendering frame " << animation_frame << " at (" << x << "," << y
-              << ") clip: " << clip.x << "," << clip.y << "," << clip.w << "," << clip.h
-              << std::endl;
-
-    // Render the current animation frame
     texture.render(x, y, &clips[animation_frame], angle, nullptr, SDL_FLIP_NONE);
-
-    // Advance to the next frame in the animation
     animation_frame = (animation_frame + 1) % clips.size();
-    std::cout << "SIZE: " << clips.size() << std::endl;
-    std::cout << "Rendering animation frame: " << animation_frame << std::endl;
 }

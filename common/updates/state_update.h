@@ -54,7 +54,6 @@ protected:
     std::vector<T> merge(const std::vector<T>& a, const std::vector<T>& b) const {
         std::vector<T> merged = a;
         merged.reserve(a.size() + b.size());
-        merged.insert(merged.end(), a.begin(), a.end());
         merged.insert(merged.end(), b.begin(), b.end());
         return merged;
     }

@@ -31,7 +31,7 @@ class SdlTile {
 
 public:
     explicit SdlTile(SdlWindow& window, const SdlCamera& camera):
-            window(window), camera(camera), sheet(TILES_PATH, window, WIDTH, HEIGHT) {}
+            window(window), camera(camera), sheet(TILES_PATH, window) {}
 
     template <typename T>
     void render(const T& tile) {

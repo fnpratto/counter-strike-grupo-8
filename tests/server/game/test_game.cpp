@@ -589,3 +589,43 @@ TEST_F(TestGame, PlayerCannotPlantBombWhenNotInBombSite) {
     auto bomb = game.get_full_update().get_players().at("tt").get_inventory().get_bomb().value();
     EXPECT_EQ(bomb.get_bomb_phase(), BombPhaseType::NotPlanted);
 }
+
+TEST_F(TestGame, OneTerroristHasBombWhenRoundStarts) {
+    game.join_player("tt");
+    game.join_player("ct");
+    Message msg_select_team = Message(SelectTeamCommand(Team::TT));
+    game.tick({PlayerMessage("tt", msg_select_team)});
+    msg_select_team = Message(SelectTeamCommand(Team::CT));
+    game.tick({PlayerMessage("ct", msg_select_team)});
+
+    Message msg_start = Message(SetReadyCommand());
+    game.tick({PlayerMessage("tt", msg_start), PlayerMessage("ct", msg_start)});
+
+    GameUpdate updates = game.get_full_update();
+    Vector2D tt_pos = updates.get_players().at("tt").get_pos();
+    Vector2D ct_pos = updates.get_players().at("ct").get_pos();
+    Message msg_aim = Message(AimCommand(tt_pos - ct_pos));
+    Message msg_switch_weap = Message(SwitchItemCommand(ItemSlot::Secondary));
+    game.tick({PlayerMessage("ct", msg_aim), PlayerMessage("ct", msg_switch_weap)});
+
+    advance_secs(PhaseTimes::buying_duration);
+
+    Message msg_attack = Message(AttackCommand());
+    while (updates.get_players().at("tt").get_health() > 0) {
+        advance_secs(1.0f / GlockConfig.attack_rate);
+        game.tick({PlayerMessage("ct", msg_attack)});
+        updates = game.get_full_update();
+    }
+
+    EXPECT_FALSE(updates.get_players().at("tt").get_inventory().get_bomb().has_value());
+    EXPECT_TRUE(updates.get_bomb().has_value());
+    EXPECT_EQ(updates.get_bomb().value().hitbox.get_pos(), tt_pos);
+
+    advance_secs(PhaseTimes::playing_duration);
+    game.tick({});
+    advance_secs(PhaseTimes::round_end_duration);
+    auto player_messages = game.tick({});
+    updates = player_messages[0].get_message().get_content<GameUpdate>();
+    EXPECT_TRUE(updates.get_players().at("tt").get_inventory().get_bomb().has_value());
+    EXPECT_FALSE(updates.get_bomb().has_value());
+}

@@ -52,7 +52,7 @@ public:
     void add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos);
     std::unique_ptr<Gun>&& remove_dropped_gun_at_pos(const Vector2D& pos);
     void add_bomb(Bomb&& bomb, const Vector2D& pos);
-    Bomb&& remove_bomb();
+    Bomb remove_bomb();
 
     Team get_winning_team() const;
     void give_rewards_to_players(Team winning_team);

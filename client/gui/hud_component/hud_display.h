@@ -54,6 +54,7 @@ class hudDisplay {
     float scaleRatio;
     HudLayout layout;
     SdlTexture start_game_buttom;
+    bool in_game = false;
 
 
 public:
@@ -61,6 +62,7 @@ public:
     void render();
     void updatePointerPosition(int x, int y);
     bool start_game_click(int x, int y);
+
 
 private:
     void renderBackground();

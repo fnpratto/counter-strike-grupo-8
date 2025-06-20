@@ -67,7 +67,8 @@ void hudDisplay::renderChat() {
     int totalPlayers = state.get_players().size();
     int readyPlayers = 0;
 
-    for (const auto& [name, player_state]: state.get_players()) {
+    for (const auto& [name, player_state]:  // cppcheck-suppress[unassignedVariable]
+         state.get_players()) {
         if (player_state.get_ready()) {
             readyPlayers++;
             roundText.setTextString(name + " join game");
@@ -248,34 +249,31 @@ void hudDisplay::renderBullets() {
                            SCREEN_HEIGHT - iconHeight * 3, 64 * layout.scale, 64 * layout.scale);
     equipedBullets.render(sizeBullets, destBullets);
 
-    std::string bulletsStr =
-            std::to_string(state.get_players()
-                                   .at(player_name)
-                                   .get_inventory()
-                                   .get_guns()
-                                   .at(state.get_players().at(player_name).get_equipped_item())
-                                   .get_mag_ammo());
+    auto player = state.get_players().at(player_name);
+    auto equipped_item = player.get_equipped_item();
+    auto player_guns = player.get_inventory().get_guns();
 
-    std::string bulletsReserve =
-            std::to_string(state.get_players()
-                                   .at(player_name)
-                                   .get_inventory()
-                                   .get_guns()
-                                   .at(state.get_players().at(player_name).get_equipped_item())
-                                   .get_reserve_ammo());
+    // If the equipped item is not a gun, return early
+    if (player_guns.find(equipped_item) == player_guns.end())
+        return;
+
+    auto gun = player_guns.at(equipped_item);
+    std::string bulletsStr = std::to_string(gun.get_mag_ammo());
+    std::string bulletsReserve = std::to_string(gun.get_reserve_ammo());
+
 
     int x = SCREEN_WIDTH - layout.size_width - SCREEN_WIDTH / 40 - layout.padding * 8;
     int y = SCREEN_HEIGHT - iconHeight * 3;
+
     renderDigits(bulletsStr, x, y, equipedBulletsAmount);
 
     x += layout.digitSpacing * bulletsStr.size();
 
-    const Area sizeWhiteLine(0, 0, 30, 300);  // Adjust dimensions as needed
-    const Area destWhiteLine(x + 5, y, 5 * scaleRatio,
-                             32 * scaleRatio);  // Adjust dimensions as needed
+    const Area sizeWhiteLine(0, 0, 30, 300);
+    const Area destWhiteLine(x + 5, y, 5 * scaleRatio, 32 * scaleRatio);
     white_line.render(sizeWhiteLine, destWhiteLine);
 
-    x += 5 * scaleRatio + 5;  // Move x position after rendering the white line
+    x += 5 * scaleRatio + 5;
 
     renderDigits(bulletsReserve, x, y, equipedBulletsAmount);
 }
@@ -296,7 +294,7 @@ void hudDisplay::renderGunIcons() {
                                                  {ItemSlot::Melee, "3"},
                                                  {ItemSlot::Bomb, "4"}};
 
-    for (const auto& [slot, gun]: guns) {
+    for (const auto& [slot, gun]: guns) {  // cppcheck-suppress[unassignedVariable]
         GunType type = gun.get_gun();
 
         int iconIndex = -1;
@@ -329,14 +327,9 @@ void hudDisplay::renderGunIcons() {
 
     y += spacing;
 
-    // Only render bomb if it exists
-    try {
-        if (!inventory.get_bomb().has_value()) {
-            return;
-        }
-    } catch (const std::exception& e) {
+    if (!inventory.get_bomb().has_value())
         return;
-    }
+
     int bombIndex = GameConfig::offsetInventory["bomb"];
     Area bombSrc(bombIndex * iconWidth, 0, iconWidth, iconHeight);
     Area bombDest(x, y, SCREEN_WIDTH / 14, 34);
@@ -369,7 +362,10 @@ bool hudDisplay::start_game_click(int x, int y) {
     int buttonY = SCREEN_HEIGHT - buttonHeight - layout.padding * 2;
 
     if (x >= buttonX && x <= buttonX + buttonWidth && y >= buttonY && y <= buttonY + buttonHeight) {
-        return true;
+        if (!in_game) {
+            in_game = true;
+            return true;
+        }
     }
     return false;
 }

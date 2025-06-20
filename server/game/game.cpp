@@ -204,7 +204,7 @@ void Game::handle<SelectTeamCommand>(const std::string& player_name, const Selec
 
     auto& player = state.get_player(player_name);
     player->select_team(msg.get_team());
-    move_player_to_spawn(player_name);
+    move_player_to_spawn(player);
 }
 
 template <>
@@ -239,7 +239,7 @@ void Game::handle<SetReadyCommand>(const std::string& player_name,
     if (state.all_players_ready()) {
         give_bomb_to_random_tt(Bomb());
         state.get_phase().start_game();
-        for (const auto& [p_name, _]: state.get_players()) move_player_to_spawn(p_name);
+        for (const auto& [_, player]: state.get_players()) move_player_to_spawn(player);
     }
 }
 
@@ -440,7 +440,7 @@ void Game::give_bomb_to_random_tt(Bomb&& bomb) {
 void Game::prepare_new_round() {
     state.advance_round();
     for (const auto& [p_name, player]: state.get_players()) {
-        move_player_to_spawn(p_name);
+        move_player_to_spawn(player);
         player->reset();
         auto bomb = player->drop_bomb();
         if (bomb.has_value())
@@ -452,8 +452,7 @@ void Game::prepare_new_round() {
     }
 }
 
-void Game::move_player_to_spawn(const std::string& player_name) {
-    auto& player = state.get_player(player_name);
+void Game::move_player_to_spawn(const std::unique_ptr<Player>& player) {
     if (player->is_tt())
         player->move_to_pos(physics_system.random_spawn_tt_pos());
     else
