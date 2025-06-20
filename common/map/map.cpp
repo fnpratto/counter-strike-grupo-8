@@ -5,6 +5,10 @@
 
 Map::Map(const std::string& name, int max_players): name(name), max_players(max_players) {}
 
+std::string Map::get_name() const { return name; }
+
+int Map::get_max_players() const { return max_players; }
+
 const std::map<Vector2D, const Tile>& Map::get_tiles() const { return tiles; }
 
 const std::vector<const Tile&>& Map::get_spawns_tts() const { return spawns_tts; }
