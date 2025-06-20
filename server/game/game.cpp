@@ -429,7 +429,7 @@ float Game::get_tick_duration() {
             return 1.0f / GameConfig::tickrate;
         } else {
             float elapsed = std::chrono::duration<float>(now - last_tick).count();
-            return 1.0f / elapsed;
+            return elapsed;
         }
     }
 }
