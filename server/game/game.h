@@ -43,7 +43,7 @@ public:
     std::vector<PlayerMessage> tick(const std::vector<PlayerMessage>& msgs);
 
     const std::string& get_name() const;
-    const std::string& get_map_name() const;
+    std::string get_map_name() const;
     int get_player_count() const;
     PhaseType get_phase();
 

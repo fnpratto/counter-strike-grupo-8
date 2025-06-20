@@ -16,7 +16,7 @@ MapStore::MapStore() {
         if (map_file.path().extension() == ".yaml") {
             MapBuilder builder(map_file.path().string());
             Map map = builder.build();
-            maps.emplace(map.name, std::move(map));
+            maps.emplace(map.get_name(), std::move(map));
         }
     }
 }

@@ -41,7 +41,7 @@ std::vector<PlayerMessage> Game::tick(const std::vector<PlayerMessage>& msgs) {
 
 const std::string& Game::get_name() const { return name; }
 
-const std::string& Game::get_map_name() const { return physics_system.get_map().get_name(); }
+std::string Game::get_map_name() const { return physics_system.get_map().get_name(); }
 
 int Game::get_player_count() const { return static_cast<int>(state.get_players().size()); }
 

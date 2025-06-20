@@ -1,5 +1,6 @@
 #include "map.h"
 
+#include <functional>
 #include <stdexcept>
 #include <utility>
 

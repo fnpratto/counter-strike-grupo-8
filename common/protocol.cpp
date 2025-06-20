@@ -11,10 +11,8 @@
 #include <sys/socket.h>
 
 #include "common/game/world_item.h"
-#include "common/map/box.h"
-#include "common/map/floor.h"
 #include "common/map/map.h"
-#include "common/map/wall.h"
+#include "common/map/tile.h"
 #include "common/models.h"
 #include "common/socket.h"
 #include "common/updates/bomb_update.h"
@@ -206,55 +204,47 @@ payload_t BaseProtocol::serialize(const Rectangle& rectangle) const {
 }
 
 template <>
-payload_t BaseProtocol::serialize(const Floor& floor) const {
-    return serialize(floor.get_pos());
-}
+payload_t BaseProtocol::serialize(const Tile& tile) const {
+    payload_t payload;
 
-template <>
-payload_t BaseProtocol::serialize(const Wall& wall) const {
-    return serialize(wall.get_pos());
-}
+    payload_t pos_payload = serialize(tile.pos);
+    payload_t id_payload = serialize(tile.id);
+    payload_t is_collidable_payload = serialize(tile.is_collidable);
+    payload_t is_spawn_tt_payload = serialize(tile.is_spawn_tt);
+    payload_t is_spawn_ct_payload = serialize(tile.is_spawn_ct);
+    payload_t is_bomb_site_payload = serialize(tile.is_bomb_site);
 
-template <>
-payload_t BaseProtocol::serialize(const Box& box) const {
-    return serialize(box.get_pos());
+    payload.reserve(pos_payload.size() + id_payload.size() + is_collidable_payload.size() +
+                    is_spawn_tt_payload.size() + is_spawn_ct_payload.size() +
+                    is_bomb_site_payload.size());
+
+    payload.insert(payload.end(), pos_payload.begin(), pos_payload.end());
+    payload.insert(payload.end(), id_payload.begin(), id_payload.end());
+    payload.insert(payload.end(), is_collidable_payload.begin(), is_collidable_payload.end());
+    payload.insert(payload.end(), is_spawn_tt_payload.begin(), is_spawn_tt_payload.end());
+    payload.insert(payload.end(), is_spawn_ct_payload.begin(), is_spawn_ct_payload.end());
+    payload.insert(payload.end(), is_bomb_site_payload.begin(), is_bomb_site_payload.end());
+
+    return payload;
 }
 
 template <>
 payload_t BaseProtocol::serialize(const Map& map) const {
     payload_t payload;
 
-    // Serialize name
-    payload_t name_payload = serialize(map.name);
+    payload_t name_payload = serialize(map.get_name());
+    payload_t max_players_payload = serialize(map.get_max_players());
+    payload_t height_payload = serialize(map.get_height());
+    payload_t width_payload = serialize(map.get_width());
+    payload_t tiles_payload = serialize(map.get_tiles());
+
+    payload.reserve(name_payload.size() + max_players_payload.size() + tiles_payload.size());
+
     payload.insert(payload.end(), name_payload.begin(), name_payload.end());
-
-    // Serialize max_players
-    payload_t max_players_payload = serialize(map.max_players);
     payload.insert(payload.end(), max_players_payload.begin(), max_players_payload.end());
-
-    // Serialize floors
-    payload_t floors_payload = serialize(map.floors);
-    payload.insert(payload.end(), floors_payload.begin(), floors_payload.end());
-
-    // Serialize walls
-    payload_t walls_payload = serialize(map.walls);
-    payload.insert(payload.end(), walls_payload.begin(), walls_payload.end());
-
-    // Serialize boxes
-    payload_t boxes_payload = serialize(map.boxes);
-    payload.insert(payload.end(), boxes_payload.begin(), boxes_payload.end());
-
-    // Serialize spawns_tts
-    payload_t spawns_tts_payload = serialize(map.spawns_tts);
-    payload.insert(payload.end(), spawns_tts_payload.begin(), spawns_tts_payload.end());
-
-    // Serialize spawns_cts
-    payload_t spawns_cts_payload = serialize(map.spawns_cts);
-    payload.insert(payload.end(), spawns_cts_payload.begin(), spawns_cts_payload.end());
-
-    // Serialize bomb_sites
-    payload_t bomb_sites_payload = serialize(map.bomb_sites);
-    payload.insert(payload.end(), bomb_sites_payload.begin(), bomb_sites_payload.end());
+    payload.insert(payload.end(), height_payload.begin(), height_payload.end());
+    payload.insert(payload.end(), width_payload.begin(), width_payload.end());
+    payload.insert(payload.end(), tiles_payload.begin(), tiles_payload.end());
 
     return payload;
 }
@@ -432,36 +422,34 @@ Rectangle BaseProtocol::deserialize<Rectangle>(payload_t& payload) const {
 }
 
 template <>
-Floor BaseProtocol::deserialize<Floor>(payload_t& payload) const {
+Tile BaseProtocol::deserialize<Tile>(payload_t& payload) const {
     Vector2D pos = deserialize<Vector2D>(payload);
-    return Floor(std::move(pos));
-}
+    int id = deserialize<int>(payload);
+    bool is_collidable = deserialize<bool>(payload);
+    bool is_spawn_tt = deserialize<bool>(payload);
+    bool is_spawn_ct = deserialize<bool>(payload);
+    bool is_bomb_site = deserialize<bool>(payload);
 
-template <>
-Wall BaseProtocol::deserialize<Wall>(payload_t& payload) const {
-    Vector2D pos = deserialize<Vector2D>(payload);
-    return Wall(std::move(pos));
-}
-
-template <>
-Box BaseProtocol::deserialize<Box>(payload_t& payload) const {
-    Vector2D pos = deserialize<Vector2D>(payload);
-    return Box(std::move(pos));
+    return Tile(std::move(pos), id, is_collidable, is_spawn_tt, is_spawn_ct, is_bomb_site);
 }
 
 template <>
 Map BaseProtocol::deserialize<Map>(payload_t& payload) const {
     std::string name = deserialize<std::string>(payload);
     int max_players = deserialize<int>(payload);
+    int height = deserialize<int>(payload);
+    int width = deserialize<int>(payload);
 
-    Map map(name, max_players);
+    Map map(name, max_players, height, width);
 
-    map.floors = deserialize<std::vector<Floor>>(payload);
-    map.walls = deserialize<std::vector<Wall>>(payload);
-    map.boxes = deserialize<std::vector<Box>>(payload);
-    map.spawns_tts = deserialize<std::vector<Vector2D>>(payload);
-    map.spawns_cts = deserialize<std::vector<Vector2D>>(payload);
-    map.bomb_sites = deserialize<std::vector<Vector2D>>(payload);
+    auto tiles = deserialize<std::vector<std::vector<std::optional<Tile>>>>(payload);
+    for (auto& row: tiles) {
+        for (auto& tile: row) {
+            if (tile) {
+                map.add_tile(std::move(tile.value()));
+            }
+        }
+    }
 
     return map;
 }

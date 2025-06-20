@@ -20,15 +20,6 @@ class PhysicsSystem {
     const std::vector<WorldItem<std::unique_ptr<Gun>>>& dropped_guns;
     const std::optional<WorldItem<Bomb>>& bomb;
 
-    Vector2D rand_pos_in_vector(const std::vector<std::reference_wrapper<Tile>>& vector) const;
-
-    Vector2D calculate_step(const Vector2D& dir) const;
-    bool can_move_to_pos(const Vector2D& pos) const;
-
-    std::optional<Target> get_closest_collidable_tile(const std::string& origin_p_name,
-                                                      const Vector2D& dir);
-    std::optional<Target> get_closest_player(const std::string& origin_p_name, const Vector2D& dir);
-
 public:
     PhysicsSystem(Map&& map, const std::map<std::string, std::unique_ptr<Player>>& players,
                   const std::vector<WorldItem<std::unique_ptr<Gun>>>& dropped_guns,
@@ -36,36 +27,46 @@ public:
 
     PhysicsSystem(const PhysicsSystem&) = delete;
     PhysicsSystem& operator=(const PhysicsSystem&) = delete;
-
     PhysicsSystem(PhysicsSystem&&) = delete;
     PhysicsSystem& operator=(PhysicsSystem&&) = delete;
 
+    const Map& get_map() const { return map; }
+
+    // Player spawn and positioning
     Vector2D random_spawn_tt_pos() const;
     Vector2D random_spawn_ct_pos() const;
+    Vector2D calculate_new_pos(const std::unique_ptr<Player>& player) const;
+
+    // Area checking
     bool player_in_spawn(const std::string& player_name) const;
     bool player_in_bomb_site(const std::string& player_name) const;
 
-    Vector2D calculate_new_pos(const std::unique_ptr<Player>& player) const;
-
-    std::optional<Target> get_closest_target_in_dir(const std::string& origin_p_name,
-                                                    const Vector2D& dir, int max_range);
-    std::vector<PlayerRef> get_players_in_radius(const Vector2D& center, int radius) const;
-
+    // Collision detection
     bool player_collides_with_bomb(const std::unique_ptr<Player>& player) const;
     std::optional<Vector2D> get_player_colliding_gun_pos(
             const std::unique_ptr<Player>& player) const;
 
-    const Map& get_map() const { return map; }
+    // Target and range finding
+    std::optional<Target> get_closest_target_in_dir(const std::string& origin_p_name,
+                                                    const Vector2D& dir, int max_range);
+    std::vector<PlayerRef> get_players_in_radius(const Vector2D& center, int radius) const;
 
 private:
+    // Vector utilities
     Vector2D rand_pos_in_vector(const std::vector<Vector2D>& vector) const;
+    Vector2D rand_pos_in_vector(const std::vector<std::reference_wrapper<Tile>>& vector) const;
     bool is_pos_in_vector(const std::vector<Vector2D>& vector, const Vector2D& pos) const;
 
+    // Movement and positioning
     Vector2D calculate_step(const Vector2D& dir) const;
+    bool can_move_to_pos(const Vector2D& pos) const;
     bool is_walkable(const Vector2D& pos) const;
 
+    // Target finding helpers
     template <typename T>
     std::optional<Target> get_closest_tile(const std::string& origin_p_name, const Vector2D& dir,
                                            const std::vector<T>& vector);
+    std::optional<Target> get_closest_collidable_tile(const std::string& origin_p_name,
+                                                      const Vector2D& dir);
     std::optional<Target> get_closest_player(const std::string& origin_p_name, const Vector2D& dir);
 };
