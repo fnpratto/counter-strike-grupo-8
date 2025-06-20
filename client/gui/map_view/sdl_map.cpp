@@ -4,9 +4,13 @@
 #include <utility>
 
 #include "sdl_camera.h"
+#include "tile_loader.h"
 
 SdlMap::SdlMap(SdlWindow& w, const SdlCamera& camera, Map&& map):
-        window(w), camera(camera), map(std::move(map)), tile(w, camera) {}
+        window(w), camera(camera), map(std::move(map)), tile(w, camera) {
+    TileLoader loader(this->map);
+    loader.load_into(this->tile);
+}
 
 void SdlMap::render() {
     for (int x = 0; x < map.get_width(); ++x) {

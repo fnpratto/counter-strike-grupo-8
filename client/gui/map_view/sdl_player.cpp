@@ -44,11 +44,14 @@ void SdlPlayer::render() {
 }
 
 
+// TODO we shouldn't be loading all the skins and we shouldn't be checking which one to use every
+// time
 void SdlPlayer::render_skin(int x, int y, float angle) {
+    static constexpr int x_offset = WIDTH / 2;
+    static constexpr int y_offset = HEIGHT / 2;
 
     const PlayerUpdate& state = game_state.get_players().at(playerName);
     SDL_Rect clip{32, 32, WIDTH, HEIGHT};
-    SdlTexture* texture = nullptr;
 
     auto team = state.get_team();
     CharacterType type;
@@ -60,18 +63,11 @@ void SdlPlayer::render_skin(int x, int y, float angle) {
     }
 
     auto& skins = (team == Team::CT) ? ct_skins : tt_skins;
-    auto it = skins.find(type);
-    if (it != skins.end()) {
-        texture = it->second.get();
-    } else {
-        std::cerr << "Missing texture for character type " << static_cast<int>(type) << " on team "
-                  << static_cast<int>(team) << std::endl;
-        return;  // avoid crashing
-    }
+    auto& texture = skins.at(type);
 
-    walk_animation.render(x, y, angle);
-    texture->render(x, y, &clip, angle, nullptr, SDL_FLIP_NONE);
-    Area dest(x - 5, y - 5, 42, 42);
+    walk_animation.render(x - x_offset, y - y_offset, angle);
+    texture->render(x - x_offset, y - y_offset, &clip, angle, nullptr, SDL_FLIP_NONE);
+    Area dest(x - x_offset - 5, y - y_offset - 5, 42, 42);
     ItemSlot item = game_state.get_players().at(playerName).get_equipped_item();
     weapon.render(item, dest, angle);
 }
