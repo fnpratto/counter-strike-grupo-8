@@ -3,6 +3,9 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QFileInfoList>
 #include <QFontDatabase>
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -12,14 +15,19 @@
 #include <QPixmap>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QStringList>
 #include <QToolBar>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <array>
+#include <string>
+
+#include <yaml-cpp/yaml.h>
 
 #include "common/qt/constants.h"
 
 #include "map_view_tile.h"
+#include "tile.h"
 #include "tile_button.h"
 
 constexpr int WINDOW_WIDTH = 845;
@@ -28,14 +36,6 @@ constexpr int WINDOW_HEIGHT = 662;
 constexpr int MAX_COLUMNS_TILEBAR = 5;
 constexpr int MAX_COLUMNS_MAPVIEW = 20;
 constexpr int MAX_ROWS_MAPVIEW = 20;
-constexpr int TILE_SIZE = 32;
-
-constexpr int DUST_TILE_COLS = 8;
-constexpr int DUST_TILE_ROWS = 10;
-constexpr std::array<int, 11> DUST_SKIP_TILES = {0, 39, 55, 64, 65, 68, 69, 70, 71, 72, 73};
-constexpr int AZTEC_TILE_COLS = 5;
-constexpr int AZTEC_TILE_ROWS = 10;
-constexpr std::array<int, 5> AZTEC_SKIP_TILES = {0, 46, 47, 48, 49};
 
 TileButton* TileButton::selected_tile_button = nullptr;
 
@@ -124,19 +124,6 @@ void EditorWindow::add_tile_bar(QVBoxLayout* sidebar_layout) {
     tilebar_widget->setLayout(tilebar_layout);
 }
 
-void EditorWindow::add_tiles(QGridLayout* tilebar_layout) {
-    int row = 0;
-    int col = 0;
-
-    QPixmap dust_tile_image(":/resources/dust.bmp");
-    this->add_some_tiles(tilebar_layout, row, col, dust_tile_image, DUST_TILE_COLS, DUST_TILE_ROWS,
-                         DUST_SKIP_TILES);
-
-    QPixmap aztec_tile_image(":/resources/default_aztec.png");
-    this->add_some_tiles(tilebar_layout, row, col, aztec_tile_image, AZTEC_TILE_COLS,
-                         AZTEC_TILE_ROWS, AZTEC_SKIP_TILES);
-}
-
 void EditorWindow::add_buttons(QVBoxLayout* sidebar_layout) {
     QHBoxLayout* button_layout = new QHBoxLayout();
 
@@ -155,17 +142,30 @@ void EditorWindow::add_buttons(QVBoxLayout* sidebar_layout) {
             []() { qDebug() << "Save Map button clicked"; });
 }
 
-template <size_t N>
-void EditorWindow::add_some_tiles(QGridLayout* tilebar_layout, int& row, int& col,
-                                  const QPixmap& tile_image, int tile_cols, int tile_rows,
-                                  const std::array<int, N>& skip_tiles) {
-    for (int i = 0; i < tile_rows; i++) {
-        for (int j = 0; j < tile_cols; j++) {
-            int tile_index = i * tile_cols + j;
-            if (std::find(skip_tiles.begin(), skip_tiles.end(), tile_index) != skip_tiles.end()) {
-                continue;
-            }
-            QPixmap tile = tile_image.copy(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+void EditorWindow::add_tiles(QGridLayout* tilebar_layout) {
+    int row = 0;
+    int col = 0;
+
+    QFileInfoList tile_sheets_files = this->get_tile_sheets_files("common/tile_sheets");
+
+    if (tile_sheets_files.isEmpty()) {
+        qDebug() << "No tile sheets found in common/tile_sheets directory.";
+        return;
+    }
+
+    for (const QFileInfo& fileInfo: tile_sheets_files) {
+        YAML::Node map_data = YAML::LoadFile(fileInfo.absoluteFilePath().toStdString());
+
+        QString map_image_path = QString::fromStdString(map_data["path"].as<std::string>());
+        int tile_size = map_data["tile_size"].as<int>();
+
+        for (const auto& tile_data: map_data["tiles"]) {
+            int tile_x = tile_data["x"].as<int>();
+            int tile_y = tile_data["y"].as<int>();
+            Tile tile;
+            tile.id = tile_data["id"].as<int>();
+            tile.image = this->get_tile_image(map_image_path, tile_x, tile_y, tile_size);
+            tile.collidable = tile_data["collidable"].as<bool>();
             QPushButton* tile_button = new TileButton(tile, this);
             tilebar_layout->addWidget(tile_button, row, col);
             col++;
@@ -175,4 +175,19 @@ void EditorWindow::add_some_tiles(QGridLayout* tilebar_layout, int& row, int& co
             }
         }
     }
+}
+
+QFileInfoList EditorWindow::get_tile_sheets_files(const QString& path) {
+    QDir tile_sheets_dir(path);
+    QStringList filters;
+    filters << "*.yaml"
+            << "*.yml";
+    tile_sheets_dir.setNameFilters(filters);
+    return tile_sheets_dir.entryInfoList(QDir::Files);
+}
+
+QPixmap EditorWindow::get_tile_image(const QString& resource_path, const int& x, const int& y,
+                                     const int& size) {
+    QPixmap tile_image(resource_path);
+    return tile_image.copy(y * size, x * size, size, size);
 }

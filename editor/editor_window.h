@@ -1,7 +1,9 @@
 #ifndef EDITOR_WINDOW_H
 #define EDITOR_WINDOW_H
 
+#include <QFileInfoList>
 #include <QGridLayout>
+#include <QPixmap>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -21,10 +23,9 @@ private:
     void add_tile_bar(QVBoxLayout* sidebar_layout);
     void add_buttons(QVBoxLayout* sidebar_layout);
     void add_tiles(QGridLayout* tilebar_layout);
-
-    template <size_t N>
-    void add_some_tiles(QGridLayout* tilebar_layout, int& row, int& col, const QPixmap& tile_image,
-                        int tile_cols, int tile_rows, const std::array<int, N>& skip_tiles);
+    QFileInfoList get_tile_sheets_files(const QString& path);
+    QPixmap get_tile_image(const QString& resource_path, const int& x, const int& y,
+                           const int& size);
 };
 
 #endif  // EDITOR_WINDOW_H

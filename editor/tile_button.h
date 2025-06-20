@@ -4,16 +4,18 @@
 #include <QPixmap>
 #include <QPushButton>
 
+#include "tile.h"
+
 class TileButton: public QPushButton {
     Q_OBJECT
 private:
     static TileButton* selected_tile_button;
-    QPixmap tile_pixmap;
+    Tile tile;
     QPoint drag_start_position;
     bool is_dragging;
 
 public:
-    explicit TileButton(const QPixmap& tile_pixmap, QWidget* parent = nullptr);
+    explicit TileButton(const Tile& tile, QWidget* parent = nullptr);
 
     static TileButton*& getSelectedTileButton();
 
