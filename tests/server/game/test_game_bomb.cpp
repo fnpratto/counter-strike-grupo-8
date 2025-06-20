@@ -74,18 +74,11 @@ TEST_F(TestGameBomb, PlayerPlantBombAfterPlantingForSecondsToPlantTime) {
 
     advance_secs(BombConfig::secs_to_plant);
     auto player_messages = game.tick({});
+    GameUpdate updates = player_messages[0].get_message().get_content<GameUpdate>();
+    EXPECT_TRUE(updates.get_bomb().has_value());
+    EXPECT_EQ(updates.get_bomb().value().item.get_bomb_phase(), BombPhaseType::Planted);
 
-    bool found_bomb_planted_resp = false;
-    for (const auto& player_msg: player_messages) {
-        if (player_msg.get_message().get_type() ==
-            MessageType::BOMB_PLANTED_RESP) {  // cppcheck-suppress[useStlAlgorithm]
-            found_bomb_planted_resp = true;
-            break;
-        }
-    }
-    EXPECT_TRUE(found_bomb_planted_resp);
-
-    GameUpdate updates = game.get_full_update();
+    updates = game.get_full_update();
     EXPECT_FALSE(updates.get_players().at("tt").get_inventory().get_bomb().has_value());
     EXPECT_TRUE(updates.get_bomb().has_value());
     EXPECT_EQ(updates.get_bomb().value().item.get_bomb_phase(), BombPhaseType::Planted);
@@ -141,6 +134,8 @@ TEST_F(TestGameBomb, BombExplodeAfterSecondsToExplode) {
     GameUpdate updates = game.get_full_update();
     EXPECT_TRUE(updates.get_bomb().has_value());
     EXPECT_EQ(updates.get_bomb().value().item.get_bomb_phase(), BombPhaseType::Exploded);
+
+    updates = game.get_full_update();
     EXPECT_LE(updates.get_players().at("tt").get_health(), PlayerConfig::full_health);
     EXPECT_LE(updates.get_players().at("ct").get_health(), PlayerConfig::full_health);
     EXPECT_EQ(updates.get_phase().get_phase(), PhaseType::RoundEnd);
@@ -168,25 +163,22 @@ TEST_F(TestGameBomb, PlayerDefuseBombAfterDefusingForSecondsToDefuseTime) {
 
     auto player_messages = game.tick({});
 
-    bool found_bomb_defused_resp = false;
     bool found_round_end_resp = false;
     for (const auto& player_msg: player_messages) {
         if (player_msg.get_message().get_type() ==
-            MessageType::BOMB_DEFUSED_RESP) {  // cppcheck-suppress[useStlAlgorithm]
-            found_bomb_defused_resp = true;
-        } else if (player_msg.get_message().get_type() ==
-                   MessageType::ROUND_END_RESP) {  // cppcheck-suppress[useStlAlgorithm]
+            MessageType::ROUND_END_RESP) {  // cppcheck-suppress[useStlAlgorithm]
             found_round_end_resp = true;
             auto round_end_resp = player_msg.get_message().get_content<RoundEndResponse>();
             EXPECT_EQ(round_end_resp.get_winning_team(), Team::CT);
         }
     }
-    EXPECT_TRUE(found_bomb_defused_resp);
     EXPECT_TRUE(found_round_end_resp);
 
     GameUpdate updates = game.get_full_update();
     EXPECT_TRUE(updates.get_bomb().has_value());
     EXPECT_EQ(updates.get_bomb().value().item.get_bomb_phase(), BombPhaseType::Defused);
+
+    updates = game.get_full_update();
     EXPECT_EQ(updates.get_players().at("tt").get_health(), PlayerConfig::full_health);
     EXPECT_EQ(updates.get_players().at("ct").get_health(), PlayerConfig::full_health);
     EXPECT_EQ(updates.get_phase().get_phase(), PhaseType::RoundEnd);
@@ -210,19 +202,11 @@ TEST_F(TestGameBomb, BombExplodeIfReachingSecondsToExplodeBeforeDefusing) {
     }
     EXPECT_TRUE(found_bomb_exploded_resp);
 
-    advance_secs(BombConfig::secs_to_defuse);
-    bool found_bomb_defused_resp = false;
-    for (const auto& player_msg: player_messages) {
-        if (player_msg.get_message().get_type() ==
-            MessageType::BOMB_DEFUSED_RESP) {  // cppcheck-suppress[useStlAlgorithm]
-            found_bomb_defused_resp = true;
-        }
-    }
-    EXPECT_FALSE(found_bomb_defused_resp);
-
     GameUpdate updates = game.get_full_update();
     EXPECT_TRUE(updates.get_bomb().has_value());
     EXPECT_EQ(updates.get_bomb().value().item.get_bomb_phase(), BombPhaseType::Exploded);
+
+    updates = game.get_full_update();
     EXPECT_LE(updates.get_players().at("tt").get_health(), PlayerConfig::full_health);
     EXPECT_LE(updates.get_players().at("ct").get_health(), PlayerConfig::full_health);
     EXPECT_EQ(updates.get_phase().get_phase(), PhaseType::RoundEnd);

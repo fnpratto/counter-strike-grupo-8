@@ -92,7 +92,6 @@ void Game::advance_bomb_logic() {
                     return;
                 state.add_bomb(std::move(player->drop_bomb().value()), player->get_hitbox().center);
                 state.get_phase().start_bomb_planted_phase();
-                send_msg_to_all_players(Message(BombPlantedResponse()));
             }
         }
         return;
@@ -101,10 +100,8 @@ void Game::advance_bomb_logic() {
     auto& bomb = state.get_bomb().value();
     bomb.item.advance(state.get_phase().get_time_now());
 
-    if (bomb.item.is_defused()) {
-        send_msg_to_all_players(Message(BombDefusedResponse()));
+    if (bomb.item.is_defused())
         return;
-    }
 
     if (!bomb.item.should_explode())
         return;
