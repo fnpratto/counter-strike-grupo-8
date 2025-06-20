@@ -1,31 +1,28 @@
 #pragma once
 
+#include <map>
 #include <string>
 #include <vector>
 
-#include "common/utils/vector_2d.h"
+#include "tile.h"
 
-#include "box.h"
-#include "floor.h"
-#include "wall.h"
-
-struct Map {
+class Map {
+private:
     std::string name;
     int max_players;
 
-    std::vector<Floor> floors;
-    std::vector<Wall> walls;
-    std::vector<Box> boxes;
-    std::vector<Vector2D> spawns_tts;
-    std::vector<Vector2D> spawns_cts;
-    std::vector<Vector2D> bomb_sites;
+    std::map<Vector2D, const Tile> tiles;
+    std::vector<const Tile&> spawns_tts;
+    std::vector<const Tile&> spawns_cts;
 
-    Map(const std::string& name, int max_players): name(name), max_players(max_players) {}
+public:
+    Map(const std::string& name, int max_players);
 
-    void validate() const {
-        if (spawns_tts.empty())
-            throw std::runtime_error("Map '" + name + "' has no Terrorist spawns");
-        if (spawns_cts.empty())
-            throw std::runtime_error("Map '" + name + "' has no Counter-Terrorist spawns");
-    }
+    const std::map<Vector2D, const Tile>& get_tiles() const;
+    const std::vector<const Tile&>& get_spawns_tts() const;
+    const std::vector<const Tile&>& get_spawns_cts() const;
+
+    void validate() const;
+
+    void add_tile(Tile&& tile);
 };
