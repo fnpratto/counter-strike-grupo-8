@@ -41,7 +41,7 @@ public:
     GamePhase& get_phase();
     const std::map<std::string, std::unique_ptr<Player>>& get_players() const;
     const std::unique_ptr<Player>& get_player(const std::string& player_name) const;
-    const std::vector<WorldItem<std::unique_ptr<Gun>>>& get_dropped_guns() const;
+    std::vector<WorldItem<std::unique_ptr<Gun>>>& get_dropped_guns();
     std::optional<WorldItem<Bomb>>& get_bomb();
 
     void advance_round();

@@ -450,6 +450,7 @@ void Game::prepare_new_round() {
         state.get_bomb().value().item.reset();
         give_bomb_to_random_tt(std::move(state.remove_bomb()));
     }
+    state.get_dropped_guns().clear();
 }
 
 void Game::move_player_to_spawn(const std::unique_ptr<Player>& player) {

@@ -71,9 +71,7 @@ const std::unique_ptr<Player>& GameState::get_player(const std::string& player_n
     return it->second;
 }
 
-const std::vector<WorldItem<std::unique_ptr<Gun>>>& GameState::get_dropped_guns() const {
-    return dropped_guns;
-}
+std::vector<WorldItem<std::unique_ptr<Gun>>>& GameState::get_dropped_guns() { return dropped_guns; }
 
 std::optional<WorldItem<Bomb>>& GameState::get_bomb() { return bomb; }
 
