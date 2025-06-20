@@ -13,7 +13,7 @@
 #include "game_config.h"
 
 Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map):
-        Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.max_players)),
+        Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.get_max_players())),
         name(name),
         physics_system(std::move(map), state.get_players(), state.get_dropped_guns(),
                        state.get_bomb()) {}
@@ -155,7 +155,7 @@ bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker, const Ef
     if (!target.is_player())
         return false;
 
-    auto& target_player = target.get_player().get();
+    auto& target_player = target.get_player();
     bool is_hit = effect.apply(target_player);
     if (target_player->is_dead()) {
         attacker->add_kill();
