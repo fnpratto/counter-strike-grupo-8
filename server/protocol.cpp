@@ -101,12 +101,6 @@ payload_t ServerProtocol::serialize_msg(const RoundEndResponse& response) const 
 }
 
 template <>
-payload_t ServerProtocol::serialize_msg(
-        [[maybe_unused]] const BombPlantedResponse& response) const {
-    return payload_t();
-}
-
-template <>
 payload_t ServerProtocol::serialize_msg(const BombExplodedResponse& response) const {
     payload_t payload;
     payload_t explosion_center = serialize(response.get_explosion_center());
@@ -117,12 +111,6 @@ payload_t ServerProtocol::serialize_msg(const BombExplodedResponse& response) co
     payload.insert(payload.end(), explosion_radius.begin(), explosion_radius.end());
 
     return payload;
-}
-
-template <>
-payload_t ServerProtocol::serialize_msg(
-        [[maybe_unused]] const BombDefusedResponse& response) const {
-    return payload_t();
 }
 
 #define SERIALIZE_MSG(msg, msg_type) \

@@ -249,23 +249,11 @@ RoundEndResponse ClientProtocol::deserialize_msg<RoundEndResponse>(payload_t& pa
 }
 
 template <>
-BombPlantedResponse ClientProtocol::deserialize_msg<BombPlantedResponse>(
-        [[maybe_unused]] payload_t& payload) const {
-    return BombPlantedResponse();
-}
-
-template <>
 BombExplodedResponse ClientProtocol::deserialize_msg<BombExplodedResponse>(
         [[maybe_unused]] payload_t& payload) const {
     Vector2D explosion_center = deserialize<Vector2D>(payload);
     int explosion_radius = deserialize<int>(payload);
     return BombExplodedResponse(explosion_center, explosion_radius);
-}
-
-template <>
-BombDefusedResponse ClientProtocol::deserialize_msg<BombDefusedResponse>(
-        [[maybe_unused]] payload_t& payload) const {
-    return BombDefusedResponse();
 }
 
 template <>
