@@ -14,9 +14,10 @@
 #include "sender.h"
 
 class ConnectionHandler: public Thread {
-    Queue<Message>& pregame_queue;
-    Queue<Message>& ingame_queue;
-    Queue<Message>& display_queue;
+    Queue<Message>& lobby_input_queue;
+    Queue<Message>& lobby_output_queue;
+    Queue<Message>& game_input_queue;
+    Queue<Message>& game_output_queue;
 
     std::shared_ptr<ClientProtocol> protocol;
 
@@ -26,8 +27,8 @@ class ConnectionHandler: public Thread {
     std::string player_name = "";
 
 public:
-    ConnectionHandler(Queue<Message>& pregame_queue, Queue<Message>& ingame_queue,
-                      Queue<Message>& display_queue);
+    ConnectionHandler(Queue<Message>& lobby_input_queue, Queue<Message>& lobby_output_queue,
+                      Queue<Message>& game_input_queue, Queue<Message>& game_output_queue);
 
     void run() override;
     void stop() override;

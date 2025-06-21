@@ -110,20 +110,24 @@ void LogInWindow::on_login_button_clicked() {
     }
 
     output_queue.push(Message(ConnectionRequest(ip, port)));
-
     auto msg = input_queue.pop();
-    while (msg.get_type() != MessageType::BOOL) {
-        msg = input_queue.pop();
-    }
 
-    bool conn_res = msg.get_content<bool>();
-    if (!conn_res) {
-        QMessageBox::warning(this, "Connection Error", "Failed to connect to server.",
-                             QMessageBox::Ok);
-        return;
-    }
+    switch (msg.get_type()) {
+        case MessageType::CONN_RESP:
+            this->close();
+            this->game_menu = new LobbyWindow(input_queue, output_queue);
+            this->game_menu->show();
+            break;
 
-    this->close();
-    this->game_menu = new LobbyWindow(input_queue, output_queue);
-    this->game_menu->show();
+        case MessageType::ERROR_RESP:
+            QMessageBox::warning(this, "Create Game Error",
+                                 msg.get_content<ErrorResponse>().get_error_message().c_str(),
+                                 QMessageBox::Ok);
+            break;
+
+        default:
+            QMessageBox::warning(this, "Create Game Error", "Unexpected response from server.",
+                                 QMessageBox::Ok);
+            break;
+    }
 }

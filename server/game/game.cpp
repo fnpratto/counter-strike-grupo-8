@@ -174,7 +174,7 @@ bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker, const Ef
 void Game::join_player(const std::string& player_name) {
     if (player_name.empty() || state.player_is_in_game(player_name) || is_full() ||
         state.get_phase().is_playing())
-        return;
+        throw JoinGameError();
 
     Team default_team = (state.get_num_tts() > state.get_num_cts()) ? Team::CT : Team::TT;
     if (default_team == Team::TT) {
@@ -185,6 +185,7 @@ void Game::join_player(const std::string& player_name) {
         state.add_player(player_name, default_team, pos);
     }
 
+    send_msg(player_name, Message(JoinedGameResponse()));
     send_msg(player_name, Message(state.get_full_update()));
     send_msg(player_name, Message(physics_system.get_map()));
     for (const auto& [p_name, _]: state.get_players()) {
