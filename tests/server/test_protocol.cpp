@@ -700,7 +700,7 @@ TEST_F(ProtocolTest, GameUpdateSerialization) {
 
     // Set up phase update
     PhaseUpdate phase_update;
-    phase_update.set_phase(PhaseType::InRound);
+    phase_update.set_type(PhaseType::InRound);
     phase_update.set_secs_remaining(30);
     update.set_phase(phase_update);
 
@@ -885,7 +885,7 @@ TEST_F(ProtocolTest, GameUpdateSerialization) {
 
     // Verify phase update
     PhaseUpdate received_phase = received_update.get_phase();
-    ASSERT_EQ(received_phase.get_phase(), PhaseType::InRound);
+    ASSERT_EQ(received_phase.get_type(), PhaseType::InRound);
     ASSERT_EQ(received_phase.get_secs_remaining(), 30);
 
     // Verify game state
@@ -1309,7 +1309,7 @@ TEST_F(ProtocolTest, WorldItemGunTypeSerialization) {
 
     // Set minimal required fields
     PhaseUpdate phase_update;
-    phase_update.set_phase(PhaseType::InRound);
+    phase_update.set_type(PhaseType::InRound);
     phase_update.set_secs_remaining(60);
     update.set_phase(phase_update);
 
@@ -1396,7 +1396,7 @@ TEST_F(ProtocolTest, WorldItemGunTypeSerialization) {
 
     // Verify no other data was corrupted
     PhaseUpdate received_phase = received_update.get_phase();
-    ASSERT_EQ(received_phase.get_phase(), PhaseType::InRound);
+    ASSERT_EQ(received_phase.get_type(), PhaseType::InRound);
     ASSERT_EQ(received_phase.get_secs_remaining(), 60);
     ASSERT_EQ(received_update.get_num_rounds(), 1);
 
@@ -1414,7 +1414,7 @@ TEST_F(ProtocolTest, WorldItemBombUpdateSerialization) {
 
     // Set minimal required fields
     PhaseUpdate phase_update;
-    phase_update.set_phase(PhaseType::BombPlanted);
+    phase_update.set_type(PhaseType::BombPlanted);
     phase_update.set_secs_remaining(45);
     update.set_phase(phase_update);
 
@@ -1454,7 +1454,7 @@ TEST_F(ProtocolTest, WorldItemBombUpdateSerialization) {
 
     // Verify other data was not corrupted
     PhaseUpdate received_phase = received_update.get_phase();
-    ASSERT_EQ(received_phase.get_phase(), PhaseType::BombPlanted);
+    ASSERT_EQ(received_phase.get_type(), PhaseType::BombPlanted);
     ASSERT_EQ(received_phase.get_secs_remaining(), 45);
     ASSERT_EQ(received_update.get_num_rounds(), 3);
 
@@ -1470,7 +1470,7 @@ TEST_F(ProtocolTest, WorldItemBombUpdateDifferentPhases) {
     // Test with defusing bomb
     GameUpdate update;
     PhaseUpdate phase_update;
-    phase_update.set_phase(PhaseType::BombPlanted);
+    phase_update.set_type(PhaseType::BombPlanted);
     phase_update.set_secs_remaining(15);
     update.set_phase(phase_update);
     update.set_num_rounds(2);

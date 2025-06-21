@@ -27,7 +27,7 @@ TEST_F(TestGamePhase, NotStartedWhenInitialized) { EXPECT_FALSE(game_phase.is_pl
 TEST_F(TestGamePhase, StartInBuyingPhase) {
     game_phase.start_game();
     PhaseUpdate updates = game_phase.get_updates();
-    EXPECT_EQ(updates.get_phase(), PhaseType::Buying);
+    EXPECT_EQ(updates.get_type(), PhaseType::Buying);
 }
 
 TEST_F(TestGamePhase, StartPlayingAfterBuyingDuration) {
@@ -36,7 +36,7 @@ TEST_F(TestGamePhase, StartPlayingAfterBuyingDuration) {
     game_phase.advance();
 
     PhaseUpdate updates = game_phase.get_updates();
-    EXPECT_EQ(updates.get_phase(), PhaseType::InRound);
+    EXPECT_EQ(updates.get_type(), PhaseType::InRound);
 }
 
 TEST_F(TestGamePhase, FinishOneRoundAfterRoundDuration) {
@@ -48,7 +48,7 @@ TEST_F(TestGamePhase, FinishOneRoundAfterRoundDuration) {
     game_phase.advance();
 
     PhaseUpdate updates = game_phase.get_updates();
-    EXPECT_EQ(updates.get_phase(), PhaseType::RoundEnd);
+    EXPECT_EQ(updates.get_type(), PhaseType::RoundEnd);
 }
 
 TEST_F(TestGamePhase, StartAnotherRoundAfterRoundFinishedDuration) {
@@ -62,5 +62,5 @@ TEST_F(TestGamePhase, StartAnotherRoundAfterRoundFinishedDuration) {
     game_phase.advance();
 
     PhaseUpdate updates = game_phase.get_updates();
-    EXPECT_EQ(updates.get_phase(), PhaseType::Buying);
+    EXPECT_EQ(updates.get_type(), PhaseType::Buying);
 }
