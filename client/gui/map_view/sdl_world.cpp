@@ -31,7 +31,7 @@ SdlWorld::SdlWorld(SdlWindow& window, Map&& map, const GameUpdate& game_state,
         player_name(player_name),
         camera(window.getWidth(), window.getHeight()),
         map(window, camera, std::move(map)),
-        player(std::make_unique<SdlPlayer>(window, camera)) {}
+        player(SdlPlayer(window, camera)) {}
 
 void SdlWorld::handle_hit([[maybe_unused]] HitResponse&& hit) {}
 
@@ -41,6 +41,6 @@ void SdlWorld::render() {
     map.render();
     for (const auto& [_, player_state]:  // cppcheck-suppress[unusedVariable]
          game_state.get_players()) {
-        player->render(player_state);
+        player.render(player_state);
     }
 }

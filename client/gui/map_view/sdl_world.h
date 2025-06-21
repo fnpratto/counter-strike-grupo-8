@@ -40,7 +40,7 @@ class SdlWorld {
     const std::string& player_name;
     SdlCamera camera;
     SdlMap map;
-    std::unique_ptr<SdlPlayer> player;
+    SdlPlayer player;
 
     // SdlTexture background;  // TODO: Load a background texture
 
