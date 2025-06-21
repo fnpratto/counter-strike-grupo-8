@@ -114,7 +114,7 @@ TEST_F(TestGame, CannotStartAnAlreadyStartedGame) {
     std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
     EXPECT_EQ(player_updates.at("test_player").get_ready(), true);
     PhaseUpdate phase_updates = updates.get_phase();
-    EXPECT_EQ(phase_updates.get_phase(), PhaseType::Buying);
+    EXPECT_EQ(phase_updates.get_type(), PhaseType::Buying);
 
     EXPECT_THROW({ game.tick({PlayerMessage("test_player", Message(SetReadyCommand()))}); },
                  SetReadyError);
@@ -242,7 +242,7 @@ TEST_F(TestGame, PlayersSwapTeamsAfterHalfOfMaxRounds) {
         game.tick({});
         advance_secs(PhaseTimes::round_duration);
         game.tick({});
-        EXPECT_EQ(game.get_full_update().get_phase().get_phase(), PhaseType::RoundEnd);
+        EXPECT_EQ(game.get_full_update().get_phase().get_type(), PhaseType::RoundEnd);
         advance_secs(PhaseTimes::round_end_duration);
         game.tick({});
         EXPECT_EQ(game.get_full_update().get_num_rounds(), i + 1);

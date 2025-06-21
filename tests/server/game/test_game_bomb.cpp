@@ -65,7 +65,7 @@ TEST_F(TestGameBomb, PlayerCanStartPlantingBomb) {
     EXPECT_EQ(bomb_update.get_bomb_phase(), BombPhaseType::Planting);
 
     game.tick({});
-    EXPECT_EQ(game.get_full_update().get_phase().get_phase(), PhaseType::InRound);
+    EXPECT_EQ(game.get_full_update().get_phase().get_type(), PhaseType::InRound);
 }
 
 TEST_F(TestGameBomb, PlayerPlantBombAfterPlantingForSecondsToPlantTime) {
@@ -101,7 +101,7 @@ TEST_F(TestGameBomb, PlayerDoesNotPlantBombIfStopPlantingBeforeSecondsToPlantTim
     EXPECT_EQ(bomb_update.get_bomb_phase(), BombPhaseType::NotPlanted);
 
     game.tick({});
-    EXPECT_EQ(game.get_full_update().get_phase().get_phase(), PhaseType::InRound);
+    EXPECT_EQ(game.get_full_update().get_phase().get_type(), PhaseType::InRound);
 }
 
 TEST_F(TestGameBomb, BombExplodeAfterSecondsToExplode) {
@@ -112,8 +112,7 @@ TEST_F(TestGameBomb, BombExplodeAfterSecondsToExplode) {
     bool found_bomb_exploded_resp = false;
     bool found_round_end_resp = false;
     for (const auto& player_msg: player_messages) {
-        if (player_msg.get_message().get_type() ==
-            MessageType::BOMB_EXPLODED_RESP) {  // cppcheck-suppress[useStlAlgorithm]
+        if (player_msg.get_message().get_type() == MessageType::BOMB_EXPLODED_RESP) {
             found_bomb_exploded_resp = true;
             auto bomb_exploded_resp = player_msg.get_message().get_content<BombExplodedResponse>();
 
@@ -121,8 +120,7 @@ TEST_F(TestGameBomb, BombExplodeAfterSecondsToExplode) {
             EXPECT_TRUE(bomb_exploded_resp.get_explosion_center() ==
                         updates.get_bomb().value().hitbox.get_center());
             EXPECT_EQ(bomb_exploded_resp.get_explosion_radius(), BombConfig::max_range);
-        } else if (player_msg.get_message().get_type() ==
-                   MessageType::ROUND_END_RESP) {  // cppcheck-suppress[useStlAlgorithm]
+        } else if (player_msg.get_message().get_type() == MessageType::ROUND_END_RESP) {
             found_round_end_resp = true;
             auto round_end_resp = player_msg.get_message().get_content<RoundEndResponse>();
             EXPECT_EQ(round_end_resp.get_winning_team(), Team::TT);
@@ -138,7 +136,7 @@ TEST_F(TestGameBomb, BombExplodeAfterSecondsToExplode) {
     updates = game.get_full_update();
     EXPECT_LE(updates.get_players().at("tt").get_health(), PlayerConfig::full_health);
     EXPECT_LE(updates.get_players().at("ct").get_health(), PlayerConfig::full_health);
-    EXPECT_EQ(updates.get_phase().get_phase(), PhaseType::RoundEnd);
+    EXPECT_EQ(updates.get_phase().get_type(), PhaseType::RoundEnd);
 }
 
 TEST_F(TestGameBomb, PlayerCannotDefuseBombIfItIsNotPlanted) {
@@ -165,8 +163,7 @@ TEST_F(TestGameBomb, PlayerDefuseBombAfterDefusingForSecondsToDefuseTime) {
 
     bool found_round_end_resp = false;
     for (const auto& player_msg: player_messages) {
-        if (player_msg.get_message().get_type() ==
-            MessageType::ROUND_END_RESP) {  // cppcheck-suppress[useStlAlgorithm]
+        if (player_msg.get_message().get_type() == MessageType::ROUND_END_RESP) {
             found_round_end_resp = true;
             auto round_end_resp = player_msg.get_message().get_content<RoundEndResponse>();
             EXPECT_EQ(round_end_resp.get_winning_team(), Team::CT);
@@ -181,7 +178,7 @@ TEST_F(TestGameBomb, PlayerDefuseBombAfterDefusingForSecondsToDefuseTime) {
     updates = game.get_full_update();
     EXPECT_EQ(updates.get_players().at("tt").get_health(), PlayerConfig::full_health);
     EXPECT_EQ(updates.get_players().at("ct").get_health(), PlayerConfig::full_health);
-    EXPECT_EQ(updates.get_phase().get_phase(), PhaseType::RoundEnd);
+    EXPECT_EQ(updates.get_phase().get_type(), PhaseType::RoundEnd);
 }
 
 TEST_F(TestGameBomb, BombExplodeIfReachingSecondsToExplodeBeforeDefusing) {
@@ -194,12 +191,10 @@ TEST_F(TestGameBomb, BombExplodeIfReachingSecondsToExplodeBeforeDefusing) {
 
     auto player_messages = game.tick({});
     bool found_bomb_exploded_resp = false;
-    for (const auto& player_msg: player_messages) {
-        if (player_msg.get_message().get_type() ==
-            MessageType::BOMB_EXPLODED_RESP) {  // cppcheck-suppress[useStlAlgorithm]
-            found_bomb_exploded_resp = true;
-        }
-    }
+    found_bomb_exploded_resp =
+            std::any_of(player_messages.begin(), player_messages.end(), [](const auto& player_msg) {
+                return player_msg.get_message().get_type() == MessageType::BOMB_EXPLODED_RESP;
+            });
     EXPECT_TRUE(found_bomb_exploded_resp);
 
     GameUpdate updates = game.get_full_update();
@@ -209,7 +204,7 @@ TEST_F(TestGameBomb, BombExplodeIfReachingSecondsToExplodeBeforeDefusing) {
     updates = game.get_full_update();
     EXPECT_LE(updates.get_players().at("tt").get_health(), PlayerConfig::full_health);
     EXPECT_LE(updates.get_players().at("ct").get_health(), PlayerConfig::full_health);
-    EXPECT_EQ(updates.get_phase().get_phase(), PhaseType::RoundEnd);
+    EXPECT_EQ(updates.get_phase().get_type(), PhaseType::RoundEnd);
 }
 
 TEST_F(TestGameBomb, PlayerDoesNotDefuseBombIfStopDefusingBeforeSecondsToDefuseTime) {
@@ -225,5 +220,5 @@ TEST_F(TestGameBomb, PlayerDoesNotDefuseBombIfStopDefusingBeforeSecondsToDefuseT
     GameUpdate updates = player_messages[0].get_message().get_content<GameUpdate>();
     EXPECT_TRUE(updates.get_bomb().has_value());
     EXPECT_EQ(updates.get_bomb().value().item.get_bomb_phase(), BombPhaseType::Planted);
-    EXPECT_EQ(game.get_full_update().get_phase().get_phase(), PhaseType::BombPlanted);
+    EXPECT_EQ(game.get_full_update().get_phase().get_type(), PhaseType::BombPlanted);
 }
