@@ -82,18 +82,24 @@ void CreateGameWindow::add_create_button() {
 void CreateGameWindow::on_create_button_clicked() {
     std::string game_name = this->game_name_input->text().toStdString();
     std::string map_name = this->findChild<QListWidget*>()->currentItem()->text().toStdString();
+
     output_queue.push(Message(CreateGameCommand(game_name, map_name, player_name)));
+    auto response = input_queue.pop();
 
-    auto msg = input_queue.pop();
-    while (msg.get_type() != MessageType::BOOL) {
-        msg = input_queue.pop();
+    switch (response.get_type()) {
+        case MessageType::JOINED_GAME_RESP:
+            this->close();
+            break;
+
+        case MessageType::ERROR_RESP:
+            QMessageBox::warning(this, "Create Game Error",
+                                 response.get_content<ErrorResponse>().get_error_message().c_str(),
+                                 QMessageBox::Ok);
+            break;
+
+        default:
+            QMessageBox::warning(this, "Create Game Error", "Unexpected response from server.",
+                                 QMessageBox::Ok);
+            break;
     }
-
-    bool create_res = msg.get_content<bool>();
-    if (!create_res) {
-        QMessageBox::warning(this, "Create Game Error", "Failed to create game.", QMessageBox::Ok);
-        return;
-    }
-
-    this->close();
 }

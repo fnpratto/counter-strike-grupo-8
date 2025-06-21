@@ -43,13 +43,13 @@ TEST_F(TestGame, PlayerCannotJoinGameTwice) {
     game.join_player("test_player");
     GameUpdate updates = game.get_full_update();
     EXPECT_EQ(static_cast<int>(updates.get_players().size()), 1);
-    game.join_player("test_player");
+    EXPECT_THROW(game.join_player("test_player"), JoinGameError);
     updates = game.get_full_update();
     EXPECT_EQ(static_cast<int>(updates.get_players().size()), 1);
 }
 
 TEST_F(TestGame, PlayerCannotJoinGameWithEmptyName) {
-    game.join_player("");
+    EXPECT_THROW(game.join_player(""), JoinGameError);
     GameUpdate updates = game.get_full_update();
     EXPECT_EQ(static_cast<int>(updates.get_players().size()), 0);
 }
@@ -58,7 +58,7 @@ TEST_F(TestGame, PlayersCanJoinGameUntilItIsFull) {
     for (int i = 1; i <= max_players; i++) {
         game.join_player("test_player_" + std::to_string(i));
     }
-    game.join_player("extra_player");
+    EXPECT_THROW(game.join_player("extra_player"), JoinGameError);
     GameUpdate update = game.get_full_update();
     EXPECT_EQ(static_cast<int>(update.get_players().size()), max_players);
 }
@@ -66,7 +66,8 @@ TEST_F(TestGame, PlayersCanJoinGameUntilItIsFull) {
 TEST_F(TestGame, PlayerCanSelectTeam) {
     game.join_player("test_player");
     auto player_messages = game.tick({});
-    GameUpdate initial_update = player_messages[0].get_message().get_content<GameUpdate>();
+    EXPECT_EQ(player_messages[0].get_message().get_type(), MessageType::JOINED_GAME_RESP);
+    GameUpdate initial_update = player_messages[1].get_message().get_content<GameUpdate>();
 
     Team old_team = initial_update.get_players().at("test_player").get_team();
 
@@ -98,7 +99,7 @@ TEST_F(TestGame, PlayerCannotJoinFullTeam) {
     auto player_messages = game.tick({PlayerMessage("extra_player", msg_select_team)});
     GameUpdate updates;
 
-    updates = player_messages[0].get_message().get_content<GameUpdate>();
+    updates = player_messages[1].get_message().get_content<GameUpdate>();
     EXPECT_EQ(updates.get_players().at("extra_player").get_team(), Team::CT);
 }
 
@@ -124,7 +125,7 @@ TEST_F(TestGame, PlayerCannotJoinStartedGame) {
     Message msg_start = Message(SetReadyCommand());
     game.tick({PlayerMessage("test_player", msg_start)});
 
-    game.join_player("another_player");
+    EXPECT_THROW(game.join_player("another_player"), JoinGameError);
     GameUpdate update = game.get_full_update();
     EXPECT_EQ(static_cast<int>(update.get_players().size()), 1);
 }
@@ -144,7 +145,7 @@ TEST_F(TestGame, PlayerCannotSelectTeamWhenStartedGame) {
     Message msg_start = Message(SetReadyCommand());
     auto player_messages = game.tick({PlayerMessage("test_player", msg_start)});
     GameUpdate updates;
-    updates = player_messages[0].get_message().get_content<GameUpdate>();
+    updates = player_messages[1].get_message().get_content<GameUpdate>();
 
     Message msg_select_team = Message(SelectTeamCommand(new_team));
     EXPECT_THROW({ game.tick({PlayerMessage("test_player", msg_select_team)}); }, SelectTeamError);
@@ -316,7 +317,7 @@ TEST_F(TestGame, PlayerCanAimInADirection) {
 
     Message msg_aim = Message(AimCommand(new_aim_dir));
     auto player_messages = game.tick({PlayerMessage("test_player", msg_aim)});
-    updates = player_messages[0].get_message().get_content<GameUpdate>();
+    updates = player_messages[1].get_message().get_content<GameUpdate>();
 
     EXPECT_EQ(updates.get_players().at("test_player").get_aim_direction(), new_aim_dir);
 }
