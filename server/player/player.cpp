@@ -8,10 +8,10 @@
 
 #include "player_config.h"
 
-Player::Player(Team team, Circle hitbox):
-        Logic<PlayerState, PlayerUpdate>(
-                PlayerState(team, hitbox, Vector2D(0.0f, 0.0f), Vector2D(0.0f, 0.0f), false,
-                            PlayerConfig::full_health, ItemSlot::Secondary)),
+Player::Player(Team team, CharacterType character_type, Circle hitbox):
+        Logic<PlayerState, PlayerUpdate>(PlayerState(
+                team, character_type, hitbox, Vector2D(0.0f, 0.0f), Vector2D(0.0f, 0.0f), false,
+                PlayerConfig::full_health, ItemSlot::Secondary)),
         scoreboard_entry(state.get_inventory().get_money(), 0, 0, 0),
         status(std::make_unique<IdleStatus>()) {}
 

@@ -103,8 +103,9 @@ void GameState::swap_players_teams() {
 void GameState::add_player(const std::string& player_name, Team team, const Vector2D& pos) {
     if (players.find(player_name) != players.end())
         throw std::runtime_error("Player already exists");
-    players[player_name] =
-            std::make_unique<Player>(team, CircularHitbox::player_hitbox(pos).get_bounds());
+    CharacterType default_character = get_default_character(team);
+    players[player_name] = std::make_unique<Player>(
+            team, default_character, CircularHitbox::player_hitbox(pos).get_bounds());
 }
 
 void GameState::add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos) {
@@ -150,6 +151,11 @@ std::vector<CharacterType> GameState::get_characters_tt() const {
 std::vector<CharacterType> GameState::get_characters_ct() const {
     return {CharacterType::Seal_Force, CharacterType::German_GSG_9, CharacterType::UK_SAS,
             CharacterType::French_GIGN};
+}
+
+CharacterType GameState::get_default_character(Team team) const {
+    auto characters = (team == Team::TT) ? get_characters_tt() : get_characters_ct();
+    return characters[0];
 }
 
 Team GameState::get_winning_team() const {

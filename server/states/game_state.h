@@ -56,6 +56,7 @@ public:
 
     std::vector<CharacterType> get_characters_tt() const;
     std::vector<CharacterType> get_characters_ct() const;
+    CharacterType get_default_character(Team team) const;
     Team get_winning_team() const;
     void give_rewards_to_players(Team winning_team);
 
