@@ -17,8 +17,6 @@ void SdlBullet::render(Vector2D get_origin, Vector2D get_hit_pos, Vector2D get_h
     float length = std::sqrt(dx * dx + dy * dy);
     float angle = std::atan2(dy, dx) * 180 / M_PI;
 
-    std::cout << "Angle in degrees: " << angle << std::endl;
-
     if (is_hit) {
         if (!is_knife) {
             render_laser(get_origin, length, angle);
