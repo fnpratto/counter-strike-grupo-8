@@ -7,10 +7,10 @@
 #include "server/clock/mock_clock.h"
 #include "server/errors.h"
 #include "server/game/shop.h"
+#include "server/items/gun.h"
 #include "server/physics/circular_hitbox.h"
 #include "server/player/player.h"
 #include "server/player/player_config.h"
-#include "server/weapons/gun.h"
 
 // Include shop price constants
 #define PRICE_AK47 2700
@@ -25,7 +25,8 @@ protected:
 
     TestPlayer():
             clock(std::chrono::steady_clock::now()),
-            player(Team::TT, CircularHitbox::player_hitbox(Vector2D(0, 0))) {}
+            player(Team::TT, CharacterType::Pheonix,
+                   CircularHitbox::player_hitbox(Vector2D(0, 0))) {}
 
     void advance_secs(float secs) { clock.advance(std::chrono::duration<float>(secs)); }
 };
@@ -54,7 +55,7 @@ TEST_F(TestPlayer, GunReduceMagAmmoWhenPlayerAttacks) {
     player.equip_item(ItemSlot::Secondary);
     int old_mag_ammo = player.get_inventory().get_guns().at(ItemSlot::Secondary)->get_mag_ammo();
 
-    player.start_attacking();
+    player.handle_start_attacking();
     auto attack_effects = player.attack(clock.now());
     EXPECT_EQ(attack_effects.size(), 1);
     EXPECT_EQ(player.get_inventory().get_guns().at(ItemSlot::Secondary)->get_mag_ammo(),
@@ -67,7 +68,7 @@ TEST_F(TestPlayer, GunBurst) {
     shop.buy_gun(GunType::AK47, player.get_inventory());
 
     player.equip_item(ItemSlot::Primary);
-    player.start_attacking();
+    player.handle_start_attacking();
 
     for (int i = 0; i < Ak47Config.bullets_per_attack; i++) {
         if (i > 0) {

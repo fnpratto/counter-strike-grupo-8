@@ -1,14 +1,16 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <SDL2/SDL.h>
-#include <yaml-cpp/yaml.h>
 
 #include "../window_elements/area.h"
 #include "../window_elements/sdl_texture.h"
@@ -17,32 +19,38 @@
 #include "common/updates/game_update.h"
 
 #include "sdl_camera.h"
+#include "tile_sheet.h"
 
 
 class SdlTile {
     SdlWindow& window;
     const SdlCamera& camera;
 
-    static constexpr const char* TILES_PATH = "../assets/gfx/tiles/default_aztec.png";
     static constexpr int WIDTH = 32;
     static constexpr int HEIGHT = 32;
 
-    SdlTexture sheet;
+    std::vector<SdlTexture> sheets;
+    std::map<int, std::pair<std::reference_wrapper<SdlTexture>, Vector2D>> tiles;
 
 public:
-    explicit SdlTile(SdlWindow& window, const SdlCamera& camera):
-            window(window), camera(camera), sheet(TILES_PATH, window) {}
+    explicit SdlTile(SdlWindow& window, const SdlCamera& camera): window(window), camera(camera) {}
 
-    template <typename T>
-    void render(const T& tile) {
-        auto position_from_cam = camera.get_screen_pos(tile.get_pos());
+    void add_sheet(const TileSheet& sheet) {
+        sheets.emplace_back(sheet.sheet_path, window, WIDTH, HEIGHT);
+        for (const auto& [id, position]: sheet.tiles) {
+            this->tiles.emplace(id, std::make_pair(std::ref(sheets.back()), position));
+        }
+    }
 
-        // TODO : Implement proper tile rendering based on tile type
-        SDL_Rect src_rect = {WIDTH, 0, WIDTH, HEIGHT};
+    void render(const Tile& tile) {
+        auto position_from_cam = camera.get_screen_pos(tile.pos);
+
+        auto [sheet, position] = tiles.at(tile.id);
+        SDL_Rect src_rect = {position.get_x(), position.get_y(), WIDTH, HEIGHT};
 
         Area src(src_rect.x, src_rect.y, src_rect.w, src_rect.h);
         Area dest(position_from_cam.get_x(), position_from_cam.get_y(), src_rect.w, src_rect.h);
 
-        sheet.render(src, dest);
+        sheet.get().render(src, dest);
     }
 };

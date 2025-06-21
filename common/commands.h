@@ -24,14 +24,17 @@ public:
  */
 class CreateGameCommand: public Command {
     std::string game_name;
+    std::string map_name;
     std::string player_name;
 
 public:
-    CreateGameCommand(const std::string& game_name, const std::string& player_name):
-            game_name(game_name), player_name(player_name) {}
+    CreateGameCommand(const std::string& game_name, const std::string& map_name,
+                      const std::string& player_name):
+            game_name(game_name), map_name(map_name), player_name(player_name) {}
 
-    std::string get_game_name() const { return game_name; }
-    std::string get_player_name() const { return player_name; }
+    const std::string& get_game_name() const { return game_name; }
+    const std::string& get_map_name() const { return map_name; }
+    const std::string& get_player_name() const { return player_name; }
 };
 
 /**
@@ -49,6 +52,12 @@ public:
     std::string get_game_name() const { return game_name; }
     std::string get_player_name() const { return player_name; }
 };
+
+/**
+ * @class ListMapsCommand
+ * @brief Command to request a list of available maps.
+ */
+class ListMapsCommand: public Command {};
 
 /**
  * @class ListGamesCommand
@@ -187,18 +196,29 @@ class ReloadCommand: public Command {};
  */
 class GetScoreboardCommand: public Command {};
 
+/**
+ * @class StartPlantingBombCommand
+ * @brief Command to start the bomb planting process.
+ */
+class StartPlantingBombCommand: public Command {};
 
 /**
- * @class PlantBombCommand
- * @brief Command to plant the bomb at the current position.
+ * @class StopPlantingBombCommand
+ * @brief Command to stop the bomb planting process.
  */
-class PlantBombCommand: public Command {};
+class StopPlantingBombCommand: public Command {};
 
 /**
- * @class DefuseBombCommand
- * @brief Command to defuse the bomb.
+ * @class StartDefusingBombCommand
+ * @brief Command to start the bomb defusing process.
  */
-class DefuseBombCommand: public Command {};
+class StartDefusingBombCommand: public Command {};
+
+/**
+ * @class StopDefusingBombCommand
+ * @brief Command to stop the bomb defusing process.
+ */
+class StopDefusingBombCommand: public Command {};
 
 /**
  * @class PickUpItemCommand

@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <SDL.h>
@@ -67,9 +68,10 @@ void SDLDisplay::setup() {
 void SDLDisplay::run() {
     setup();
     SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
-    hudDisplay hud_display(window, state, player_name);
+    SdlHud hud_display(window, state, player_name);
     shop_display = std::make_unique<shopDisplay>(window, state);
-    world = std::make_unique<SdlWorld>(window, state, player_name);
+    Map map = get_map();
+    world = std::make_unique<SdlWorld>(window, std::move(map), state, player_name);
     listTeams list_teams(window, state, player_name);
     skinSelect list_skins(window, state, player_name);
     std::map<std::string, ScoreboardEntry> scoreboard;
@@ -86,6 +88,7 @@ void SDLDisplay::run() {
     update_state();
 
     RateController rate_controller(60);  // 60 FPS
+    rate_controller.set_debug_mode(true);
     rate_controller.run_at_rate([&]() {
         // Update game state and display
         update_state();
@@ -103,7 +106,7 @@ void SDLDisplay::run() {
             world->render();
             hud_display.render();
             shop_display->render();
-        } else if (state.get_phase().get_phase() == PhaseType::Playing) {
+        } else if (state.get_phase().get_phase() == PhaseType::InRound) {
             world->render();
             hud_display.render();
         } else if (state.get_phase().get_phase() == PhaseType::RoundEnd) {
@@ -138,8 +141,21 @@ GameUpdate SDLDisplay::get_initial_state() {
         if (msg.get_type() == MessageType::GAME_UPDATE) {
             return msg.get_content<GameUpdate>();
         } else {
-            std::cerr << "Received unexpected message type: " << static_cast<int>(msg.get_type())
-                      << std::endl;
+            std::cerr << "SDLDisplay::get_initial_state: Received unexpected message type: "
+                      << msg.get_type() << std::endl;
+        }
+    }
+}
+
+Map SDLDisplay::get_map() {
+    Message msg;
+    while (true) {
+        msg = input_queue.pop();
+        if (msg.get_type() == MessageType::MAP_RESP) {
+            return msg.get_content<Map>();
+        } else {
+            throw std::runtime_error("SDLDisplay::get_map: Expected MAP_RESP, but received: " +
+                                     std::to_string(static_cast<int>(msg.get_type())));
         }
     }
 }
@@ -182,8 +198,8 @@ void SDLDisplay::update_state() {
                 break;
             }
             default: {
-                std::cerr << "Received unexpected message type: "
-                          << static_cast<int>(msg.get_type()) << std::endl;
+                std::cerr << "SDLDisplay::update_state: Received unexpected message type: "
+                          << msg.get_type() << std::endl;
                 break;
             }
         }

@@ -6,11 +6,11 @@
 #include "common/map/map.h"
 #include "common/utils/rate_controller.h"
 #include "map/map_builder.h"
+#include "server/game/game_config.h"
 #include "server/player_message.h"
 
-GameThread::GameThread(const std::string& name):
-        game(name, std::make_unique<RealClock>(),
-             std::move(MapBuilder("./tests/server/map/map.yaml").build())),
+GameThread::GameThread(const std::string& name, Map&& map):
+        game(name, std::make_unique<RealClock>(), std::move(map)),
         input_queue(std::make_shared<Queue<PlayerMessage>>()) {}
 
 void GameThread::run() {
@@ -50,7 +50,8 @@ pipe_t GameThread::join_game(const std::string& player_name) {
 
 GameInfo GameThread::get_game_info() {
     std::lock_guard<std::mutex> lock(mtx);
-    return GameInfo(game.get_name(), game.get_player_count(), game.get_phase());
+    return GameInfo(game.get_name(), game.get_map_name(), game.get_player_count(),
+                    game.get_phase());
 }
 
 void GameThread::stop() { Thread::stop(); }  // TODO: finish game

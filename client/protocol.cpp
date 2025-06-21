@@ -31,10 +31,12 @@ template <>
 payload_t ClientProtocol::serialize_msg(const CreateGameCommand& cmd) const {
     payload_t payload;
     payload_t game_name = serialize(cmd.get_game_name());
+    payload_t map_name = serialize(cmd.get_map_name());
     payload_t player_name = serialize(cmd.get_player_name());
 
-    payload.reserve(game_name.size() + player_name.size());
+    payload.reserve(game_name.size() + map_name.size() + player_name.size());
     payload.insert(payload.end(), game_name.begin(), game_name.end());
+    payload.insert(payload.end(), map_name.begin(), map_name.end());
     payload.insert(payload.end(), player_name.begin(), player_name.end());
 
     return payload;
@@ -55,6 +57,11 @@ payload_t ClientProtocol::serialize_msg(const JoinGameCommand& cmd) const {
 
 template <>
 payload_t ClientProtocol::serialize_msg([[maybe_unused]] const ListGamesCommand& cmd) const {
+    return payload_t();
+}
+
+template <>
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const ListMapsCommand& cmd) const {
     return payload_t();
 }
 
@@ -139,14 +146,25 @@ payload_t ClientProtocol::serialize_msg([[maybe_unused]] const GetScoreboardComm
     return payload_t();
 }
 
-
 template <>
-payload_t ClientProtocol::serialize_msg([[maybe_unused]] const PlantBombCommand& cmd) const {
+payload_t ClientProtocol::serialize_msg(
+        [[maybe_unused]] const StartPlantingBombCommand& cmd) const {
     return payload_t();
 }
 
 template <>
-payload_t ClientProtocol::serialize_msg([[maybe_unused]] const DefuseBombCommand& cmd) const {
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const StopPlantingBombCommand& cmd) const {
+    return payload_t();
+}
+
+template <>
+payload_t ClientProtocol::serialize_msg(
+        [[maybe_unused]] const StartDefusingBombCommand& cmd) const {
+    return payload_t();
+}
+
+template <>
+payload_t ClientProtocol::serialize_msg([[maybe_unused]] const StopDefusingBombCommand& cmd) const {
     return payload_t();
 }
 
@@ -180,6 +198,16 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
 template <>
 ListGamesResponse ClientProtocol::deserialize_msg<ListGamesResponse>(payload_t& payload) const {
     return ListGamesResponse(deserialize<std::vector<GameInfo>>(payload));
+}
+
+template <>
+ListMapsResponse ClientProtocol::deserialize_msg<ListMapsResponse>(payload_t& payload) const {
+    return ListMapsResponse(deserialize<std::vector<std::string>>(payload));
+}
+
+template <>
+Map ClientProtocol::deserialize_msg<Map>(payload_t& payload) const {
+    return deserialize<Map>(payload);
 }
 
 template <>
@@ -219,8 +247,6 @@ CharactersResponse ClientProtocol::deserialize_msg<CharactersResponse>(payload_t
     return CharactersResponse(deserialize<std::vector<CharacterType>>(payload));
 }
 
-
-// TODO
 template <>
 ScoreboardResponse ClientProtocol::deserialize_msg<ScoreboardResponse>(payload_t& payload) const {
     auto scoreboard = deserialize<std::string, ScoreboardEntry>(payload);
@@ -228,9 +254,8 @@ ScoreboardResponse ClientProtocol::deserialize_msg<ScoreboardResponse>(payload_t
 }
 
 template <>
-ErrorResponse ClientProtocol::deserialize_msg<ErrorResponse>(payload_t& payload) const {
-    // ErrorResponse is an empty class, no data to deserialize
-    (void)payload;
+ErrorResponse ClientProtocol::deserialize_msg<ErrorResponse>(
+        [[maybe_unused]] payload_t& payload) const {
     return ErrorResponse();
 }
 
@@ -238,6 +263,20 @@ template <>
 RoundEndResponse ClientProtocol::deserialize_msg<RoundEndResponse>(payload_t& payload) const {
     uint8_t team = deserialize<uint8_t>(payload);
     return RoundEndResponse(static_cast<Team>(team));
+}
+
+template <>
+BombExplodedResponse ClientProtocol::deserialize_msg<BombExplodedResponse>(
+        [[maybe_unused]] payload_t& payload) const {
+    Vector2D explosion_center = deserialize<Vector2D>(payload);
+    int explosion_radius = deserialize<int>(payload);
+    return BombExplodedResponse(explosion_center, explosion_radius);
+}
+
+template <>
+SwapTeamsResponse ClientProtocol::deserialize_msg<SwapTeamsResponse>(
+        [[maybe_unused]] payload_t& payload) const {
+    return SwapTeamsResponse();
 }
 
 template <>

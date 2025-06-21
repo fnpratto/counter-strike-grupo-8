@@ -74,10 +74,12 @@ void TextDisplay::draw(const Message& message) {
             for (const auto& game_info: game_list) {
                 std::cout << "Game Name: " << game_info.name
                           << ", Players: " << game_info.players_count << ", Status: "
-                          << (game_info.phase == PhaseType::WarmUp  ? "WarmUp" :
-                              game_info.phase == PhaseType::Buying  ? "Buying" :
-                              game_info.phase == PhaseType::Playing ? "Playing" :
-                                                                      "Round Finished")
+                          << (game_info.phase == PhaseType::WarmUp      ? "WarmUp" :
+                              game_info.phase == PhaseType::Buying      ? "Buying" :
+                              game_info.phase == PhaseType::InRound     ? "In round" :
+                              game_info.phase == PhaseType::RoundEnd    ? "Round End" :
+                              game_info.phase == PhaseType::BombPlanted ? "Bomb Planted" :
+                                                                          "Game Finished")
                           << "\n";
             }
             break;
@@ -88,10 +90,12 @@ void TextDisplay::draw(const Message& message) {
 
             std::cout << "Game Update:" << std::endl;
             std::string phase_str =
-                    (state.get_phase().get_phase() == PhaseType::Buying)   ? "Buying" :
-                    (state.get_phase().get_phase() == PhaseType::Playing)  ? "Playing" :
-                    (state.get_phase().get_phase() == PhaseType::RoundEnd) ? "Round Finished" :
-                                                                             "Warm Up";
+                    (state.get_phase().get_phase() == PhaseType::WarmUp)      ? "Warm Up" :
+                    (state.get_phase().get_phase() == PhaseType::Buying)      ? "Buying" :
+                    (state.get_phase().get_phase() == PhaseType::InRound)     ? "In round" :
+                    (state.get_phase().get_phase() == PhaseType::RoundEnd)    ? "Round Finished" :
+                    (state.get_phase().get_phase() == PhaseType::BombPlanted) ? "Bomb Planted" :
+                                                                                "Game Finished";
             std::cout << "Phase: " << phase_str << std::endl;
             std::cout << "Players:" << std::endl;
             for (const auto& [player_name, player]:  // cppcheck-suppress[unassignedVariable]
@@ -172,9 +176,10 @@ Message TextDisplay::build_message<ConnectionRequest>(std::istringstream& iss) {
 template <>
 Message TextDisplay::build_message<CreateGameCommand>(std::istringstream& iss) {
     std::string game_name;
+    std::string map_name;
     std::string player_name;
-    iss >> game_name >> player_name;
-    return Message(CreateGameCommand(game_name, player_name));
+    iss >> game_name >> map_name >> player_name;
+    return Message(CreateGameCommand(game_name, map_name, player_name));
 }
 
 template <>
@@ -315,13 +320,27 @@ Message TextDisplay::build_message<SwitchItemCommand>(std::istringstream& iss) {
 }
 
 template <>
-Message TextDisplay::build_message<PlantBombCommand>([[maybe_unused]] std::istringstream& iss) {
-    return Message(PlantBombCommand());
+Message TextDisplay::build_message<StartPlantingBombCommand>(
+        [[maybe_unused]] std::istringstream& iss) {
+    return Message(StartPlantingBombCommand());
 }
 
 template <>
-Message TextDisplay::build_message<DefuseBombCommand>([[maybe_unused]] std::istringstream& iss) {
-    return Message(DefuseBombCommand());
+Message TextDisplay::build_message<StopPlantingBombCommand>(
+        [[maybe_unused]] std::istringstream& iss) {
+    return Message(StopPlantingBombCommand());
+}
+
+template <>
+Message TextDisplay::build_message<StartDefusingBombCommand>(
+        [[maybe_unused]] std::istringstream& iss) {
+    return Message(StartDefusingBombCommand());
+}
+
+template <>
+Message TextDisplay::build_message<StopDefusingBombCommand>(
+        [[maybe_unused]] std::istringstream& iss) {
+    return Message(StopDefusingBombCommand());
 }
 
 template <>
@@ -377,10 +396,22 @@ Message TextDisplay::parse_line(const std::string& line) {
              [this](std::istringstream& is) { return this->build_message<ReloadCommand>(is); }},
             {"switch",
              [this](std::istringstream& is) { return this->build_message<SwitchItemCommand>(is); }},
-            {"plant",
-             [this](std::istringstream& is) { return this->build_message<PlantBombCommand>(is); }},
-            {"defuse",
-             [this](std::istringstream& is) { return this->build_message<DefuseBombCommand>(is); }},
+            {"start planting",
+             [this](std::istringstream& is) {
+                 return this->build_message<StartPlantingBombCommand>(is);
+             }},
+            {"stop planting",
+             [this](std::istringstream& is) {
+                 return this->build_message<StopPlantingBombCommand>(is);
+             }},
+            {"start defusing",
+             [this](std::istringstream& is) {
+                 return this->build_message<StartDefusingBombCommand>(is);
+             }},
+            {"stop defusing",
+             [this](std::istringstream& is) {
+                 return this->build_message<StopDefusingBombCommand>(is);
+             }},
             {"pickup",
              [this](std::istringstream& is) { return this->build_message<PickUpItemCommand>(is); }},
             {"leave",

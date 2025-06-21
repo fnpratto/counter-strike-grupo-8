@@ -147,8 +147,8 @@ protected:
         payload_t length = serialize(static_cast<uint16_t>(v.size()));
         payload.insert(payload.end(), length.begin(), length.end());
         for (const auto& item: v) {
-            auto serialized_item = serialize(item);
-            payload.insert(payload.end(), serialized_item.begin(), serialized_item.end());
+            payload_t item_payload = serialize(item);
+            payload.insert(payload.end(), item_payload.begin(), item_payload.end());
         }
         return payload;
     }
@@ -170,12 +170,13 @@ protected:
         bool has_value = deserialize<bool>(payload);
 
         if (has_value) {
-            return deserialize<T>(payload);
+            return deserialize<typename T::value_type>(payload);
         }
 
         return {};
     }
 
+    // TODO refactor to use is_map
     template <typename K, typename V>
     std::map<K, V> deserialize(payload_t& payload) const {
         uint16_t length = deserialize<uint16_t>(payload);
@@ -195,7 +196,7 @@ protected:
 
         std::vector<typename T::value_type> result;
         for (size_t i = 0; i < length; i++) {
-            typename T::value_type item = deserialize<typename T::value_type>(payload);
+            auto item = deserialize<typename T::value_type>(payload);
             result.push_back(item);
         }
 

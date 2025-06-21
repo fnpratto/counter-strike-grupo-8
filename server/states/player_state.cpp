@@ -2,9 +2,11 @@
 
 #include <utility>
 
-PlayerState::PlayerState(Team team, Circle hitbox, Vector2D aim_direction, Vector2D velocity,
-                         bool ready, int health, ItemSlot equipped_item):
+PlayerState::PlayerState(Team team, CharacterType character_type, Circle hitbox,
+                         Vector2D aim_direction, Vector2D velocity, bool ready, int health,
+                         ItemSlot equipped_item):
         team(team),
+        character_type(character_type),
         hitbox(hitbox),
         aim_direction(aim_direction),
         velocity(velocity),
@@ -15,6 +17,8 @@ PlayerState::PlayerState(Team team, Circle hitbox, Vector2D aim_direction, Vecto
 }
 
 Team PlayerState::get_team() const { return team; }
+
+CharacterType PlayerState::get_character_type() const { return character_type; }
 
 Circle PlayerState::get_hitbox() const { return hitbox; }
 
@@ -95,6 +99,7 @@ PlayerUpdate PlayerState::get_updates() const {
 PlayerUpdate PlayerState::get_full_update() const {
     PlayerUpdate full_update;
     full_update.set_team(team);
+    full_update.set_character_type(character_type);
     full_update.set_pos(hitbox.center);
     full_update.set_hitbox_radius(hitbox.radius);
     full_update.set_aim_direction(aim_direction);

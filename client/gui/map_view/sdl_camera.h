@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include "common/map/tile.h"
 #include "common/physics/physics_config.h"
 #include "common/updates/player_update.h"
 
@@ -30,25 +31,8 @@ public:
 
     Vector2D get_screen_pos(Vector2D position) const;
 
-    /**
-     * @brief Checks if a game object is within the camera's view.
-     *
-     * @param obj The game object to check. (must respond to `.get_pos()`)
-     * @return true if the object is within view, false otherwise.
-     */
-    template <typename T>
-    bool can_see(const T& obj) const {
-        Vector2D offset = get_screen_pos(obj.get_pos());
-        return offset.get_x() >= 0 && offset.get_x() < screen_width && offset.get_y() >= 0 &&
-               offset.get_y() < screen_height;
-    }
+    bool can_see(const Vector2D& pos) const;
 
-    bool can_see(const Vector2D& pos) const {
-        Vector2D offset = get_screen_pos(pos);
-        return offset.get_x() >= 0 && offset.get_x() < screen_width && offset.get_y() >= 0 &&
-               offset.get_y() < screen_height;
-    }
+    bool can_see(const Tile& obj) const;
 };
-
-
 #endif  // CAMERA_H

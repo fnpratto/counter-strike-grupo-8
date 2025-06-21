@@ -7,10 +7,10 @@ static constexpr int max_rounds = 10;
 };  // namespace GameConfig
 
 namespace PhaseTimes {
-static constexpr int buying_phase_secs = 30;
-static constexpr int playing_phase_secs = 120;
-static constexpr int round_end_phase_secs = 5;
-static constexpr int game_end_phase_secs = 10;
+static constexpr unsigned int buying_duration = 30;
+static constexpr unsigned int round_duration = 120;
+static constexpr unsigned int round_end_duration = 5;
+static constexpr unsigned int game_end_duration = 10;
 };  // namespace PhaseTimes
 
 namespace Scores {

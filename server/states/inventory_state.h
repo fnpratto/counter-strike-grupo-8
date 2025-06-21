@@ -7,9 +7,9 @@
 
 #include "common/models.h"
 #include "common/updates/inventory_update.h"
-#include "server/weapons/bomb.h"
-#include "server/weapons/gun.h"
-#include "server/weapons/knife.h"
+#include "server/items/bomb.h"
+#include "server/items/gun.h"
+#include "server/items/knife.h"
 
 #include "state.h"
 
@@ -30,6 +30,9 @@ public:
     void set_money(int new_money);
     void set_gun(ItemSlot slot, std::unique_ptr<Gun>&& gun);
     void set_bomb(Bomb&& bomb);
+
+    std::unique_ptr<Gun> remove_primary_weapon();
+    Bomb remove_bomb();
 
     InventoryUpdate get_updates() const override;
 

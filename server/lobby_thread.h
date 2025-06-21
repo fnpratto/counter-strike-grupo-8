@@ -26,7 +26,6 @@ public:
 
     void run() override;
 
-    void handle_create_game_cmd(const CreateGameCommand& cmd);
-    void handle_join_game_cmd(const JoinGameCommand& cmd);
-    void handle_list_games_cmd();
+    template <typename T>
+    void handle(const T& cmd);
 };

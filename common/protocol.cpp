@@ -11,6 +11,8 @@
 #include <sys/socket.h>
 
 #include "common/game/world_item.h"
+#include "common/map/map.h"
+#include "common/map/tile.h"
 #include "common/models.h"
 #include "common/socket.h"
 #include "common/updates/bomb_update.h"
@@ -111,12 +113,10 @@ payload_t BaseProtocol::serialize(const std::optional<T>& v) const {
     payload.insert(payload.end(), has_value_payload.begin(), has_value_payload.end());
 
     if (has_value) {
-        payload_t value_payload;
-
-        value_payload = serialize(v.value());
-
+        payload_t value_payload = serialize(v.value());
         payload.insert(payload.end(), value_payload.begin(), value_payload.end());
     }
+
     return payload;
 }
 
@@ -145,11 +145,14 @@ payload_t BaseProtocol::serialize(const GameInfo& game_info) const {
     payload_t payload;
 
     payload_t name_payload = serialize(game_info.name);
-    payload_t count_payload = serialize(game_info.players_count);
+    payload_t map_name_payload = serialize(game_info.map_name);
+    payload_t players_count_payload = serialize(game_info.players_count);
     payload_t phase_payload = serialize(game_info.phase);
-    payload.reserve(name_payload.size() + count_payload.size() + phase_payload.size());
+    payload.reserve(name_payload.size() + map_name_payload.size() + players_count_payload.size() +
+                    phase_payload.size());
     payload.insert(payload.end(), name_payload.begin(), name_payload.end());
-    payload.insert(payload.end(), count_payload.begin(), count_payload.end());
+    payload.insert(payload.end(), map_name_payload.begin(), map_name_payload.end());
+    payload.insert(payload.end(), players_count_payload.begin(), players_count_payload.end());
     payload.insert(payload.end(), phase_payload.begin(), phase_payload.end());
 
     return payload;
@@ -199,15 +202,59 @@ payload_t BaseProtocol::serialize(const Rectangle& rectangle) const {
 }
 
 template <>
-payload_t BaseProtocol::serialize(const WorldItem<GunType>& world_item) const {
+payload_t BaseProtocol::serialize(const Tile& tile) const {
     payload_t payload;
 
-    // Serialize the gun type (enum)
-    payload_t gun_payload = serialize(world_item.item);
-    payload.insert(payload.end(), gun_payload.begin(), gun_payload.end());
+    payload_t pos_payload = serialize(tile.pos);
+    payload_t id_payload = serialize(tile.id);
+    payload_t is_collidable_payload = serialize(tile.is_collidable);
+    payload_t is_spawn_tt_payload = serialize(tile.is_spawn_tt);
+    payload_t is_spawn_ct_payload = serialize(tile.is_spawn_ct);
+    payload_t is_bomb_site_payload = serialize(tile.is_bomb_site);
 
-    // Serialize the hitbox
+    payload.reserve(pos_payload.size() + id_payload.size() + is_collidable_payload.size() +
+                    is_spawn_tt_payload.size() + is_spawn_ct_payload.size() +
+                    is_bomb_site_payload.size());
+
+    payload.insert(payload.end(), pos_payload.begin(), pos_payload.end());
+    payload.insert(payload.end(), id_payload.begin(), id_payload.end());
+    payload.insert(payload.end(), is_collidable_payload.begin(), is_collidable_payload.end());
+    payload.insert(payload.end(), is_spawn_tt_payload.begin(), is_spawn_tt_payload.end());
+    payload.insert(payload.end(), is_spawn_ct_payload.begin(), is_spawn_ct_payload.end());
+    payload.insert(payload.end(), is_bomb_site_payload.begin(), is_bomb_site_payload.end());
+
+    return payload;
+}
+
+template <>
+payload_t BaseProtocol::serialize(const Map& map) const {
+    payload_t payload;
+
+    payload_t name_payload = serialize(map.get_name());
+    payload_t max_players_payload = serialize(map.get_max_players());
+    payload_t height_payload = serialize(map.get_height());
+    payload_t width_payload = serialize(map.get_width());
+    payload_t tiles_payload = serialize(map.get_tiles());
+
+    payload.reserve(name_payload.size() + max_players_payload.size() + tiles_payload.size());
+
+    payload.insert(payload.end(), name_payload.begin(), name_payload.end());
+    payload.insert(payload.end(), max_players_payload.begin(), max_players_payload.end());
+    payload.insert(payload.end(), height_payload.begin(), height_payload.end());
+    payload.insert(payload.end(), width_payload.begin(), width_payload.end());
+    payload.insert(payload.end(), tiles_payload.begin(), tiles_payload.end());
+
+    return payload;
+}
+
+template <>
+payload_t BaseProtocol::serialize(const WorldItem<GunType>& world_item) const {
+    payload_t payload;
+    payload_t gun_payload = serialize(world_item.item);
     payload_t hitbox_payload = serialize(world_item.hitbox);
+
+    payload.reserve(gun_payload.size() + hitbox_payload.size());
+    payload.insert(payload.end(), gun_payload.begin(), gun_payload.end());
     payload.insert(payload.end(), hitbox_payload.begin(), hitbox_payload.end());
 
     return payload;
@@ -249,18 +296,48 @@ SERIALIZE_UPDATE(GunUpdate, GUN_ATTRS)
 SERIALIZE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)
 SERIALIZE_UPDATE(PlayerUpdate, PLAYER_ATTRS)
 SERIALIZE_UPDATE(PhaseUpdate, PHASE_ATTRS)
-SERIALIZE_UPDATE(GameUpdate, GAME_ATTRS)
+// SERIALIZE_UPDATE(GameUpdate, GAME_ATTRS)
+
+template <>
+payload_t BaseProtocol::serialize<GameUpdate>(const GameUpdate& update) const {
+    payload_t payload;
+    payload.push_back(update.has_phase_changed());
+    if (update.has_phase_changed()) {
+        payload_t phase_payload = serialize(update.get_phase());
+        payload.insert(payload.end(), phase_payload.begin(), phase_payload.end());
+    }
+    payload.push_back(update.has_num_rounds_changed());
+    if (update.has_num_rounds_changed()) {
+        payload_t num_rounds_payload = serialize(update.get_num_rounds());
+        payload.insert(payload.end(), num_rounds_payload.begin(), num_rounds_payload.end());
+    }
+    payload.push_back(update.has_players_changed());
+    if (update.has_players_changed()) {
+        payload_t players_payload = serialize(update.get_players());
+        payload.insert(payload.end(), players_payload.begin(), players_payload.end());
+    }
+    payload.push_back(update.has_dropped_guns_changed());
+    if (update.has_dropped_guns_changed()) {
+        payload_t dropped_guns_payload = serialize(update.get_dropped_guns());
+        payload.insert(payload.end(), dropped_guns_payload.begin(), dropped_guns_payload.end());
+    }
+    payload.push_back(update.has_bomb_changed());
+    if (update.has_bomb_changed()) {
+        payload_t bomb_payload = serialize(update.get_bomb());
+        payload.insert(payload.end(), bomb_payload.begin(), bomb_payload.end());
+    }
+    return payload;
+}
 
 template <>
 payload_t BaseProtocol::serialize(const WorldItem<BombUpdate>& world_item) const {
     payload_t payload;
 
-    // Serialize the bomb update
     payload_t bomb_payload = serialize(world_item.item);
-    payload.insert(payload.end(), bomb_payload.begin(), bomb_payload.end());
-
-    // Serialize the hitbox
     payload_t hitbox_payload = serialize(world_item.hitbox);
+    payload.reserve(bomb_payload.size() + hitbox_payload.size());
+
+    payload.insert(payload.end(), bomb_payload.begin(), bomb_payload.end());
     payload.insert(payload.end(), hitbox_payload.begin(), hitbox_payload.end());
 
     return payload;
@@ -317,12 +394,6 @@ bool BaseProtocol::deserialize<bool>(payload_t& payload) const {
 }
 
 template <>
-float BaseProtocol::deserialize<float>(payload_t& payload) const {
-    payload_t data = pop(payload, sizeof(float));
-    return ntohl(*reinterpret_cast<const float*>(data.data()));
-}
-
-template <>
 Vector2D BaseProtocol::deserialize<Vector2D>(payload_t& payload) const {
     int x = deserialize<int>(payload);
     int y = deserialize<int>(payload);
@@ -339,9 +410,10 @@ TimePoint BaseProtocol::deserialize<TimePoint>(payload_t& payload) const {
 template <>
 GameInfo BaseProtocol::deserialize<GameInfo>(payload_t& payload) const {
     std::string name = deserialize<std::string>(payload);
+    std::string map_name = deserialize<std::string>(payload);
     int players_count = deserialize<int>(payload);
     PhaseType phase = deserialize<PhaseType>(payload);
-    return GameInfo(name, players_count, phase);
+    return GameInfo(name, map_name, players_count, phase);
 }
 
 
@@ -360,11 +432,44 @@ Rectangle BaseProtocol::deserialize<Rectangle>(payload_t& payload) const {
     Vector2D pos = deserialize<Vector2D>(payload);
     int width = deserialize<int>(payload);
     int height = deserialize<int>(payload);
-    float rotation_deg = deserialize<float>(payload);
+    int rotation_deg = deserialize<int>(payload);
 
     Rectangle rectangle(pos, width, height);
     rectangle.rotate(rotation_deg);
     return rectangle;
+}
+
+template <>
+Tile BaseProtocol::deserialize<Tile>(payload_t& payload) const {
+    Vector2D pos = deserialize<Vector2D>(payload);
+    int id = deserialize<int>(payload);
+    bool is_collidable = deserialize<bool>(payload);
+    bool is_spawn_tt = deserialize<bool>(payload);
+    bool is_spawn_ct = deserialize<bool>(payload);
+    bool is_bomb_site = deserialize<bool>(payload);
+
+    return Tile(std::move(pos), id, is_collidable, is_spawn_tt, is_spawn_ct, is_bomb_site);
+}
+
+template <>
+Map BaseProtocol::deserialize<Map>(payload_t& payload) const {
+    std::string name = deserialize<std::string>(payload);
+    int max_players = deserialize<int>(payload);
+    int height = deserialize<int>(payload);
+    int width = deserialize<int>(payload);
+
+    Map map(name, max_players, height, width);
+
+    auto tiles = deserialize<std::vector<std::vector<std::optional<Tile>>>>(payload);
+    for (auto& row: tiles) {
+        for (auto& tile: row) {
+            if (tile) {
+                map.add_tile(std::move(tile.value()));
+            }
+        }
+    }
+
+    return map;
 }
 
 template <>
@@ -407,7 +512,37 @@ DESERIALIZE_UPDATE(GunUpdate, GUN_ATTRS)
 DESERIALIZE_UPDATE(InventoryUpdate, INVENTORY_ATTRS)
 DESERIALIZE_UPDATE(PlayerUpdate, PLAYER_ATTRS)
 DESERIALIZE_UPDATE(PhaseUpdate, PHASE_ATTRS)
-DESERIALIZE_UPDATE(GameUpdate, GAME_ATTRS)
+// DESERIALIZE_UPDATE(GameUpdate, GAME_ATTRS)
+
+template <>
+GameUpdate BaseProtocol::deserialize<GameUpdate>(payload_t& payload) const {
+    GameUpdate result;
+    if (deserialize<bool>(payload)) {
+        PhaseUpdate phase = deserialize<PhaseUpdate>(payload);
+        result.set_phase(phase);
+    }
+    if (deserialize<bool>(payload)) {
+        int num_rounds = deserialize<int>(payload);
+        result.set_num_rounds(num_rounds);
+    }
+    if (deserialize<bool>(payload)) {
+        std::map<std::string, PlayerUpdate> players =
+                deserialize<std::string, PlayerUpdate>(payload);
+        result.set_players(players);
+    }
+    if (deserialize<bool>(payload)) {
+        std::vector<WorldItem<GunType>> dropped_guns =
+                deserialize<std::vector<WorldItem<GunType>>>(payload);
+        result.set_dropped_guns(dropped_guns);
+    }
+    if (deserialize<bool>(payload)) {
+        std::optional<WorldItem<BombUpdate>> bomb =
+                deserialize<std::optional<WorldItem<BombUpdate>>>(payload);
+        result.set_bomb(bomb);
+    }
+    return result;
+}
+
 
 template <>
 WorldItem<BombUpdate> BaseProtocol::deserialize<WorldItem<BombUpdate>>(payload_t& payload) const {

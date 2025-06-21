@@ -45,6 +45,7 @@ private:
     std::unique_ptr<SdlWorld> world;
     void setup();
 
+    Map get_map();
     GameUpdate get_initial_state();
     void update_state();
 };

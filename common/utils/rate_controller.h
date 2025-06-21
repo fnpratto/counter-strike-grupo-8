@@ -19,6 +19,13 @@ private:
 
     bool is_blocking = false;
 
+    // Debug mode variables
+    bool debug_mode = false;
+    std::chrono::steady_clock::time_point last_frame_time;
+    std::chrono::steady_clock::time_point debug_start_time;
+    int frame_count = 0;
+    int skipped_frames = 0;
+
 public:
     /**
      * @brief Constructs a RateController with the specified target rate.
@@ -56,6 +63,23 @@ public:
     int get_rate() const;
 
     bool should_run();
+
+    /**
+     * @brief Enables or disables debug mode.
+     *
+     * When debug mode is enabled, the controller will output frame rate,
+     * frame time, and warnings about skipped frames to the console.
+     *
+     * @param enabled True to enable debug mode, false to disable
+     */
+    void set_debug_mode(bool enabled);
+
+    /**
+     * @brief Checks if debug mode is currently enabled.
+     *
+     * @return True if debug mode is enabled, false otherwise
+     */
+    bool is_debug_enabled() const;
 };
 
 #endif  // RATE_CONTROLLER_H

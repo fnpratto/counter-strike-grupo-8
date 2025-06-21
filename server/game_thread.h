@@ -23,7 +23,7 @@ class GameThread: public Thread {
     std::map<std::string, std::shared_ptr<Queue<Message>>> output_queues;  // Shared output queues
 
 public:
-    explicit GameThread(const std::string& name);
+    explicit GameThread(const std::string& name, Map&& map);
 
     void run() override;
 
