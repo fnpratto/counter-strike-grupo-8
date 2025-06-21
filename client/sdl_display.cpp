@@ -95,7 +95,7 @@ void SDLDisplay::run() {
 
     update_state();
 
-    RateController rate_controller(60);  // 60 FPS
+    RateController rate_controller(60);
     rate_controller.set_debug_mode(true);
     sound_manager.play_music("menu", -1);
     rate_controller.run_at_rate([&]() {
@@ -137,17 +137,29 @@ void SDLDisplay::load_audio() {
     sound_manager.load_music("menu", std::string(GameConfig::Paths::MENU_MUSIC_PATH).c_str());
     sound_manager.load_music("background", std::string(GameConfig::Paths::GAME_MUSIC_PATH).c_str());
     sound_manager.set_volume(0.8f);
-    sound_manager.load_sound("ct_win", std::string(GameConfig::Paths::CT_WIN_SOUND_PATH).c_str());
-    sound_manager.load_sound("tt_win", std::string(GameConfig::Paths::TT_WIN_SOUND_PATH).c_str());
+    sound_manager.load_sound("ct_win",
+                             std::string(GameConfig::Paths::CT_WIN_SOUND_PATH).c_str());  // TODO
+    sound_manager.load_sound("tt_win",
+                             std::string(GameConfig::Paths::TT_WIN_SOUND_PATH).c_str());  // TODO
     sound_manager.load_sound("item_pick",
                              std::string(GameConfig::Paths::ITEM_PICK_SOUND_PATH).c_str());
     sound_manager.load_sound("recharge",
                              std::string(GameConfig::Paths::RECHARGE_SOUND_PATH).c_str());
-    sound_manager.load_sound("hit", std::string(GameConfig::Paths::HIT_SOUND_PATH).c_str());
-    sound_manager.load_sound("bomb_planted",
-                             std::string(GameConfig::Paths::BOMB_PLANTED_SOUND_PATH).c_str());
-    sound_manager.load_sound("bomb_defused",
-                             std::string(GameConfig::Paths::BOMB_DEFUSED_SOUND_PATH).c_str());
+    sound_manager.load_sound("hit",
+                             std::string(GameConfig::Paths::HIT_SOUND_PATH).c_str());  // TODO
+    sound_manager.load_sound(
+            "bomb_planted",
+            std::string(GameConfig::Paths::BOMB_PLANTED_SOUND_PATH).c_str());  // TODO
+    sound_manager.load_sound(
+            "bomb_defused",
+            std::string(GameConfig::Paths::BOMB_DEFUSED_SOUND_PATH).c_str());  // TODO
+
+    sound_manager.load_sound("switch_teams",
+                             std::string(GameConfig::Paths::SWITCH_TEAMS_SOUND_PATH).c_str());
+    sound_manager.load_sound("error", std::string(GameConfig::Paths::ERROR_SOUND_PATH).c_str());
+
+    sound_manager.load_sound("bomb_exploded",
+                             std::string(GameConfig::Paths::BOMB_EXPLODED_SOUND_PATH).c_str());
 }
 
 void SDLDisplay::stop() {
@@ -254,13 +266,16 @@ void SDLDisplay::update_state() {
             }
             case MessageType::ROUND_END_RESP: {
                 std::cout << "Received RoundEndResponse" << std::endl;
-                // auto round_end = msg.get_content<RoundEndResponse>();
                 break;
             }
             case MessageType::SWAP_TEAMS_RESP: {
                 std::cout << "Received SkinSelectResponse" << std::endl;
+                sound_manager.play("switch_teams");
 
                 break;
+            }
+            case MessageType::ERROR_RESP: {
+                sound_manager.play("error");
             }
             default: {
                 std::cerr << "SDLDisplay::update_state: Received unexpected message type: "

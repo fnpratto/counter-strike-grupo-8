@@ -73,9 +73,9 @@ constexpr std::string_view RECHARGE_SOUND_PATH = "../assets/sfx/items/ammo.wav";
 constexpr std::string_view HIT_SOUND_PATH = "../assets/sfx/player/hit1.wav";
 constexpr std::string_view BOMB_PLANTED_SOUND_PATH = "../assets/sfx/radio/bombpl.ogg";
 constexpr std::string_view BOMB_DEFUSED_SOUND_PATH = "../assets/sfx/radio/bombdef.ogg";
-// constexpr std::string_view BOMB_EXPLODED_SOUND_PATH = "../assets/sfx/radio/bomb_exploded.ogg";
-// constexpr std::string_view ERROR_SOUND_PATH = "../assets/sfx/radio/bomb_pick.ogg";
-
+constexpr std::string_view SWITCH_TEAMS_SOUND_PATH = "../assets/sfx/radio/regroup.ogg";
+constexpr std::string_view ERROR_SOUND_PATH = "../assets/sfx/wpn_denyselect.wav";
+constexpr std::string_view BOMB_EXPLODED_SOUND_PATH = "../assets/sfx/weapons/explode2.wav";
 }  // namespace Paths
 
 // --- Gun Type Offsets ---

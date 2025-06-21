@@ -48,6 +48,11 @@ void KeyboardHandler::handleEvent(const SDL_Event& event) {
                 break;
             case SDLK_r:
                 output_queue.push(Message(ReloadCommand()));
+                sound_manager.play("reload");
+                break;
+            case SDLK_g:
+                /// output_queue.push(Message(Pickup()));
+                sound_manager.play("item_pick");
                 break;
         }
     }
