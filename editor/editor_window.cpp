@@ -4,6 +4,7 @@
 #include <QActionGroup>
 #include <QDebug>
 #include <QDir>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QFileInfoList>
 #include <QFontDatabase>
@@ -15,11 +16,13 @@
 #include <QPixmap>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QSpinBox>
 #include <QStringList>
 #include <QToolBar>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <array>
+#include <fstream>
 #include <string>
 
 #include <yaml-cpp/yaml.h>
@@ -65,6 +68,7 @@ void EditorWindow::add_sidebar() {
 
     this->add_tool_bar(sidebar_layout);
     this->add_tile_bar(sidebar_layout);
+    this->add_inputs(sidebar_layout);
     this->add_buttons(sidebar_layout);
 }
 
@@ -75,8 +79,9 @@ void EditorWindow::add_map_view() {
 
     for (int row = 0; row < MAX_ROWS_MAPVIEW; ++row) {
         for (int col = 0; col < MAX_COLUMNS_MAPVIEW; ++col) {
-            MapViewTile* empty_tile = new MapViewTile(TileButton::getSelectedTileButton(), this);
+            MapViewTile* empty_tile = new MapViewTile(row, col, this);
             map_view_layout->addWidget(empty_tile, row, col);
+            this->map_view_tiles.push_back(empty_tile);
         }
     }
 
@@ -124,6 +129,11 @@ void EditorWindow::add_tile_bar(QVBoxLayout* sidebar_layout) {
     tilebar_widget->setLayout(tilebar_layout);
 }
 
+void EditorWindow::add_inputs(QVBoxLayout* sidebar_layout) {
+    this->add_map_name_input(sidebar_layout);
+    this->add_map_max_players_input(sidebar_layout);
+}
+
 void EditorWindow::add_buttons(QVBoxLayout* sidebar_layout) {
     QHBoxLayout* button_layout = new QHBoxLayout();
 
@@ -138,8 +148,7 @@ void EditorWindow::add_buttons(QVBoxLayout* sidebar_layout) {
     connect(open_map_button, &QPushButton::clicked, this,
             []() { qDebug() << "Open Map button clicked"; });
 
-    connect(save_map_button, &QPushButton::clicked, this,
-            []() { qDebug() << "Save Map button clicked"; });
+    connect(save_map_button, &QPushButton::clicked, this, &EditorWindow::save_map);
 }
 
 void EditorWindow::add_tiles(QGridLayout* tilebar_layout) {
@@ -165,7 +174,7 @@ void EditorWindow::add_tiles(QGridLayout* tilebar_layout) {
             Tile tile;
             tile.id = tile_data["id"].as<int>();
             tile.image = this->get_tile_image(map_image_path, tile_x, tile_y, tile_size);
-            tile.collidable = tile_data["collidable"].as<bool>();
+            tile.is_collidable = tile_data["collidable"].as<bool>();
             QPushButton* tile_button = new TileButton(tile, this);
             tilebar_layout->addWidget(tile_button, row, col);
             col++;
@@ -190,4 +199,90 @@ QPixmap EditorWindow::get_tile_image(const QString& resource_path, const int& x,
                                      const int& size) {
     QPixmap tile_image(resource_path);
     return tile_image.copy(y * size, x * size, size, size);
+}
+
+void EditorWindow::add_map_name_input(QVBoxLayout* sidebar_layout) {
+    QLabel* map_name_label = new QLabel("Map Name:", this);
+    map_name_label->setStyleSheet("QLabel { color: #fff; }");
+    this->map_name = new QLineEdit(this);
+    this->map_name->setPlaceholderText("Enter map name...");
+    this->map_name->setStyleSheet(
+            "QLineEdit { background-color: #fff; border: 1px solid #ccc; border-radius: 2px; }");
+
+    sidebar_layout->addWidget(map_name_label);
+    sidebar_layout->addWidget(this->map_name);
+}
+
+void EditorWindow::add_map_max_players_input(QVBoxLayout* sidebar_layout) {
+    QHBoxLayout* max_players_layout = new QHBoxLayout();
+
+    QLabel* map_max_players_label = new QLabel("Max Players:", this);
+    map_max_players_label->setStyleSheet("QLabel { color: #fff; }");
+
+    this->map_max_players = new QSpinBox(this);
+    this->map_max_players->setRange(2, 16);
+    this->map_max_players->setValue(10);
+    this->map_max_players->setSingleStep(2);
+    this->map_max_players->setStyleSheet("QSpinBox { background-color: #ffffff; }");
+
+    max_players_layout->addWidget(map_max_players_label);
+    max_players_layout->addWidget(this->map_max_players);
+    sidebar_layout->addLayout(max_players_layout);
+}
+
+void EditorWindow::save_map() {
+    QString save_path = this->get_save_path();
+    if (save_path.isEmpty()) {
+        qDebug() << "Save path is empty. Map not saved.";
+        return;
+    }
+
+    // Here you would implement the logic to save the map data to the specified path.
+    // This is a placeholder for the actual saving logic.
+    YAML::Node map_data;
+    map_data["name"] = this->map_name->text().toStdString();
+    map_data["max_players"] = this->map_max_players->value();
+    map_data["tiles"] = YAML::Node(YAML::NodeType::Sequence);
+    // Gather the tile data from the MapViewTile widgets
+    // and add them to the map_data["tiles"] node.
+    // Implement the logic
+    for (const auto* map_view_tile: this->map_view_tiles) {
+        if (map_view_tile->has_tile()) {
+            YAML::Node tile_data;
+            Tile tile = map_view_tile->get_tile();
+            tile_data["id"] = tile.id;
+            tile_data["x"] = tile.x;
+            tile_data["y"] = tile.y;
+            tile_data["collidable"] = tile.is_collidable;
+            tile_data["ct_spawn"] = tile.is_ct_spawn;
+            tile_data["t_spawn"] = tile.is_t_spawn;
+            tile_data["bomb_site"] = tile.is_bomb_site;
+            map_data["tiles"].push_back(tile_data);
+        }
+    }
+
+    // Save the YAML data to the specified file
+    try {
+        YAML::Emitter out;
+        out << map_data;
+        std::ofstream fout(save_path.toStdString());
+        fout << out.c_str();
+        fout.close();
+    } catch (const std::exception& e) {
+        qDebug() << "Error saving map:" << e.what();
+        return;
+    }
+
+    qDebug() << "Map saved to:" << save_path;
+}
+
+QString EditorWindow::get_save_path() {
+    QString save_path = QFileDialog::getSaveFileName(this, "Save Map", "", "YAML Files (*.yaml)");
+    if (save_path.isEmpty()) {
+        return QString();
+    }
+    if (!save_path.endsWith(".yaml")) {
+        save_path += ".yaml";
+    }
+    return save_path;
 }

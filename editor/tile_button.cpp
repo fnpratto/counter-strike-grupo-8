@@ -1,6 +1,8 @@
 #include "tile_button.h"
 
 #include <QApplication>
+#include <QByteArray>
+#include <QDataStream>
 #include <QDebug>
 #include <QDrag>
 #include <QFile>
@@ -29,6 +31,8 @@ TileButton::TileButton(const Tile& tile, QWidget* parent):
 }
 
 TileButton*& TileButton::getSelectedTileButton() { return selected_tile_button; }
+
+Tile TileButton::get_tile() const { return tile; }
 
 void TileButton::mousePressEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
@@ -61,9 +65,14 @@ void TileButton::mouseMoveEvent(QMouseEvent* event) {
 
     QApplication::setOverrideCursor(Qt::DragMoveCursor);
 
+    QByteArray tile_data;
+    QDataStream stream(&tile_data, QIODevice::WriteOnly);
+    stream << tile;
+
     QDrag* drag = new QDrag(this);
     QMimeData* mime_data = new QMimeData();
-    mime_data->setImageData(tile.image);
+
+    mime_data->setData("application/x-tile", tile_data);
     drag->setMimeData(mime_data);
     drag->setPixmap(tile.image);
     drag->exec(Qt::CopyAction | Qt::MoveAction);

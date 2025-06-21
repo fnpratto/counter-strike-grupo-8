@@ -19,6 +19,8 @@ public:
 
     static TileButton*& getSelectedTileButton();
 
+    Tile get_tile() const;
+
 protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
