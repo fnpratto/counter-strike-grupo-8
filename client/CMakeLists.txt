@@ -18,6 +18,7 @@ target_sources(taller_client
     qt/log_in_window.cpp
     qt/resources.qrc
     connection_handler.cpp
+    sound_manager.cpp
 
     PUBLIC
     # .h files
@@ -35,4 +36,5 @@ target_sources(taller_client
     qt/lobby_window.h
     qt/log_in_window.h
     connection_handler.h
+    sound_manager.h
 )
