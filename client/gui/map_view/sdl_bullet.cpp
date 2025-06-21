@@ -30,9 +30,11 @@ void SdlBullet::render(Vector2D get_origin, Vector2D get_hit_pos, Vector2D get_h
 }
 
 
-void SdlBullet::render_laser(const Vector2D& origin, float length, float angle) {
-    SDL_Rect clip{0, 0, 200, 5};
-    laser.render(origin.get_x(), origin.get_y(), length, 5, &clip, angle, nullptr, SDL_FLIP_NONE);
+void SdlBullet::render_laser([[maybe_unused]] const Vector2D& origin, [[maybe_unused]] float length,
+                             [[maybe_unused]] float angle) {
+    // SDL_Rect clip{0, 0, 200, 5};
+    // laser.render(origin.get_x(), origin.get_y(), length, 5, &clip, angle, nullptr,
+    // SDL_FLIP_NONE);
     std::cout << "Rendering bullet at origin: (" << origin.get_x() << ", " << origin.get_y() << ")"
               << std::endl;
 }

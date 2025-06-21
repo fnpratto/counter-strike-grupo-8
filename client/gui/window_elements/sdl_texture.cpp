@@ -41,23 +41,17 @@ int SdlTexture::render(const Area& src, const Area& dest) const {
 // for animations
 void SdlTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center,
                         SDL_RendererFlip flip) {
-    // Set rendering space and render to screen
     SDL_Rect renderQuad = {x, y, width, height};
 
-    // Set clip rendering dimensions
     if (clip != NULL) {
         renderQuad.w = clip->w;
         renderQuad.h = clip->h;
     }
-    // Render to screen
+
     if (SDL_RenderCopyEx(this->renderer, this->texture, clip, &renderQuad, angle, center, flip) !=
         0) {
         std::cout << "Render failed: " << SDL_GetError() << std::endl;
     }
 }
 
-void SdlTexture::render(int x, int y, int w, int h, SDL_Rect* clip, double angle, SDL_Point* center,
-                        SDL_RendererFlip flip) {
-    SDL_Rect renderQuad = {x, y, w, h};
-    SDL_RenderCopyEx(renderer, texture, clip, &renderQuad, angle, center, flip);
-}
+void SdlTexture::render(int x, int y, double angle) { render(x, y, nullptr, angle); }

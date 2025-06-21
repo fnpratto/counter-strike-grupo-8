@@ -31,40 +31,16 @@ SdlWorld::SdlWorld(SdlWindow& window, Map&& map, const GameUpdate& game_state,
         player_name(player_name),
         camera(window.getWidth(), window.getHeight()),
         map(window, camera, std::move(map)),
-        bullet(window) {
-    for (const auto& [name, player_update]: game_state.get_players()) {
-        players.emplace(name, std::make_unique<SdlPlayer>(window, camera, game_state, name));
-    }
-}
+        player(std::make_unique<SdlPlayer>(window, camera)) {}
 
 void SdlWorld::handle_hit([[maybe_unused]] HitResponse&& hit) {}
-
-void SdlWorld::addBulletInfo(const Vector2D& origin, const Vector2D& hit, const Vector2D& dir,
-                             bool is_hit, bool is_melee) {
-    BulletInfo info{origin, hit, dir, is_hit, is_melee};
-    for (int i = 0; i < 5; ++i) {
-        bullets_info.push_back(info);  // TODO RC
-    }
-}
 
 void SdlWorld::render() {
     camera.center(game_state.get_players().at(player_name).get_pos());
 
     map.render();
-    for (const auto& [name, player_state]: game_state.get_players()) {
-        auto it = players.find(name);
-        if (it == players.end()) {
-            std::cout << "Adding new player: " << name << std::endl;
-            players.emplace(name, std::make_unique<SdlPlayer>(window, camera, game_state, name));
-            it = players.find(name);
-        }
-        if (camera.can_see(player_state)) {
-            it->second->render();
-        }
+    for (const auto& [_, player_state]:  // cppcheck-suppress[unusedVariable]
+         game_state.get_players()) {
+        player->render(player_state);
     }
-
-    for (const BulletInfo& info: bullets_info) {
-        bullet.render(info.origin, info.hit_pos, info.hit_dir, info.is_hit, info.is_knife);
-    }
-    bullets_info.clear();
 }

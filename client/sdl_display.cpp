@@ -192,6 +192,11 @@ void SDLDisplay::update_state() {
                 world->handle_hit(msg.get_content<HitResponse>());
                 break;
             }
+            case MessageType::ERROR_RESP: {
+                const ErrorResponse& error = msg.get_content<ErrorResponse>();
+                std::cerr << "Error received: " << error.get_error_message() << std::endl;
+                break;
+            }
             default: {
                 std::cerr << "SDLDisplay::update_state: Received unexpected message type: "
                           << msg.get_type() << std::endl;

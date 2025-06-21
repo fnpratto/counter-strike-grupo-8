@@ -39,12 +39,8 @@ class SdlWorld {
 
     const std::string& player_name;
     SdlCamera camera;
-    std::map<std::string, std::unique_ptr<SdlPlayer>> players;
     SdlMap map;
-    SdlBullet bullet;
-    std::vector<BulletInfo> bullets_info;
-    void addBulletInfo(const Vector2D& origin, const Vector2D& hit, const Vector2D& dir,
-                       bool is_hit, bool is_melee);
+    std::unique_ptr<SdlPlayer> player;
 
     // SdlTexture background;  // TODO: Load a background texture
 
@@ -54,7 +50,4 @@ public:
 
     void render();
     void handle_hit(HitResponse&& hit);
-
-private:
-    Map build_default_map();
 };
