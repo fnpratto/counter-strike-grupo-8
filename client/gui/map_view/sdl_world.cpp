@@ -16,6 +16,7 @@
 #include "client/gui/window_elements/sdl_texture.h"
 #include "client/gui/window_elements/sdl_window.h"
 #include "common/map/map.h"
+#include "common/responses.h"
 #include "common/updates/game_update.h"
 
 #include "sdl_camera.h"
@@ -36,16 +37,7 @@ SdlWorld::SdlWorld(SdlWindow& window, Map&& map, const GameUpdate& game_state,
     }
 }
 
-void SdlWorld::handleHit(Vector2D get_origin, Vector2D get_hit_pos, Vector2D get_hit_dir,
-                         bool is_hit) {
-    Vector2D origin_screen = camera.get_screen_pos(get_origin);
-    Vector2D hit_screen = camera.get_screen_pos(get_hit_pos);
-    Vector2D dir_screen = camera.get_screen_pos(get_hit_dir);
-
-    bool is_melee =
-            (game_state.get_players().at(player_name).get_equipped_item() == ItemSlot::Melee);
-    addBulletInfo(origin_screen, hit_screen, dir_screen, is_hit, is_melee);
-}
+void SdlWorld::handle_hit([[maybe_unused]] HitResponse&& hit) {}
 
 void SdlWorld::addBulletInfo(const Vector2D& origin, const Vector2D& hit, const Vector2D& dir,
                              bool is_hit, bool is_melee) {

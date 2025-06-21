@@ -180,21 +180,16 @@ void SDLDisplay::update_state() {
                 const ShopPricesResponse& response = msg.get_content<ShopPricesResponse>();
                 shop_display->updateShopState(true);
                 shop_display->updatePrices(response);
-                std::cout << "Updated shop prices" << std::endl;
                 break;
             }
             case MessageType::SCOREBOARD_RESP: {
-                std::cout << "Received ScoreboardResponse" << std::endl;
                 auto scoreboard = msg.get_content<ScoreboardResponse>().get_scoreboard();
                 score_display->updateScoreboard(scoreboard);
                 score_display->updateState();
                 break;
             }
             case MessageType::HIT_RESP: {
-                std::cout << "Received Hit response" << std::endl;
-                auto hit = msg.get_content<HitResponse>();
-                world->handleHit(hit.get_origin(), hit.get_hit_pos(), hit.get_hit_dir(),
-                                 hit.is_hit());
+                world->handle_hit(msg.get_content<HitResponse>());
                 break;
             }
             default: {

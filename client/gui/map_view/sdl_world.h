@@ -14,6 +14,7 @@
 #include "../window_elements/area.h"
 #include "../window_elements/sdl_texture.h"
 #include "../window_elements/sdl_window.h"
+#include "common/responses.h"
 #include "common/updates/game_update.h"
 
 #include "sdl_bullet.h"
@@ -52,7 +53,7 @@ public:
              const std::string& player_name);
 
     void render();
-    void handleHit(Vector2D get_origin, Vector2D get_hit_pos, Vector2D get_hit_dir, bool is_hit);
+    void handle_hit(HitResponse&& hit);
 
 private:
     Map build_default_map();
