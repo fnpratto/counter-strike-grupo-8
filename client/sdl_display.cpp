@@ -132,34 +132,21 @@ void SDLDisplay::run() {
 }
 
 
-/*
-constexpr std::string_view MENU_MUSIC_PATH = "../assets/sfx/menu.wav";
-constexpr std::string_view GAME_MUSIC_PATH = "../assets/sfx/env/ambience1.wav";
-
-// Sounds
-constexpr std::string_view CT_WIN_SOUND_PATH = "../assets/sfx/radio/ctwin.ogg";
-constexpr std::string_view TT_WIN_SOUND_PATH = "../assets/sfx/radio/terwin.ogg";
-constexpr std::string_view ITEM_PICK_SOUND_PATH = "../assets/sfx/items/pickup.wav";
-constexpr std::string_view RECHARGE_SOUND_PATH = "../assets/sfx/items/ammo.wav";
-constexpr std::string_view HIT_SOUND_PATH = "../assets/sfx/items/hit1.wav";
-constexpr std::string_view BOMB_PLANTED_SOUND_PATH = "../assets/sfx/radio/bombpl.ogg";
-constexpr std::string_view BOMB_DEFUSED_SOUND_PATH = "../assets/sfx/radio/bombdef.ogg";
-// constexpr std::string_view BOMB_EXPLODED_SOUND_PATH = "../assets/sfx/radio/bomb_exploded.ogg";
-// constexpr std::string_view ERROR_SOUND_PATH = "../assets/sfx/radio/bomb_pick.ogg";
-
-*/
-
 void SDLDisplay::load_audio() {
-    sound_manager.load_music("menu", "../assets/sfx/menu.wav");
-    sound_manager.load_music("background", "../assets/sfx/env/ambience1.wav");
+    sound_manager.load_music("menu", std::string(GameConfig::Paths::MENU_MUSIC_PATH).c_str());
+    sound_manager.load_music("background", std::string(GameConfig::Paths::GAME_MUSIC_PATH).c_str());
     sound_manager.set_volume(0.8f);
-    sound_manager.load_sound("ct_win", "../assets/sfx/radio/ct_win.ogg");
-    sound_manager.load_sound("tt_win", "../assets/sfx/radio/terwin.ogg");
-    sound_manager.load_sound("item_pick", "../assets/sfx/items/pickup.wav");
-    sound_manager.load_sound("recharge", "../assets/sfx/items/ammo.wav");
-    sound_manager.load_sound("hit", "../assets/sfx/player/hit1.wav");
-    sound_manager.load_sound("bomb_planted", "../assets/sfx/radio/bombpl.ogg");
-    sound_manager.load_sound("bomb_defused", "../assets/sfx/radio/bombdef.ogg");
+    sound_manager.load_sound("ct_win", std::string(GameConfig::Paths::CT_WIN_SOUND_PATH).c_str());
+    sound_manager.load_sound("tt_win", std::string(GameConfig::Paths::TT_WIN_SOUND_PATH).c_str());
+    sound_manager.load_sound("item_pick",
+                             std::string(GameConfig::Paths::ITEM_PICK_SOUND_PATH).c_str());
+    sound_manager.load_sound("recharge",
+                             std::string(GameConfig::Paths::RECHARGE_SOUND_PATH).c_str());
+    sound_manager.load_sound("hit", std::string(GameConfig::Paths::HIT_SOUND_PATH).c_str());
+    sound_manager.load_sound("bomb_planted",
+                             std::string(GameConfig::Paths::BOMB_PLANTED_SOUND_PATH).c_str());
+    sound_manager.load_sound("bomb_defused",
+                             std::string(GameConfig::Paths::BOMB_DEFUSED_SOUND_PATH).c_str());
 }
 
 void SDLDisplay::stop() {
