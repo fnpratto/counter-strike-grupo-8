@@ -21,6 +21,28 @@ bool MapViewTile::has_tile() const { return !this->tile.image.isNull(); }
 
 Tile MapViewTile::get_tile() const { return this->tile; }
 
+void MapViewTile::set_tile(const Tile& tile) {
+    int x = this->tile.x;
+    int y = this->tile.y;
+
+    this->tile = tile;
+    this->tile.x = x;
+    this->tile.y = y;
+
+    QPixmap tile_pixmap = this->tile.image;
+    if (!tile_pixmap.isNull()) {
+        tile_pixmap = tile_pixmap.scaled(TILE_SIZE, TILE_SIZE, Qt::KeepAspectRatio,
+                                         Qt::SmoothTransformation);
+    }
+
+    this->setPixmap(tile_pixmap);
+}
+
+void MapViewTile::clear_tile() {
+    this->set_tile(Tile());
+    this->setPixmap(QPixmap());
+}
+
 void MapViewTile::dragEnterEvent(QDragEnterEvent* event) {
     if (event->mimeData()->hasFormat("application/x-tile")) {
         event->accept();
@@ -41,9 +63,9 @@ void MapViewTile::dropEvent(QDropEvent* event) {
     if (event->mimeData()->hasFormat("application/x-tile")) {
         QByteArray tile_data = event->mimeData()->data("application/x-tile");
         QDataStream stream(&tile_data, QIODevice::ReadOnly);
-        stream >> this->tile;
-        this->setPixmap(this->tile.image.scaled(TILE_SIZE, TILE_SIZE, Qt::KeepAspectRatio,
-                                                Qt::SmoothTransformation));
+        Tile new_tile;
+        stream >> new_tile;
+        this->set_tile(new_tile);
         event->accept();
     } else {
         event->ignore();
@@ -55,9 +77,6 @@ void MapViewTile::mousePressEvent(QMouseEvent* event) { QLabel::mousePressEvent(
 void MapViewTile::mouseReleaseEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton && TileButton::getSelectedTileButton()) {
         this->set_tile(TileButton::getSelectedTileButton()->get_tile());
-        QPixmap pixmap = this->tile.image.scaled(TILE_SIZE, TILE_SIZE, Qt::KeepAspectRatio,
-                                                 Qt::SmoothTransformation);
-        this->setPixmap(pixmap);
     }
     QLabel::mouseReleaseEvent(event);
 }

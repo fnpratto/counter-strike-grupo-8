@@ -13,6 +13,7 @@
 #include <QIcon>
 #include <QImage>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPixmap>
 #include <QPushButton>
 #include <QScrollArea>
@@ -38,7 +39,6 @@ constexpr int WINDOW_HEIGHT = 662;
 
 constexpr int MAX_COLUMNS_TILEBAR = 5;
 constexpr int MAX_COLUMNS_MAPVIEW = 20;
-constexpr int MAX_ROWS_MAPVIEW = 20;
 
 TileButton* TileButton::selected_tile_button = nullptr;
 
@@ -67,25 +67,24 @@ void EditorWindow::add_sidebar() {
     this->main_layout->addLayout(sidebar_layout);
 
     this->add_tool_bar(sidebar_layout);
-    this->add_tile_bar(sidebar_layout);
+    this->add_tile_buttons_layout(sidebar_layout);
     this->add_inputs(sidebar_layout);
     this->add_buttons(sidebar_layout);
 }
 
 void EditorWindow::add_map_view() {
-    QGridLayout* map_view_layout = new QGridLayout();
-    map_view_layout->setContentsMargins(0, 0, 0, 0);
-    map_view_layout->setSpacing(0);
+    this->map_view_layout = new QGridLayout();
+    this->map_view_layout->setContentsMargins(0, 0, 0, 0);
+    this->map_view_layout->setSpacing(0);
 
     for (int row = 0; row < MAX_ROWS_MAPVIEW; ++row) {
         for (int col = 0; col < MAX_COLUMNS_MAPVIEW; ++col) {
             MapViewTile* empty_tile = new MapViewTile(row, col, this);
-            map_view_layout->addWidget(empty_tile, row, col);
-            this->map_view_tiles.push_back(empty_tile);
+            this->map_view_layout->addWidget(empty_tile, row, col);
         }
     }
 
-    this->main_layout->addLayout(map_view_layout);
+    this->main_layout->addLayout(this->map_view_layout);
 }
 
 void EditorWindow::add_tool_bar(QVBoxLayout* sidebar_layout) {
@@ -111,22 +110,22 @@ void EditorWindow::add_tool_bar(QVBoxLayout* sidebar_layout) {
     sidebar_layout->addWidget(toolbar);
 }
 
-void EditorWindow::add_tile_bar(QVBoxLayout* sidebar_layout) {
-    QScrollArea* tilebar_scroll_area = new QScrollArea();
-    sidebar_layout->addWidget(tilebar_scroll_area);
+void EditorWindow::add_tile_buttons_layout(QVBoxLayout* sidebar_layout) {
+    QScrollArea* tile_buttons_scroll_area = new QScrollArea();
+    sidebar_layout->addWidget(tile_buttons_scroll_area);
 
     QWidget* tilebar_widget = new QWidget();
-    tilebar_scroll_area->setWidget(tilebar_widget);
+    tile_buttons_scroll_area->setWidget(tilebar_widget);
 
-    tilebar_scroll_area->setWidgetResizable(true);
-    tilebar_scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    tilebar_scroll_area->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    tile_buttons_scroll_area->setWidgetResizable(true);
+    tile_buttons_scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    tile_buttons_scroll_area->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-    QGridLayout* tilebar_layout = new QGridLayout();
-    tilebar_layout->setContentsMargins(0, 0, 15, 0);
-    tilebar_layout->setSpacing(0);
-    this->add_tiles(tilebar_layout);
-    tilebar_widget->setLayout(tilebar_layout);
+    this->tile_buttons_layout = new QGridLayout();
+    this->tile_buttons_layout->setContentsMargins(0, 0, 15, 0);
+    this->tile_buttons_layout->setSpacing(0);
+    this->add_tile_buttons();
+    tilebar_widget->setLayout(this->tile_buttons_layout);
 }
 
 void EditorWindow::add_inputs(QVBoxLayout* sidebar_layout) {
@@ -145,13 +144,12 @@ void EditorWindow::add_buttons(QVBoxLayout* sidebar_layout) {
 
     sidebar_layout->addLayout(button_layout);
 
-    connect(open_map_button, &QPushButton::clicked, this,
-            []() { qDebug() << "Open Map button clicked"; });
+    connect(open_map_button, &QPushButton::clicked, this, &EditorWindow::open_map);
 
     connect(save_map_button, &QPushButton::clicked, this, &EditorWindow::save_map);
 }
 
-void EditorWindow::add_tiles(QGridLayout* tilebar_layout) {
+void EditorWindow::add_tile_buttons() {
     int row = 0;
     int col = 0;
 
@@ -176,7 +174,7 @@ void EditorWindow::add_tiles(QGridLayout* tilebar_layout) {
             tile.image = this->get_tile_image(map_image_path, tile_x, tile_y, tile_size);
             tile.is_collidable = tile_data["collidable"].as<bool>();
             QPushButton* tile_button = new TileButton(tile, this);
-            tilebar_layout->addWidget(tile_button, row, col);
+            this->tile_buttons_layout->addWidget(tile_button, row, col);
             col++;
             if (col >= MAX_COLUMNS_TILEBAR) {
                 col = 0;
@@ -237,52 +235,153 @@ void EditorWindow::save_map() {
         return;
     }
 
-    // Here you would implement the logic to save the map data to the specified path.
-    // This is a placeholder for the actual saving logic.
     YAML::Node map_data;
-    map_data["name"] = this->map_name->text().toStdString();
-    map_data["max_players"] = this->map_max_players->value();
-    map_data["tiles"] = YAML::Node(YAML::NodeType::Sequence);
-    // Gather the tile data from the MapViewTile widgets
-    // and add them to the map_data["tiles"] node.
-    // Implement the logic
-    for (const auto* map_view_tile: this->map_view_tiles) {
-        if (map_view_tile->has_tile()) {
-            YAML::Node tile_data;
-            Tile tile = map_view_tile->get_tile();
-            tile_data["id"] = tile.id;
-            tile_data["x"] = tile.x;
-            tile_data["y"] = tile.y;
-            tile_data["collidable"] = tile.is_collidable;
-            tile_data["ct_spawn"] = tile.is_ct_spawn;
-            tile_data["t_spawn"] = tile.is_t_spawn;
-            tile_data["bomb_site"] = tile.is_bomb_site;
-            map_data["tiles"].push_back(tile_data);
-        }
-    }
+    this->write_yaml(map_data);
 
-    // Save the YAML data to the specified file
     try {
         YAML::Emitter out;
         out << map_data;
         std::ofstream fout(save_path.toStdString());
         fout << out.c_str();
         fout.close();
+        QMessageBox::information(this, "Map Saved", "Map saved successfully!");
     } catch (const std::exception& e) {
-        qDebug() << "Error saving map:" << e.what();
+        QMessageBox::critical(this, "Map Save Error", "Failed to save the map. Please try again.");
         return;
     }
-
-    qDebug() << "Map saved to:" << save_path;
 }
 
 QString EditorWindow::get_save_path() {
     QString save_path = QFileDialog::getSaveFileName(this, "Save Map", "", "YAML Files (*.yaml)");
-    if (save_path.isEmpty()) {
-        return QString();
-    }
-    if (!save_path.endsWith(".yaml")) {
+
+    if (!save_path.isEmpty() && !save_path.endsWith(".yaml")) {
         save_path += ".yaml";
     }
+
     return save_path;
+}
+
+void EditorWindow::write_yaml(YAML::Node& map_data) {
+    map_data["name"] = this->map_name->text().toStdString();
+    map_data["max_players"] = this->map_max_players->value();
+    map_data["height"] = MAX_ROWS_MAPVIEW;
+    map_data["width"] = MAX_COLS_MAPVIEW;
+    map_data["tiles"] = YAML::Node(YAML::NodeType::Sequence);
+
+    int left = MAX_COLUMNS_MAPVIEW - 1;
+    int top = MAX_ROWS_MAPVIEW - 1;
+    int right = 0;
+    int bottom = 0;
+
+    for (int i = 0; i < MAX_ROWS_MAPVIEW; ++i) {
+        for (int j = 0; j < MAX_COLUMNS_MAPVIEW; ++j) {
+            const MapViewTile* map_view_tile = static_cast<MapViewTile*>(
+                    this->map_view_layout->itemAtPosition(i, j)->widget());
+            if (map_view_tile->has_tile()) {
+                YAML::Node tile_data;
+                Tile tile = map_view_tile->get_tile();
+                tile_data["id"] = tile.id;
+                tile_data["x"] = tile.x;
+                tile_data["y"] = tile.y;
+                tile_data["is_collidable"] = tile.is_collidable;
+                tile_data["is_spawn_ct"] = tile.is_ct_spawn;
+                tile_data["is_spawn_tt"] = tile.is_t_spawn;
+                tile_data["is_bomb_site"] = tile.is_bomb_site;
+                map_data["tiles"].push_back(tile_data);
+
+                if (i < top) {
+                    top = i;
+                }
+                if (i > bottom) {
+                    bottom = i;
+                }
+                if (j < left) {
+                    left = j;
+                }
+                if (j > right) {
+                    right = j;
+                }
+            }
+        }
+    }
+
+    int width = right - left + 1;
+    int height = bottom - top + 1;
+    map_data["height"] = height;
+    map_data["width"] = width;
+}
+
+void EditorWindow::open_map() {
+    QString open_path = QFileDialog::getOpenFileName(this, "Open Map", "", "YAML Files (*.yaml)");
+    if (open_path.isEmpty()) {
+        return;
+    }
+
+    try {
+        YAML::Node map_data = YAML::LoadFile(open_path.toStdString());
+        this->read_yaml(map_data);
+    } catch (const std::exception& e) {
+        QMessageBox::critical(this, "Map Open Error", "Failed to open the map. Please try again.");
+    }
+}
+
+void EditorWindow::read_yaml(const YAML::Node& map_data) {
+    if (!map_data["max_players"].IsScalar() || !map_data["tiles"].IsSequence()) {
+        this->read_map_error_dialog();
+        return;
+    }
+
+    this->clear_map_view();
+
+    for (const auto& tile_data: map_data["tiles"]) {
+        if (tile_data.IsMap()) {
+            int x = tile_data["x"].as<int>();
+            int y = tile_data["y"].as<int>();
+
+            Tile tile;
+            tile.id = tile_data["id"].as<int>();
+            tile.image = this->find_tile_image_by_id(tile.id);
+            tile.is_collidable = tile_data["is_collidable"].as<bool>();
+            tile.is_ct_spawn = tile_data["is_ct_spawn"].as<bool>();
+            tile.is_t_spawn = tile_data["is_t_spawn"].as<bool>();
+            tile.is_bomb_site = tile_data["is_bomb_site"].as<bool>();
+
+            MapViewTile* map_view_tile = static_cast<MapViewTile*>(
+                    this->map_view_layout->itemAtPosition(x, y)->widget());
+            map_view_tile->set_tile(tile);
+        } else {
+            this->read_map_error_dialog();
+            return;
+        }
+    }
+
+    this->map_name->setText(QString::fromStdString(map_data["name"].as<std::string>()));
+    this->map_max_players->setValue(map_data["max_players"].as<int>());
+}
+
+void EditorWindow::read_map_error_dialog() {
+    QMessageBox::critical(this, "Map Read Error",
+                          "Failed to read the map data. Please check the file format.");
+}
+
+void EditorWindow::clear_map_view() {
+    for (int i = 0; i < MAX_ROWS_MAPVIEW; ++i) {
+        for (int j = 0; j < MAX_COLUMNS_MAPVIEW; ++j) {
+            MapViewTile* map_view_tile = static_cast<MapViewTile*>(
+                    this->map_view_layout->itemAtPosition(i, j)->widget());
+            map_view_tile->clear_tile();
+        }
+    }
+}
+
+QPixmap EditorWindow::find_tile_image_by_id(const int& id) {
+    for (int i = 0; i < this->tile_buttons_layout->count(); ++i) {
+        const TileButton* tile_button =
+                static_cast<TileButton*>(this->tile_buttons_layout->itemAt(i)->widget());
+        if (tile_button && tile_button->get_tile().id == id) {
+            return tile_button->get_tile().image;
+        }
+    }
+
+    return QPixmap();
 }
