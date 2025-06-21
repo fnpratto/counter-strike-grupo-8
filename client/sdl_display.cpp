@@ -93,7 +93,7 @@ void SDLDisplay::run() {
         // Update game state and display
         update_state();
         window.fill();
-        if (state.get_phase().get_phase() == PhaseType::WarmUp) {
+        if (state.get_phase().get_type() == PhaseType::WarmUp) {
             if (list_teams.isActive()) {
                 list_teams.render();
             } else if (list_skins.isActive()) {
@@ -102,14 +102,14 @@ void SDLDisplay::run() {
                 world->render();
                 hud_display.render();
             }
-        } else if (state.get_phase().get_phase() == PhaseType::Buying) {
+        } else if (state.get_phase().get_type() == PhaseType::Buying) {
             world->render();
             hud_display.render();
             shop_display->render();
-        } else if (state.get_phase().get_phase() == PhaseType::InRound) {
+        } else if (state.get_phase().get_type() == PhaseType::InRound) {
             world->render();
             hud_display.render();
-        } else if (state.get_phase().get_phase() == PhaseType::RoundEnd) {
+        } else if (state.get_phase().get_type() == PhaseType::RoundEnd) {
             world->render();
             hud_display.render();
             end_round_display.render();

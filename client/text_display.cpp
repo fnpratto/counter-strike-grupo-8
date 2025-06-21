@@ -90,12 +90,12 @@ void TextDisplay::draw(const Message& message) {
 
             std::cout << "Game Update:" << std::endl;
             std::string phase_str =
-                    (state.get_phase().get_phase() == PhaseType::WarmUp)      ? "Warm Up" :
-                    (state.get_phase().get_phase() == PhaseType::Buying)      ? "Buying" :
-                    (state.get_phase().get_phase() == PhaseType::InRound)     ? "In round" :
-                    (state.get_phase().get_phase() == PhaseType::RoundEnd)    ? "Round Finished" :
-                    (state.get_phase().get_phase() == PhaseType::BombPlanted) ? "Bomb Planted" :
-                                                                                "Game Finished";
+                    (state.get_phase().get_type() == PhaseType::WarmUp)      ? "Warm Up" :
+                    (state.get_phase().get_type() == PhaseType::Buying)      ? "Buying" :
+                    (state.get_phase().get_type() == PhaseType::InRound)     ? "In round" :
+                    (state.get_phase().get_type() == PhaseType::RoundEnd)    ? "Round Finished" :
+                    (state.get_phase().get_type() == PhaseType::BombPlanted) ? "Bomb Planted" :
+                                                                               "Game Finished";
             std::cout << "Phase: " << phase_str << std::endl;
             std::cout << "Players:" << std::endl;
             for (const auto& [player_name, player]:  // cppcheck-suppress[unassignedVariable]

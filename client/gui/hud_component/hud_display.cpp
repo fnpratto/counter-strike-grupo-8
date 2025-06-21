@@ -48,7 +48,7 @@ void SdlHud::render() {
     weapons_component->render(state, player_name);
     scores_component->render_mute_icon(false);
 
-    if (state.get_phase().get_phase() == PhaseType::WarmUp) {
+    if (state.get_phase().get_type() == PhaseType::WarmUp) {
         controls_component->render_start_game_button();
         chat_component->render(state);
     }
