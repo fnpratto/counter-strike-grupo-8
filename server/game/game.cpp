@@ -73,7 +73,7 @@ void Game::advance_round_logic() {
         return;
     }
 
-    if (state.get_num_rounds() == GameConfig::max_rounds) {
+    if (!phase.is_game_end() && state.get_num_rounds() == GameConfig::max_rounds) {
         phase.end_game();
         broadcast(Message(ScoreboardResponse(state.get_scoreboard())));
     }
