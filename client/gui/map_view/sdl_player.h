@@ -27,7 +27,7 @@ private:
     const SdlCamera& camera;
     SdlAnimation walk_animation;
 
-    SDLGun item;
+    SdlItem item;
 
     static constexpr int WIDTH = 32;
     static constexpr int HEIGHT = 32;

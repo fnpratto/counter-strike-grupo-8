@@ -14,7 +14,7 @@
 #include "common/models.h"
 #include "common/utils/vector_2d.h"
 
-class SDLGun {
+class SdlItem {
     static constexpr std::string_view AK47_PATH = "../assets/gfx/guns/ak47.xcf";
     static constexpr std::string_view M3_PATH = "../assets/gfx/guns/m3.xcf";
     static constexpr std::string_view GLOCK_PATH = "../assets/gfx/guns/glock.xcf";
@@ -28,7 +28,7 @@ class SDLGun {
     std::unique_ptr<SdlTexture> bomb_texture;
 
 public:
-    explicit SDLGun(SdlWindow& window);
+    explicit SdlItem(SdlWindow& window);
     void render_gun(GunType gun_type, Vector2D pos, float angle);
     void render_knife(Vector2D pos, float angle);
     void render_bomb(Vector2D pos, float angle);

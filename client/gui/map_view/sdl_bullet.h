@@ -24,7 +24,7 @@
 #include "sdl_player.h"
 
 
-class SdlBullet {
+class SdlBullet: public SdlAnimation {
 private:
     SdlWindow& window;
     SdlTexture laser;
