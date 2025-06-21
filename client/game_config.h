@@ -60,10 +60,25 @@ constexpr std::string_view SECONDARY_GUN_PATH = "../assets/gfx/guns/secondary.xc
 constexpr std::string_view MELEE_GUN_PATH = "../assets/gfx/guns/melee.xcf";
 constexpr std::string_view BOMB_GUN_PATH = "../assets/gfx/guns/bomb.xcf";
 
+/// Music
+
+constexpr std::string_view MENU_MUSIC_PATH = "../assets/sfx/menu.wav";
+constexpr std::string_view GAME_MUSIC_PATH = "../assets/sfx/env/ambience1.wav";
+
+// Sounds
+constexpr std::string_view CT_WIN_SOUND_PATH = "../assets/sfx/radio/ctwin.ogg";
+constexpr std::string_view TT_WIN_SOUND_PATH = "../assets/sfx/radio/terwin.ogg";
+constexpr std::string_view ITEM_PICK_SOUND_PATH = "../assets/sfx/items/pickup.wav";
+constexpr std::string_view RECHARGE_SOUND_PATH = "../assets/sfx/items/ammo.wav";
+constexpr std::string_view HIT_SOUND_PATH = "../assets/sfx/items/hit1.wav";
+constexpr std::string_view BOMB_PLANTED_SOUND_PATH = "../assets/sfx/radio/bombpl.ogg";
+constexpr std::string_view BOMB_DEFUSED_SOUND_PATH = "../assets/sfx/radio/bombdef.ogg";
+// constexpr std::string_view BOMB_EXPLODED_SOUND_PATH = "../assets/sfx/radio/bomb_exploded.ogg";
+// constexpr std::string_view ERROR_SOUND_PATH = "../assets/sfx/radio/bomb_pick.ogg";
+
 }  // namespace Paths
 
 // --- Gun Type Offsets ---
-
 
 inline std::map<std::string, int> offsetInventory = {{"awp", 0},   {"m3", 1},    {"ak4", 2},
                                                      {"glock", 3}, {"knife", 4}, {"bomb", 5}};
