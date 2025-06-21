@@ -34,6 +34,7 @@ public:
     bool game_is_full() const;
     bool team_is_full(const Team& team) const;
     bool is_round_end_condition() const;
+    std::map<std::string, ScoreboardEntry> get_scoreboard() const;
 
     int get_num_rounds() const;
     int get_num_tts() const;

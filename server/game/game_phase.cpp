@@ -12,7 +12,7 @@ GamePhase::GamePhase(std::shared_ptr<Clock>&& game_clock):
                          {PhaseType::Buying, PhaseTimes::buying_duration},
                          {PhaseType::InRound, PhaseTimes::round_duration},
                          {PhaseType::RoundEnd, PhaseTimes::round_end_duration},
-                         {PhaseType::GameEnd, PhaseTimes::game_end_duration}}),
+                         {PhaseType::GameEnd, 0}}),
         next_phase_map({{PhaseType::WarmUp, PhaseType::Buying},
                         {PhaseType::Buying, PhaseType::InRound},
                         {PhaseType::InRound, PhaseType::RoundEnd},

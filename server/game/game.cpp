@@ -73,8 +73,10 @@ void Game::advance_round_logic() {
         return;
     }
 
-    if (state.get_num_rounds() == GameConfig::max_rounds)
+    if (state.get_num_rounds() == GameConfig::max_rounds) {
         phase.end_game();
+        broadcast(Message(ScoreboardResponse(state.get_scoreboard())));
+    }
 }
 
 void Game::advance_players_movement() {
@@ -321,10 +323,7 @@ void Game::handle<ReloadCommand>(const std::string& player_name,
 template <>
 void Game::handle<GetScoreboardCommand>(const std::string& player_name,
                                         [[maybe_unused]] const GetScoreboardCommand& msg) {
-    std::map<std::string, ScoreboardEntry> scoreboard;
-    for (const auto& [p_name, player]: state.get_players())
-        scoreboard.emplace(p_name, player->get_scoreboard_entry());
-    send_msg(player_name, Message(ScoreboardResponse(std::move(scoreboard))));
+    send_msg(player_name, Message(ScoreboardResponse(state.get_scoreboard())));
 }
 
 template <>
