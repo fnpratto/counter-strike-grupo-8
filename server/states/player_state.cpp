@@ -2,9 +2,11 @@
 
 #include <utility>
 
-PlayerState::PlayerState(Team team, Circle hitbox, Vector2D aim_direction, Vector2D velocity,
-                         bool ready, int health, ItemSlot equipped_item):
+PlayerState::PlayerState(Team team, CharacterType character_type, Circle hitbox,
+                         Vector2D aim_direction, Vector2D velocity, bool ready, int health,
+                         ItemSlot equipped_item):
         team(team),
+        character_type(character_type),
         hitbox(hitbox),
         aim_direction(aim_direction),
         velocity(velocity),

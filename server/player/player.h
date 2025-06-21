@@ -24,7 +24,7 @@ private:
     std::unique_ptr<PlayerStatus> status;
 
 public:
-    Player(Team team, Circle hitbox);
+    Player(Team team, CharacterType character_type, Circle hitbox);
 
     Player(const Player&) = delete;
     Player& operator=(const Player&) = delete;

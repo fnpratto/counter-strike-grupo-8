@@ -25,7 +25,8 @@ protected:
 
     TestPlayer():
             clock(std::chrono::steady_clock::now()),
-            player(Team::TT, CircularHitbox::player_hitbox(Vector2D(0, 0))) {}
+            player(Team::TT, CharacterType::Pheonix,
+                   CircularHitbox::player_hitbox(Vector2D(0, 0))) {}
 
     void advance_secs(float secs) { clock.advance(std::chrono::duration<float>(secs)); }
 };
