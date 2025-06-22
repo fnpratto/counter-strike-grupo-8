@@ -86,11 +86,6 @@ void Player::start_attacking_with_equipped_weapon(TimePoint now) {
     }
 }
 
-void Player::stop_attacking() {
-    state.get_inventory().get_knife().stop_attacking();
-    for (auto& [_, gun]: state.get_inventory().get_guns()) gun->stop_attacking();
-}
-
 std::vector<AttackEffect> Player::attack(TimePoint now) {
     ItemSlot slot = state.get_equipped_item();
     if (slot == ItemSlot::Melee) {
@@ -206,6 +201,6 @@ void Player::reset() {
     state.set_velocity(Vector2D(0.0f, 0.0f));
     state.set_health(PlayerConfig::full_health);
     state.set_equipped_item(ItemSlot::Melee);
-    state.get_inventory().get_knife().stop_attacking();
-    for (auto& [_, gun]: state.get_inventory().get_guns()) gun->stop_attacking();
+    state.get_inventory().get_knife().reset();
+    for (auto& [_, gun]: state.get_inventory().get_guns()) gun->reset();
 }

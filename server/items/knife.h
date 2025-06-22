@@ -20,5 +20,5 @@ public:
     std::vector<AttackEffect> attack(const Vector2D& origin, const Vector2D& dir,
                                      TimePoint now) override;
 
-    void stop_attacking();
+    void reset();
 };

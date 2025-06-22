@@ -25,11 +25,12 @@ std::vector<AttackEffect> Knife::attack(const Vector2D& origin, const Vector2D& 
                   KnifeConfig::falloff);
     effects.push_back(AttackEffect{std::move(effect), dir});
 
+    state.set_is_attacking(false);
     time_last_attack = now;
     return effects;
 }
 
-void Knife::stop_attacking() {
+void Knife::reset() {
     time_last_attack = TimePoint::min();
     state.set_is_attacking(false);
 }
