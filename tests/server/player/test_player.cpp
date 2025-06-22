@@ -55,7 +55,7 @@ TEST_F(TestPlayer, GunReduceMagAmmoWhenPlayerAttacks) {
     player.equip_item(ItemSlot::Secondary);
     int old_mag_ammo = player.get_inventory().get_guns().at(ItemSlot::Secondary)->get_mag_ammo();
 
-    player.handle_start_attacking();
+    player.handle_start_attacking(clock.now());
     auto attack_effects = player.attack(clock.now());
     EXPECT_EQ(attack_effects.size(), 1);
     EXPECT_EQ(player.get_inventory().get_guns().at(ItemSlot::Secondary)->get_mag_ammo(),
@@ -68,7 +68,7 @@ TEST_F(TestPlayer, GunBurst) {
     shop.buy_gun(GunType::AK47, player.get_inventory());
 
     player.equip_item(ItemSlot::Primary);
-    player.handle_start_attacking();
+    player.handle_start_attacking(clock.now());
 
     for (int i = 0; i < Ak47Config.bullets_per_attack; i++) {
         if (i > 0) {

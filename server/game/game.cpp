@@ -140,7 +140,7 @@ void Game::perform_attacks() {
             }
 
             bool is_hit = false;
-            if (state.get_phase().is_playing())
+            if (state.get_phase().is_playing() && !state.get_phase().is_buying_phase())
                 is_hit = apply_attack_effect(player, attack_effect.effect, closest_target.value());
 
             hit_responses.push_back(HitResponse(attack_effect.effect.get_origin(),
@@ -304,7 +304,7 @@ template <>
 void Game::handle<AttackCommand>(const std::string& player_name,
                                  [[maybe_unused]] const AttackCommand& msg) {
     auto& player = state.get_player(player_name);
-    player->handle_start_attacking();
+    player->handle_start_attacking(state.get_phase().get_time_now());
 }
 
 template <>
@@ -373,7 +373,7 @@ void Game::handle<PickUpItemCommand>(const std::string& player_name,
                                      [[maybe_unused]] const PickUpItemCommand& msg) {
     auto& player = state.get_player(player_name);
 
-    if (physics_system.player_collides_with_bomb(player)) {
+    if (player->is_tt() && physics_system.player_collides_with_bomb(player)) {
         player->pick_bomb(std::move(state.remove_bomb()));
         return;
     }

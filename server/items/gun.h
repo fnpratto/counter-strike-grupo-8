@@ -36,7 +36,7 @@ public:
 
     void add_mag();
 
-    void start_attacking();
+    void start_attacking(TimePoint now);
 
     void reload();
 

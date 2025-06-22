@@ -62,7 +62,7 @@ public:
 
     void aim(const Vector2D& direction);
 
-    void start_attacking_with_equipped_weapon();
+    void start_attacking_with_equipped_weapon(TimePoint now);
     void stop_attacking();
     std::vector<AttackEffect> attack(TimePoint now);
 
@@ -85,7 +85,7 @@ public:
     void set_status(std::unique_ptr<PlayerStatus> new_status);
     void handle_start_moving(const Vector2D& velocity);
     void handle_stop_moving();
-    void handle_start_attacking();
+    void handle_start_attacking(TimePoint now);
     void handle_switch_item(ItemSlot slot);
     void handle_start_planting(TimePoint now);
     void handle_stop_planting(TimePoint now);
