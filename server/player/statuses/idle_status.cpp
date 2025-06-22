@@ -13,8 +13,8 @@ void IdleStatus::handle_start_moving(Player& player, const Vector2D& velocity) {
     player.start_moving(velocity);
 }
 
-void IdleStatus::handle_start_attacking(Player& player) {
-    player.start_attacking_with_equipped_weapon();
+void IdleStatus::handle_start_attacking(Player& player, TimePoint now) {
+    player.start_attacking_with_equipped_weapon(now);
 }
 
 void IdleStatus::handle_switch_item(Player& player, ItemSlot slot) { player.equip_item(slot); }

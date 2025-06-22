@@ -304,7 +304,7 @@ template <>
 void Game::handle<AttackCommand>(const std::string& player_name,
                                  [[maybe_unused]] const AttackCommand& msg) {
     auto& player = state.get_player(player_name);
-    player->handle_start_attacking();
+    player->handle_start_attacking(state.get_phase().get_time_now());
 }
 
 template <>
