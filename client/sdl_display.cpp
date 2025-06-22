@@ -138,16 +138,13 @@ void SDLDisplay::load_audio() {
     sound_manager.load_music("menu", std::string(GameConfig::Paths::MENU_MUSIC_PATH).c_str());
     sound_manager.load_music("background", std::string(GameConfig::Paths::GAME_MUSIC_PATH).c_str());
     sound_manager.set_volume(0.8f);
-    sound_manager.load_sound("ct_win",
-                             std::string(GameConfig::Paths::CT_WIN_SOUND_PATH).c_str());  // TODO
-    sound_manager.load_sound("tt_win",
-                             std::string(GameConfig::Paths::TT_WIN_SOUND_PATH).c_str());  // TODO
+    sound_manager.load_sound("ct_win", std::string(GameConfig::Paths::CT_WIN_SOUND_PATH).c_str());
+    sound_manager.load_sound("tt_win", std::string(GameConfig::Paths::TT_WIN_SOUND_PATH).c_str());
     sound_manager.load_sound("item_pick",
                              std::string(GameConfig::Paths::ITEM_PICK_SOUND_PATH).c_str());
     sound_manager.load_sound("recharge",
                              std::string(GameConfig::Paths::RECHARGE_SOUND_PATH).c_str());
-    sound_manager.load_sound("hit",
-                             std::string(GameConfig::Paths::HIT_SOUND_PATH).c_str());  // TODO
+    sound_manager.load_sound("hit", std::string(GameConfig::Paths::HIT_SOUND_PATH).c_str());
     sound_manager.load_sound(
             "bomb_planted",
             std::string(GameConfig::Paths::BOMB_PLANTED_SOUND_PATH).c_str());  // TODO
@@ -264,6 +261,9 @@ void SDLDisplay::update_state() {
                 auto hit = msg.get_content<HitResponse>();
                 world->handleHit(hit.get_origin(), hit.get_hit_pos(), hit.get_hit_dir(),
                                  hit.is_hit());
+                if (hit.is_hit()) {
+                    sound_manager.play("hit");
+                }
                 break;
             }
             case MessageType::ROUND_END_RESP: {
