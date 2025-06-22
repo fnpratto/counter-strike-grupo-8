@@ -14,7 +14,9 @@
 #include "../window_elements/area.h"
 #include "../window_elements/sdl_texture.h"
 #include "../window_elements/sdl_window.h"
+#include "client/sound_manager.h"
 #include "common/map/map.h"
+#include "common/message.h"
 #include "common/updates/game_update.h"
 
 #include "sdl_bullet.h"
@@ -57,4 +59,6 @@ public:
 
     void render();
     void handleHit(Vector2D get_origin, Vector2D get_hit_pos, Vector2D get_hit_dir, bool is_hit);
+    std::optional<Message> getStartBombMessage(SoundManager& sound_manager);
+    std::optional<Message> getStopBombMessage(SoundManager& sound_manager);
 };

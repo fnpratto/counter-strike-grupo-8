@@ -18,7 +18,7 @@ class KeyboardHandler {
 public:
     explicit KeyboardHandler(Queue<Message>& output_queue, shopDisplay& shopRef,
                              ScoreDisplay& score_displayRef, SoundManager& sound_manager,
-                             SdlHud& hudDisplayRef);
+                             SdlHud& hudDisplayRef, SdlWorld& wordRef);
     void handleEvent(const SDL_Event& event);
 
 private:
@@ -27,7 +27,9 @@ private:
     ScoreDisplay& score_displayRef;
     SoundManager& sound_manager;
     SdlHud& hudDisplayRef;
+    SdlWorld& worldRef;
     void update_direction();
+    bool active_b;
 };
 
 #endif  // KEYBOARDHANDLER_H

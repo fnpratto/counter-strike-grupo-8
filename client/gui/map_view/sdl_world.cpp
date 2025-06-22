@@ -78,3 +78,28 @@ void SdlWorld::render() {
     }
     bullets_info.clear();
 }
+
+
+std::optional<Message> SdlWorld::getStartBombMessage(SoundManager& sound_manager) {
+    Team player_team = game_state.get_players().at(player_name).get_team();
+    if (player_team == Team::CT && game_state.get_phase().get_type() == PhaseType::InRound) {
+        sound_manager.play("defuse_bomb");
+        return Message(StartDefusingBombCommand());
+    } else if (player_team == Team::TT && game_state.get_phase().get_type() == PhaseType::InRound) {
+        sound_manager.play("plant_bomb");
+        return Message(StartPlantingBombCommand());
+    }
+    return std::nullopt;
+}
+
+std::optional<Message> SdlWorld::getStopBombMessage(SoundManager& sound_manager) {
+    Team player_team = game_state.get_players().at(player_name).get_team();
+    if (player_team == Team::CT && game_state.get_phase().get_type() == PhaseType::InRound) {
+        sound_manager.play("stop_defuse_bomb");
+        return Message(StopDefusingBombCommand());
+    } else if (player_team == Team::TT && game_state.get_phase().get_type() == PhaseType::InRound) {
+        sound_manager.play("stop_plant_bomb");
+        return Message(StopPlantingBombCommand());
+    }
+    return std::nullopt;
+}
