@@ -40,16 +40,10 @@ void MapViewTile::set_tile(const Tile& tile) {
     this->setPixmap(tile_pixmap);
 
     if (this->tile.is_ct_spawn) {
-        qDebug() << "Setting CT spawn style for tile at (" << this->tile.x << ", " << this->tile.y
-                 << ")";
         this->set_ct_spawn_style();
     } else if (this->tile.is_t_spawn) {
-        qDebug() << "Setting T spawn style for tile at (" << this->tile.x << ", " << this->tile.y
-                 << ")";
         this->set_t_spawn_style();
     } else if (this->tile.is_bomb_site) {
-        qDebug() << "Setting bomb site style for tile at (" << this->tile.x << ", " << this->tile.y
-                 << ")";
         this->set_bomb_site_style();
     } else {
         this->set_default_style();
