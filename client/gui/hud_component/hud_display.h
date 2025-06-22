@@ -35,7 +35,6 @@ class SdlHud {
     HudLayout layout;
     float scale_ratio;
 
-    // Components
     std::unique_ptr<HudPointer> pointer_component;
     std::unique_ptr<HudMoney> money_component;
     std::unique_ptr<HudHealth> health_component;
@@ -49,8 +48,8 @@ public:
     explicit SdlHud(SdlWindow& window, const GameUpdate& state, const std::string& player_name);
     void render();
     void update_pointer_position(int x, int y);
+    void update_mute_icon();
     bool start_game_click(int x, int y);
-
 
 private:
     void initialize_layout();

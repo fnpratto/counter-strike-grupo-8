@@ -10,7 +10,6 @@ namespace PhaseTimes {
 static constexpr unsigned int buying_duration = 30;
 static constexpr unsigned int round_duration = 120;
 static constexpr unsigned int round_end_duration = 5;
-static constexpr unsigned int game_end_duration = 10;
 };  // namespace PhaseTimes
 
 namespace Scores {

@@ -13,8 +13,9 @@ SdlTexture::SdlTexture(const std::string& filename, const SdlWindow& window):
     this->texture = loadTexture(filename);
 }
 
-SdlTexture::SdlTexture(const std::string& filename, const SdlWindow& window, int width, int height):
-        renderer(window.getRenderer()), width(width), height(height) {
+SdlTexture::SdlTexture(const std::string& filename, const SdlWindow& window, int width, int height,
+                       float scale):
+        renderer(window.getRenderer()), width(width), height(height), scale(scale) {
     this->texture = loadTexture(filename);
 }
 
@@ -41,23 +42,17 @@ int SdlTexture::render(const Area& src, const Area& dest) const {
 // for animations
 void SdlTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center,
                         SDL_RendererFlip flip) {
-    // Set rendering space and render to screen
-    SDL_Rect renderQuad = {x, y, width, height};
+    SDL_Rect renderQuad = {x, y, static_cast<int>(width * scale), static_cast<int>(height * scale)};
 
-    // Set clip rendering dimensions
     if (clip != NULL) {
-        renderQuad.w = clip->w;
-        renderQuad.h = clip->h;
+        renderQuad.w = static_cast<int>(clip->w * scale);
+        renderQuad.h = static_cast<int>(clip->h * scale);
     }
-    // Render to screen
+
     if (SDL_RenderCopyEx(this->renderer, this->texture, clip, &renderQuad, angle, center, flip) !=
         0) {
         std::cout << "Render failed: " << SDL_GetError() << std::endl;
     }
 }
 
-void SdlTexture::render(int x, int y, int w, int h, SDL_Rect* clip, double angle, SDL_Point* center,
-                        SDL_RendererFlip flip) {
-    SDL_Rect renderQuad = {x, y, w, h};
-    SDL_RenderCopyEx(renderer, texture, clip, &renderQuad, angle, center, flip);
-}
+void SdlTexture::render(int x, int y, double angle) { render(x, y, nullptr, angle); }

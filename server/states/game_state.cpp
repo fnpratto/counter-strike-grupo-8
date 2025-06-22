@@ -38,6 +38,13 @@ bool GameState::is_round_end_condition() const {
     return get_num_tts() == 0 || get_num_cts() == 0 || bomb_exploded || bomb_defused;
 }
 
+std::map<std::string, ScoreboardEntry> GameState::get_scoreboard() const {
+    std::map<std::string, ScoreboardEntry> scoreboard;
+    for (const auto& [p_name, player]: get_players())
+        scoreboard.emplace(p_name, player->get_scoreboard_entry());
+    return scoreboard;
+}
+
 int GameState::get_num_rounds() const { return num_rounds; }
 
 int GameState::get_num_tts() const {

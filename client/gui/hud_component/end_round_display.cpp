@@ -27,14 +27,18 @@ void EndRoundDisplay::render() {
                   slotHeight);
     background.render(srcArea, destArea);
 
-    // TODO
-    std::string name_winning_team = "COUNTER - TERRORISTS";
-    wining_team.setTextString(name_winning_team + " WIN");
     wining_team.render(Area(destArea.getX() + slotWidth / 4, destArea.getY() + pading,
                             slotWidth / 2, slotHeight / 2));
-    // TODO
-    std::string name_losing_team = "TERRORIST";
-    losing_team.setTextString(name_losing_team + " ELIMINATED");
     losing_team.render(Area(destArea.getX() + slotWidth / 3, destArea.getY() + slotHeight / 2,
                             slotWidth / 3, slotHeight / 3));
+}
+
+void EndRoundDisplay::update_winner_team(Team winner) {
+    if (winner == Team::CT) {
+        wining_team.setTextString("COUNTER - TERRORISTS WIN");
+        losing_team.setTextString("TERRORISTS ELIMINATED");
+    } else {
+        wining_team.setTextString("TERRORISTS WIN");
+        losing_team.setTextString("COUNTER - TERRORISTS ELIMINATED");
+    }
 }

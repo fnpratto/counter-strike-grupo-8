@@ -226,26 +226,12 @@ ShopPricesResponse ClientProtocol::deserialize_msg<ShopPricesResponse>(payload_t
 
 template <>
 HitResponse ClientProtocol::deserialize_msg<HitResponse>(payload_t& payload) const {
-
-    // Deserialize origin Vector2D
-    int origin_x = deserialize<int>(payload);
-    int origin_y = deserialize<int>(payload);
-    Vector2D origin(origin_x, origin_y);
-
-    // Deserialize hit_pos Vector2D
-    int hit_pos_x = deserialize<int>(payload);
-    int hit_pos_y = deserialize<int>(payload);
-    Vector2D hit_pos(hit_pos_x, hit_pos_y);
-
-    // Deserialize hit_dir Vector2D
-    int hit_dir_x = deserialize<int>(payload);
-    int hit_dir_y = deserialize<int>(payload);
-    Vector2D hit_dir(hit_dir_x, hit_dir_y);
-
-    // Deserialize hit bool
+    std::string player_name = deserialize<std::string>(payload);
+    ItemSlot item_slot = deserialize<ItemSlot>(payload);
+    Vector2D hit_pos = deserialize<Vector2D>(payload);
     bool hit = deserialize<bool>(payload);
 
-    return HitResponse(origin, hit_pos, hit_dir, hit);
+    return HitResponse(player_name, item_slot, hit_pos, hit);
 }
 
 template <>

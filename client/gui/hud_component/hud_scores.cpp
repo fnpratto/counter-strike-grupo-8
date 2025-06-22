@@ -65,7 +65,7 @@ void HudScores::render_team_scores() {
                  layout.padding * 3, layout.size_width / 1.75, layout.size_height / 2));
 }
 
-void HudScores::render_mute_icon(bool is_muted) {
+void HudScores::render_mute_icon() {
     int icon_width = static_cast<int>(32 * layout.scale * 2);
     int icon_height = static_cast<int>(32 * layout.scale * 2);
 
@@ -81,3 +81,5 @@ void HudScores::render_mute_icon(bool is_muted) {
         mute_icon.render(size_mute_icon, dest_mute_icon);
     }
 }
+
+void HudScores::update_mute_icon() { is_muted = !is_muted; }

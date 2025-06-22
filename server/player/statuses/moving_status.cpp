@@ -17,8 +17,8 @@ void MovingStatus::handle_stop_moving(Player& player) {
     player.stop_moving();
 }
 
-void MovingStatus::handle_start_attacking(Player& player) {
-    player.start_attacking_with_equipped_weapon();
+void MovingStatus::handle_start_attacking(Player& player, TimePoint now) {
+    player.start_attacking_with_equipped_weapon(now);
 }
 
 void MovingStatus::handle_switch_item(Player& player, ItemSlot slot) { player.equip_item(slot); }

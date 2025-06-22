@@ -74,21 +74,16 @@ void Player::move_to_pos(Vector2D new_pos) { state.set_pos(new_pos); }
 
 void Player::aim(const Vector2D& direction) { state.set_aim_direction(direction); }
 
-void Player::start_attacking_with_equipped_weapon() {
+void Player::start_attacking_with_equipped_weapon(TimePoint now) {
     ItemSlot slot = state.get_equipped_item();
     if (slot == ItemSlot::Melee) {
         auto& knife = state.get_inventory().get_knife();
-        knife.start_attacking();
+        knife.start_attacking(now);
     }
     if (slot == ItemSlot::Primary || slot == ItemSlot::Secondary) {
         auto& gun = state.get_inventory().get_guns().at(slot);
-        gun->start_attacking();
+        gun->start_attacking(now);
     }
-}
-
-void Player::stop_attacking() {
-    state.get_inventory().get_knife().stop_attacking();
-    for (auto& [_, gun]: state.get_inventory().get_guns()) gun->stop_attacking();
 }
 
 std::vector<AttackEffect> Player::attack(TimePoint now) {
@@ -169,7 +164,7 @@ void Player::handle_start_moving(const Vector2D& velocity) {
 
 void Player::handle_stop_moving() { status->handle_stop_moving(*this); }
 
-void Player::handle_start_attacking() { status->handle_start_attacking(*this); }
+void Player::handle_start_attacking(TimePoint now) { status->handle_start_attacking(*this, now); }
 
 void Player::handle_switch_item(ItemSlot slot) {
     if (!state.get_inventory().has_item_in_slot(slot) || is_attacking())
@@ -206,6 +201,6 @@ void Player::reset() {
     state.set_velocity(Vector2D(0.0f, 0.0f));
     state.set_health(PlayerConfig::full_health);
     state.set_equipped_item(ItemSlot::Melee);
-    state.get_inventory().get_knife().stop_attacking();
-    for (auto& [_, gun]: state.get_inventory().get_guns()) gun->stop_attacking();
+    state.get_inventory().get_knife().reset();
+    for (auto& [_, gun]: state.get_inventory().get_guns()) gun->reset();
 }
