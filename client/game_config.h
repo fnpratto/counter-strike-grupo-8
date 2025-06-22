@@ -56,10 +56,32 @@ constexpr std::string_view FONT_PAT = "../assets/gfx/fonts/joystix_monospace.otf
 constexpr std::string_view AMMO_PATH = "../assets/gfx/guns/ammo.xcf";
 constexpr std::string_view BACKGROUND_WINNER_PATH = "../assets/gfx/hud/end_round.xcf";
 
+
+/// Music
+
+constexpr std::string_view MENU_MUSIC_PATH = "../assets/sfx/menu.wav";
+constexpr std::string_view GAME_MUSIC_PATH = "../assets/sfx/env/ambience1.wav";
+
+// Sounds
+constexpr std::string_view CT_WIN_SOUND_PATH = "../assets/sfx/radio/ctwin.ogg";
+constexpr std::string_view TT_WIN_SOUND_PATH = "../assets/sfx/radio/terwin.ogg";
+constexpr std::string_view ITEM_PICK_SOUND_PATH = "../assets/sfx/items/pickup.wav";
+constexpr std::string_view RECHARGE_SOUND_PATH = "../assets/sfx/items/ammo.wav";
+constexpr std::string_view HIT_SOUND_PATH = "../assets/sfx/player/hit1.wav";
+constexpr std::string_view BOMB_PLANTED_SOUND_PATH = "../assets/sfx/radio/bombpl.ogg";
+constexpr std::string_view BOMB_DEFUSED_SOUND_PATH = "../assets/sfx/radio/bombdef.ogg";
+constexpr std::string_view SWITCH_TEAMS_SOUND_PATH = "../assets/sfx/radio/regroup.ogg";
+constexpr std::string_view ERROR_SOUND_PATH = "../assets/sfx/wpn_denyselect.wav";
+constexpr std::string_view BOMB_EXPLODED_SOUND_PATH = "../assets/sfx/weapons/explode2.wav";
+
+constexpr std::string_view AWP_ITEM_PATH = "../assets/gfx/map/awp_d.bmp";
+constexpr std::string_view M3_ITEM_PATH = "../assets/gfx/map/m3_d.bmp";
+constexpr std::string_view AK_ITEM_PATH = "../assets/gfx/map/ak47_d.bmp";
+constexpr std::string_view BOMB_ITEM_PATH = "../assets/gfx/guns/bomb.bmp";
+constexpr std::string_view BOMB_PLANTED_ITEM_PATH = "../assets/gfx/map/bomb_b.bmp";
 }  // namespace Paths
 
 // --- Gun Type Offsets ---
-
 
 inline std::map<std::string, int> offsetInventory = {{"awp", 0},   {"m3", 1},    {"ak4", 2},
                                                      {"glock", 3}, {"knife", 4}, {"bomb", 5}};

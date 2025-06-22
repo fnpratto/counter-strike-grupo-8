@@ -48,6 +48,7 @@ public:
     explicit SdlHud(SdlWindow& window, const GameUpdate& state, const std::string& player_name);
     void render();
     void update_pointer_position(int x, int y);
+    void update_mute_icon();
     bool start_game_click(int x, int y);
 
 private:

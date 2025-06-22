@@ -73,8 +73,10 @@ void Game::advance_round_logic() {
         return;
     }
 
-    if (state.get_num_rounds() == GameConfig::max_rounds)
+    if (!phase.is_game_end() && state.get_num_rounds() == GameConfig::max_rounds) {
         phase.end_game();
+        broadcast(Message(ScoreboardResponse(state.get_scoreboard())));
+    }
 }
 
 void Game::advance_players_movement() {
@@ -139,7 +141,7 @@ void Game::perform_attacks() {
             }
 
             bool is_hit = false;
-            if (state.get_phase().is_playing())
+            if (state.get_phase().is_playing() && !state.get_phase().is_buying_phase())
                 is_hit = apply_attack_effect(player, attack_effect.effect, closest_target.value());
 
             hit_responses.emplace_back(player_name, item_slot, closest_target.value().get_pos(),
@@ -302,7 +304,7 @@ template <>
 void Game::handle<AttackCommand>(const std::string& player_name,
                                  [[maybe_unused]] const AttackCommand& msg) {
     auto& player = state.get_player(player_name);
-    player->handle_start_attacking();
+    player->handle_start_attacking(state.get_phase().get_time_now());
 }
 
 template <>
@@ -321,10 +323,7 @@ void Game::handle<ReloadCommand>(const std::string& player_name,
 template <>
 void Game::handle<GetScoreboardCommand>(const std::string& player_name,
                                         [[maybe_unused]] const GetScoreboardCommand& msg) {
-    std::map<std::string, ScoreboardEntry> scoreboard;
-    for (const auto& [p_name, player]: state.get_players())
-        scoreboard.emplace(p_name, player->get_scoreboard_entry());
-    send_msg(player_name, Message(ScoreboardResponse(std::move(scoreboard))));
+    send_msg(player_name, Message(ScoreboardResponse(state.get_scoreboard())));
 }
 
 template <>
@@ -374,7 +373,7 @@ void Game::handle<PickUpItemCommand>(const std::string& player_name,
                                      [[maybe_unused]] const PickUpItemCommand& msg) {
     auto& player = state.get_player(player_name);
 
-    if (physics_system.player_collides_with_bomb(player)) {
+    if (player->is_tt() && physics_system.player_collides_with_bomb(player)) {
         player->pick_bomb(std::move(state.remove_bomb()));
         return;
     }

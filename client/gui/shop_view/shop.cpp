@@ -104,6 +104,8 @@ ItemSlot shopDisplay::get_ammo_type(int id_slot) {
     return ItemSlot::Primary;
 }
 
+bool shopDisplay::isActive() { return active; }
+
 void shopDisplay::render() {
     if (active) {
         renderSlots();

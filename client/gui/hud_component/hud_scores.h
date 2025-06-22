@@ -17,11 +17,13 @@ private:
     SdlTexture parallelogram_blue;
     SdlTexture parallelogram_red;
     const HudLayout& layout;
+    bool is_muted = false;
 
 public:
     explicit HudScores(SdlWindow& window, const HudLayout& layout);
     void render(const GameUpdate& state);
-    void render_mute_icon(bool is_muted);
+    void render_mute_icon();
+    void update_mute_icon();
 
 private:
     void render_background();

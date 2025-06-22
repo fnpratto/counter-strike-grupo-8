@@ -32,7 +32,8 @@ SdlWorld::SdlWorld(const SdlWindow& window, Map&& map, const GameUpdate& game_st
         player_name(player_name),
         camera(window.getWidth(), window.getHeight()),
         map(window, camera, std::move(map)),
-        player(SdlPlayer(window, camera)) {}
+        player(SdlPlayer(window, camera)),
+        items(window, game_state, camera) {}
 
 void SdlWorld::handle_hit(HitResponse&& hit) {
     auto origin = game_state.get_players().at(hit.get_player_name()).get_pos();
@@ -51,8 +52,9 @@ void SdlWorld::render() {
     camera.center(game_state.get_players().at(player_name).get_pos());
 
     map.render();
-    for (const auto& [_, player_state]: game_state.get_players()) player.render(player_state);
+    items.render();
 
+    for (const auto& [_, player_state]: game_state.get_players()) player.render(player_state);
     for (auto& bullet: bullets) bullet->render();
     for (auto& knife_slash: knife_slashes) knife_slash->render();
 

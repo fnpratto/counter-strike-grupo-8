@@ -19,16 +19,17 @@
 
 #include "sdl_bullet.h"
 #include "sdl_camera.h"
+#include "sdl_item.h"
 #include "sdl_knife_slash.h"
 #include "sdl_map.h"
 #include "sdl_player.h"
 
 class SdlWorld {
+private:
     static constexpr const char* BACKGROUND_PATH = "../assets/gfx/tiles/dust.bmp";
 
     const SdlWindow& window;
     const GameUpdate& game_state;
-
     const std::string& player_name;
     SdlCamera camera;
     SdlMap map;
@@ -36,6 +37,7 @@ class SdlWorld {
     SdlPlayer player;
     std::vector<std::unique_ptr<SdlBullet>> bullets;
     std::vector<std::unique_ptr<SdlKnifeSlash>> knife_slashes;
+    SdlItem items;
 
     // SdlTexture background;  // TODO: Load a background texture
 

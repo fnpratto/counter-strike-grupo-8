@@ -20,6 +20,7 @@ public:
     void updateShopState(bool state);
     void updatePrices(const ShopPricesResponse& response);
     ItemSlot get_ammo_type(int id_slot);
+    bool isActive();
 
 private:
     SdlWindow& window;

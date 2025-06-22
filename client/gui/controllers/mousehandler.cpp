@@ -15,10 +15,12 @@ void MouseHandler::handleEvent(const SDL_Event& event) {
         if (event.button.button != SDL_BUTTON_LEFT)
             return;
 
-        std::optional<Message> maybe_message = shopDisplayRef.getPurchaseCommand(x, y);
-        if (maybe_message.has_value()) {
-            output_queue.push(maybe_message.value());
-            return;
+        if (shopDisplayRef.isActive()) {
+            std::optional<Message> maybe_message = shopDisplayRef.getPurchaseCommand(x, y);
+            if (maybe_message.has_value()) {
+                output_queue.push(maybe_message.value());
+                return;
+            }
         }
         if (listTeamsRef.isActive()) {
             std::optional<Team> chosen_team = listTeamsRef.updatePointerPosition(x, y);

@@ -36,12 +36,12 @@ public:
 
     void add_mag();
 
-    void start_attacking();
+    void start_attacking(TimePoint now);
 
     void reload();
 
     std::vector<AttackEffect> attack(const Vector2D& origin, const Vector2D& dir,
                                      TimePoint now) override;
 
-    void stop_attacking();
+    void reset();
 };

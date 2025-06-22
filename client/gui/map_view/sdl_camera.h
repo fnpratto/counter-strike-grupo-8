@@ -37,19 +37,8 @@ public:
      * @return true if the object is within view, false otherwise.
      */
     template <typename T>
-    bool can_see(const T& obj) const {
-        Vector2D offset = get_screen_pos(obj.get_pos());
-        return can_see(offset);
-    }
+    bool can_see(const T& obj) const;
 
-    bool can_see(const Tile& obj) const {
-        Vector2D offset = get_screen_pos(obj.pos);
-        return can_see(offset);
-    }
-
-    bool can_see(const Vector2D& pos) const {
-        Vector2D offset = get_screen_pos(pos);
-        return offset.get_x() >= 0 && offset.get_x() < screen_width && offset.get_y() >= 0 &&
-               offset.get_y() < screen_height;
-    }
+    bool can_see(const Vector2D& pos) const;
+    bool can_see(const Tile& obj) const;
 };
