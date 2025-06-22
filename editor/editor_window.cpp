@@ -84,6 +84,18 @@ void EditorWindow::add_map_view() {
         for (int col = 0; col < MAX_COLUMNS_MAPVIEW; ++col) {
             MapViewTile* empty_tile = new MapViewTile(row, col, this->tool_group, this);
             this->map_view_layout->addWidget(empty_tile, row, col);
+            connect(empty_tile, &MapViewTile::ct_spawn_set, this,
+                    [this]() { this->ct_spawn_count++; });
+            connect(empty_tile, &MapViewTile::ct_spawn_unset, this,
+                    [this]() { this->ct_spawn_count--; });
+            connect(empty_tile, &MapViewTile::t_spawn_set, this,
+                    [this]() { this->t_spawn_count++; });
+            connect(empty_tile, &MapViewTile::t_spawn_unset, this,
+                    [this]() { this->t_spawn_count--; });
+            connect(empty_tile, &MapViewTile::bomb_site_set, this,
+                    [this]() { this->bomb_site_count++; });
+            connect(empty_tile, &MapViewTile::bomb_site_unset, this,
+                    [this]() { this->bomb_site_count--; });
         }
     }
 
@@ -279,11 +291,16 @@ void EditorWindow::save_map() {
 }
 
 bool EditorWindow::is_map_valid() {
-    if (this->map_name->text().isEmpty()) {
+    if (this->ct_spawn_count < 1) {
+        QMessageBox::warning(this, "Invalid Map", "At least one CT spawn is required.");
         return false;
     }
-
-    if (this->map_max_players->value() < 2 || this->map_max_players->value() > 16) {
+    if (this->t_spawn_count < 1) {
+        QMessageBox::warning(this, "Invalid Map", "At least one T spawn is required.");
+        return false;
+    }
+    if (this->bomb_site_count < 1) {
+        QMessageBox::warning(this, "Invalid Map", "At least one bomb site is required.");
         return false;
     }
 

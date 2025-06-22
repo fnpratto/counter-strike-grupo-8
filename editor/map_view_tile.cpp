@@ -41,10 +41,13 @@ void MapViewTile::set_tile(const Tile& tile) {
 
     if (this->tile.is_ct_spawn) {
         this->set_ct_spawn_style();
+        emit this->ct_spawn_set();
     } else if (this->tile.is_t_spawn) {
         this->set_t_spawn_style();
+        emit this->t_spawn_set();
     } else if (this->tile.is_bomb_site) {
         this->set_bomb_site_style();
+        emit this->bomb_site_set();
     } else {
         this->set_default_style();
     }
@@ -56,9 +59,16 @@ void MapViewTile::clear_tile() {
 }
 
 void MapViewTile::clear_spawn_and_site() {
-    this->tile.is_ct_spawn = false;
-    this->tile.is_t_spawn = false;
-    this->tile.is_bomb_site = false;
+    if (this->tile.is_ct_spawn) {
+        this->tile.is_ct_spawn = false;
+        emit this->ct_spawn_unset();
+    } else if (this->tile.is_t_spawn) {
+        this->tile.is_t_spawn = false;
+        emit this->t_spawn_unset();
+    } else if (this->tile.is_bomb_site) {
+        this->tile.is_bomb_site = false;
+        emit this->bomb_site_unset();
+    }
     this->set_default_style();
 }
 
@@ -134,8 +144,10 @@ void MapViewTile::set_ct_spawn() {
 
     if (this->tile.is_ct_spawn) {
         this->set_ct_spawn_style();
+        emit this->ct_spawn_set();
     } else {
         this->set_default_style();
+        emit this->ct_spawn_unset();
     }
 }
 
@@ -146,8 +158,10 @@ void MapViewTile::set_t_spawn() {
 
     if (this->tile.is_t_spawn) {
         this->set_t_spawn_style();
+        emit this->t_spawn_set();
     } else {
         this->set_default_style();
+        emit this->t_spawn_unset();
     }
 }
 
@@ -158,8 +172,10 @@ void MapViewTile::set_bomb_site() {
 
     if (this->tile.is_bomb_site) {
         this->set_bomb_site_style();
+        emit this->bomb_site_set();
     } else {
         this->set_default_style();
+        emit this->bomb_site_unset();
     }
 }
 

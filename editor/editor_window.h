@@ -27,6 +27,9 @@ private:
     QSpinBox* map_max_players;
     QGridLayout* map_view_layout;
     QActionGroup* tool_group;
+    int ct_spawn_count = 0;
+    int t_spawn_count = 0;
+    int bomb_site_count = 0;
 
 public:
     explicit EditorWindow(QWidget* parent = nullptr);

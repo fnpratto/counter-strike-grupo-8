@@ -21,6 +21,14 @@ private:
     QActionGroup* tool_group;
     std::map<QAction*, ToolAction> tool_actions;
 
+signals:
+    void ct_spawn_set();
+    void ct_spawn_unset();
+    void t_spawn_set();
+    void t_spawn_unset();
+    void bomb_site_set();
+    void bomb_site_unset();
+
 public:
     explicit MapViewTile(const int& row, const int& col, QActionGroup* tool_group,
                          QWidget* parent = nullptr);
