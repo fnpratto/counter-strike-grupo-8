@@ -1,5 +1,4 @@
-#ifndef SDL_ITEM_H
-#define SDL_ITEM_H
+#pragma once
 
 #include <string>
 
@@ -13,7 +12,7 @@
 
 #include "sdl_camera.h"
 
-class SdlItem {
+class SdlWorldItem {
 private:
     const SdlWindow& window;
     SdlTexture awp_t;
@@ -24,9 +23,7 @@ private:
     const SdlCamera& camera;
 
 public:
-    explicit SdlItem(const SdlWindow& window, const GameUpdate& game_state,
-                     const SdlCamera& camera);
+    explicit SdlWorldItem(const SdlWindow& window, const GameUpdate& game_state,
+                          const SdlCamera& camera);
     void render();
 };
-
-#endif  // SDL_ITEM_H

@@ -1,7 +1,8 @@
 #include "sdl_item.h"
 
 
-SdlItem::SdlItem(const SdlWindow& window, const GameUpdate& game_state, const SdlCamera& camera):
+SdlWorldItem::SdlWorldItem(const SdlWindow& window, const GameUpdate& game_state,
+                           const SdlCamera& camera):
         window(window),
         awp_t(std::string(GameConfig::Paths::AWP_ITEM_PATH), window),
         m3_t(std::string(GameConfig::Paths::M3_ITEM_PATH), window),
@@ -10,7 +11,7 @@ SdlItem::SdlItem(const SdlWindow& window, const GameUpdate& game_state, const Sd
         game_state(game_state),
         camera(camera) {}
 
-void SdlItem::render() {
+void SdlWorldItem::render() {
     if (game_state.get_bomb().has_value()) {
         const auto& bomb = game_state.get_bomb().value();
         Vector2D pos = bomb.hitbox.get_pos();

@@ -37,7 +37,7 @@ private:
     SdlPlayer player;
     std::vector<std::unique_ptr<SdlBullet>> bullets;
     std::vector<std::unique_ptr<SdlKnifeSlash>> knife_slashes;
-    SdlItem items;
+    SdlWorldItem items;
 
     // SdlTexture background;  // TODO: Load a background texture
 
