@@ -53,17 +53,16 @@ void SdlPlayer::render_skin(int x, int y, float angle) {
     const PlayerUpdate& state = game_state.get_players().at(playerName);
     SDL_Rect clip{32, 32, WIDTH, HEIGHT};
 
-    auto team = state.get_team();
-    CharacterType type;
+    CharacterType type = state.get_character_type();
 
-    try {
-        type = state.get_character_type();
-    } catch (const std::exception& e) {
-        type = (team == Team::CT) ? CharacterType::Seal_Force : CharacterType::Pheonix;
+
+    if (skins_textures.find(type) == skins_textures.end()) {
+        std::cerr << "Warning: Missing texture for type " << static_cast<int>(type) << std::endl;
+        return;
     }
 
-    auto& skins = (team == Team::CT) ? ct_skins : tt_skins;
-    auto& texture = skins.at(type);
+
+    auto& texture = skins_textures.at(type);
 
     walk_animation.render(x - x_offset, y - y_offset, angle);
     texture->render(x - x_offset, y - y_offset, &clip, angle, nullptr, SDL_FLIP_NONE);
@@ -73,21 +72,20 @@ void SdlPlayer::render_skin(int x, int y, float angle) {
 }
 
 void SdlPlayer::load_skins() {
-    ct_skins[CharacterType::Seal_Force] =
+    skins_textures[CharacterType::Seal_Force] =
             std::make_unique<SdlTexture>("../assets/gfx/player/ct1.bmp", window);
-    ct_skins[CharacterType::German_GSG_9] =
+    skins_textures[CharacterType::German_GSG_9] =
             std::make_unique<SdlTexture>("../assets/gfx/player/ct2.bmp", window);
-    ct_skins[CharacterType::UK_SAS] =
+    skins_textures[CharacterType::UK_SAS] =
             std::make_unique<SdlTexture>("../assets/gfx/player/ct3.bmp", window);
-    ct_skins[CharacterType::French_GIGN] =
+    skins_textures[CharacterType::French_GIGN] =
             std::make_unique<SdlTexture>("../assets/gfx/player/ct4.bmp", window);
-
-    tt_skins[CharacterType::Pheonix] =
+    skins_textures[CharacterType::Pheonix] =
             std::make_unique<SdlTexture>("../assets/gfx/player/t1.bmp", window);
-    tt_skins[CharacterType::L337_Krew] =
+    skins_textures[CharacterType::L337_Krew] =
             std::make_unique<SdlTexture>("../assets/gfx/player/t2.bmp", window);
-    tt_skins[CharacterType::Arctic_Avenger] =
+    skins_textures[CharacterType::Arctic_Avenger] =
             std::make_unique<SdlTexture>("../assets/gfx/player/t3.bmp", window);
-    tt_skins[CharacterType::Guerrilla] =
+    skins_textures[CharacterType::Guerrilla] =
             std::make_unique<SdlTexture>("../assets/gfx/player/t4.bmp", window);
 }
