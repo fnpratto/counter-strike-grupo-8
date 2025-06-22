@@ -140,7 +140,7 @@ void Game::perform_attacks() {
             }
 
             bool is_hit = false;
-            if (state.get_phase().is_playing())
+            if (state.get_phase().is_playing() && !state.get_phase().is_buying_phase())
                 is_hit = apply_attack_effect(player, attack_effect.effect, closest_target.value());
 
             hit_responses.push_back(HitResponse(attack_effect.effect.get_origin(),
