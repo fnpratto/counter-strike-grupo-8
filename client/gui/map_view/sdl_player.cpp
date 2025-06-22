@@ -6,17 +6,16 @@
 #include <SDL2/SDL.h>
 
 
-SdlPlayer::SdlPlayer(SdlWindow& w, const SdlCamera& cam):
-        window(w),
+SdlPlayer::SdlPlayer(const SdlWindow& window, const SdlCamera& cam):
         camera(cam),
         walk_animation(
-                w, WALKING_ANIMATION,
+                window, WALKING_ANIMATION,
                 std::vector<SDL_Rect>(
                         {{0, 0, WIDTH, HEIGHT}, {32, 0, WIDTH, HEIGHT}, {64, 0, WIDTH, HEIGHT}}),
                 std::chrono::milliseconds(600),  // 600ms for complete walk cycle
                 true),                           // repeating animation
         item(window) {
-    load_skins();
+    load_skins(window);
 }
 
 void SdlPlayer::render(const PlayerUpdate& player_state) {
@@ -76,7 +75,7 @@ float SdlPlayer::get_rotation(const PlayerUpdate& player_state) {
     return angle;
 }
 
-void SdlPlayer::load_skins() {
+void SdlPlayer::load_skins(const SdlWindow& window) {
     character_textures[CharacterType::Seal_Force] =
             std::make_unique<SdlTexture>("../assets/gfx/player/ct1.bmp", window, WIDTH, HEIGHT);
     character_textures[CharacterType::German_GSG_9] =

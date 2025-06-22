@@ -23,7 +23,7 @@
 
 
 class SdlTile {
-    SdlWindow& window;
+    const SdlWindow& window;
     const SdlCamera& camera;
 
     static constexpr int WIDTH = 32;
@@ -33,7 +33,8 @@ class SdlTile {
     std::map<int, std::pair<std::reference_wrapper<SdlTexture>, Vector2D>> tiles;
 
 public:
-    explicit SdlTile(SdlWindow& window, const SdlCamera& camera): window(window), camera(camera) {}
+    explicit SdlTile(const SdlWindow& window, const SdlCamera& camera):
+            window(window), camera(camera) {}
 
     void add_sheet(const TileSheet& sheet) {
         sheets.emplace_back(sheet.sheet_path, window, WIDTH, HEIGHT);
@@ -43,6 +44,9 @@ public:
     }
 
     void render(const Tile& tile) {
+        if (!camera.can_see(tile))
+            return;
+
         auto position_from_cam = camera.get_screen_pos(tile.pos);
 
         auto [sheet, position] = tiles.at(tile.id);

@@ -22,15 +22,14 @@
 #include "sdl_tile.h"
 
 class SdlMap {
-    SdlWindow& window;
-    const SdlCamera& camera;
+    const SdlWindow& window;
 
     Map map;
 
     SdlTile tile;
 
 public:
-    explicit SdlMap(SdlWindow& window, const SdlCamera& camera, Map&& map);
+    explicit SdlMap(const SdlWindow& window, const SdlCamera& camera, Map&& map);
     void render();
 };
 

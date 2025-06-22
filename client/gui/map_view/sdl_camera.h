@@ -1,5 +1,4 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#pragma once
 
 #include <cstdint>
 #include <iostream>
@@ -40,16 +39,17 @@ public:
     template <typename T>
     bool can_see(const T& obj) const {
         Vector2D offset = get_screen_pos(obj.get_pos());
-        return offset.get_x() >= 0 && offset.get_x() < screen_width && offset.get_y() >= 0 &&
-               offset.get_y() < screen_height;
+        return can_see(offset);
     }
 
     bool can_see(const Tile& obj) const {
         Vector2D offset = get_screen_pos(obj.pos);
+        return can_see(offset);
+    }
+
+    bool can_see(const Vector2D& pos) const {
+        Vector2D offset = get_screen_pos(pos);
         return offset.get_x() >= 0 && offset.get_x() < screen_width && offset.get_y() >= 0 &&
                offset.get_y() < screen_height;
     }
 };
-
-
-#endif  // CAMERA_H

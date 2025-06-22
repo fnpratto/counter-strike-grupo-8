@@ -35,6 +35,19 @@ public:
     void render(int x, int y, int w, int h, SDL_Rect* clip, double angle, SDL_Point* center,
                 SDL_RendererFlip flip);
 
+    SdlTexture(SdlTexture&& other) noexcept:
+            renderer(other.renderer),
+            texture(other.texture),
+            width(other.width),
+            height(other.height) {
+        other.texture = nullptr;
+        other.renderer = nullptr;
+        other.width = 0;
+        other.height = 0;
+    }
+
+    SdlTexture(const SdlTexture&) = delete;
+    SdlTexture& operator=(const SdlTexture&) = delete;
 
     SDL_Texture* getTexture() const { return texture; }
 

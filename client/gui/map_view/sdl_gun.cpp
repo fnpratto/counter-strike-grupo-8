@@ -5,7 +5,7 @@
 #include "client/game_config.h"
 #include "common/utils/vector_2d.h"
 
-SdlItem::SdlItem(SdlWindow& w): window(w) {
+SdlItem::SdlItem(const SdlWindow& w): window(w) {
     gun_textures[GunType::AK47] =
             std::make_unique<SdlTexture>(std::string(AK47_PATH), window, 32, 32);
     gun_textures[GunType::M3] = std::make_unique<SdlTexture>(std::string(M3_PATH), window, 32, 32);

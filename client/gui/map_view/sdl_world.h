@@ -22,30 +22,23 @@
 #include "sdl_map.h"
 #include "sdl_player.h"
 
-struct BulletInfo {
-    Vector2D origin;
-    Vector2D hit_pos;
-    Vector2D hit_dir;
-    bool is_hit;
-    bool is_knife;
-    // int range_item; TODO
-};
-
 class SdlWorld {
     static constexpr const char* BACKGROUND_PATH = "../assets/gfx/tiles/dust.bmp";
 
-    SdlWindow& window;
+    const SdlWindow& window;
     const GameUpdate& game_state;
 
     const std::string& player_name;
     SdlCamera camera;
     SdlMap map;
+    // TODO all players are sharing the same walk animation
     SdlPlayer player;
+    std::vector<std::unique_ptr<SdlBullet>> bullets;
 
     // SdlTexture background;  // TODO: Load a background texture
 
 public:
-    SdlWorld(SdlWindow& window, Map&& map, const GameUpdate& game_state,
+    SdlWorld(const SdlWindow& window, Map&& map, const GameUpdate& game_state,
              const std::string& player_name);
 
     void render();

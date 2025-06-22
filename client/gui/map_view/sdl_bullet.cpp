@@ -3,45 +3,39 @@
 #include <cmath>
 #include <iostream>
 
-SdlBullet::SdlBullet(SdlWindow& w):
-        window(w),
-        laser("../assets/gfx/map/laser.xcf", window),
-        hit_effect("../assets/gfx/map/hitmark.xcf", window, 30, 30) {}
+#include "common/utils/vector_2d.h"
 
-void SdlBullet::render(Vector2D get_origin, Vector2D get_hit_pos, Vector2D get_hit_dir, bool is_hit,
-                       bool is_knife) {
-    (void)get_hit_dir;
+// SdlBullet::SdlBullet(SdlWindow& w):
+//         window(w), laser(, window), hit_effect("../assets/gfx/map/hitmark.xcf", window, 30, 30)
+//         {}
 
-    float dx = get_hit_pos.get_x() - get_origin.get_x();
-    float dy = get_hit_pos.get_y() - get_origin.get_y();
-    float length = std::sqrt(dx * dx + dy * dy);
-    float angle = std::atan2(dy, dx) * 180 / M_PI;
-
-    if (is_hit) {
-        if (!is_knife) {
-            render_laser(get_origin, length, angle);
-        }
-        render_hit_effect(get_hit_pos, angle);
-    } else {
-        if (!is_knife) {
-            render_laser(get_origin, length, angle);
-        }
-    }
+SdlBullet::SdlBullet(const SdlWindow& w, const SdlCamera& camera, Vector2D origin,
+                     const HitResponse& hit_response):
+        camera(camera),
+        origin(origin),
+        hit_response(hit_response),
+        bullet_animation(w, "../assets/gfx/gunshot.xcf", 6, 15, std::chrono::milliseconds(500)) {
+    Vector2D direction = hit_response.get_hit_pos() - origin;
+    angle = std::atan2(direction.get_y(), direction.get_x()) * 180.0f / M_PI;
 }
 
+void SdlBullet::render() {
+    // Good enough heuristic
+    if (!camera.can_see(origin) && !camera.can_see(hit_response.get_hit_pos()))
+        return;
 
-void SdlBullet::render_laser([[maybe_unused]] const Vector2D& origin, [[maybe_unused]] float length,
-                             [[maybe_unused]] float angle) {
-    // SDL_Rect clip{0, 0, 200, 5};
-    // laser.render(origin.get_x(), origin.get_y(), length, 5, &clip, angle, nullptr,
-    // SDL_FLIP_NONE);
-    std::cout << "Rendering bullet at origin: (" << origin.get_x() << ", " << origin.get_y() << ")"
-              << std::endl;
+    auto screen_origin = camera.get_screen_pos(origin);
+    auto screen_hit_pos = camera.get_screen_pos(hit_response.get_hit_pos());
+
+    bullet_animation.render(screen_origin, screen_hit_pos, angle);
 }
 
-void SdlBullet::render_hit_effect(const Vector2D& pos, float angle) {
-    SDL_Rect hit_clip{0, 0, 15, 15};
-    hit_effect.render(pos.get_x(), pos.get_y(), &hit_clip, angle, nullptr, SDL_FLIP_NONE);
-    std::cout << "Rendering hit effect at position: (" << pos.get_x() << ", " << pos.get_y() << ")"
-              << std::endl;
-}
+bool SdlBullet::is_finished() const { return bullet_animation.is_finished(); }
+
+// void SdlBullet::render_hit_effect(const Vector2D& pos, float angle) {
+//     SDL_Rect hit_clip{0, 0, 15, 15};
+//     hit_effect.render(pos.get_x(), pos.get_y(), &hit_clip, angle, nullptr, SDL_FLIP_NONE);
+//     std::cout << "Rendering hit effect at position: (" << pos.get_x() << ", " << pos.get_y() <<
+//     ")"
+//               << std::endl;
+// }

@@ -15,26 +15,27 @@
 #include "../window_elements/sdl_texture.h"
 #include "../window_elements/sdl_window.h"
 #include "common/updates/game_update.h"
+#include "common/utils/vector_2d.h"
 
 #include "sdl_texture.h"
 #include "sdl_window.h"
 
-class SdlAnimation {
+class SdlMovingAnimation {
     SdlTexture texture;
-    std::vector<SDL_Rect> clips;
 
     // Time-based animation properties
     std::chrono::steady_clock::time_point start_time;
     std::chrono::milliseconds animation_duration;
     bool repeats;
     bool finished;
+    float progress;
 
 public:
-    SdlAnimation(const SdlWindow& window, const std::string& path,
-                 const std::vector<SDL_Rect>& clips, std::chrono::milliseconds duration,
-                 bool repeats = true);
+    SdlMovingAnimation(const SdlWindow& window, const std::string& path, int width, int height,
+                       std::chrono::milliseconds duration, bool repeats = false);
 
-    void render(int x, int y, double angle);
+    void render(const Vector2D& origin, const Vector2D& destination, double angle = 0);
     bool is_finished() const;
     void reset();
+    float get_progress() const;
 };

@@ -9,7 +9,7 @@ SdlAnimation::SdlAnimation(const SdlWindow& window, const std::string& path,
         clips(clips),
         animation_duration(duration),
         repeats(repeats),
-        is_finished(false) {
+        finished(false) {
     if (clips.empty())
         throw std::runtime_error("No animation clips provided for SdlAnimation.");
     if (duration.count() <= 0)
@@ -19,13 +19,13 @@ SdlAnimation::SdlAnimation(const SdlWindow& window, const std::string& path,
 
 void SdlAnimation::reset() {
     start_time = std::chrono::steady_clock::now();
-    is_finished = false;
+    finished = false;
 }
 
-bool SdlAnimation::finished() const { return is_finished; }
+bool SdlAnimation::is_finished() const { return finished; }
 
 void SdlAnimation::render(int x, int y, double angle) {
-    if (is_finished && !repeats) {
+    if (finished && !repeats) {
         // If animation is finished and doesn't repeat, render the last frame
         texture.render(x, y, &clips[clips.size() - 1], angle, nullptr, SDL_FLIP_NONE);
         return;
@@ -36,7 +36,7 @@ void SdlAnimation::render(int x, int y, double angle) {
 
     if (!repeats && elapsed >= animation_duration) {
         // Animation finished and doesn't repeat
-        is_finished = true;
+        finished = true;
         texture.render(x, y, &clips[clips.size() - 1], angle, nullptr, SDL_FLIP_NONE);
         return;
     }

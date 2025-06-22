@@ -22,13 +22,13 @@ class SdlItem {
     static constexpr std::string_view KNIFE_PATH = "../assets/gfx/guns/knife.xcf";
     static constexpr std::string_view BOMB_PATH = "../assets/gfx/guns/bomb.xcf";
 
-    SdlWindow& window;
+    const SdlWindow& window;
     std::unordered_map<GunType, std::unique_ptr<SdlTexture>> gun_textures;
     std::unique_ptr<SdlTexture> knife_texture;
     std::unique_ptr<SdlTexture> bomb_texture;
 
 public:
-    explicit SdlItem(SdlWindow& window);
+    explicit SdlItem(const SdlWindow& window);
     void render_gun(GunType gun_type, Vector2D pos, float angle);
     void render_knife(Vector2D pos, float angle);
     void render_bomb(Vector2D pos, float angle);

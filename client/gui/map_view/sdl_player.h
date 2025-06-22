@@ -23,7 +23,6 @@
 
 class SdlPlayer {
 private:
-    SdlWindow& window;
     const SdlCamera& camera;
     SdlAnimation walk_animation;
 
@@ -37,12 +36,12 @@ private:
     std::unordered_map<CharacterType, std::unique_ptr<SdlTexture>> character_textures;
 
 public:
-    explicit SdlPlayer(SdlWindow& w, const SdlCamera& camera);
+    explicit SdlPlayer(const SdlWindow& w, const SdlCamera& camera);
 
     void render(const PlayerUpdate& player_update);
 
 private:
-    void load_skins();
+    void load_skins(const SdlWindow& window);
 
     float get_rotation(const PlayerUpdate& player_state);
     Vector2D get_pos(const PlayerUpdate& player_state);
