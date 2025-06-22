@@ -109,5 +109,6 @@ void Gun::decrease_mag_ammo() {
 
 void Gun::reset() {
     time_last_attack = TimePoint::min();
+    burst_bullets_fired = 0;
     state.set_is_attacking(false);
 }
