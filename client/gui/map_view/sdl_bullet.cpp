@@ -14,9 +14,10 @@ SdlBullet::SdlBullet(const SdlWindow& w, const SdlCamera& camera, Vector2D origi
         camera(camera),
         origin(origin),
         hit_response(hit_response),
-        bullet_animation(w, "../assets/gfx/gunshot.xcf", 6, 15, std::chrono::milliseconds(500)) {
+        bullet_animation(w, "../assets/gfx/gunshot.bmp", 6, 15, std::chrono::milliseconds(50)) {
     Vector2D direction = hit_response.get_hit_pos() - origin;
-    angle = std::atan2(direction.get_y(), direction.get_x()) * 180.0f / M_PI;
+    angle = (std::atan2(direction.get_y(), direction.get_x()) * 180.0f / M_PI) +
+            90.0f;  // Adjust angle to match SDL coordinate system
 }
 
 void SdlBullet::render() {

@@ -5,7 +5,7 @@
 SdlMovingAnimation::SdlMovingAnimation(const SdlWindow& window, const std::string& path, int width,
                                        int height, std::chrono::milliseconds duration,
                                        bool repeats):
-        texture(path, window, width, height),
+        texture(std::make_unique<SdlTexture>(path, window, width, height)),
         animation_duration(duration),
         repeats(repeats),
         finished(false),
@@ -53,10 +53,5 @@ void SdlMovingAnimation::render(const Vector2D& origin, const Vector2D& destinat
     float current_x = origin.get_x() + (destination.get_x() - origin.get_x()) * progress;
     float current_y = origin.get_y() + (destination.get_y() - origin.get_y()) * progress;
 
-    // Render the texture at the interpolated position
-    std::cout << "Rendering animation at position: (" << current_x << ", " << current_y
-              << ") and angle: " << angle << std::endl;
-    // SdlTexture("../assets/gfx/guns/ak47.xcf", texture.getRenderer(), 32, 32);
-    // texture.render(static_cast<int>(current_x), static_cast<int>(current_y), angle);
-    texture.render(static_cast<int>(current_x), static_cast<int>(current_y), angle);
+    texture->render(static_cast<int>(current_x), static_cast<int>(current_y), angle);
 }

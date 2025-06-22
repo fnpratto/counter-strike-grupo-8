@@ -21,7 +21,7 @@
 #include "sdl_window.h"
 
 class SdlMovingAnimation {
-    SdlTexture texture;
+    std::unique_ptr<SdlTexture> texture;
 
     // Time-based animation properties
     std::chrono::steady_clock::time_point start_time;
