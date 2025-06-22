@@ -89,8 +89,8 @@ void SDLDisplay::run() {
             quit_flag,
             MouseHandler(output_queue, SCREEN_WIDTH, SCREEN_HEIGHT, list_teams, *shop_display,
                          hud_display, list_skins),
-            KeyboardHandler(output_queue, *shop_display, *score_display, sound_manager,
-                            hud_display));
+            KeyboardHandler(output_queue, *shop_display, *score_display, sound_manager, hud_display,
+                            *world));
     end_round_display = std::make_unique<EndRoundDisplay>(window, state);
     input_handler->start();
 

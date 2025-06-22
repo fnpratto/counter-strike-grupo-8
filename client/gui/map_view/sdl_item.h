@@ -20,6 +20,7 @@ private:
     SdlTexture m3_t;
     SdlTexture ak_t;
     SdlTexture bomb_t;
+    SdlTexture bomb_planted_t;
     const GameUpdate& game_state;
     const SdlCamera& camera;
 

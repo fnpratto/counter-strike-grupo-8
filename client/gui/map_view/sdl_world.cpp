@@ -81,8 +81,10 @@ void SdlWorld::render() {
 
 
 std::optional<Message> SdlWorld::getStartBombMessage(SoundManager& sound_manager) {
+    std::cout << "getStartBombMessage called" << std::endl;
     Team player_team = game_state.get_players().at(player_name).get_team();
-    if (player_team == Team::CT && game_state.get_phase().get_type() == PhaseType::InRound) {
+    if (player_team == Team::CT && game_state.get_phase().get_type() == PhaseType::InRound &&
+        game_state.get_bomb().value().item.get_bomb_phase() == BombPhaseType::Planted) {
         sound_manager.play("defuse_bomb");
         return Message(StartDefusingBombCommand());
     } else if (player_team == Team::TT && game_state.get_phase().get_type() == PhaseType::InRound) {
