@@ -46,7 +46,7 @@ void SdlHud::render() {
     timer_component->render(state);
     timer_component->render_round_text(state);
     weapons_component->render(state, player_name);
-    scores_component->render_mute_icon(false);
+    scores_component->render_mute_icon();
 
     if (state.get_phase().get_type() == PhaseType::WarmUp) {
         controls_component->render_start_game_button();
@@ -57,3 +57,6 @@ void SdlHud::render() {
 void SdlHud::update_pointer_position(int x, int y) { pointer_component->update_position(x, y); }
 
 bool SdlHud::start_game_click(int x, int y) { return controls_component->start_game_click(x, y); }
+
+
+void SdlHud::update_mute_icon() { scores_component->update_mute_icon(); }

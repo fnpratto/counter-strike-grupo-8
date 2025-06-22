@@ -29,11 +29,13 @@ SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue
         input_handler(nullptr),
         score_display(nullptr),
         shop_display(nullptr),
-        world(nullptr) {
+        world(nullptr),
+        end_round_display(nullptr),
+        sound_manager(),
+        current_phase(PhaseType::WarmUp) {
     SCREEN_WIDTH = 1200;
     SCREEN_HEIGHT = 600;
 }
-
 
 void SDLDisplay::setup() {
     char* basePath = SDL_GetBasePath();
@@ -59,6 +61,12 @@ void SDLDisplay::setup() {
         exit(1);
     }
 
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError()
+                  << std::endl;
+        exit(1);
+    }
+
     /*SCREEN_WIDTH = displayMode.w;
     SCREEN_HEIGHT = displayMode.h - 150;*/
     SCREEN_WIDTH = 1200;
@@ -67,6 +75,7 @@ void SDLDisplay::setup() {
 
 void SDLDisplay::run() {
     setup();
+    load_audio();
     SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
     SdlHud hud_display(window, state, player_name);
     shop_display = std::make_unique<shopDisplay>(window, state);
@@ -75,22 +84,23 @@ void SDLDisplay::run() {
     listTeams list_teams(window, state, player_name);
     skinSelect list_skins(window, state, player_name);
     std::map<std::string, ScoreboardEntry> scoreboard;
-
     score_display = std::make_unique<ScoreDisplay>(window, scoreboard, state);
     input_handler = std::make_unique<SDLInput>(
             quit_flag,
             MouseHandler(output_queue, SCREEN_WIDTH, SCREEN_HEIGHT, list_teams, *shop_display,
                          hud_display, list_skins),
-            KeyboardHandler(output_queue, *shop_display, *score_display));
-    EndRoundDisplay end_round_display(window, state);
+            KeyboardHandler(output_queue, *shop_display, *score_display, sound_manager,
+                            hud_display));
+    end_round_display = std::make_unique<EndRoundDisplay>(window, state);
     input_handler->start();
 
     update_state();
 
-    RateController rate_controller(60);  // 60 FPS
+    RateController rate_controller(60);
     rate_controller.set_debug_mode(true);
+    sound_manager.play_music("menu", -1);
     rate_controller.run_at_rate([&]() {
-        // Update game state and display
+        update_music();
         update_state();
         window.fill();
         if (state.get_phase().get_type() == PhaseType::WarmUp) {
@@ -113,7 +123,7 @@ void SDLDisplay::run() {
         } else if (state.get_phase().get_type() == PhaseType::RoundEnd) {
             world->render();
             hud_display.render();
-            end_round_display.render();
+            end_round_display->render();
         }
 
         if (score_display->isActive()) {
@@ -124,8 +134,38 @@ void SDLDisplay::run() {
     });
 }
 
+
+void SDLDisplay::load_audio() {
+    sound_manager.load_music("menu", std::string(GameConfig::Paths::MENU_MUSIC_PATH).c_str());
+    sound_manager.load_music("background", std::string(GameConfig::Paths::GAME_MUSIC_PATH).c_str());
+    sound_manager.set_volume(0.8f);
+    sound_manager.load_sound("ct_win", std::string(GameConfig::Paths::CT_WIN_SOUND_PATH).c_str());
+    sound_manager.load_sound("tt_win", std::string(GameConfig::Paths::TT_WIN_SOUND_PATH).c_str());
+    sound_manager.load_sound("item_pick",
+                             std::string(GameConfig::Paths::ITEM_PICK_SOUND_PATH).c_str());
+    sound_manager.load_sound("recharge",
+                             std::string(GameConfig::Paths::RECHARGE_SOUND_PATH).c_str());
+    sound_manager.load_sound("hit", std::string(GameConfig::Paths::HIT_SOUND_PATH).c_str());
+    sound_manager.load_sound(
+            "bomb_planted",
+            std::string(GameConfig::Paths::BOMB_PLANTED_SOUND_PATH).c_str());  // TODO
+    sound_manager.load_sound(
+            "bomb_defused",
+            std::string(GameConfig::Paths::BOMB_DEFUSED_SOUND_PATH).c_str());  // TODO
+
+    sound_manager.load_sound("switch_teams",
+                             std::string(GameConfig::Paths::SWITCH_TEAMS_SOUND_PATH).c_str());
+    sound_manager.load_sound("error", std::string(GameConfig::Paths::ERROR_SOUND_PATH).c_str());
+
+    sound_manager.load_sound(
+            "bomb_exploded",
+            std::string(GameConfig::Paths::BOMB_EXPLODED_SOUND_PATH).c_str());  // TODO
+}
+
 void SDLDisplay::stop() {
     std::cout << "Stopping SDLDisplay...\n";
+    sound_manager.stop_music();
+    Mix_CloseAudio();
     if (input_handler) {
         std::cout << "Stopping input handler...\n";
         input_handler->stop();
@@ -133,6 +173,32 @@ void SDLDisplay::stop() {
     }
     std::cout << "Client::run done\n";
     Thread::stop();
+}
+
+void SDLDisplay::update_music() {
+    PhaseType new_phase = state.get_phase().get_type();
+    if (new_phase != current_phase) {
+        Mix_HaltMusic();
+        switch (new_phase) {
+            case PhaseType::WarmUp:
+            case PhaseType::GameEnd:
+            case PhaseType::RoundEnd:
+                sound_manager.play_music("menu", -1);
+                break;
+            case PhaseType::Buying:
+            case PhaseType::InRound:
+            case PhaseType::BombPlanted:
+                sound_manager.play_music("background", -1);
+                break;
+
+            default:
+                std::cerr << "SDLDisplay::update_music: Unhandled phase type: "
+                          << static_cast<int>(new_phase) << std::endl;
+                break;
+        }
+
+        current_phase = new_phase;
+    }
 }
 
 GameUpdate SDLDisplay::get_initial_state() {
@@ -196,6 +262,31 @@ void SDLDisplay::update_state() {
                 auto hit = msg.get_content<HitResponse>();
                 world->handleHit(hit.get_origin(), hit.get_hit_pos(), hit.get_hit_dir(),
                                  hit.is_hit());
+                if (hit.is_hit()) {
+                    sound_manager.play("hit");
+                }
+                break;
+            }
+            case MessageType::ROUND_END_RESP: {
+                std::cout << "Received RoundEndResponse" << std::endl;
+                auto round_end_resp = msg.get_content<RoundEndResponse>();
+                Team winner = round_end_resp.get_winning_team();
+                if (winner == Team::TT) {
+                    sound_manager.play("tt_win");
+                } else if (winner == Team::CT) {
+                    sound_manager.play("ct_win");
+                }
+                end_round_display->update_winner_team(winner);
+                break;
+            }
+            case MessageType::SWAP_TEAMS_RESP: {
+                std::cout << "Received SkinSelectResponse" << std::endl;
+                sound_manager.play("switch_teams");
+
+                break;
+            }
+            case MessageType::ERROR_RESP: {
+                sound_manager.play("error");
                 break;
             }
             default: {
