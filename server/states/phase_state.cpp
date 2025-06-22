@@ -11,7 +11,7 @@ void PhaseState::set_phase(PhaseType new_phase) {
     if (phase == new_phase)
         return;
     phase = new_phase;
-    updates.set_phase(new_phase);
+    updates.set_type(new_phase);
 }
 void PhaseState::set_secs_remaining(int new_secs_remaining) {
     if (secs_remaining == new_secs_remaining)
@@ -25,7 +25,7 @@ void PhaseState::set_secs_remaining(int new_secs_remaining) {
 
 PhaseUpdate PhaseState::get_full_update() const {
     PhaseUpdate full_update;
-    full_update.set_phase(phase);
+    full_update.set_type(phase);
     full_update.set_secs_remaining(secs_remaining);
     return full_update;
 }

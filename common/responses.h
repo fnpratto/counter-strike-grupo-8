@@ -110,10 +110,30 @@ public:
 };
 
 /**
+ * @class ConnectionResponse
+ * @brief Sent when a player successfully connects to a game.
+ */
+class ConnectionResponse {};
+
+/**
+ * @class JoinedGameResponse
+ * @brief Sent when a player successfully joins a game.
+ */
+class JoinedGameResponse {};
+
+/**
  * @class ErrorResponse
  * @brief Sent when a command results in an error.
  */
-class ErrorResponse {};
+class ErrorResponse {
+    std::string error_message;
+
+public:
+    ErrorResponse(): error_message("") {}
+    explicit ErrorResponse(std::string error_message): error_message(std::move(error_message)) {}
+
+    std::string get_error_message() const { return error_message; }
+};
 
 /**
  * @class RoundEndResponse
