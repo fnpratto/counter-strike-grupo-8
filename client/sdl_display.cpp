@@ -175,7 +175,7 @@ void SDLDisplay::stop() {
 }
 
 void SDLDisplay::update_music() {
-    PhaseType new_phase = static_cast<PhaseType>(state.get_phase().get_phase());
+    PhaseType new_phase = state.get_phase().get_phase();
     if (new_phase != current_phase) {
         Mix_HaltMusic();
         switch (new_phase) {
