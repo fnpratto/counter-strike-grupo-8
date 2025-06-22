@@ -196,6 +196,12 @@ payload_t ClientProtocol::serialize_message(const Message& message) const {
 // === Deserialization ===
 
 template <>
+JoinedGameResponse ClientProtocol::deserialize_msg<JoinedGameResponse>(
+        [[maybe_unused]] payload_t& payload) const {
+    return JoinedGameResponse();
+}
+
+template <>
 ListGamesResponse ClientProtocol::deserialize_msg<ListGamesResponse>(payload_t& payload) const {
     return ListGamesResponse(deserialize<std::vector<GameInfo>>(payload));
 }

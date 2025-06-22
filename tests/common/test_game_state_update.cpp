@@ -111,7 +111,7 @@ TEST_F(TestGameUpdate, NestedUpdateMerging) {
 
     // Create phase updates
     PhaseUpdate phase1;
-    phase1.set_phase(PhaseType::WarmUp);
+    phase1.set_type(PhaseType::WarmUp);
 
     PhaseUpdate phase2;
     phase2.set_secs_remaining(2);  // Assuming TimePoint has default constructor
@@ -124,9 +124,9 @@ TEST_F(TestGameUpdate, NestedUpdateMerging) {
     EXPECT_TRUE(merged.has_phase_changed());
 
     auto merged_phase = merged.get_phase();
-    EXPECT_TRUE(merged_phase.has_phase_changed());
+    EXPECT_TRUE(merged_phase.has_type_changed());
     EXPECT_TRUE(merged_phase.has_secs_remaining_changed());
-    EXPECT_EQ(merged_phase.get_phase(), PhaseType::WarmUp);
+    EXPECT_EQ(merged_phase.get_type(), PhaseType::WarmUp);
 }
 
 TEST_F(TestGameUpdate, IndividualChangeDetection) {
@@ -137,7 +137,7 @@ TEST_F(TestGameUpdate, IndividualChangeDetection) {
 
     // Set some values and check detection
     PhaseUpdate phase;
-    phase.set_phase(PhaseType::Buying);
+    phase.set_type(PhaseType::Buying);
     game_update.set_phase(phase);
     EXPECT_TRUE(game_update.has_phase_changed());
 
@@ -159,9 +159,9 @@ TEST_F(TestGameUpdate, SettersAndGetters) {
 
     // Test phase setting
     PhaseUpdate phase;
-    phase.set_phase(PhaseType::InRound);
+    phase.set_type(PhaseType::InRound);
     game_update.set_phase(phase);
-    EXPECT_EQ(game_update.get_phase().get_phase(), PhaseType::InRound);
+    EXPECT_EQ(game_update.get_phase().get_type(), PhaseType::InRound);
 }
 
 class TestPlayerUpdate: public ::testing::Test {

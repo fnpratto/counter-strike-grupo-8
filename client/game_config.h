@@ -60,6 +60,7 @@ constexpr std::string_view SECONDARY_GUN_PATH = "../assets/gfx/guns/secondary.xc
 constexpr std::string_view MELEE_GUN_PATH = "../assets/gfx/guns/melee.xcf";
 constexpr std::string_view BOMB_GUN_PATH = "../assets/gfx/guns/bomb.xcf";
 
+
 /// Music
 
 constexpr std::string_view MENU_MUSIC_PATH = "../assets/sfx/menu.wav";
@@ -76,6 +77,12 @@ constexpr std::string_view BOMB_DEFUSED_SOUND_PATH = "../assets/sfx/radio/bombde
 constexpr std::string_view SWITCH_TEAMS_SOUND_PATH = "../assets/sfx/radio/regroup.ogg";
 constexpr std::string_view ERROR_SOUND_PATH = "../assets/sfx/wpn_denyselect.wav";
 constexpr std::string_view BOMB_EXPLODED_SOUND_PATH = "../assets/sfx/weapons/explode2.wav";
+
+constexpr std::string_view AWP_ITEM_PATH = "../assets/gfx/map/awp_d.bmp";
+constexpr std::string_view M3_ITEM_PATH = "../assets/gfx/map/m3_d.bmp";
+constexpr std::string_view AK_ITEM_PATH = "../assets/gfx/map/ak47_d.bmp";
+constexpr std::string_view BOMB_ITEM_PATH = "../assets/gfx/guns/bomb.bmp";
+constexpr std::string_view BOMB_PLANTED_ITEM_PATH = "../assets/gfx/map/bomb_b.bmp";
 }  // namespace Paths
 
 // --- Gun Type Offsets ---

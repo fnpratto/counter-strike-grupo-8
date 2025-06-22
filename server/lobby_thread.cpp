@@ -11,8 +11,14 @@ LobbyThread::LobbyThread(ServerProtocol& proto, LobbyMonitor& lobby_monitor,
 
 template <>
 void LobbyThread::handle(const CreateGameCommand& cmd) {
-    pipe_t pipe = lobby_monitor.create_game(cmd.get_game_name(), cmd.get_map_name(),
-                                            cmd.get_player_name());
+    pipe_t pipe;
+    try {
+        pipe = lobby_monitor.create_game(cmd.get_game_name(), cmd.get_map_name(),
+                                         cmd.get_player_name());
+    } catch (const GameError& e) {
+        protocol.send(Message(ErrorResponse(e.what())));
+        return;
+    }
 
     join_callback(cmd.get_player_name(), pipe);
 
@@ -21,7 +27,13 @@ void LobbyThread::handle(const CreateGameCommand& cmd) {
 
 template <>
 void LobbyThread::handle(const JoinGameCommand& cmd) {
-    pipe_t pipe = lobby_monitor.join_game(cmd.get_game_name(), cmd.get_player_name());
+    pipe_t pipe;
+    try {
+        pipe = lobby_monitor.join_game(cmd.get_game_name(), cmd.get_player_name());
+    } catch (const GameError& e) {
+        protocol.send(Message(ErrorResponse(e.what())));
+        return;
+    }
 
     join_callback(cmd.get_player_name(), pipe);
 
