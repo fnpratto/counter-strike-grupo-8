@@ -30,6 +30,7 @@ SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue
         score_display(nullptr),
         shop_display(nullptr),
         world(nullptr),
+        end_round_display(nullptr),
         sound_manager(),
         current_phase(state.get_phase().get_phase()) {
     SCREEN_WIDTH = 1200;
@@ -90,7 +91,7 @@ void SDLDisplay::run() {
                          hud_display, list_skins),
             KeyboardHandler(output_queue, *shop_display, *score_display, sound_manager,
                             hud_display));
-    EndRoundDisplay end_round_display(window, state);
+    end_round_display = std::make_unique<EndRoundDisplay>(window, state);
     input_handler->start();
 
     update_state();
@@ -121,7 +122,7 @@ void SDLDisplay::run() {
         } else if (state.get_phase().get_phase() == PhaseType::RoundEnd) {
             world->render();
             hud_display.render();
-            end_round_display.render();
+            end_round_display->render();
         }
 
         if (score_display->isActive()) {
@@ -158,8 +159,9 @@ void SDLDisplay::load_audio() {
                              std::string(GameConfig::Paths::SWITCH_TEAMS_SOUND_PATH).c_str());
     sound_manager.load_sound("error", std::string(GameConfig::Paths::ERROR_SOUND_PATH).c_str());
 
-    sound_manager.load_sound("bomb_exploded",
-                             std::string(GameConfig::Paths::BOMB_EXPLODED_SOUND_PATH).c_str());
+    sound_manager.load_sound(
+            "bomb_exploded",
+            std::string(GameConfig::Paths::BOMB_EXPLODED_SOUND_PATH).c_str());  // TODO
 }
 
 void SDLDisplay::stop() {
@@ -266,6 +268,14 @@ void SDLDisplay::update_state() {
             }
             case MessageType::ROUND_END_RESP: {
                 std::cout << "Received RoundEndResponse" << std::endl;
+                auto round_end_resp = msg.get_content<RoundEndResponse>();
+                Team winner = round_end_resp.get_winning_team();
+                if (winner == Team::TT) {
+                    sound_manager.play("tt_win");
+                } else if (winner == Team::CT) {
+                    sound_manager.play("ct_win");
+                }
+                end_round_display->update_winner_team(winner);
                 break;
             }
             case MessageType::SWAP_TEAMS_RESP: {
@@ -276,6 +286,7 @@ void SDLDisplay::update_state() {
             }
             case MessageType::ERROR_RESP: {
                 sound_manager.play("error");
+                break;
             }
             default: {
                 std::cerr << "SDLDisplay::update_state: Received unexpected message type: "

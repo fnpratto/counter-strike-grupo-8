@@ -46,6 +46,7 @@ private:
     std::unique_ptr<ScoreDisplay> score_display;
     std::unique_ptr<shopDisplay> shop_display;
     std::unique_ptr<SdlWorld> world;
+    std::unique_ptr<EndRoundDisplay> end_round_display;
     SoundManager sound_manager;
     PhaseType current_phase;
 
