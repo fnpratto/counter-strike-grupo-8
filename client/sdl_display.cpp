@@ -107,6 +107,7 @@ void SDLDisplay::run() {
             hud_display.render();
             shop_display->render();
         } else if (state.get_phase().get_type() == PhaseType::InRound) {
+            shop_display->updateShopState(false);
             world->render();
             hud_display.render();
         } else if (state.get_phase().get_type() == PhaseType::RoundEnd) {
