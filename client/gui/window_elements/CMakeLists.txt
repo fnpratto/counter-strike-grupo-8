@@ -6,6 +6,7 @@ target_sources(taller_client
     sdl_texture.cpp
     sdl_window.cpp
     sdl_animation.cpp
+    sdl_moving_animation.cpp
     sdl_music.cpp
     sdl_sound.cpp
 
@@ -16,6 +17,7 @@ target_sources(taller_client
     sdl_texture.h
     sdl_window.h
     sdl_animation.h
+    sdl_moving_animation.h
     sdl_sound.h
     sdl_music.h
 )

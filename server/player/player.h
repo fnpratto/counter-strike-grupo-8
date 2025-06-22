@@ -45,6 +45,8 @@ public:
     Inventory& get_inventory();
     ScoreboardEntry get_scoreboard_entry() const;
 
+    ItemSlot get_equipped_item() const { return state.get_equipped_item(); }
+
     void set_ready();
 
     void take_damage(int damage);

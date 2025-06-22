@@ -1,5 +1,4 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#pragma once
 
 #include <cstdint>
 #include <iostream>
@@ -31,8 +30,15 @@ public:
 
     Vector2D get_screen_pos(Vector2D position) const;
 
-    bool can_see(const Vector2D& pos) const;
+    /**
+     * @brief Checks if a game object is within the camera's view.
+     *
+     * @param obj The game object to check. (must respond to `.get_pos()`)
+     * @return true if the object is within view, false otherwise.
+     */
+    template <typename T>
+    bool can_see(const T& obj) const;
 
+    bool can_see(const Vector2D& pos) const;
     bool can_see(const Tile& obj) const;
 };
-#endif  // CAMERA_H
