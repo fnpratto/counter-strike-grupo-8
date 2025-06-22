@@ -373,7 +373,7 @@ void Game::handle<PickUpItemCommand>(const std::string& player_name,
                                      [[maybe_unused]] const PickUpItemCommand& msg) {
     auto& player = state.get_player(player_name);
 
-    if (physics_system.player_collides_with_bomb(player)) {
+    if (player->is_tt() && physics_system.player_collides_with_bomb(player)) {
         player->pick_bomb(std::move(state.remove_bomb()));
         return;
     }
