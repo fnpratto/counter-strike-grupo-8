@@ -21,6 +21,7 @@
 
 #include "sdl_bullet.h"
 #include "sdl_camera.h"
+#include "sdl_knife_slash.h"
 #include "sdl_map.h"
 #include "sdl_player.h"
 
@@ -35,7 +36,15 @@ SdlWorld::SdlWorld(const SdlWindow& window, Map&& map, const GameUpdate& game_st
 
 void SdlWorld::handle_hit(HitResponse&& hit) {
     auto origin = game_state.get_players().at(hit.get_player_name()).get_pos();
-    bullets.emplace_back(std::make_unique<SdlBullet>(window, camera, origin, std::move(hit)));
+
+    if (hit.get_item_slot() == ItemSlot::Melee) {
+        // Handle knife slash
+        knife_slashes.emplace_back(
+                std::make_unique<SdlKnifeSlash>(window, camera, origin, std::move(hit)));
+    } else {
+        // Handle bullet
+        bullets.emplace_back(std::make_unique<SdlBullet>(window, camera, origin, std::move(hit)));
+    }
 }
 
 void SdlWorld::render() {
@@ -45,8 +54,14 @@ void SdlWorld::render() {
     for (const auto& [_, player_state]: game_state.get_players()) player.render(player_state);
 
     for (auto& bullet: bullets) bullet->render();
+    for (auto& knife_slash: knife_slashes) knife_slash->render();
 
     bullets.erase(std::remove_if(bullets.begin(), bullets.end(),
                                  [](const auto& bullet) { return bullet->is_finished(); }),
                   bullets.end());
+
+    knife_slashes.erase(
+            std::remove_if(knife_slashes.begin(), knife_slashes.end(),
+                           [](const auto& knife_slash) { return knife_slash->is_finished(); }),
+            knife_slashes.end());
 }

@@ -32,7 +32,7 @@ class SdlAnimation {
 public:
     SdlAnimation(const SdlWindow& window, const std::string& path,
                  const std::vector<SDL_Rect>& clips, std::chrono::milliseconds duration,
-                 bool repeats = true);
+                 bool repeats = true, float scale = 1.0f);
 
     void render(int x, int y, double angle);
     bool is_finished() const;

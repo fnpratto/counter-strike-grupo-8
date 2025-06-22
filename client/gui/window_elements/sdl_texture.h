@@ -14,13 +14,15 @@ class SdlTexture {
     SDL_Texture* texture;
     int width;
     int height;
+    float scale;
 
 public:
     /**
      * Crea un SDL_Texture, lanza una excepción si el filename es inválido
      **/
     SdlTexture(const std::string& filename, const SdlWindow& window);
-    SdlTexture(const std::string& filename, const SdlWindow& window, int width, int height);
+    SdlTexture(const std::string& filename, const SdlWindow& window, int width, int height,
+               float scale = 1);
     /**
      * Libera la memoria reservada por la textura
      **/

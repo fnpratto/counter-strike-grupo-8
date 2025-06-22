@@ -4,8 +4,8 @@
 
 SdlAnimation::SdlAnimation(const SdlWindow& window, const std::string& path,
                            const std::vector<SDL_Rect>& clips, std::chrono::milliseconds duration,
-                           bool repeats):
-        texture(path, window, 32, 32),
+                           bool repeats, float scale):
+        texture(path, window, clips[0].w, clips[0].h, scale),
         clips(clips),
         animation_duration(duration),
         repeats(repeats),

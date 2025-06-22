@@ -6,6 +6,7 @@ target_sources(taller_client
     sdl_player.cpp
     sdl_gun.cpp
     sdl_bullet.cpp
+    sdl_knife_slash.cpp
 
     PUBLIC
     sdl_camera.h
@@ -15,4 +16,5 @@ target_sources(taller_client
     sdl_world.h
     sdl_gun.h
     sdl_bullet.h
+    sdl_knife_slash.h
 )

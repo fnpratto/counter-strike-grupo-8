@@ -19,6 +19,7 @@
 
 #include "sdl_bullet.h"
 #include "sdl_camera.h"
+#include "sdl_knife_slash.h"
 #include "sdl_map.h"
 #include "sdl_player.h"
 
@@ -34,6 +35,7 @@ class SdlWorld {
     // TODO all players are sharing the same walk animation
     SdlPlayer player;
     std::vector<std::unique_ptr<SdlBullet>> bullets;
+    std::vector<std::unique_ptr<SdlKnifeSlash>> knife_slashes;
 
     // SdlTexture background;  // TODO: Load a background texture
 

@@ -13,8 +13,9 @@ SdlTexture::SdlTexture(const std::string& filename, const SdlWindow& window):
     this->texture = loadTexture(filename);
 }
 
-SdlTexture::SdlTexture(const std::string& filename, const SdlWindow& window, int width, int height):
-        renderer(window.getRenderer()), width(width), height(height) {
+SdlTexture::SdlTexture(const std::string& filename, const SdlWindow& window, int width, int height,
+                       float scale):
+        renderer(window.getRenderer()), width(width), height(height), scale(scale) {
     this->texture = loadTexture(filename);
 }
 
@@ -41,11 +42,11 @@ int SdlTexture::render(const Area& src, const Area& dest) const {
 // for animations
 void SdlTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center,
                         SDL_RendererFlip flip) {
-    SDL_Rect renderQuad = {x, y, width, height};
+    SDL_Rect renderQuad = {x, y, static_cast<int>(width * scale), static_cast<int>(height * scale)};
 
     if (clip != NULL) {
-        renderQuad.w = clip->w;
-        renderQuad.h = clip->h;
+        renderQuad.w = static_cast<int>(clip->w * scale);
+        renderQuad.h = static_cast<int>(clip->h * scale);
     }
 
     if (SDL_RenderCopyEx(this->renderer, this->texture, clip, &renderQuad, angle, center, flip) !=
