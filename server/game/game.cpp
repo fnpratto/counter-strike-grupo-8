@@ -459,6 +459,8 @@ void Game::prepare_new_round() {
     if (state.get_bomb().has_value()) {
         state.get_bomb().value().item.reset();
         give_bomb_to_random_tt(std::move(state.remove_bomb()));
+    } else {
+        give_bomb_to_random_tt(Bomb());
     }
     state.get_dropped_guns().clear();
 }
