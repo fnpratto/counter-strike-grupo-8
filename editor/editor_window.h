@@ -8,6 +8,7 @@
 #include <QSpinBox>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <string>
 #include <vector>
 
 #include <yaml-cpp/yaml.h>
@@ -25,6 +26,7 @@ private:
     QLineEdit* map_name;
     QSpinBox* map_max_players;
     QGridLayout* map_view_layout;
+    QActionGroup* tool_group;
 
 public:
     explicit EditorWindow(QWidget* parent = nullptr);
@@ -49,12 +51,13 @@ private:
     void add_map_max_players_input(QVBoxLayout* sidebar_layout);
 
     void save_map();
+    bool is_map_valid();
     QString get_save_path();
     void write_yaml(YAML::Node& map_data);
 
     void open_map();
     void read_yaml(const YAML::Node& map_data);
-    void read_map_error_dialog();
+    void read_map_error_dialog(const std::string& error_message);
     void clear_map_view();
     QPixmap find_tile_image_by_id(const int& id);
 };
