@@ -5,9 +5,9 @@
 
 class RectHitbox: public Rectangle {
 private:
-    RectHitbox(const Vector2D& pos, int width, int height, float rotation);
+    RectHitbox(const Vector2D& pos, int width, int height, int rotation);
 
-    Vector2D to_aabb_space(const Vector2D& global_point, float rotation_deg) const;
+    Vector2D to_aabb_space(const Vector2D& global_point, int rotation_deg) const;
 
     Vector2D closest_pos_in_aabb(const Vector2D& pos) const;
 
@@ -22,7 +22,7 @@ public:
 
     Rectangle get_bounds() const;
 
-    bool collides_with_circle(const Vector2D& circle_pos, float radius) const;
+    bool collides_with_circle(const Vector2D& circle_pos, int radius) const;
 
     bool is_in_same_quadrant(const Vector2D& ray_start, const Vector2D& ray_dir) const;
     bool is_hit(const Vector2D& ray_start, const Vector2D& ray_dir) const;

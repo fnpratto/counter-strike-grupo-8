@@ -125,27 +125,29 @@ void LobbyWindow::join_game(QString game_name) {
 
     std::string player_name = this->player_name_input->text().toStdString();
     output_queue.push(Message(JoinGameCommand(game_name_str, player_name)));
+    auto response = input_queue.pop();
 
-    auto msg = input_queue.pop();
-    while (msg.get_type() != MessageType::BOOL) {
-        msg = input_queue.pop();
+    switch (response.get_type()) {
+        case MessageType::JOINED_GAME_RESP:
+            this->close();
+            break;
+
+        case MessageType::ERROR_RESP:
+            QMessageBox::warning(this, "Create Game Error",
+                                 response.get_content<ErrorResponse>().get_error_message().c_str(),
+                                 QMessageBox::Ok);
+            break;
+
+        default:
+            QMessageBox::warning(this, "Create Game Error", "Unexpected response from server.",
+                                 QMessageBox::Ok);
+            break;
     }
-
-    bool join_res = msg.get_content<bool>();
-    if (!join_res) {
-        QMessageBox::warning(this, "Join Game Error", "Failed to join game.", QMessageBox::Ok);
-        return;
-    }
-
-    this->close();
 }
 
 void LobbyWindow::update_game_list() {
     output_queue.push(Message(ListGamesCommand()));
     auto msg = input_queue.pop();
-    while (msg.get_type() != MessageType::LIST_GAMES_RESP) {
-        msg = input_queue.pop();
-    }
     auto game_info_list = msg.get_content<ListGamesResponse>().get_games_info();
     this->game_list_table->update_game_list(game_info_list);
 }

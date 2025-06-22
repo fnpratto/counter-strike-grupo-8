@@ -22,10 +22,11 @@ class PlayerState: public State<PlayerUpdate> {
     Inventory inventory;
 
 public:
-    PlayerState(Team team, Circle hitbox, Vector2D aim_direction, Vector2D velocity, bool ready,
-                int health, ItemSlot equipped_item);
+    PlayerState(Team team, CharacterType character_type, Circle hitbox, Vector2D aim_direction,
+                Vector2D velocity, bool ready, int health, ItemSlot equipped_item);
 
     Team get_team() const;
+    CharacterType get_character_type() const;
     Circle get_hitbox() const;
     Vector2D get_aim_direction() const;
     Vector2D get_velocity() const;

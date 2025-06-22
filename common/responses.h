@@ -11,11 +11,13 @@
 
 struct GameInfo {
     std::string name;
+    std::string map_name;
     int players_count;
     PhaseType phase;
 
-    GameInfo(const std::string& game_name, int count, PhaseType game_phase):
-            name(game_name), players_count(count), phase(game_phase) {}
+    GameInfo(const std::string& game_name, const std::string& map_name, int count,
+             PhaseType game_phase):
+            name(game_name), map_name(map_name), players_count(count), phase(game_phase) {}
 };
 
 /**
@@ -29,6 +31,19 @@ public:
     explicit ListGamesResponse(const std::vector<GameInfo>& games): games_info(games) {}
 
     std::vector<GameInfo> get_games_info() const { return games_info; }
+};
+
+/**
+ * @class ListMapsResponse
+ * @brief Response containing a list of the existing maps' names and IDs.
+ */
+class ListMapsResponse {
+    std::vector<std::string> map_names;
+
+public:
+    explicit ListMapsResponse(const std::vector<std::string>& maps): map_names(maps) {}
+
+    std::vector<std::string> get_map_names() const { return map_names; }
 };
 
 /**
@@ -95,10 +110,30 @@ public:
 };
 
 /**
+ * @class ConnectionResponse
+ * @brief Sent when a player successfully connects to a game.
+ */
+class ConnectionResponse {};
+
+/**
+ * @class JoinedGameResponse
+ * @brief Sent when a player successfully joins a game.
+ */
+class JoinedGameResponse {};
+
+/**
  * @class ErrorResponse
  * @brief Sent when a command results in an error.
  */
-class ErrorResponse {};
+class ErrorResponse {
+    std::string error_message;
+
+public:
+    ErrorResponse(): error_message("") {}
+    explicit ErrorResponse(std::string error_message): error_message(std::move(error_message)) {}
+
+    std::string get_error_message() const { return error_message; }
+};
 
 /**
  * @class RoundEndResponse
@@ -112,3 +147,25 @@ public:
 
     Team get_winning_team() const { return winning_team; }
 };
+
+/**
+ * @class BombExplodedResponse
+ * @brief Response sent when a bomb explodes.
+ */
+class BombExplodedResponse {
+    Vector2D explosion_center;
+    int explosion_radius;
+
+public:
+    explicit BombExplodedResponse(const Vector2D& center, int radius):
+            explosion_center(center), explosion_radius(radius) {}
+
+    Vector2D get_explosion_center() const { return explosion_center; }
+    int get_explosion_radius() const { return explosion_radius; }
+};
+
+/**
+ * @class SwapTeamsResponse
+ * @brief Response sent when players swap teams.
+ */
+class SwapTeamsResponse {};

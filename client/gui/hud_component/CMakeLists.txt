@@ -3,9 +3,25 @@ target_sources(taller_client
     bit_map_font_number.cpp
     hud_display.cpp
     end_round_display.cpp
+    hud_pointer.cpp
+    hud_money.cpp
+    hud_health.cpp
+    hud_timer.cpp
+    hud_weapons.cpp
+    hud_scores.cpp
+    hud_chat.cpp
+    hud_controls.cpp
 
     PUBLIC
     bit_map_font_number.h
     hud_display.h
     end_round_display.h
+    hud_pointer.h
+    hud_money.h
+    hud_health.h
+    hud_timer.h
+    hud_weapons.h
+    hud_scores.h
+    hud_chat.h
+    hud_controls.h
 )

@@ -1,6 +1,7 @@
 #include "create_game_window.h"
 
 #include <QMessageBox>
+#include <vector>
 
 #include "common/qt/constants.h"
 
@@ -16,6 +17,10 @@ CreateGameWindow::CreateGameWindow(Queue<Message>& input_queue, Queue<Message>& 
     this->setWindowTitle(TITLE);
     this->setWindowIcon(QIcon(ICON_PATH));
     this->setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    output_queue.push(Message(ListMapsCommand()));
+    map_names = input_queue.pop().get_content<ListMapsResponse>().get_map_names();
+
     this->init_gui();
 }
 
@@ -52,8 +57,7 @@ void CreateGameWindow::add_map_list() {
     QListWidget* map_list = new QListWidget(this);
     this->main_layout->addWidget(map_list);
 
-    const std::string maps[] = {"Map 1", "Map 2", "Map 3"};
-    for (const auto& map: maps) {
+    for (const auto& map: map_names) {
         QListWidgetItem* item = new QListWidgetItem(QString::fromStdString(map));
         map_list->addItem(item);
     }
@@ -79,18 +83,25 @@ void CreateGameWindow::add_create_button() {
 
 void CreateGameWindow::on_create_button_clicked() {
     std::string game_name = this->game_name_input->text().toStdString();
-    output_queue.push(Message(CreateGameCommand(game_name, player_name)));
+    std::string map_name = this->findChild<QListWidget*>()->currentItem()->text().toStdString();
 
-    auto msg = input_queue.pop();
-    while (msg.get_type() != MessageType::BOOL) {
-        msg = input_queue.pop();
+    output_queue.push(Message(CreateGameCommand(game_name, map_name, player_name)));
+    auto response = input_queue.pop();
+
+    switch (response.get_type()) {
+        case MessageType::JOINED_GAME_RESP:
+            this->close();
+            break;
+
+        case MessageType::ERROR_RESP:
+            QMessageBox::warning(this, "Create Game Error",
+                                 response.get_content<ErrorResponse>().get_error_message().c_str(),
+                                 QMessageBox::Ok);
+            break;
+
+        default:
+            QMessageBox::warning(this, "Create Game Error", "Unexpected response from server.",
+                                 QMessageBox::Ok);
+            break;
     }
-
-    bool create_res = msg.get_content<bool>();
-    if (!create_res) {
-        QMessageBox::warning(this, "Create Game Error", "Failed to create game.", QMessageBox::Ok);
-        return;
-    }
-
-    this->close();
 }

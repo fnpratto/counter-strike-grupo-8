@@ -27,6 +27,7 @@ private:
 public:
     explicit EndRoundDisplay(SdlWindow& window, const GameUpdate& state);
     void render();
+    void update_winner_team(Team winner);
 };
 
 #endif  // SCORE_DISPLAY_H

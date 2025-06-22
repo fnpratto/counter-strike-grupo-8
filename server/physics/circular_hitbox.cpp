@@ -16,6 +16,11 @@ bool CircularHitbox::collides_with_rectangle(const RectHitbox& rect) const {
     return rect.collides_with_circle(center, radius);
 }
 
+bool CircularHitbox::collides_with_circle(const CircularHitbox& circle) const {
+    float distance = (center - circle.center).length();
+    return distance <= (radius + circle.radius);
+}
+
 bool CircularHitbox::is_hit(const Vector2D& ray_start, const Vector2D& ray_dir) const {
     Vector2D dir = ray_dir.normalized(PhysicsConfig::meter_size);
     Vector2D distance = center - ray_start;
@@ -23,7 +28,7 @@ bool CircularHitbox::is_hit(const Vector2D& ray_start, const Vector2D& ray_dir) 
     return orthogonal_distance <= radius;
 }
 
-bool CircularHitbox::is_in_same_cuadrant(const Vector2D& ray_start, const Vector2D& ray_dir) const {
+bool CircularHitbox::is_in_same_quadrant(const Vector2D& ray_start, const Vector2D& ray_dir) const {
     Vector2D dir = ray_dir.normalized(PhysicsConfig::meter_size);
     Vector2D distance = center - ray_start;
     float projected_length = distance.dot(dir) / PhysicsConfig::meter_size;

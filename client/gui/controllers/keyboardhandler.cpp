@@ -6,8 +6,13 @@
 
 
 KeyboardHandler::KeyboardHandler(Queue<Message>& output_queue, shopDisplay& shopRef,
-                                 ScoreDisplay& score_displayRef):
-        output_queue(output_queue), shopRef(shopRef), score_displayRef(score_displayRef) {}
+                                 ScoreDisplay& score_displayRef, SoundManager& sound_managerRef,
+                                 SdlHud& hudDisplayRef):
+        output_queue(output_queue),
+        shopRef(shopRef),
+        score_displayRef(score_displayRef),
+        sound_manager(sound_managerRef),
+        hudDisplayRef(hudDisplayRef) {}
 
 void KeyboardHandler::handleEvent(const SDL_Event& event) {
     if (event.type != SDL_KEYDOWN) {
@@ -19,7 +24,8 @@ void KeyboardHandler::handleEvent(const SDL_Event& event) {
                 output_queue.push(Message(GetShopPricesCommand()));
                 break;
             case SDLK_m:
-                // Toggle mute functionality //TODO_ADD SERVER
+                sound_manager.toggle_mute();
+                hudDisplayRef.update_mute_icon();
                 break;
             case SDLK_TAB:
                 if (!score_displayRef.isActive()) {
@@ -28,8 +34,29 @@ void KeyboardHandler::handleEvent(const SDL_Event& event) {
                     score_displayRef.updateState();
                 }
                 break;
+            case SDLK_1:
+                std::cout << "Switching to primary item" << std::endl;
+                output_queue.push(Message(SwitchItemCommand(ItemSlot::Primary)));
+                break;
+            case SDLK_2:
+                std::cout << "Switching to 2 item" << std::endl;
+                output_queue.push(Message(SwitchItemCommand(ItemSlot::Secondary)));
+                break;
+            case SDLK_3:
+                std::cout << "Switching to 3 item" << std::endl;
+                output_queue.push(Message(SwitchItemCommand(ItemSlot::Melee)));
+                break;
+            case SDLK_4:
+                std::cout << "Switching to 4 item" << std::endl;
+                output_queue.push(Message(SwitchItemCommand(ItemSlot::Bomb)));
+                break;
             case SDLK_r:
                 output_queue.push(Message(ReloadCommand()));
+                sound_manager.play("reload");
+                break;
+            case SDLK_g:
+                sound_manager.play("item_pick");
+                output_queue.push(Message(PickUpItemCommand()));
                 break;
         }
     }

@@ -35,10 +35,10 @@
 
 Client::Client():
 #ifdef UI_TYPE_GUI
-        lobby_display(std::make_unique<QtDisplay>(display_queue, pregame_queue)),
+        lobby_display(std::make_unique<QtDisplay>(lobby_input_queue, lobby_output_queue)),
 #elif defined(UI_TYPE_TUI)
-        lobby_display(std::make_unique<TextDisplay>(display_queue,
-                                                    pregame_queue)),  // TODO esto no compila
+        lobby_display(std::make_unique<TextDisplay>(lobby_input_queue,
+                                                    lobby_output_queue)),  // TODO esto no compila
 #endif
         sender(nullptr),
         receiver(nullptr) {
@@ -47,7 +47,8 @@ Client::Client():
 void Client::run() {
     std::string player_name;
     {
-        ConnectionHandler connection_handler(pregame_queue, ingame_queue, display_queue);
+        ConnectionHandler connection_handler(lobby_input_queue, lobby_output_queue,
+                                             game_input_queue, game_output_queue);
         connection_handler.start();
 
         lobby_display->run();
@@ -62,11 +63,11 @@ void Client::run() {
     }
 
 #ifdef UI_TYPE_GUI
-    display = std::make_unique<SDLDisplay>(display_queue, ingame_queue, player_name);
+    display = std::make_unique<SDLDisplay>(game_output_queue, game_input_queue, player_name);
     display->start();
     std::cout << "Started SDLDisplay" << std::endl;
 #elif defined(UI_TYPE_TUI)
-    display = std::make_unique<TextDisplay>(display_queue, ingame_queue);
+    display = std::make_unique<TextDisplay>(game_output_queue, game_input_queue);
     display->start();
 #endif
 

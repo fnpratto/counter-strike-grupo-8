@@ -17,10 +17,13 @@
 #include "gui/pre_game_view/list_teams.h"
 #include "gui/score_view/score_display.h"
 #include "gui/shop_view/shop.h"
+#include "gui/window_elements/sdl_music.h"
 #include "gui/window_elements/sdl_window.h"
 
 #include "display.h"
+#include "game_config.h"
 #include "sdl_input.h"
+#include "sound_manager.h"
 
 class SDLDisplay: public Display {
     std::string player_name;
@@ -42,8 +45,16 @@ private:
     int SCREEN_HEIGHT;
     std::unique_ptr<ScoreDisplay> score_display;
     std::unique_ptr<shopDisplay> shop_display;
+    std::unique_ptr<SdlWorld> world;
+    std::unique_ptr<EndRoundDisplay> end_round_display;
+    SoundManager sound_manager;
+    PhaseType current_phase;
+
     void setup();
 
+    Map get_map();
     GameUpdate get_initial_state();
     void update_state();
+    void update_music();
+    void load_audio();
 };

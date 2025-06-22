@@ -7,7 +7,9 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <map>
 #include <string>
+#include <vector>
 
 #include "common/message.h"
 #include "common/queue.h"
@@ -15,12 +17,13 @@
 class CreateGameWindow: public QWidget {
     Q_OBJECT
 
-private:
     Queue<Message>& input_queue;
     Queue<Message>& output_queue;
     std::string player_name;
     QVBoxLayout* main_layout;
     QLineEdit* game_name_input;
+
+    std::vector<std::string> map_names;
 
 public:
     explicit CreateGameWindow(Queue<Message>& input_queue, Queue<Message>& output_queue,

@@ -4,20 +4,24 @@
 #include <utility>
 
 #include "sdl_camera.h"
+#include "tile_loader.h"
 
-SdlMap::SdlMap(SdlWindow& window, const SdlCamera& camera, Map&& map):
-        window(window), camera(camera), map(std::move(map)), tile(window, camera) {}
+SdlMap::SdlMap(SdlWindow& w, const SdlCamera& camera, Map&& map):
+        window(w), camera(camera), map(std::move(map)), tile(w, camera) {
+    TileLoader loader(this->map);
+    loader.load_into(this->tile);
+}
 
 void SdlMap::render() {
-    for (const auto& map_wall: map.walls)
-        if (camera.can_see(map_wall))
-            tile.render(map_wall);
+    for (int x = 0; x < map.get_width(); ++x) {
+        for (int y = 0; y < map.get_height(); ++y) {
+            const auto& tile_opt = map.get_tiles().at(x).at(y);
+            if (!tile_opt.has_value())
+                continue;
 
-    for (const auto& map_floor: map.floors)
-        if (camera.can_see(map_floor))
-            tile.render(map_floor);
-
-    for (const auto& map_box: map.boxes)
-        if (camera.can_see(map_box))
-            tile.render(map_box);
+            const Tile& tile_map = tile_opt.value();
+            if (camera.can_see(tile_map))
+                this->tile.render(tile_map);
+        }
+    }
 }
