@@ -32,7 +32,7 @@ SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue
         world(nullptr),
         end_round_display(nullptr),
         sound_manager(),
-        current_phase(state.get_phase().get_phase()) {
+        current_phase(PhaseType::WarmUp) {
     SCREEN_WIDTH = 1200;
     SCREEN_HEIGHT = 600;
 }
@@ -175,7 +175,7 @@ void SDLDisplay::stop() {
 }
 
 void SDLDisplay::update_music() {
-    PhaseType new_phase = state.get_phase().get_phase();
+    PhaseType new_phase = static_cast<PhaseType>(state.get_phase().get_phase());
     if (new_phase != current_phase) {
         Mix_HaltMusic();
         switch (new_phase) {
