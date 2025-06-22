@@ -14,16 +14,18 @@ void SdlItem::render() {
     if (game_state.get_bomb().has_value()) {
         const auto& bomb = game_state.get_bomb().value();
         Vector2D pos = bomb.hitbox.get_pos();
-        Area dest(pos.get_x(), pos.get_y(), 32, 32);
         Area origin(0, 0, 24, 24);
-        if (camera.can_see(pos))
+        Vector2D pos_cam = camera.get_screen_pos(pos);
+        Area dest(pos_cam.get_x(), pos_cam.get_y(), 32, 32);
+        if (camera.can_see(pos_cam))
             bomb_t.render(origin, dest);
     }
     for (const auto& [gun_type, gun_item]: game_state.get_dropped_guns()) {
         Vector2D pos = gun_item.get_pos();
         if (!camera.can_see(pos))
             return;
-        Area dest(pos.get_x(), pos.get_y(), 32, 32);
+        Vector2D pos_cam = camera.get_screen_pos(pos);
+        Area dest(pos_cam.get_x(), pos_cam.get_y(), 32, 32);
         Area origin(10, 0, 54, 32);
         if (gun_type == GunType::AWP) {
             awp_t.render(origin, dest);
