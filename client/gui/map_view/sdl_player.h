@@ -11,7 +11,7 @@
 #include <SDL2/SDL.h>
 #include <yaml-cpp/yaml.h>
 
-#include "../map_view/sdl_gun.h"
+#include "../map_view/sdl_item.h"
 #include "../window_elements/area.h"
 #include "../window_elements/sdl_animation.h"
 #include "../window_elements/sdl_texture.h"

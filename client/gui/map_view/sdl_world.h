@@ -19,10 +19,10 @@
 
 #include "sdl_bullet.h"
 #include "sdl_camera.h"
-#include "sdl_item.h"
 #include "sdl_knife_slash.h"
 #include "sdl_map.h"
 #include "sdl_player.h"
+#include "sdl_world_item.h"
 
 class SdlWorld {
 private:
