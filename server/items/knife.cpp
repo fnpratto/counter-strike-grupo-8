@@ -17,7 +17,7 @@ void Knife::start_attacking(TimePoint now) {
 std::vector<AttackEffect> Knife::attack(const Vector2D& origin, const Vector2D& dir,
                                         TimePoint now) {
     std::vector<AttackEffect> effects;
-    if (!state.get_is_attacking() || !can_attack(KnifeConfig::attack_rate, now))
+    if (!is_attacking())
         return effects;
     int damage = get_random_damage(KnifeConfig::min_damage, KnifeConfig::max_damage);
 
