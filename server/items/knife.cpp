@@ -31,6 +31,6 @@ std::vector<AttackEffect> Knife::attack(const Vector2D& origin, const Vector2D& 
 }
 
 void Knife::reset() {
-    time_last_attack = TimePoint::min();
+    time_last_attack = TimePoint();
     state.set_is_attacking(false);
 }
