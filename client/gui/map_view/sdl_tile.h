@@ -23,34 +23,18 @@
 
 
 class SdlTile {
-    SdlWindow& window;
+    const SdlWindow& window;
     const SdlCamera& camera;
 
     static constexpr int WIDTH = 32;
     static constexpr int HEIGHT = 32;
 
-    std::vector<SdlTexture> sheets;
-    std::map<int, std::pair<std::reference_wrapper<SdlTexture>, Vector2D>> tiles;
+    std::map<int, std::pair<std::shared_ptr<SdlTexture>, Vector2D>> tiles;
 
 public:
-    explicit SdlTile(SdlWindow& window, const SdlCamera& camera): window(window), camera(camera) {}
+    explicit SdlTile(const SdlWindow& window, const SdlCamera& camera);
 
-    void add_sheet(const TileSheet& sheet) {
-        sheets.emplace_back(sheet.sheet_path, window, WIDTH, HEIGHT);
-        for (const auto& [id, position]: sheet.tiles) {
-            this->tiles.emplace(id, std::make_pair(std::ref(sheets.back()), position));
-        }
-    }
+    void add_sheet(const TileSheet& sheet);
 
-    void render(const Tile& tile) {
-        auto position_from_cam = camera.get_screen_pos(tile.pos);
-
-        auto [sheet, position] = tiles.at(tile.id);
-        SDL_Rect src_rect = {position.get_x(), position.get_y(), WIDTH, HEIGHT};
-
-        Area src(src_rect.x, src_rect.y, src_rect.w, src_rect.h);
-        Area dest(position_from_cam.get_x(), position_from_cam.get_y(), src_rect.w, src_rect.h);
-
-        sheet.get().render(src, dest);
-    }
+    void render(const Tile& tile);
 };

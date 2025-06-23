@@ -70,7 +70,8 @@ bool RectHitbox::is_in_same_quadrant(const Vector2D& ray_start, const Vector2D& 
     });
 }
 
-bool RectHitbox::is_hit(const Vector2D& ray_start, const Vector2D& ray_dir) const {
+std::optional<Vector2D> RectHitbox::get_hit_pos(const Vector2D& ray_start,
+                                                const Vector2D& ray_dir) const {
     Vector2D relative_ray_start = (ray_start - pos).rotated(rotation_deg);
     Vector2D relative_ray_dir = ray_dir.rotated(rotation_deg);
 
@@ -85,5 +86,10 @@ bool RectHitbox::is_hit(const Vector2D& ray_start, const Vector2D& ray_dir) cons
     float tmin = std::max(std::min(t1, t2), std::min(t3, t4));
     float tmax = std::min(std::max(t1, t2), std::max(t3, t4));
 
-    return (tmax >= 0 && tmin <= tmax);
+    if (tmax >= 0 && tmin <= tmax) {
+        Vector2D hit_pos = relative_ray_start + relative_ray_dir * tmin;
+        return hit_pos.rotated(-rotation_deg) + pos;
+    }
+
+    return std::optional<Vector2D>();
 }

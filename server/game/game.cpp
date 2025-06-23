@@ -67,12 +67,6 @@ void Game::advance_round_logic() {
         }
     }
 
-    if (state.get_num_rounds() == GameConfig::max_rounds / 2) {
-        state.swap_players_teams();
-        broadcast(Message(SwapTeamsResponse()));
-        return;
-    }
-
     if (!phase.is_game_end() && state.get_num_rounds() == GameConfig::max_rounds) {
         phase.end_game();
         broadcast(Message(ScoreboardResponse(state.get_scoreboard())));
@@ -123,19 +117,20 @@ void Game::advance_bomb_logic() {
 
 void Game::perform_attacks() {
     std::vector<HitResponse> hit_responses;
-    for (const auto& [p_name, player]: state.get_players()) {
+
+    for (const auto& [player_name, player]: state.get_players()) {
         auto attack_effects = player->attack(state.get_phase().get_time_now());
-        if (attack_effects.empty())
-            continue;
+        auto item_slot = player->get_equipped_item();
 
         for (const auto& attack_effect: attack_effects) {
             auto closest_target = physics_system.get_closest_target_in_dir(
-                    p_name, attack_effect.dir, attack_effect.effect.get_max_range());
+                    player_name, attack_effect.dir, attack_effect.effect.get_max_range());
+
+            // Missed all targets
             if (!closest_target.has_value()) {
                 Vector2D max_hit_pos = attack_effect.effect.get_origin() +
                                        attack_effect.dir * attack_effect.effect.get_max_range();
-                hit_responses.push_back(HitResponse(attack_effect.effect.get_origin(), max_hit_pos,
-                                                    attack_effect.dir, false));
+                hit_responses.emplace_back(player_name, item_slot, max_hit_pos, false);
                 continue;
             }
 
@@ -143,9 +138,8 @@ void Game::perform_attacks() {
             if (state.get_phase().is_playing() && !state.get_phase().is_buying_phase())
                 is_hit = apply_attack_effect(player, attack_effect.effect, closest_target.value());
 
-            hit_responses.push_back(HitResponse(attack_effect.effect.get_origin(),
-                                                closest_target.value().get_pos(), attack_effect.dir,
-                                                is_hit));
+            hit_responses.emplace_back(player_name, item_slot, closest_target.value().get_hit_pos(),
+                                       is_hit);
         }
     }
 
@@ -452,15 +446,21 @@ void Game::give_bomb_to_random_tt(Bomb&& bomb) {
 void Game::prepare_new_round() {
     state.advance_round();
     for (const auto& [p_name, player]: state.get_players()) {  // cppcheck-suppress[unusedVariable]
-        move_player_to_spawn(player);
         player->reset();
         auto bomb = player->drop_bomb();
         if (bomb.has_value())
             state.add_bomb(std::move(bomb.value()), player->get_hitbox().center);
     }
+    if (state.get_num_rounds() == GameConfig::max_rounds / 2) {
+        state.swap_players_teams();
+        broadcast(Message(SwapTeamsResponse()));
+    }
+    for (const auto& [_, player]: state.get_players()) move_player_to_spawn(player);
     if (state.get_bomb().has_value()) {
         state.get_bomb().value().item.reset();
         give_bomb_to_random_tt(std::move(state.remove_bomb()));
+    } else {
+        give_bomb_to_random_tt(Bomb());
     }
     state.get_dropped_guns().clear();
 }

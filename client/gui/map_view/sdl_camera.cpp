@@ -24,15 +24,10 @@ Vector2D SdlCamera::get_screen_pos(Vector2D pos) const {
     return screen_position;
 }
 
-bool SdlCamera::can_see(const Tile& obj) const {
-    Vector2D offset = get_screen_pos(obj.pos);
 
-    return offset.get_x() >= 0 && offset.get_x() < screen_width && offset.get_y() >= 0 &&
-           offset.get_y() < screen_height;
-}
+bool SdlCamera::can_see(const Tile& obj) const { return can_see_offset(obj.pos); }
 
-
-bool SdlCamera::can_see(const Vector2D& pos) const {
+bool SdlCamera::can_see_offset(const Vector2D& pos) const {
     Vector2D offset = get_screen_pos(pos);
     return offset.get_x() >= 0 && offset.get_x() < screen_width && offset.get_y() >= 0 &&
            offset.get_y() < screen_height;

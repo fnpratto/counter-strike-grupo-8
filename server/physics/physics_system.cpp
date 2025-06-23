@@ -147,7 +147,7 @@ std::optional<Target> PhysicsSystem::get_closest_target_in_dir(const std::string
     std::optional<Target> closest_target;
 
     if (closest_collidable_tile.has_value()) {
-        float distance = (closest_collidable_tile->get_pos() - origin).length();
+        float distance = (closest_collidable_tile->get_hit_pos() - origin).length();
         if (distance < min_distance) {
             min_distance = distance;
             closest_target = closest_collidable_tile;
@@ -155,7 +155,7 @@ std::optional<Target> PhysicsSystem::get_closest_target_in_dir(const std::string
     }
 
     if (closest_player.has_value()) {
-        float distance = (closest_player->get_pos() - origin).length();
+        float distance = (closest_player->get_hit_pos() - origin).length();
         if (distance < min_distance) {
             min_distance = distance;
             closest_target = closest_player;
@@ -175,12 +175,15 @@ std::optional<Target> PhysicsSystem::get_closest_collidable_tile(const std::stri
     float min_distance = std::numeric_limits<float>::max();
     for (const auto& tile: map.get_collidables()) {
         RectHitbox tile_hitbox = RectHitbox::tile_hitbox(tile.get().pos);
-        if (tile_hitbox.is_in_same_quadrant(origin, dir) && tile_hitbox.is_hit(origin, dir)) {
-            float distance = (tile_hitbox.get_pos() - origin).length();
-            if (distance < min_distance) {
-                min_distance = distance;
-                closest_collidable_tile = tile.get();
-            }
+        if (!tile_hitbox.is_in_same_quadrant(origin, dir))
+            continue;
+        std::optional<Vector2D> hit_pos = tile_hitbox.get_hit_pos(origin, dir);
+        if (!hit_pos.has_value())
+            continue;
+        float distance = (hit_pos.value() - origin).length();
+        if (distance < min_distance) {
+            min_distance = distance;
+            closest_collidable_tile = Target(tile, hit_pos.value());
         }
     }
     return closest_collidable_tile;
@@ -195,13 +198,15 @@ std::optional<Target> PhysicsSystem::get_closest_player(const std::string& origi
         if (origin_p_name == target_name)
             continue;
         CircularHitbox player_hitbox = CircularHitbox(target->get_hitbox());
-        if (!target->is_dead() && player_hitbox.is_in_same_quadrant(origin, dir) &&
-            player_hitbox.is_hit(origin, dir)) {
-            float distance = (target->get_hitbox().center - origin).length();
-            if (distance < min_distance) {
-                min_distance = distance;
-                closest_player = PlayerRef(target);
-            }
+        if (target->is_dead() || !player_hitbox.is_in_same_quadrant(origin, dir))
+            continue;
+        std::optional<Vector2D> hit_pos = player_hitbox.get_hit_pos(origin, dir);
+        if (!hit_pos.has_value())
+            continue;
+        float distance = (hit_pos.value() - origin).length();
+        if (distance < min_distance) {
+            min_distance = distance;
+            closest_player = Target(target, hit_pos.value());
         }
     }
     return closest_player;

@@ -4,10 +4,12 @@ target_sources(taller_client
     sdl_map.cpp
     sdl_world.cpp
     sdl_player.cpp
-    sdl_gun.cpp
-    sdl_bullet.cpp
     sdl_item.cpp
     field_of_view.cpp
+    sdl_bullet.cpp
+    sdl_knife_slash.cpp
+    sdl_world_item.cpp
+    sdl_tile.cpp
 
     PUBLIC
     sdl_camera.h
@@ -15,8 +17,9 @@ target_sources(taller_client
     sdl_player.h
     sdl_tile.h
     sdl_world.h
-    sdl_gun.h
-    sdl_bullet.h
     sdl_item.h
     field_of_view.h
+    sdl_bullet.h
+    sdl_knife_slash.h
+    sdl_world_item.h
 )

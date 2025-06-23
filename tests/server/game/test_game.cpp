@@ -349,7 +349,6 @@ TEST_F(TestGame, TargetIsHitByPlayerAttack) {
     auto player_messages = game.tick({PlayerMessage("test_player", msg_attack)});
 
     auto hit_response = player_messages[0].get_message().get_content<HitResponse>();
-    EXPECT_EQ(hit_response.get_hit_pos(), target_pos);
 
     if (hit_response.is_hit()) {
         updates = player_messages[2].get_message().get_content<GameUpdate>();
@@ -500,7 +499,6 @@ TEST_F(TestGame, TTsWinIfTheyKillAllCTs) {
             if (m.get_message().get_type() == MessageType::HIT_RESP) {
                 auto hit_response = m.get_message().get_content<HitResponse>();
                 if (hit_response.is_hit()) {
-                    EXPECT_EQ(hit_response.get_hit_pos(), ct_pos);
                     EXPECT_LT(updates.get_players().at("ct").get_health(), old_ct_health);
                 }
             }

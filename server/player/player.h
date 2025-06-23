@@ -45,6 +45,8 @@ public:
     Inventory& get_inventory();
     ScoreboardEntry get_scoreboard_entry() const;
 
+    ItemSlot get_equipped_item() const { return state.get_equipped_item(); }
+
     void set_ready();
 
     void take_damage(int damage);
@@ -63,7 +65,6 @@ public:
     void aim(const Vector2D& direction);
 
     void start_attacking_with_equipped_weapon(TimePoint now);
-    void stop_attacking();
     std::vector<AttackEffect> attack(TimePoint now);
 
     void equip_item(ItemSlot slot);

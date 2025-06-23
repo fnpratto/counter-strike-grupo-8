@@ -14,8 +14,6 @@
 #include "common/message.h"
 #include "common/queue.h"
 
-#include "constants.h"
-
 class CreateGameWindow: public QWidget {
     Q_OBJECT
 
