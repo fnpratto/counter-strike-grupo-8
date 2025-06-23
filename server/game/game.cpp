@@ -67,12 +67,6 @@ void Game::advance_round_logic() {
         }
     }
 
-    if (state.get_num_rounds() == GameConfig::max_rounds / 2) {
-        state.swap_players_teams();
-        broadcast(Message(SwapTeamsResponse()));
-        return;
-    }
-
     if (!phase.is_game_end() && state.get_num_rounds() == GameConfig::max_rounds) {
         phase.end_game();
         broadcast(Message(ScoreboardResponse(state.get_scoreboard())));
@@ -445,15 +439,21 @@ void Game::give_bomb_to_random_tt(Bomb&& bomb) {
 void Game::prepare_new_round() {
     state.advance_round();
     for (const auto& [p_name, player]: state.get_players()) {  // cppcheck-suppress[unusedVariable]
-        move_player_to_spawn(player);
         player->reset();
         auto bomb = player->drop_bomb();
         if (bomb.has_value())
             state.add_bomb(std::move(bomb.value()), player->get_hitbox().center);
     }
+    if (state.get_num_rounds() == GameConfig::max_rounds / 2) {
+        state.swap_players_teams();
+        broadcast(Message(SwapTeamsResponse()));
+    }
+    for (const auto& [_, player]: state.get_players()) move_player_to_spawn(player);
     if (state.get_bomb().has_value()) {
         state.get_bomb().value().item.reset();
         give_bomb_to_random_tt(std::move(state.remove_bomb()));
+    } else {
+        give_bomb_to_random_tt(Bomb());
     }
     state.get_dropped_guns().clear();
 }
