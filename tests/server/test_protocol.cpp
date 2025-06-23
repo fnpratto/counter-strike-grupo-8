@@ -6,6 +6,7 @@
 #include "client/protocol.h"
 #include "common/base_socket.h"
 #include "common/commands.h"
+#include "common/map/tile.h"
 #include "common/message.h"
 #include "server/protocol.h"
 #include "tests/common/mock_socket.h"
@@ -534,20 +535,20 @@ TEST_F(ProtocolTest, SendReceiveMapResponse) {
     Map test_map("test_map", 10, 10, 10);  // name, max_players, height, width
 
     // Add different types of tiles
-    test_map.add_tile(Tile(Vector2D(0 * PhysicsConfig::meter_size, 0 * PhysicsConfig::meter_size),
-                           1, true, false, false, false));  // collidable wall
-    test_map.add_tile(Tile(Vector2D(1 * PhysicsConfig::meter_size, 1 * PhysicsConfig::meter_size),
-                           2, true, false, false, false));  // collidable wall
-    test_map.add_tile(Tile(Vector2D(2 * PhysicsConfig::meter_size, 2 * PhysicsConfig::meter_size),
-                           3, false, true, false, false));  // terrorist spawn
-    test_map.add_tile(Tile(Vector2D(3 * PhysicsConfig::meter_size, 3 * PhysicsConfig::meter_size),
-                           4, false, true, false, false));  // terrorist spawn
-    test_map.add_tile(Tile(Vector2D(4 * PhysicsConfig::meter_size, 4 * PhysicsConfig::meter_size),
-                           5, false, false, true, false));  // counter-terrorist spawn
-    test_map.add_tile(Tile(Vector2D(5 * PhysicsConfig::meter_size, 5 * PhysicsConfig::meter_size),
-                           6, false, false, true, false));  // counter-terrorist spawn
-    test_map.add_tile(Tile(Vector2D(6 * PhysicsConfig::meter_size, 6 * PhysicsConfig::meter_size),
-                           7, false, false, false, true));  // bomb site
+    test_map.add_tile(Tile{Vector2D(0 * PhysicsConfig::meter_size, 0 * PhysicsConfig::meter_size),
+                           1, true, false, false, false});  // collidable wall
+    test_map.add_tile(Tile{Vector2D(1 * PhysicsConfig::meter_size, 1 * PhysicsConfig::meter_size),
+                           2, true, false, false, false});  // collidable wall
+    test_map.add_tile(Tile{Vector2D(2 * PhysicsConfig::meter_size, 2 * PhysicsConfig::meter_size),
+                           3, false, true, false, false});  // terrorist spawn
+    test_map.add_tile(Tile{Vector2D(3 * PhysicsConfig::meter_size, 3 * PhysicsConfig::meter_size),
+                           4, false, true, false, false});  // terrorist spawn
+    test_map.add_tile(Tile{Vector2D(4 * PhysicsConfig::meter_size, 4 * PhysicsConfig::meter_size),
+                           5, false, false, true, false});  // counter-terrorist spawn
+    test_map.add_tile(Tile{Vector2D(5 * PhysicsConfig::meter_size, 5 * PhysicsConfig::meter_size),
+                           6, false, false, true, false});  // counter-terrorist spawn
+    test_map.add_tile(Tile{Vector2D(6 * PhysicsConfig::meter_size, 6 * PhysicsConfig::meter_size),
+                           7, false, false, false, true});  // bomb site
 
     Message message(test_map);
 
