@@ -51,31 +51,17 @@ payload_t ServerProtocol::serialize_msg(const ShopPricesResponse& response) cons
 template <>
 payload_t ServerProtocol::serialize_msg(const HitResponse& response) const {
     payload_t payload;
-    // Serialize origin Vector2D
-    payload_t origin_x = serialize(response.get_origin().get_x());
-    payload_t origin_y = serialize(response.get_origin().get_y());
 
-    // Serialize hit_pos Vector2D
-    payload_t hit_pos_x = serialize(response.get_hit_pos().get_x());
-    payload_t hit_pos_y = serialize(response.get_hit_pos().get_y());
-
-    // Serialize hit_dir Vector2D
-    payload_t hit_dir_x = serialize(response.get_hit_dir().get_x());
-    payload_t hit_dir_y = serialize(response.get_hit_dir().get_y());
-
-    // Serialize hit bool
+    payload_t player_name = serialize(response.get_player_name());
+    payload_t item_slot = serialize(response.get_item_slot());
+    payload_t hit_pos = serialize(response.get_hit_pos());
     payload_t hit = serialize(response.is_hit());
 
-    // Reserve space and insert all data
-    payload.reserve(origin_x.size() + origin_y.size() + hit_pos_x.size() + hit_pos_y.size() +
-                    hit_dir_x.size() + hit_dir_y.size() + hit.size());
+    payload.reserve(player_name.size() + item_slot.size() + hit_pos.size() + hit.size());
 
-    payload.insert(payload.end(), origin_x.begin(), origin_x.end());
-    payload.insert(payload.end(), origin_y.begin(), origin_y.end());
-    payload.insert(payload.end(), hit_pos_x.begin(), hit_pos_x.end());
-    payload.insert(payload.end(), hit_pos_y.begin(), hit_pos_y.end());
-    payload.insert(payload.end(), hit_dir_x.begin(), hit_dir_x.end());
-    payload.insert(payload.end(), hit_dir_y.begin(), hit_dir_y.end());
+    payload.insert(payload.end(), player_name.begin(), player_name.end());
+    payload.insert(payload.end(), item_slot.begin(), item_slot.end());
+    payload.insert(payload.end(), hit_pos.begin(), hit_pos.end());
     payload.insert(payload.end(), hit.begin(), hit.end());
 
     return payload;

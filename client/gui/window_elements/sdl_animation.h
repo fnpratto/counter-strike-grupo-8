@@ -27,15 +27,14 @@ class SdlAnimation {
     std::chrono::steady_clock::time_point start_time;
     std::chrono::milliseconds animation_duration;
     bool repeats;
-    bool is_finished;
+    bool finished;
 
 public:
     SdlAnimation(const SdlWindow& window, const std::string& path,
                  const std::vector<SDL_Rect>& clips, std::chrono::milliseconds duration,
-                 bool repeats = true);
-
-    void reset();
-    bool finished() const;
+                 bool repeats = true, float scale = 1.0f);
 
     void render(int x, int y, double angle);
+    bool is_finished() const;
+    void reset();
 };

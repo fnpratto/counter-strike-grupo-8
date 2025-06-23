@@ -55,10 +55,6 @@ constexpr std::string_view HUD_SLOT_BLOCKED_PATH = "../assets/gfx/shop/hud_slot_
 constexpr std::string_view FONT_PAT = "../assets/gfx/fonts/joystix_monospace.otf";
 constexpr std::string_view AMMO_PATH = "../assets/gfx/guns/ammo.xcf";
 constexpr std::string_view BACKGROUND_WINNER_PATH = "../assets/gfx/hud/end_round.xcf";
-constexpr std::string_view PRIMARY_GUN_PATH = "../assets/gfx/guns/primary.xcf";
-constexpr std::string_view SECONDARY_GUN_PATH = "../assets/gfx/guns/secondary.xcf";
-constexpr std::string_view MELEE_GUN_PATH = "../assets/gfx/guns/melee.xcf";
-constexpr std::string_view BOMB_GUN_PATH = "../assets/gfx/guns/bomb.xcf";
 
 
 /// Music

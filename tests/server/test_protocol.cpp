@@ -1081,12 +1081,12 @@ TEST_F(ProtocolTest, SendEmptyListMapsResponse) {
 TEST_F(ProtocolTest, HitResponseSerialization) {
     server_mock_socket->clear_written_data();
 
-    Vector2D origin(10, 20);
+    std::string player_name = "test_player";
+    ItemSlot item_slot = ItemSlot::Primary;
     Vector2D hit_pos(30, 40);
-    Vector2D hit_dir(1, 0);
     bool hit = true;
 
-    HitResponse response(origin, hit_pos, hit_dir, hit);
+    HitResponse response(player_name, item_slot, hit_pos, hit);
     Message message(response);
 
     server_protocol->send(message);
@@ -1097,12 +1097,10 @@ TEST_F(ProtocolTest, HitResponseSerialization) {
     HitResponse received_response = received_message.get_content<HitResponse>();
 
     ASSERT_EQ(received_message.get_type(), MessageType::HIT_RESP);
-    ASSERT_EQ(received_response.get_origin().get_x(), 10);
-    ASSERT_EQ(received_response.get_origin().get_y(), 20);
+    ASSERT_EQ(received_response.get_player_name(), "test_player");
+    ASSERT_EQ(received_response.get_item_slot(), ItemSlot::Primary);
     ASSERT_EQ(received_response.get_hit_pos().get_x(), 30);
     ASSERT_EQ(received_response.get_hit_pos().get_y(), 40);
-    ASSERT_EQ(received_response.get_hit_dir().get_x(), 1);
-    ASSERT_EQ(received_response.get_hit_dir().get_y(), 0);
     ASSERT_TRUE(received_response.is_hit());
 }
 
@@ -1110,12 +1108,12 @@ TEST_F(ProtocolTest, HitResponseSerialization) {
 TEST_F(ProtocolTest, HitResponseMissSerialization) {
     server_mock_socket->clear_written_data();
 
-    Vector2D origin(50, 60);
+    std::string player_name = "sniper_player";
+    ItemSlot item_slot = ItemSlot::Secondary;
     Vector2D hit_pos(70, 80);
-    Vector2D hit_dir(-1, 1);
     bool hit = false;
 
-    HitResponse response(origin, hit_pos, hit_dir, hit);
+    HitResponse response(player_name, item_slot, hit_pos, hit);
     Message message(response);
 
     server_protocol->send(message);
@@ -1126,13 +1124,38 @@ TEST_F(ProtocolTest, HitResponseMissSerialization) {
     HitResponse received_response = received_message.get_content<HitResponse>();
 
     ASSERT_EQ(received_message.get_type(), MessageType::HIT_RESP);
-    ASSERT_EQ(received_response.get_origin().get_x(), 50);
-    ASSERT_EQ(received_response.get_origin().get_y(), 60);
+    ASSERT_EQ(received_response.get_player_name(), "sniper_player");
+    ASSERT_EQ(received_response.get_item_slot(), ItemSlot::Secondary);
     ASSERT_EQ(received_response.get_hit_pos().get_x(), 70);
     ASSERT_EQ(received_response.get_hit_pos().get_y(), 80);
-    ASSERT_EQ(received_response.get_hit_dir().get_x(), -1);
-    ASSERT_EQ(received_response.get_hit_dir().get_y(), 1);
     ASSERT_FALSE(received_response.is_hit());
+}
+
+// Test HitResponse with melee weapon hit
+TEST_F(ProtocolTest, HitResponseMeleeWeaponSerialization) {
+    server_mock_socket->clear_written_data();
+
+    std::string player_name = "knife_player";
+    ItemSlot item_slot = ItemSlot::Melee;
+    Vector2D hit_pos(100, 150);
+    bool hit = true;
+
+    HitResponse response(player_name, item_slot, hit_pos, hit);
+    Message message(response);
+
+    server_protocol->send(message);
+    const auto& written_data = server_mock_socket->get_written_data();
+
+    client_mock_socket->queue_read_data(written_data);
+    Message received_message = client_protocol->recv();
+    HitResponse received_response = received_message.get_content<HitResponse>();
+
+    ASSERT_EQ(received_message.get_type(), MessageType::HIT_RESP);
+    ASSERT_EQ(received_response.get_player_name(), "knife_player");
+    ASSERT_EQ(received_response.get_item_slot(), ItemSlot::Melee);
+    ASSERT_EQ(received_response.get_hit_pos().get_x(), 100);
+    ASSERT_EQ(received_response.get_hit_pos().get_y(), 150);
+    ASSERT_TRUE(received_response.is_hit());
 }
 
 // Test CharactersResponse serialization and deserialization

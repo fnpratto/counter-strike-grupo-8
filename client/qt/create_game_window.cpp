@@ -3,6 +3,8 @@
 #include <QMessageBox>
 #include <vector>
 
+#include "common/qt/constants.h"
+
 #define WINDOW_WIDTH 416
 #define WINDOW_HEIGHT 340
 

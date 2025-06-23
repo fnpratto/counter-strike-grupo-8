@@ -6,32 +6,65 @@
 #include <SDL2/SDL.h>
 
 
-SdlPlayer::SdlPlayer(SdlWindow& w, const SdlCamera& cam, const GameUpdate& game_state_param,
-                     const std::string& player_name_param):
-        window(w),
+SdlPlayer::SdlPlayer(const SdlWindow& window, const SdlCamera& cam):
         camera(cam),
         walk_animation(
-                w, WALKING_ANIMATION,
+                window, WALKING_ANIMATION,
                 std::vector<SDL_Rect>(
                         {{0, 0, WIDTH, HEIGHT}, {32, 0, WIDTH, HEIGHT}, {64, 0, WIDTH, HEIGHT}}),
                 std::chrono::milliseconds(600),  // 600ms for complete walk cycle
                 true),                           // repeating animation
-        game_state(game_state_param),
-        playerName(player_name_param),
-        weapon(window) {
-    load_skins();
+        item(window) {
+    load_skins(window);
 }
 
-void SdlPlayer::render() {
-    const PlayerUpdate& state = game_state.get_players().at(playerName);
-    if (state.get_health() <= 0) {
+void SdlPlayer::render(const PlayerUpdate& player_state) {
+    if (player_state.get_health() <= 0) {
         return;
     }
-    if (state.get_velocity() == Vector2D(0, 0)) {
+    if (player_state.get_velocity() == Vector2D(0, 0)) {
         walk_animation.reset();
     }
-    auto position_from_cam = camera.get_screen_pos(state.get_pos());
-    auto aim_direction = state.get_aim_direction();
+
+    Vector2D pos = get_pos(player_state);
+    int x = pos.get_x();
+    int y = pos.get_y();
+    float angle = get_rotation(player_state);
+
+    walk_animation.render(x, y, angle);  // feet
+
+    ItemSlot item_slot = player_state.get_equipped_item();
+    switch (item_slot) {
+        case ItemSlot::Primary:
+        case ItemSlot::Secondary: {
+            GunUpdate gun = player_state.get_inventory().get_guns().at(item_slot);
+            item.render_gun(gun.get_gun(), pos, angle);
+            break;
+        }
+        case ItemSlot::Melee: {
+            item.render_knife(pos, angle);
+            break;
+        }
+        case ItemSlot::Bomb: {
+            item.render_bomb(pos, angle);
+            break;
+        }
+        default:
+            break;
+    }
+
+    CharacterType character = player_state.get_character_type();
+    auto& texture = character_textures.at(character);
+    SDL_Rect clip{0, 0, WIDTH, HEIGHT};
+    texture->render(x, y, &clip, angle);  // actual character
+}
+
+Vector2D SdlPlayer::get_pos(const PlayerUpdate& player_state) {
+    return camera.get_screen_pos(player_state.get_pos()) + Vector2D(x_offset, y_offset);
+}
+
+float SdlPlayer::get_rotation(const PlayerUpdate& player_state) {
+    auto aim_direction = player_state.get_aim_direction();
     float angle;
     if (aim_direction != Vector2D(0, 0)) {
         angle = std::atan2(aim_direction.get_y(), aim_direction.get_x()) * 180 / M_PI;
@@ -39,53 +72,24 @@ void SdlPlayer::render() {
     } else {
         angle = 0.0f;
     }
-
-    render_skin(position_from_cam.get_x(), position_from_cam.get_y(), angle);
+    return angle;
 }
 
-
-// TODO we shouldn't be loading all the skins and we shouldn't be checking which one to use every
-// time
-void SdlPlayer::render_skin(int x, int y, float angle) {
-    static constexpr int x_offset = WIDTH / 2;
-    static constexpr int y_offset = HEIGHT / 2;
-
-    const PlayerUpdate& state = game_state.get_players().at(playerName);
-    SDL_Rect clip{32, 32, WIDTH, HEIGHT};
-
-    CharacterType type = state.get_character_type();
-
-
-    if (skins_textures.find(type) == skins_textures.end()) {
-        std::cerr << "Warning: Missing texture for type " << static_cast<int>(type) << std::endl;
-        return;
-    }
-
-
-    auto& texture = skins_textures.at(type);
-
-    walk_animation.render(x - x_offset, y - y_offset, angle);
-    texture->render(x - x_offset, y - y_offset, &clip, angle, nullptr, SDL_FLIP_NONE);
-    Area dest(x - x_offset - 5, y - y_offset - 5, 42, 42);
-    ItemSlot item = game_state.get_players().at(playerName).get_equipped_item();
-    weapon.render(item, dest, angle);
-}
-
-void SdlPlayer::load_skins() {
-    skins_textures[CharacterType::Seal_Force] =
-            std::make_unique<SdlTexture>("../assets/gfx/player/ct1.bmp", window);
-    skins_textures[CharacterType::German_GSG_9] =
-            std::make_unique<SdlTexture>("../assets/gfx/player/ct2.bmp", window);
-    skins_textures[CharacterType::UK_SAS] =
-            std::make_unique<SdlTexture>("../assets/gfx/player/ct3.bmp", window);
-    skins_textures[CharacterType::French_GIGN] =
-            std::make_unique<SdlTexture>("../assets/gfx/player/ct4.bmp", window);
-    skins_textures[CharacterType::Pheonix] =
-            std::make_unique<SdlTexture>("../assets/gfx/player/t1.bmp", window);
-    skins_textures[CharacterType::L337_Krew] =
-            std::make_unique<SdlTexture>("../assets/gfx/player/t2.bmp", window);
-    skins_textures[CharacterType::Arctic_Avenger] =
-            std::make_unique<SdlTexture>("../assets/gfx/player/t3.bmp", window);
-    skins_textures[CharacterType::Guerrilla] =
-            std::make_unique<SdlTexture>("../assets/gfx/player/t4.bmp", window);
+void SdlPlayer::load_skins(const SdlWindow& window) {
+    character_textures[CharacterType::Seal_Force] =
+            std::make_unique<SdlTexture>("../assets/gfx/player/ct1.bmp", window, WIDTH, HEIGHT);
+    character_textures[CharacterType::German_GSG_9] =
+            std::make_unique<SdlTexture>("../assets/gfx/player/ct2.bmp", window, WIDTH, HEIGHT);
+    character_textures[CharacterType::UK_SAS] =
+            std::make_unique<SdlTexture>("../assets/gfx/player/ct3.bmp", window, WIDTH, HEIGHT);
+    character_textures[CharacterType::French_GIGN] =
+            std::make_unique<SdlTexture>("../assets/gfx/player/ct4.bmp", window, WIDTH, HEIGHT);
+    character_textures[CharacterType::Pheonix] =
+            std::make_unique<SdlTexture>("../assets/gfx/player/t1.bmp", window, WIDTH, HEIGHT);
+    character_textures[CharacterType::L337_Krew] =
+            std::make_unique<SdlTexture>("../assets/gfx/player/t2.bmp", window, WIDTH, HEIGHT);
+    character_textures[CharacterType::Arctic_Avenger] =
+            std::make_unique<SdlTexture>("../assets/gfx/player/t3.bmp", window, WIDTH, HEIGHT);
+    character_textures[CharacterType::Guerrilla] =
+            std::make_unique<SdlTexture>("../assets/gfx/player/t4.bmp", window, WIDTH, HEIGHT);
 }

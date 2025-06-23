@@ -11,7 +11,7 @@
 #include <SDL2/SDL.h>
 #include <yaml-cpp/yaml.h>
 
-#include "../map_view/sdl_gun.h"
+#include "../map_view/sdl_item.h"
 #include "../window_elements/area.h"
 #include "../window_elements/sdl_animation.h"
 #include "../window_elements/sdl_texture.h"
@@ -20,27 +20,29 @@
 #include "common/updates/game_update.h"
 
 #include "sdl_camera.h"
-const double PI = 3.14159265358979323846;
 
 class SdlPlayer {
 private:
-    SdlWindow& window;
     const SdlCamera& camera;
     SdlAnimation walk_animation;
-    const GameUpdate& game_state;
-    std::string playerName;
-    SDLGun weapon;
+
+    SdlItem item;
 
     static constexpr int WIDTH = 32;
     static constexpr int HEIGHT = 32;
+    static constexpr int x_offset = -(WIDTH / 2);
+    static constexpr int y_offset = -(HEIGHT / 2);
     static constexpr const char* WALKING_ANIMATION = "../assets/gfx/player/legs_animation.xcf";
-    std::unordered_map<CharacterType, std::unique_ptr<SdlTexture>> skins_textures;
-    void render_skin(int x, int y, float angle);
-    void load_skins();
+    std::unordered_map<CharacterType, std::unique_ptr<SdlTexture>> character_textures;
 
 public:
-    explicit SdlPlayer(SdlWindow& w, const SdlCamera& camera, const GameUpdate& game_state,
-                       const std::string& playerName);
+    explicit SdlPlayer(const SdlWindow& w, const SdlCamera& camera);
 
-    void render();
+    void render(const PlayerUpdate& player_update);
+
+private:
+    void load_skins(const SdlWindow& window);
+
+    float get_rotation(const PlayerUpdate& player_state);
+    Vector2D get_pos(const PlayerUpdate& player_state);
 };
