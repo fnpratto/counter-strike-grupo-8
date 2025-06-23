@@ -38,22 +38,22 @@ TEST_F(TestRectHitbox, CollidesWithCircle_NoCollision) {
 TEST_F(TestRectHitbox, IsHit_RayHits) {
     Vector2D ray_start(0, 10);
     Vector2D ray_dir = Vector2D(1, 0).normalized(PhysicsConfig::meter_size);
-    EXPECT_TRUE(not_rotated_rect_hitbox.is_hit(ray_start, ray_dir));
-    EXPECT_TRUE(rotated_rect_hitbox.is_hit(ray_start, ray_dir));
+    EXPECT_TRUE(not_rotated_rect_hitbox.get_hit_pos(ray_start, ray_dir).has_value());
+    EXPECT_TRUE(rotated_rect_hitbox.get_hit_pos(ray_start, ray_dir).has_value());
 }
 
 TEST_F(TestRectHitbox, IsHit_RayDoesNotHit) {
     Vector2D ray_start(20, 11);
     Vector2D ray_dir = Vector2D(1, 0).normalized(PhysicsConfig::meter_size);
-    EXPECT_FALSE(not_rotated_rect_hitbox.is_hit(ray_start, ray_dir));
-    EXPECT_FALSE(rotated_rect_hitbox.is_hit(ray_start, ray_dir));
+    EXPECT_FALSE(not_rotated_rect_hitbox.get_hit_pos(ray_start, ray_dir).has_value());
+    EXPECT_FALSE(rotated_rect_hitbox.get_hit_pos(ray_start, ray_dir).has_value());
 }
 
 TEST_F(TestRectHitbox, IsHit_RayParallelDoesNotHit) {
     Vector2D ray_start(0, 5);
     Vector2D ray_dir = Vector2D(1, 0).normalized(PhysicsConfig::meter_size);
-    EXPECT_FALSE(not_rotated_rect_hitbox.is_hit(ray_start, ray_dir));
-    EXPECT_FALSE(rotated_rect_hitbox.is_hit(ray_start, ray_dir));
+    EXPECT_FALSE(not_rotated_rect_hitbox.get_hit_pos(ray_start, ray_dir).has_value());
+    EXPECT_FALSE(rotated_rect_hitbox.get_hit_pos(ray_start, ray_dir).has_value());
 }
 
 TEST_F(TestRectHitbox, IsInSameQuadrant_RayPointsToRects) {
