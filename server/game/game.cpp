@@ -176,7 +176,7 @@ bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker, const Ef
 void Game::join_player(const std::string& player_name) {
     if (player_name.empty() || state.player_is_in_game(player_name) || is_full() ||
         state.get_phase().is_playing())
-        throw JoinGameError();
+        return send_msg(player_name, Message(ErrorResponse("Cannot join game")));
 
     Team default_team = (state.get_num_tts() > state.get_num_cts()) ? Team::CT : Team::TT;
     if (default_team == Team::TT) {
@@ -202,7 +202,7 @@ void Game::handle<SelectTeamCommand>(const std::string& player_name, const Selec
     if (state.get_phase().is_playing())
         throw SelectTeamError();
     if (state.team_is_full(msg.get_team())) {
-        send_msg(player_name, Message(ErrorResponse()));
+        send_msg(player_name, Message(ErrorResponse("Team is full")));
         return;
     }
 
@@ -256,7 +256,7 @@ void Game::handle<BuyGunCommand>(const std::string& player_name, const BuyGunCom
     auto& player = state.get_player(player_name);
     if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name) ||
         !shop.can_buy_gun(msg.get_gun(), player->get_inventory())) {
-        send_msg(player_name, Message(ErrorResponse()));
+        send_msg(player_name, Message(ErrorResponse("Cannot buy gun")));
         return;
     }
 
@@ -271,7 +271,7 @@ void Game::handle<BuyAmmoCommand>(const std::string& player_name, const BuyAmmoC
     auto& player = state.get_player(player_name);
     if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name) ||
         !shop.can_buy_ammo(msg.get_slot(), player->get_inventory())) {
-        send_msg(player_name, Message(ErrorResponse()));
+        send_msg(player_name, Message(ErrorResponse("Cannot buy ammo")));
         return;
     }
 
