@@ -15,8 +15,8 @@
 
 #include "map_view_tile.h"
 
-constexpr int MAX_ROWS_MAPVIEW = 20;
-constexpr int MAX_COLS_MAPVIEW = 20;
+constexpr int MAX_ROWS_MAPVIEW = 100;
+constexpr int MAX_COLS_MAPVIEW = 100;
 
 class EditorWindow: public QWidget {
     Q_OBJECT
