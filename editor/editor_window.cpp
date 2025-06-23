@@ -17,6 +17,7 @@
 #include <QPixmap>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QScrollBar>
 #include <QSpinBox>
 #include <QStringList>
 #include <QToolBar>
@@ -35,11 +36,10 @@
 #include "tile.h"
 #include "tile_button.h"
 
-constexpr int WINDOW_WIDTH = 845;
+constexpr int WINDOW_WIDTH = 890;
 constexpr int WINDOW_HEIGHT = 662;
 
 constexpr int MAX_COLUMNS_TILEBAR = 5;
-constexpr int MAX_COLUMNS_MAPVIEW = 20;
 
 constexpr int ACTION_ICON_SIZE = 18;
 
@@ -48,7 +48,7 @@ TileButton* TileButton::selected_tile_button = nullptr;
 EditorWindow::EditorWindow(QWidget* parent): QWidget(parent) {
     this->setWindowTitle(EDITOR_TITLE);
     this->setWindowIcon(QIcon(ICON_PATH));
-    this->setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+    this->setMinimumSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     QFontDatabase::addApplicationFont(CS_FONT_PATH);
     this->setStyleSheet(
             "QWidget { background-color: #404040; } QAction { border: 1px solid #ccc; }");
@@ -64,10 +64,15 @@ void EditorWindow::init_gui() {
 }
 
 void EditorWindow::add_sidebar() {
+    QWidget* sidebar_widget = new QWidget();
+    sidebar_widget->setFixedWidth(177);
+
     QVBoxLayout* sidebar_layout = new QVBoxLayout();
     sidebar_layout->setContentsMargins(0, 0, 0, 0);
     sidebar_layout->setSpacing(5);
-    this->main_layout->addLayout(sidebar_layout);
+
+    sidebar_widget->setLayout(sidebar_layout);
+    this->main_layout->addWidget(sidebar_widget);
 
     this->add_tool_bar(sidebar_layout);
     this->add_tile_buttons_layout(sidebar_layout);
@@ -76,12 +81,22 @@ void EditorWindow::add_sidebar() {
 }
 
 void EditorWindow::add_map_view() {
+    QScrollArea* map_view_scroll_area = new QScrollArea();
+    this->main_layout->addWidget(map_view_scroll_area);
+
+    QWidget* map_view_widget = new QWidget();
+    map_view_scroll_area->setWidget(map_view_widget);
+
+    map_view_scroll_area->setWidgetResizable(true);
+    map_view_scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    map_view_scroll_area->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
     this->map_view_layout = new QGridLayout();
     this->map_view_layout->setContentsMargins(0, 0, 0, 0);
     this->map_view_layout->setSpacing(0);
 
     for (int row = 0; row < MAX_ROWS_MAPVIEW; ++row) {
-        for (int col = 0; col < MAX_COLUMNS_MAPVIEW; ++col) {
+        for (int col = 0; col < MAX_COLS_MAPVIEW; ++col) {
             MapViewTile* empty_tile = new MapViewTile(row, col, this->tool_group, this);
             this->map_view_layout->addWidget(empty_tile, row, col);
             connect(empty_tile, &MapViewTile::ct_spawn_set, this,
@@ -99,7 +114,7 @@ void EditorWindow::add_map_view() {
         }
     }
 
-    this->main_layout->addLayout(this->map_view_layout);
+    map_view_widget->setLayout(this->map_view_layout);
 }
 
 void EditorWindow::add_tool_bar(QVBoxLayout* sidebar_layout) {
@@ -135,7 +150,14 @@ void EditorWindow::add_tool_bar(QVBoxLayout* sidebar_layout) {
 
     QAction* clear_map = toolbar->addAction(QIcon(":/resources/clear_icon.png"), "Clear Map");
     clear_map->setCheckable(false);
-    connect(clear_map, &QAction::triggered, this, &EditorWindow::clear_map_view);
+    connect(clear_map, &QAction::triggered, this, [this]() {
+        QMessageBox::StandardButton reply =
+                QMessageBox::question(this, "Clear Map", "Are you sure you want to clear the map?",
+                                      QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            this->clear_map_view();
+        }
+    });
 
     sidebar_layout->addWidget(toolbar);
 }
@@ -324,13 +346,13 @@ void EditorWindow::write_yaml(YAML::Node& map_data) {
     map_data["width"] = MAX_COLS_MAPVIEW;
     map_data["tiles"] = YAML::Node(YAML::NodeType::Sequence);
 
-    int left = MAX_COLUMNS_MAPVIEW - 1;
+    int left = MAX_COLS_MAPVIEW - 1;
     int top = MAX_ROWS_MAPVIEW - 1;
     int right = 0;
     int bottom = 0;
 
     for (int i = 0; i < MAX_ROWS_MAPVIEW; ++i) {
-        for (int j = 0; j < MAX_COLUMNS_MAPVIEW; ++j) {
+        for (int j = 0; j < MAX_COLS_MAPVIEW; ++j) {
             const MapViewTile* map_view_tile = static_cast<MapViewTile*>(
                     this->map_view_layout->itemAtPosition(i, j)->widget());
             if (map_view_tile->has_tile()) {
@@ -425,7 +447,7 @@ void EditorWindow::read_map_error_dialog(const std::string& error_message) {
 
 void EditorWindow::clear_map_view() {
     for (int i = 0; i < MAX_ROWS_MAPVIEW; ++i) {
-        for (int j = 0; j < MAX_COLUMNS_MAPVIEW; ++j) {
+        for (int j = 0; j < MAX_COLS_MAPVIEW; ++j) {
             MapViewTile* map_view_tile = static_cast<MapViewTile*>(
                     this->map_view_layout->itemAtPosition(i, j)->widget());
             map_view_tile->clear_tile();
