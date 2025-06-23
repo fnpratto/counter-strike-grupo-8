@@ -179,11 +179,20 @@ if(TALLER_SERVER)
 endif()
 
 if(TALLER_EDITOR)
+    include(FetchContent)
+    FetchContent_Declare(
+        yaml-cpp
+        GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+        GIT_TAG 0.8.0
+    )
+
+    FetchContent_MakeAvailable(yaml-cpp)
+
     # HEY!! TODO XXX: Change the name of the executable to the one you like!
     add_executable(taller_editor)
 
     # Make them depend on taller_common lib
-    add_dependencies(taller_editor taller_common SDL2pp::SDL2pp)
+    add_dependencies(taller_editor taller_common)
 
     # Add source files and enable warnings
     # HEY!! TODO XXX: add more subfolders here
@@ -197,10 +206,10 @@ if(TALLER_EDITOR)
     # Link the taller_common lib target
     target_link_libraries(taller_editor
         taller_common
-        SDL2pp::SDL2pp
         Qt5::Core
         Qt5::Widgets
         Qt5::Gui
+        yaml-cpp::yaml-cpp
     )
 endif()
 

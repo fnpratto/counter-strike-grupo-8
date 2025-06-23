@@ -80,18 +80,19 @@ public:
  * @brief Response containing the origin and hit position and direction of a hit.
  */
 class HitResponse {
-    Vector2D origin;
+    std::string player_name;  // player who made the hit
+    ItemSlot item_slot;       // slot of the item used to make the hit
     Vector2D hit_pos;
-    Vector2D hit_dir;
     bool hit;
 
 public:
-    HitResponse(const Vector2D& origin, const Vector2D& hit_pos, const Vector2D& dir, bool hit):
-            origin(origin), hit_pos(hit_pos), hit_dir(dir), hit(hit) {}
+    HitResponse(const std::string& player_name, ItemSlot item_slot, const Vector2D& hit_pos,
+                bool hit):
+            player_name(player_name), item_slot(item_slot), hit_pos(hit_pos), hit(hit) {}
 
-    Vector2D get_origin() const { return origin; }
+    std::string get_player_name() const { return player_name; }
+    ItemSlot get_item_slot() const { return item_slot; }
     Vector2D get_hit_pos() const { return hit_pos; }
-    Vector2D get_hit_dir() const { return hit_dir; }
     bool is_hit() const { return hit; }
 };
 

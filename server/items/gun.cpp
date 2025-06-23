@@ -37,17 +37,22 @@ void Gun::add_mag() {
     state.set_reserve_ammo(state.get_reserve_ammo() + gun_config.bullets_per_mag);
 }
 
-void Gun::start_attacking() { state.set_is_attacking(true); }
+void Gun::start_attacking(TimePoint now) {
+    if (!can_attack(gun_config.attack_rate, now))
+        return;
+    state.set_is_attacking(true);
+}
 
 void Gun::reload() {
-    int bullets_to_reload = gun_config.bullets_per_mag - state.get_mag_ammo();
+    int bullets_to_reload =
+            std::min(gun_config.bullets_per_mag - state.get_mag_ammo(), state.get_reserve_ammo());
     state.set_mag_ammo(state.get_mag_ammo() + bullets_to_reload);
     state.set_reserve_ammo(state.get_reserve_ammo() - bullets_to_reload);
 }
 
 std::vector<AttackEffect> Gun::attack(const Vector2D& origin, const Vector2D& dir, TimePoint now) {
     std::vector<AttackEffect> effects;
-    if (!is_attacking() || !has_ammo() || !can_attack(gun_config.attack_rate, now))
+    if (!is_attacking())
         return effects;
 
     int bullets = get_bullets_ready_to_fire(now);
@@ -63,7 +68,7 @@ std::vector<AttackEffect> Gun::attack(const Vector2D& origin, const Vector2D& di
         burst_bullets_fired++;
     }
 
-    if (burst_bullets_fired == gun_config.bullets_per_attack) {
+    if (!has_ammo() || burst_bullets_fired == gun_config.bullets_per_attack) {
         state.set_is_attacking(false);
         burst_bullets_fired = 0;
     }
@@ -104,6 +109,7 @@ void Gun::decrease_mag_ammo() {
 }
 
 void Gun::reset() {
-    time_last_attack = TimePoint::min();
+    time_last_attack = TimePoint();
+    burst_bullets_fired = 0;
     state.set_is_attacking(false);
 }

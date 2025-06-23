@@ -1,51 +1,45 @@
 #include "sdl_item.h"
 
+#include <iostream>
 
-SdlItem::SdlItem(SdlWindow& window, const GameUpdate& game_state, const SdlCamera& camera):
-        window(window),
-        awp_t(std::string(GameConfig::Paths::AWP_ITEM_PATH), window),
-        m3_t(std::string(GameConfig::Paths::M3_ITEM_PATH), window),
-        ak_t(std::string(GameConfig::Paths::AK_ITEM_PATH), window),
-        bomb_t(std::string(GameConfig::Paths::BOMB_ITEM_PATH), window),
-        bomb_planted_t(std::string(GameConfig::Paths::BOMB_PLANTED_ITEM_PATH), window),
-        game_state(game_state),
-        camera(camera) {}
+#include "client/game_config.h"
+#include "common/utils/vector_2d.h"
 
-void SdlItem::render() {
+SdlItem::SdlItem(const SdlWindow& w): window(w) {
+    gun_textures[GunType::AK47] =
+            std::make_unique<SdlTexture>(std::string(AK47_PATH), window, 32, 32);
+    gun_textures[GunType::M3] = std::make_unique<SdlTexture>(std::string(M3_PATH), window, 32, 32);
+    gun_textures[GunType::Glock] =
+            std::make_unique<SdlTexture>(std::string(GLOCK_PATH), window, 32, 32);
+    gun_textures[GunType::AWP] =
+            std::make_unique<SdlTexture>(std::string(AWP_PATH), window, 32, 32);
 
-    if (game_state.get_bomb().has_value()) {
-        const auto& bomb = game_state.get_bomb().value();
-        Vector2D pos = bomb.hitbox.get_pos();
-        Area origin(0, 0, 24, 24);
-        Vector2D pos_cam = camera.get_screen_pos(pos);
-        Area dest(pos_cam.get_x(), pos_cam.get_y(), 32, 32);
-        if (camera.can_see(pos_cam))
-            bomb_t.render(origin, dest);
+    knife_texture = std::make_unique<SdlTexture>(std::string(KNIFE_PATH), window, 32, 32);
+    bomb_texture = std::make_unique<SdlTexture>(std::string(BOMB_PATH), window, 32, 32);
+}
+
+void SdlItem::render_gun(GunType gun_type, Vector2D pos, float angle) {
+    auto it = gun_textures.find(gun_type);
+    if (it != gun_textures.end()) {
+        it->second->render(pos.get_x(), pos.get_y(), angle);
+    } else {
+        std::cerr << "Error: Invalid gun type passed to SdlItem::render_gun: "
+                  << static_cast<int>(gun_type) << std::endl;
     }
+}
 
-    if (game_state.get_bomb().has_value() &&
-        game_state.get_bomb().value().item.get_bomb_phase() == BombPhaseType::Planted) {
-        const auto& bomb = game_state.get_bomb().value();
-        Vector2D pos = bomb.hitbox.get_pos();
-        Area origin(0, 0, 24, 24);
-        Vector2D pos_cam = camera.get_screen_pos(pos);
-        Area dest(pos_cam.get_x(), pos_cam.get_y(), 32, 32);
-        if (camera.can_see(pos_cam))
-            bomb_planted_t.render(origin, dest);
+void SdlItem::render_knife(Vector2D pos, float angle) {
+    if (knife_texture) {
+        knife_texture->render(pos.get_x(), pos.get_y(), angle);
+    } else {
+        std::cerr << "Error: Knife texture not loaded in SdlItem::render_knife." << std::endl;
     }
-    for (const auto& [gun_type, gun_item]: game_state.get_dropped_guns()) {
-        Vector2D pos = gun_item.get_pos();
-        if (!camera.can_see(pos))
-            return;
-        Vector2D pos_cam = camera.get_screen_pos(pos);
-        Area dest(pos_cam.get_x(), pos_cam.get_y(), 32, 32);
-        Area origin(10, 0, 54, 32);
-        if (gun_type == GunType::AWP) {
-            awp_t.render(origin, dest);
-        } else if (gun_type == GunType::M3) {
-            m3_t.render(origin, dest);
-        } else if (gun_type == GunType::AK47) {
-            ak_t.render(origin, dest);
-        }
+}
+
+void SdlItem::render_bomb(Vector2D pos, float angle) {
+    if (bomb_texture) {
+        bomb_texture->render(pos.get_x(), pos.get_y(), angle);
+    } else {
+        std::cerr << "Error: Bomb texture not loaded in SdlItem::render_bomb." << std::endl;
     }
 }

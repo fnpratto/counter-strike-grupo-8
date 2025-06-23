@@ -13,7 +13,8 @@ public:
     virtual void handle_start_moving([[maybe_unused]] Player& player,
                                      [[maybe_unused]] const Vector2D& velocity) {}
     virtual void handle_stop_moving([[maybe_unused]] Player& player) {}
-    virtual void handle_start_attacking([[maybe_unused]] Player& player) {}
+    virtual void handle_start_attacking([[maybe_unused]] Player& player,
+                                        [[maybe_unused]] TimePoint now) {}
     virtual void handle_switch_item([[maybe_unused]] Player& player,
                                     [[maybe_unused]] ItemSlot slot) {}
     virtual void handle_start_planting([[maybe_unused]] Player& player,

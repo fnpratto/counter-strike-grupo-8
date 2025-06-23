@@ -247,24 +247,20 @@ void SDLDisplay::update_state() {
                 const ShopPricesResponse& response = msg.get_content<ShopPricesResponse>();
                 shop_display->updateShopState(true);
                 shop_display->updatePrices(response);
-                std::cout << "Updated shop prices" << std::endl;
                 break;
             }
             case MessageType::SCOREBOARD_RESP: {
-                std::cout << "Received ScoreboardResponse" << std::endl;
                 auto scoreboard = msg.get_content<ScoreboardResponse>().get_scoreboard();
                 score_display->updateScoreboard(scoreboard);
                 score_display->updateState();
                 break;
             }
             case MessageType::HIT_RESP: {
-                std::cout << "Received Hit response" << std::endl;
                 auto hit = msg.get_content<HitResponse>();
-                world->handleHit(hit.get_origin(), hit.get_hit_pos(), hit.get_hit_dir(),
-                                 hit.is_hit());
                 if (hit.is_hit()) {
                     sound_manager.play("hit");
                 }
+                world->handle_hit(std::move(hit));
                 break;
             }
             case MessageType::ROUND_END_RESP: {
@@ -286,6 +282,7 @@ void SDLDisplay::update_state() {
                 break;
             }
             case MessageType::ERROR_RESP: {
+                const ErrorResponse& error = msg.get_content<ErrorResponse>();
                 sound_manager.play("error");
                 break;
             }
