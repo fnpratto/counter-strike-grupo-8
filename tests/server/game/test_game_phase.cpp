@@ -6,9 +6,10 @@
 #include "common/updates/inventory_update.h"
 #include "common/updates/phase_update.h"
 #include "common/updates/player_update.h"
-#include "server/clock/mock_clock.h"
 #include "server/game/game_config.h"
 #include "server/game/game_phase.h"
+
+#include "mock_clock.h"
 
 class TestGamePhase: public ::testing::Test {
 protected:
