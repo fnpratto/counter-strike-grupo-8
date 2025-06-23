@@ -24,6 +24,7 @@ private:
     int screen_width;
     int screen_height;
     Vector2D position;
+    float field_of_view;
 
 public:
     SdlCamera(int screen_width, int screen_height);
@@ -34,5 +35,7 @@ public:
     bool can_see(const Vector2D& pos) const;
 
     bool can_see(const Tile& obj) const;
+
+    Vector2D get_position() const { return position; }
 };
 #endif  // CAMERA_H

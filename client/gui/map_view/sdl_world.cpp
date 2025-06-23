@@ -31,7 +31,9 @@ SdlWorld::SdlWorld(SdlWindow& window, Map&& map, const GameUpdate& game_state,
         camera(window.getWidth(), window.getHeight()),
         map(window, camera, std::move(map)),
         bullet(window),
-        items(window, game_state, camera) {
+        items(window, game_state, camera),
+        field_of_view(window, 1000.0f),
+        background(BACKGROUND_PATH, window) {
     for (const auto& [name, player_update]: game_state.get_players()) {
         players.emplace(name, std::make_unique<SdlPlayer>(window, camera, game_state, name));
     }
@@ -56,7 +58,15 @@ void SdlWorld::addBulletInfo(const Vector2D& origin, const Vector2D& hit, const 
     }
 }
 
+void SdlWorld::renderBackground() {
+
+    const Area& src = Area(0, 0, 500, 300);
+    const Area& dest = Area(0, 0, window.getWidth() + 100, window.getHeight());
+    background.render(src, dest);
+}
+
 void SdlWorld::render() {
+    // renderBackground();
     camera.center(game_state.get_players().at(player_name).get_pos());
 
     map.render();
@@ -77,4 +87,14 @@ void SdlWorld::render() {
         bullet.render(info.origin, info.hit_pos, info.hit_dir, info.is_hit, info.is_knife);
     }
     bullets_info.clear();
+
+    auto aim_direction = game_state.get_players().at(player_name).get_aim_direction();
+    float angle;
+    if (aim_direction != Vector2D(0, 0)) {
+        angle = std::atan2(aim_direction.get_y(), aim_direction.get_x()) * 180 / M_PI;
+        angle += 90.0f;
+    } else {
+        angle = 0.0f;
+    }
+    field_of_view.render(window.getWidth(), window.getHeight(), angle);
 }

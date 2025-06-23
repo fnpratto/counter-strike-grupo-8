@@ -17,6 +17,7 @@
 #include "common/map/map.h"
 #include "common/updates/game_update.h"
 
+#include "field_of_view.h"
 #include "sdl_bullet.h"
 #include "sdl_camera.h"
 #include "sdl_item.h"
@@ -34,7 +35,7 @@ struct BulletInfo {
 
 class SdlWorld {
 private:
-    static constexpr const char* BACKGROUND_PATH = "../assets/gfx/tiles/dust.bmp";
+    static constexpr const char* BACKGROUND_PATH = "../assets/gfx/listTeams/rectanguloxcf.xcf";
     SdlWindow& window;
     const GameUpdate& game_state;
     const std::string& player_name;
@@ -44,17 +45,17 @@ private:
     SdlBullet bullet;
     std::vector<BulletInfo> bullets_info;
     SdlItem items;
+    FieldOfView field_of_view;
+    SdlTexture background;
 
     void addBulletInfo(const Vector2D& origin, const Vector2D& hit, const Vector2D& dir,
                        bool is_hit, bool is_melee);
-    Map build_default_map();
-
-    // SdlTexture background;  // TODO: Load a background texture
 
 public:
     SdlWorld(SdlWindow& window, Map&& map, const GameUpdate& game_state,
              const std::string& player_name);
 
     void render();
+    void renderBackground();
     void handleHit(Vector2D get_origin, Vector2D get_hit_pos, Vector2D get_hit_dir, bool is_hit);
 };

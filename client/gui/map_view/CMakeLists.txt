@@ -7,6 +7,7 @@ target_sources(taller_client
     sdl_gun.cpp
     sdl_bullet.cpp
     sdl_item.cpp
+    field_of_view.cpp
 
     PUBLIC
     sdl_camera.h
@@ -17,4 +18,5 @@ target_sources(taller_client
     sdl_gun.h
     sdl_bullet.h
     sdl_item.h
+    field_of_view.h
 )
