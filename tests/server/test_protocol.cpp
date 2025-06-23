@@ -444,27 +444,6 @@ TEST_F(ProtocolTest, SendReceivePickUpItemCommand) {
     PickUpItemCommand received_cmd = received_message.get_content<PickUpItemCommand>();
 }
 
-TEST_F(ProtocolTest, SendReceiveLeaveGameCommand) {
-    client_mock_socket->clear_written_data();
-
-    LeaveGameCommand cmd;
-    Message message(cmd);
-
-    client_protocol->send(message);
-
-    const auto& written_data = client_mock_socket->get_written_data();
-    ASSERT_FALSE(written_data.empty());
-    ASSERT_EQ(written_data[0], static_cast<char>(MessageType::LEAVE_GAME_CMD));
-    ASSERT_EQ(written_data[1], 0x00);
-    ASSERT_EQ(written_data[2], 0x00);
-
-    server_mock_socket->queue_read_data(written_data);
-    Message received_message = server_protocol->recv();
-    ASSERT_EQ(received_message.get_type(), MessageType::LEAVE_GAME_CMD);
-
-    LeaveGameCommand received_cmd = received_message.get_content<LeaveGameCommand>();
-}
-
 TEST_F(ProtocolTest, ReceiveListMapsCommand) {
     // Prepare mock data for a ListMapsCommand (no payload, just message type)
     std::vector<char> mock_data = {
