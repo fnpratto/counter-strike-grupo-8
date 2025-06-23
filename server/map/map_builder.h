@@ -6,10 +6,6 @@
 
 #include "common/map/map.h"
 
-// TODO: Make MapBuilder build specific maps such as
-//       DesertMapBuilder, AztecMapBuilder, and
-//       TrainingMapBuilder from YAML files.
-
 class MapBuilder {
 private:
     std::string filename;
