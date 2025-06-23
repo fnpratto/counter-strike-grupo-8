@@ -183,7 +183,7 @@ void EditorWindow::add_tile_buttons() {
     int row = 0;
     int col = 0;
 
-    QFileInfoList tile_sheets_files = this->get_tile_sheets_files("common/tile_sheets");
+    QFileInfoList tile_sheets_files = this->get_tile_sheets_files("assets/tile_sheets");
 
     if (tile_sheets_files.isEmpty()) {
         return;
@@ -225,7 +225,7 @@ QFileInfoList EditorWindow::get_tile_sheets_files(const QString& path) {
 QPixmap EditorWindow::get_tile_image(const QString& resource_path, const int& x, const int& y,
                                      const int& size) {
     QPixmap tile_image(resource_path);
-    return tile_image.copy(y * size, x * size, size, size);
+    return tile_image.copy(x * size, y * size, size, size);
 }
 
 void EditorWindow::add_map_name_input(QVBoxLayout* sidebar_layout) {
@@ -405,7 +405,7 @@ void EditorWindow::read_yaml(const YAML::Node& map_data) {
             tile.is_bomb_site = tile_data["is_bomb_site"].as<bool>();
 
             MapViewTile* map_view_tile = static_cast<MapViewTile*>(
-                    this->map_view_layout->itemAtPosition(x, y)->widget());
+                    this->map_view_layout->itemAtPosition(y, x)->widget());
             map_view_tile->set_tile(tile);
         } else {
             this->read_map_error_dialog("Invalid tile data format.");
