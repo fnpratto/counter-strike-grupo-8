@@ -11,7 +11,7 @@ Map::Map(const std::string& name, int max_players, int height, int width):
         max_players(max_players),
         height(height),
         width(width),
-        tiles(height, std::vector<std::optional<Tile>>(width)) {}
+        tiles(width, std::vector<std::optional<Tile>>(height)) {}
 
 std::string Map::get_name() const { return name; }
 
