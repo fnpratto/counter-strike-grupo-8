@@ -173,11 +173,6 @@ payload_t ClientProtocol::serialize_msg([[maybe_unused]] const PickUpItemCommand
     return payload_t();
 }
 
-template <>
-payload_t ClientProtocol::serialize_msg([[maybe_unused]] const LeaveGameCommand& cmd) const {
-    return payload_t();
-}
-
 #define SERIALIZE_MSG(command, msg_type) \
     case MessageType::msg_type:          \
         return serialize_msg(message.get_content<command>());

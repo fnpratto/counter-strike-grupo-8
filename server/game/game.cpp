@@ -390,13 +390,6 @@ void Game::handle<PickUpItemCommand>(const std::string& player_name,
     }
 }
 
-// TODO: Implement
-template <>
-void Game::handle<LeaveGameCommand>(const std::string& player_name,
-                                    [[maybe_unused]] const LeaveGameCommand& msg) {
-    (void)player_name;
-}
-
 #define HANDLE_MSG(command, msg_type)                    \
     case MessageType::msg_type:                          \
         handle(player_name, msg.get_content<command>()); \
