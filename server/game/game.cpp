@@ -144,7 +144,7 @@ void Game::perform_attacks() {
             if (state.get_phase().is_playing() && !state.get_phase().is_buying_phase())
                 is_hit = apply_attack_effect(player, attack_effect.effect, closest_target.value());
 
-            hit_responses.emplace_back(player_name, item_slot, closest_target.value().get_pos(),
+            hit_responses.emplace_back(player_name, item_slot, closest_target.value().get_hit_pos(),
                                        is_hit);
         }
     }
