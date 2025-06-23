@@ -26,8 +26,6 @@
 
 class SdlWorld {
 private:
-    static constexpr const char* BACKGROUND_PATH = "../assets/gfx/tiles/dust.bmp";
-
     const SdlWindow& window;
     const GameUpdate& game_state;
     const std::string& player_name;
