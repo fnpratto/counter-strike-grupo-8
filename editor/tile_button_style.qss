@@ -1,0 +1,15 @@
+QPushButton {
+    border: none;
+}
+
+QPushButton:checked {
+    border: 2px solid #cccccc;
+}
+
+QPushButton:hover {
+    border: 2px solid #888888;
+}
+
+QPushButton:checked:hover {
+    border: 2px solid #ffffff;
+}

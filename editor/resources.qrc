@@ -1,0 +1,12 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource>
+        <file alias="resources/counter_strike.ttf">../assets/gfx/fonts/counter_strike.ttf</file>
+        <file alias="resources/cs2d.bmp">../assets/gfx/cs2d.bmp</file>
+        <file alias="resources/ct_icon.png">../assets/gfx/editor/ct_icon.png</file>
+        <file alias="resources/t_icon.png">../assets/gfx/editor/t_icon.png</file>
+        <file alias="resources/c4_icon.png">../assets/gfx/editor/c4_icon.png</file>
+        <file alias="resources/clear_icon.png">../assets/gfx/editor/clear_icon.png</file>
+        <file alias="styles/tile_button_style.qss">tile_button_style.qss</file>
+    </qresource>
+</RCC>
