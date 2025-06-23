@@ -8,6 +8,7 @@ target_sources(taller_client
     sdl_bullet.cpp
     sdl_knife_slash.cpp
     sdl_world_item.cpp
+    sdl_tile.cpp
 
     PUBLIC
     sdl_camera.h
