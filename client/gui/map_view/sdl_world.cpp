@@ -66,7 +66,7 @@ void SdlWorld::renderBackground() {
 }
 
 void SdlWorld::render() {
-    // renderBackground();
+    renderBackground();
     camera.center(game_state.get_players().at(player_name).get_pos());
 
     map.render();

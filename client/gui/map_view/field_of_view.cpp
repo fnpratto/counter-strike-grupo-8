@@ -22,9 +22,6 @@ void FieldOfView::render(int screen_width, int screen_height, float angle) {
     SDL_Rect dst_rect = {0, 0, 4900, 3800};
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    // int i = original_mask_size / screen_width;
-    // int j = original_mask_size / screen_height;
-    //  Render the mask with rotation
     mask.render(0, 0, screen_width, screen_height, &dst_rect, angle,
                 &center,  // Rotation center relative to the texture
                 SDL_FLIP_NONE);
