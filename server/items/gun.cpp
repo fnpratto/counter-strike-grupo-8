@@ -44,7 +44,8 @@ void Gun::start_attacking(TimePoint now) {
 }
 
 void Gun::reload() {
-    int bullets_to_reload = gun_config.bullets_per_mag - state.get_mag_ammo();
+    int bullets_to_reload =
+            std::min(gun_config.bullets_per_mag - state.get_mag_ammo(), state.get_reserve_ammo());
     state.set_mag_ammo(state.get_mag_ammo() + bullets_to_reload);
     state.set_reserve_ammo(state.get_reserve_ammo() - bullets_to_reload);
 }
