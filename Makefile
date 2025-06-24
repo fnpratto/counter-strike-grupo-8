@@ -18,14 +18,14 @@ install-deps:
 		qtbase5-dev \
 		qtbase5-dev-tools \
 		qt5-qmake; do \
-			dpkg -s $$pkg >/dev/null 2>&1 || apt install -y $$pkg; \
+			dpkg -s $$pkg >/dev/null 2>&1 || sudo apt install -y $$pkg; \
 	done
 
 export PATH := $(HOME)/.local/bin:$(PATH)
 
 install-path:
-	@echo "Installing to /usr/local/bin"
-	@mkdir -p /usr/local/bin
+	@echo "Installing to ~/.local/bin"
+	@mkdir -p ~/.local/bin
 	@[ ! -L ~/.local/bin/taller_client ] && ln -s "$(realpath ./build/taller_client)" ~/.local/bin/taller_client || true
 	@[ ! -L ~/.local/bin/taller_server ] && ln -s "$(realpath ./build/taller_server)" ~/.local/bin/taller_server || true
 	@[ ! -L ~/.local/bin/taller_editor ] && ln -s "$(realpath ./build/taller_editor)" ~/.local/bin/taller_editor || true
