@@ -31,6 +31,7 @@ SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue
         shop_display(nullptr),
         world(nullptr),
         end_round_display(nullptr),
+        hud_display(nullptr),
         sound_manager(),
         current_phase(PhaseType::WarmUp) {
     SCREEN_WIDTH = 1200;
@@ -77,7 +78,7 @@ void SDLDisplay::run() {
     setup();
     load_audio();
     SdlWindow window(SCREEN_WIDTH, SCREEN_HEIGHT);
-    SdlHud hud_display(window, state, player_name);
+    hud_display = std::make_unique<SdlHud>(window, state, player_name);
     shop_display = std::make_unique<shopDisplay>(window, state);
     Map map = get_map();
     world = std::make_unique<SdlWorld>(window, std::move(map), state, player_name);
@@ -88,9 +89,9 @@ void SDLDisplay::run() {
     input_handler = std::make_unique<SDLInput>(
             quit_flag,
             MouseHandler(output_queue, SCREEN_WIDTH, SCREEN_HEIGHT, list_teams, *shop_display,
-                         hud_display, list_skins),
+                         *hud_display, list_skins),
             KeyboardHandler(output_queue, *shop_display, *score_display, sound_manager,
-                            hud_display));
+                            *hud_display));
     end_round_display = std::make_unique<EndRoundDisplay>(window, state);
     input_handler->start();
 
@@ -110,19 +111,19 @@ void SDLDisplay::run() {
                 list_skins.render();
             } else {
                 world->render();
-                hud_display.render();
+                hud_display->render();
             }
         } else if (state.get_phase().get_type() == PhaseType::Buying) {
             world->render();
-            hud_display.render();
+            hud_display->render();
             shop_display->render();
         } else if (state.get_phase().get_type() == PhaseType::InRound) {
             shop_display->updateShopState(false);
             world->render();
-            hud_display.render();
+            hud_display->render();
         } else if (state.get_phase().get_type() == PhaseType::RoundEnd) {
             world->render();
-            hud_display.render();
+            hud_display->render();
             end_round_display->render();
         }
 
@@ -272,6 +273,7 @@ void SDLDisplay::update_state() {
                 } else if (winner == Team::CT) {
                     sound_manager.play("ct_win");
                 }
+                hud_display->update_winner(winner);
                 end_round_display->update_winner_team(winner);
                 break;
             }

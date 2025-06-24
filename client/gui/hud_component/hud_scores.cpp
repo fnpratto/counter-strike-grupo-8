@@ -49,7 +49,7 @@ void HudScores::render_team_scores() {
                              paral_height);
     parallelogram_blue.render(src_parallelogram1, dest_parallelogram1);
 
-    score_text.setTextString(std::to_string(0));  // TODO : Replace with actual score
+    score_text.setTextString(std::to_string(score_ct));  // TODO : Replace with actual score
     score_text.render(Area(trapecio_x - paral_width / 4 + margin * 6, layout.padding * 3,
                            layout.size_width / 1.75, layout.size_height / 2));
 
@@ -59,7 +59,7 @@ void HudScores::render_team_scores() {
                             paral_height);
     parallelogram_red.render(src_parallelogram, dest_parallelogram);
 
-    score_text.setTextString(std::to_string(0));  // TODO : Replace with actual score
+    score_text.setTextString(std::to_string(score_tt));  // TODO : Replace with actual score
     score_text.render(
             Area(trapecio_x + trapecio_width + margin + paral_width / 2 - layout.size_width / 4,
                  layout.padding * 3, layout.size_width / 1.75, layout.size_height / 2));
@@ -83,3 +83,11 @@ void HudScores::render_mute_icon() {
 }
 
 void HudScores::update_mute_icon() { is_muted = !is_muted; }
+
+void HudScores::update__winner_score(Team winner) {
+    if (winner == Team::CT) {
+        score_ct++;
+    } else if (winner == Team::TT) {
+        score_tt++;
+    }
+}

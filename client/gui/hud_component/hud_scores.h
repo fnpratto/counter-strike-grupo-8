@@ -18,12 +18,15 @@ private:
     SdlTexture parallelogram_red;
     const HudLayout& layout;
     bool is_muted = false;
+    int score_ct = 0;
+    int score_tt = 0;
 
 public:
     explicit HudScores(SdlWindow& window, const HudLayout& layout);
     void render(const GameUpdate& state);
     void render_mute_icon();
     void update_mute_icon();
+    void update__winner_score(Team winner);
 
 private:
     void render_background();
