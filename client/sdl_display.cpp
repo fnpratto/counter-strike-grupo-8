@@ -142,7 +142,7 @@ void SDLDisplay::run() {
 void SDLDisplay::load_audio() {
     sound_manager.load_music("menu", std::string(GameConfig::Paths::MENU_MUSIC_PATH).c_str());
     sound_manager.load_music("background", std::string(GameConfig::Paths::GAME_MUSIC_PATH).c_str());
-    sound_manager.set_volume(0.8f);
+    sound_manager.set_volume(0.5f);
     sound_manager.load_sound("ct_win", std::string(GameConfig::Paths::CT_WIN_SOUND_PATH).c_str());
     sound_manager.load_sound("tt_win", std::string(GameConfig::Paths::TT_WIN_SOUND_PATH).c_str());
     sound_manager.load_sound("item_pick",
