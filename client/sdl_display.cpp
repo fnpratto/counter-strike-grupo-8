@@ -142,6 +142,10 @@ void SDLDisplay::run() {
 void SDLDisplay::load_audio() {
     sound_manager.load_music("menu", std::string(GameConfig::Paths::MENU_MUSIC_PATH).c_str());
     sound_manager.load_music("background", std::string(GameConfig::Paths::GAME_MUSIC_PATH).c_str());
+    sound_manager.load_music("inround_backround",
+                             std::string(GameConfig::Paths::IN_GAME_MUSIC_PATH).c_str());
+    sound_manager.load_music("planted_background",
+                             std::string(GameConfig::Paths::PLANTED_GAME_MUSIC_PATH).c_str());
     sound_manager.set_volume(0.5f);
     sound_manager.load_sound("ct_win", std::string(GameConfig::Paths::CT_WIN_SOUND_PATH).c_str());
     sound_manager.load_sound("tt_win", std::string(GameConfig::Paths::TT_WIN_SOUND_PATH).c_str());
@@ -150,20 +154,15 @@ void SDLDisplay::load_audio() {
     sound_manager.load_sound("recharge",
                              std::string(GameConfig::Paths::RECHARGE_SOUND_PATH).c_str());
     sound_manager.load_sound("hit", std::string(GameConfig::Paths::HIT_SOUND_PATH).c_str());
-    sound_manager.load_sound(
-            "bomb_planted",
-            std::string(GameConfig::Paths::BOMB_PLANTED_SOUND_PATH).c_str());  // TODO
-    sound_manager.load_sound(
-            "bomb_defused",
-            std::string(GameConfig::Paths::BOMB_DEFUSED_SOUND_PATH).c_str());  // TODO
+    sound_manager.load_sound("bomb_planted",
+                             std::string(GameConfig::Paths::BOMB_PLANTED_SOUND_PATH).c_str());
 
     sound_manager.load_sound("switch_teams",
                              std::string(GameConfig::Paths::SWITCH_TEAMS_SOUND_PATH).c_str());
     sound_manager.load_sound("error", std::string(GameConfig::Paths::ERROR_SOUND_PATH).c_str());
 
-    sound_manager.load_sound(
-            "bomb_exploded",
-            std::string(GameConfig::Paths::BOMB_EXPLODED_SOUND_PATH).c_str());  // TODO
+    sound_manager.load_sound("bomb_exploded",
+                             std::string(GameConfig::Paths::BOMB_EXPLODED_SOUND_PATH).c_str());
 }
 
 void SDLDisplay::stop() {
@@ -190,15 +189,23 @@ void SDLDisplay::update_music() {
                 sound_manager.play_music("menu", -1);
                 break;
             case PhaseType::Buying:
-            case PhaseType::InRound:
-            case PhaseType::BombPlanted:
                 sound_manager.play_music("background", -1);
+                break;
+            case PhaseType::InRound:
+                sound_manager.play_music("inround_backround", -1);
+                break;
+            case PhaseType::BombPlanted:
+                sound_manager.play_music("planted_background", -1);
                 break;
 
             default:
                 std::cerr << "SDLDisplay::update_music: Unhandled phase type: "
                           << static_cast<int>(new_phase) << std::endl;
                 break;
+        }
+
+        if (current_phase == PhaseType::InRound && new_phase == PhaseType::BombPlanted) {
+            sound_manager.play("bomb_planted");
         }
 
         current_phase = new_phase;

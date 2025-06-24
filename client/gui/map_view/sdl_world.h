@@ -50,8 +50,8 @@ public:
 
     void render();
     void renderBackground();
-    std::optional<Message> getStartBombMessage(SoundManager& sound_manager);
-    std::optional<Message> getStopBombMessage(SoundManager& sound_manager);
+    std::optional<Message> getStartBombMessage();
+    std::optional<Message> getStopBombMessage();
     void handle_hit(HitResponse&& hit);
     float get_rotation(const PlayerUpdate& player_state);
 };

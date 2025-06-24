@@ -19,6 +19,7 @@ private:
     SdlTexture m3_t;
     SdlTexture ak_t;
     SdlTexture bomb_t;
+    SdlTexture bomb_plated;
     const GameUpdate& game_state;
     const SdlCamera& camera;
 
@@ -26,4 +27,6 @@ public:
     explicit SdlWorldItem(const SdlWindow& window, const GameUpdate& game_state,
                           const SdlCamera& camera);
     void render();
+    void render_bomb();
+    void render_dropped_guns();
 };
