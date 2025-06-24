@@ -14,6 +14,7 @@
 #include "common/utils/vector_2d.h"
 
 class SdlItem {
+
     static constexpr std::string_view AK47_PATH = "../assets/gfx/guns/ak47.xcf";
     static constexpr std::string_view M3_PATH = "../assets/gfx/guns/m3.xcf";
     static constexpr std::string_view GLOCK_PATH = "../assets/gfx/guns/glock.xcf";
@@ -25,6 +26,7 @@ class SdlItem {
     std::unordered_map<GunType, std::unique_ptr<SdlTexture>> gun_textures;
     std::unique_ptr<SdlTexture> knife_texture;
     std::unique_ptr<SdlTexture> bomb_texture;
+
 
 public:
     explicit SdlItem(const SdlWindow& window);

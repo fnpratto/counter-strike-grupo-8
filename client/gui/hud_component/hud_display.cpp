@@ -58,5 +58,5 @@ void SdlHud::update_pointer_position(int x, int y) { pointer_component->update_p
 
 bool SdlHud::start_game_click(int x, int y) { return controls_component->start_game_click(x, y); }
 
-
+void SdlHud::update_winner(Team t) { scores_component->update__winner_score(t); }
 void SdlHud::update_mute_icon() { scores_component->update_mute_icon(); }

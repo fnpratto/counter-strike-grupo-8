@@ -57,12 +57,24 @@ void SdlTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* c
 
 void SdlTexture::render(int x, int y, double angle) { render(x, y, nullptr, angle); }
 
+
+void SdlTexture::render(const Area& src, const Area& dest, double angle) const {
+    SDL_Rect sdlSrc = {src.getX(), src.getY(), src.getWidth(), src.getHeight()};
+    SDL_Rect sdlDest = {dest.getX(), dest.getY(), dest.getWidth(), dest.getHeight()};
+
+    if (SDL_RenderCopyEx(this->renderer, this->texture, &sdlSrc, &sdlDest, angle, nullptr,
+                         SDL_FLIP_NONE) != 0) {
+        std::cout << "Render failed: " << SDL_GetError() << std::endl;
+    }
+}
+
 void SdlTexture::render(int x, int y, int w, int h, SDL_Rect* clip, double angle, SDL_Point* center,
                         SDL_RendererFlip flip) {
     SDL_Rect renderQuad = {x, y, w, h};
 
     if (SDL_RenderCopyEx(this->renderer, this->texture, clip, &renderQuad, angle, center, flip) !=
         0) {
+
         std::cout << "Render failed: " << SDL_GetError() << std::endl;
     }
 }

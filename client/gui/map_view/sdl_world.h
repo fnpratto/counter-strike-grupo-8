@@ -14,6 +14,9 @@
 #include "../window_elements/area.h"
 #include "../window_elements/sdl_texture.h"
 #include "../window_elements/sdl_window.h"
+#include "client/sound_manager.h"
+#include "common/map/map.h"
+#include "common/message.h"
 #include "common/responses.h"
 #include "common/updates/game_update.h"
 
@@ -47,6 +50,8 @@ public:
 
     void render();
     void renderBackground();
+    std::optional<Message> getStartBombMessage(SoundManager& sound_manager);
+    std::optional<Message> getStopBombMessage(SoundManager& sound_manager);
     void handle_hit(HitResponse&& hit);
     float get_rotation(const PlayerUpdate& player_state);
 };

@@ -13,7 +13,8 @@
 #include "game_config.h"
 
 Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map):
-        Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.get_max_players())),
+        Logic<GameState, GameUpdate>(
+                GameState(std::move(game_clock), map.get_max_players(), map.get_guns())),
         name(name),
         physics_system(std::move(map), state.get_players(), state.get_dropped_guns(),
                        state.get_bomb()) {}
@@ -92,6 +93,7 @@ void Game::advance_bomb_logic() {
                 bomb.advance(state.get_phase().get_time_now());
                 if (!bomb.is_planted())
                     return;
+                player->handle_stop_planting(state.get_phase().get_time_now());
                 state.add_bomb(std::move(player->drop_bomb().value()), player->get_hitbox().center);
                 state.get_phase().start_bomb_planted_phase();
             }

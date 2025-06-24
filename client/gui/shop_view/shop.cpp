@@ -24,10 +24,10 @@ shopDisplay::shopDisplay(SdlWindow& window, const GameUpdate& state):
         gunNumber(std::string(GameConfig::Paths::FONT_PAT), 20, {255, 255, 255, 255}, window),
         gun_buy(-1),
         guns({{"1", "", "1000"}, {"2", "", "1500"}, {"3", "", "20"}}),
-        ammo({{"4", "", "200"},
-              {"5", "", "300"},
-              {"6", "", "400"},
-              {"7", "", "500"},
+        ammo({{"4", "AK47", "200"},
+              {"5", "M3", "300"},
+              {"6", "AWP", "400"},
+              {"7", "Glock", "500"},
               {"8", "", ""}}) {
 
     float BASE_WIDTH = 800.0f;
@@ -171,10 +171,19 @@ void shopDisplay::renderItem() {
         Area iconDest(x + 30, y, size_guns_w - 60, size_guns_h + 10);
         ammo_icons.render(src, iconDest);
 
+        // ID number
         gunNumber.setTextString(ammo[i].id);
         Area numDest(x, y - 10, 15, 15);
         gunNumber.render(numDest);
 
+        // Gun name (new line)
+        if (!ammo[i].name.empty()) {
+            cost_money.setTextString(ammo[i].name);  // You can use another font if needed
+            Area nameDest(x + 30, y + size_guns_h + 5, 100, 20);  // Positioned under the icon
+            cost_money.render(nameDest);
+        }
+
+        // Price
         if (ammo[i].price.empty()) {
             cost_money.setTextString("Not Available");
         } else {
