@@ -104,10 +104,14 @@ void Game::advance_bomb_logic() {
     }
 
     auto& bomb = state.get_bomb().value();
+    bool bomb_was_defused = bomb.item.is_defused();
     bomb.item.advance(state.get_phase().get_time_now());
 
-    if (bomb.item.is_defused())
+    if (!bomb_was_defused && bomb.item.is_defused()) {
+        for (const auto& [_, player]: state.get_players())
+            player->handle_stop_defusing(bomb.item, state.get_phase().get_time_now());
         return;
+    }
 
     if (!bomb.item.should_explode())
         return;
