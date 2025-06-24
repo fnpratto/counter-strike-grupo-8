@@ -73,7 +73,7 @@ void Bomb::advance(TimePoint now) {
         return;
 
     float new_secs_to_explode =
-            state.get_secs_to_explode() - std::chrono::duration<float>(now - plant_time).count();
+            BombConfig::secs_to_explode - std::chrono::duration<float>(now - plant_time).count();
     state.set_secs_to_explode(std::max(0.0f, new_secs_to_explode));
 }
 
