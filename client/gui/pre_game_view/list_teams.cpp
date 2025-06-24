@@ -21,6 +21,14 @@ listTeams::listTeams(SdlWindow& window, const GameUpdate& state, const std::stri
         DISPLAY_HEIGHT(window.getHeight()),
         text(TEXT_PATH, 100, {255, 255, 255, 255}, window),
         smaller_text(SMALLER_TEXT_PATH, 100, {255, 255, 255, 255}, window),
+        team_labels{{SdlText(TEXT_PATH, 100, {255, 255, 255, 255}, window),
+                     SdlText(TEXT_PATH, 100, {255, 255, 255, 255}, window)}},
+        tt_descriptions{SdlText(SMALLER_TEXT_PATH, 100, {255, 255, 255, 255}, window),
+                        SdlText(SMALLER_TEXT_PATH, 100, {255, 255, 255, 255}, window),
+                        SdlText(SMALLER_TEXT_PATH, 100, {255, 255, 255, 255}, window)},
+        ct_descriptions{SdlText(SMALLER_TEXT_PATH, 100, {255, 255, 255, 255}, window),
+                        SdlText(SMALLER_TEXT_PATH, 100, {255, 255, 255, 255}, window),
+                        SdlText(SMALLER_TEXT_PATH, 100, {255, 255, 255, 255}, window)},
         rectangulo_horizontal(RECTANGULE_HORIZONTAL, window),
         background(BACKGROUND_PATH_1, window),
         terrorist(TERRORIST_PATH, window),
@@ -54,7 +62,21 @@ listTeams::listTeams(SdlWindow& window, const GameUpdate& state, const std::stri
     select_skin_height = 50 * heightRatio;
     select_skin_x = DISPLAY_WIDTH - select_skin_width - padding * 4;
     select_skin_y = padding * 4;
+    // Set preloaded labels
+    team_labels[0].setTextString("Terrorist");
+    team_labels[1].setTextString("Counter-Terrorist");
+
+    // Set TT descriptions
+    tt_descriptions[0].setTextString("Plant the bomb and defend it until ");
+    tt_descriptions[1].setTextString("it explodes, or eliminate all ");
+    tt_descriptions[2].setTextString("Counter-Terrorists to secure victory.");
+
+    // Set CT descriptions
+    ct_descriptions[0].setTextString("Prevent the terrorist from ");
+    ct_descriptions[1].setTextString("detonating their bomb or ");
+    ct_descriptions[2].setTextString("eliminate them all to win.");
 }
+
 
 void listTeams::render() {
     if (active) {
@@ -101,58 +123,32 @@ void listTeams::renderSlots() {
     Area terrorist_dest(terrorist_x, terrorist_y, slot_width, slot_height);
     Area counter_terrorist_dest(counter_terrorist_x, counter_terrorist_y, slot_width, slot_height);
 
-    // Render the terrorist and counter-terrorist images
     terrorist.render(src, terrorist_dest);
     counter_terrorist.render(src1, counter_terrorist_dest);
 
-    // Add text below the terrorist image
-    text.setTextString("Terrorist");
-    Area terrorist_text_dest(terrorist_x + (size_slots_w) / 4,
+    Area terrorist_text_dest(terrorist_x + size_slots_w / 4,
                              terrorist_y + DISPLAY_WIDTH * 0.30 - 50, 150, 50);
-    text.render(terrorist_text_dest);
+    team_labels[0].render(terrorist_text_dest);
 
-    // Add text below the counter-terrorist image
-    text.setTextString("Counter-Terrorist");
-    Area counter_terrorist_text_dest(counter_terrorist_x + (size_slots_w) / 4,
-                                     counter_terrorist_y + DISPLAY_WIDTH * 0.30 - 50, 200, 50);
-    text.render(counter_terrorist_text_dest);
-
-    int text_terrorist_y = terrorist_y + DISPLAY_WIDTH * 0.30;
-    int text_counter_terrorist_y = counter_terrorist_y + DISPLAY_WIDTH * 0.30;
-    int text_terrorist_x = terrorist_x + (size_slots_w) / 4;
-    int text_counter_terrorist_x = counter_terrorist_x + (size_slots_w) / 4;
+    Area counter_text_dest(counter_terrorist_x + size_slots_w / 4,
+                           counter_terrorist_y + DISPLAY_WIDTH * 0.30 - 50, 200, 50);
+    team_labels[1].render(counter_text_dest);
 
     std::optional<Team> team_choosen = game_state.get_players().at(player_name).get_optional_team();
 
-    if (team_choosen == Team::TT) {
-        smaller_text.setTextString("Plant the bomb and defend it until ");
-        Area terrorist_text_dest_1(text_terrorist_x + padding, text_terrorist_y, 400 * scale, 50);
-        smaller_text.render(terrorist_text_dest_1);
+    int base_y_text = team_choosen == Team::TT ? terrorist_y + DISPLAY_WIDTH * 0.30 :
+                                                 counter_terrorist_y + DISPLAY_WIDTH * 0.30;
 
-        smaller_text.setTextString("it explodes, or eliminate all ");
-        Area terrorist_text_dest_2(text_terrorist_x + padding, text_terrorist_y + padding * 3,
-                                   400 * scale, 50);
-        smaller_text.render(terrorist_text_dest_2);
+    int base_x_text = team_choosen == Team::TT ? terrorist_x + size_slots_w / 4 :
+                                                 counter_terrorist_x + size_slots_w / 4;
 
-        smaller_text.setTextString("Counter-Terrorists to secure victory.");
-        Area terrorist_text_dest_3(text_terrorist_x + padding, text_terrorist_y + padding * 6,
-                                   400 * scale, 50);
-        smaller_text.render(terrorist_text_dest_3);
-    } else {
-        smaller_text.setTextString("Prevent the terrorist from ");
-        Area counter_terrorist_text_dest_1(text_counter_terrorist_x + padding,
-                                           text_counter_terrorist_y, 400 * scale, 50);
-        smaller_text.render(counter_terrorist_text_dest_1);
-
-        smaller_text.setTextString("detonating their bomb or ");
-        Area counter_terrorist_text_dest_2(text_counter_terrorist_x + padding,
-                                           text_counter_terrorist_y + padding * 3, 400 * scale, 50);
-        smaller_text.render(counter_terrorist_text_dest_2);
-
-        smaller_text.setTextString("eliminate them all to win.");
-        Area counter_terrorist_text_dest_3(text_counter_terrorist_x + padding,
-                                           text_counter_terrorist_y + padding * 6, 400 * scale, 50);
-        smaller_text.render(counter_terrorist_text_dest_3);
+    for (int i = 0; i < 3; ++i) {
+        Area line_area(base_x_text + padding, base_y_text + padding * (i * 3), 400 * scale, 50);
+        if (team_choosen == Team::TT) {
+            tt_descriptions[i].render(line_area);
+        } else {
+            ct_descriptions[i].render(line_area);
+        }
     }
 }
 
