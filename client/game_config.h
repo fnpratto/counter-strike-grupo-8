@@ -78,7 +78,7 @@ constexpr std::string_view AWP_ITEM_PATH = "../assets/gfx/map/awp_d.bmp";
 constexpr std::string_view M3_ITEM_PATH = "../assets/gfx/map/m3_d.bmp";
 constexpr std::string_view AK_ITEM_PATH = "../assets/gfx/map/ak47_d.bmp";
 constexpr std::string_view BOMB_ITEM_PATH = "../assets/gfx/guns/bomb.bmp";
-constexpr std::string_view BOMB_PLANTED_ITEM_PATH = "../assets/gfx/map/bomb_b.bmp";
+constexpr std::string_view BOMB_PLANTED_ITEM_PATH = "../assets/gfx/map/bomb_d.bmp";
 }  // namespace Paths
 
 // --- Gun Type Offsets ---
