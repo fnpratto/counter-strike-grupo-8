@@ -6,6 +6,7 @@
 #include "client/protocol.h"
 #include "common/base_socket.h"
 #include "common/commands.h"
+#include "common/map/tile.h"
 #include "common/message.h"
 #include "server/protocol.h"
 #include "tests/common/mock_socket.h"
@@ -443,27 +444,6 @@ TEST_F(ProtocolTest, SendReceivePickUpItemCommand) {
     PickUpItemCommand received_cmd = received_message.get_content<PickUpItemCommand>();
 }
 
-TEST_F(ProtocolTest, SendReceiveLeaveGameCommand) {
-    client_mock_socket->clear_written_data();
-
-    LeaveGameCommand cmd;
-    Message message(cmd);
-
-    client_protocol->send(message);
-
-    const auto& written_data = client_mock_socket->get_written_data();
-    ASSERT_FALSE(written_data.empty());
-    ASSERT_EQ(written_data[0], static_cast<char>(MessageType::LEAVE_GAME_CMD));
-    ASSERT_EQ(written_data[1], 0x00);
-    ASSERT_EQ(written_data[2], 0x00);
-
-    server_mock_socket->queue_read_data(written_data);
-    Message received_message = server_protocol->recv();
-    ASSERT_EQ(received_message.get_type(), MessageType::LEAVE_GAME_CMD);
-
-    LeaveGameCommand received_cmd = received_message.get_content<LeaveGameCommand>();
-}
-
 TEST_F(ProtocolTest, ReceiveListMapsCommand) {
     // Prepare mock data for a ListMapsCommand (no payload, just message type)
     std::vector<char> mock_data = {
@@ -534,20 +514,20 @@ TEST_F(ProtocolTest, SendReceiveMapResponse) {
     Map test_map("test_map", 10, 10, 10);  // name, max_players, height, width
 
     // Add different types of tiles
-    test_map.add_tile(Tile(Vector2D(0 * PhysicsConfig::meter_size, 0 * PhysicsConfig::meter_size),
-                           1, true, false, false, false));  // collidable wall
-    test_map.add_tile(Tile(Vector2D(1 * PhysicsConfig::meter_size, 1 * PhysicsConfig::meter_size),
-                           2, true, false, false, false));  // collidable wall
-    test_map.add_tile(Tile(Vector2D(2 * PhysicsConfig::meter_size, 2 * PhysicsConfig::meter_size),
-                           3, false, true, false, false));  // terrorist spawn
-    test_map.add_tile(Tile(Vector2D(3 * PhysicsConfig::meter_size, 3 * PhysicsConfig::meter_size),
-                           4, false, true, false, false));  // terrorist spawn
-    test_map.add_tile(Tile(Vector2D(4 * PhysicsConfig::meter_size, 4 * PhysicsConfig::meter_size),
-                           5, false, false, true, false));  // counter-terrorist spawn
-    test_map.add_tile(Tile(Vector2D(5 * PhysicsConfig::meter_size, 5 * PhysicsConfig::meter_size),
-                           6, false, false, true, false));  // counter-terrorist spawn
-    test_map.add_tile(Tile(Vector2D(6 * PhysicsConfig::meter_size, 6 * PhysicsConfig::meter_size),
-                           7, false, false, false, true));  // bomb site
+    test_map.add_tile(Tile{Vector2D(0 * PhysicsConfig::meter_size, 0 * PhysicsConfig::meter_size),
+                           1, true, false, false, false});  // collidable wall
+    test_map.add_tile(Tile{Vector2D(1 * PhysicsConfig::meter_size, 1 * PhysicsConfig::meter_size),
+                           2, true, false, false, false});  // collidable wall
+    test_map.add_tile(Tile{Vector2D(2 * PhysicsConfig::meter_size, 2 * PhysicsConfig::meter_size),
+                           3, false, true, false, false});  // terrorist spawn
+    test_map.add_tile(Tile{Vector2D(3 * PhysicsConfig::meter_size, 3 * PhysicsConfig::meter_size),
+                           4, false, true, false, false});  // terrorist spawn
+    test_map.add_tile(Tile{Vector2D(4 * PhysicsConfig::meter_size, 4 * PhysicsConfig::meter_size),
+                           5, false, false, true, false});  // counter-terrorist spawn
+    test_map.add_tile(Tile{Vector2D(5 * PhysicsConfig::meter_size, 5 * PhysicsConfig::meter_size),
+                           6, false, false, true, false});  // counter-terrorist spawn
+    test_map.add_tile(Tile{Vector2D(6 * PhysicsConfig::meter_size, 6 * PhysicsConfig::meter_size),
+                           7, false, false, false, true});  // bomb site
 
     Message message(test_map);
 

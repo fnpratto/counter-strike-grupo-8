@@ -34,6 +34,7 @@ std::unique_ptr<Gun> InventoryState::remove_primary_weapon() {
 Bomb InventoryState::remove_bomb() {
     Bomb removed_bomb = std::move(bomb.value());
     bomb.reset();
+    updates.set_bomb(std::optional<BombUpdate>());
     return removed_bomb;
 }
 
@@ -43,8 +44,6 @@ InventoryUpdate InventoryState::get_updates() const {
     update.set_knife(knife.get_updates());
     if (bomb.has_value())
         update.set_bomb(bomb->get_updates());
-    else
-        update.set_bomb(std::optional<BombUpdate>());
     return update;
 }
 

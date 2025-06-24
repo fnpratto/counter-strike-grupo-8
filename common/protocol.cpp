@@ -448,7 +448,7 @@ Tile BaseProtocol::deserialize<Tile>(payload_t& payload) const {
     bool is_spawn_ct = deserialize<bool>(payload);
     bool is_bomb_site = deserialize<bool>(payload);
 
-    return Tile(std::move(pos), id, is_collidable, is_spawn_tt, is_spawn_ct, is_bomb_site);
+    return Tile{std::move(pos), id, is_collidable, is_spawn_tt, is_spawn_ct, is_bomb_site};
 }
 
 template <>

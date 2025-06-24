@@ -10,7 +10,6 @@
 #include "common/updates/inventory_update.h"
 #include "common/updates/phase_update.h"
 #include "common/updates/player_update.h"
-#include "server/clock/mock_clock.h"
 #include "server/errors.h"
 #include "server/game/game.h"
 #include "server/game/game_config.h"
@@ -18,6 +17,8 @@
 #include "server/items/items_config.h"
 #include "server/map/map_builder.h"
 #include "server/player_message.h"
+
+#include "mock_clock.h"
 
 class TestGameBomb: public ::testing::Test {
 protected:

@@ -35,16 +35,17 @@ Vector2D PhysicsSystem::rand_pos_in_vector(
     std::copy_if(vector.begin(), vector.end(), std::back_inserter(filtered_vector),
                  [](const Tile& tile) { return !tile.is_collidable; });
 
-    for (const auto& tile: filtered_vector) {
-        Vector2D pos = tile.get().pos + (PhysicsConfig::meter_size / 2);
-        if (can_move_to_pos(pos))
-            return pos;
+    if (filtered_vector.empty())
+        return Vector2D(0, 0) + (PhysicsConfig::meter_size / 2);
+
+    int rand_idx = rand() % filtered_vector.size();
+    Vector2D pos = filtered_vector.at(rand_idx).get().pos + (PhysicsConfig::meter_size / 2);
+    while (!can_move_to_pos(pos)) {
+        rand_idx = rand() % filtered_vector.size();
+        pos = filtered_vector.at(rand_idx).get().pos + (PhysicsConfig::meter_size / 2);
     }
 
-    if (!filtered_vector.empty())
-        return filtered_vector.front().get().pos + (PhysicsConfig::meter_size / 2);
-
-    return Vector2D(0, 0) + (PhysicsConfig::meter_size / 2);
+    return pos;
 }
 
 Vector2D PhysicsSystem::random_spawn_tt_pos() const {

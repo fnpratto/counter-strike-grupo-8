@@ -51,7 +51,6 @@ target_sources(taller_server
     errors.h
     # clock
     clock/clock.h
-    clock/mock_clock.h
     clock/real_clock.h
     # game
     game/shop.h
