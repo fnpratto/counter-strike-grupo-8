@@ -39,22 +39,22 @@ void SdlWorldItem::render_bomb() {
 void SdlWorldItem::render_dropped_guns() {
     for (const auto& [gun_type, gun_item]: game_state.get_dropped_guns()) {
         Vector2D pos = gun_item.get_pos();
+        float angle = gun_item.get_rotation_deg();
         if (!camera.can_see(pos))
             continue;
 
         Vector2D pos_cam = camera.get_screen_pos(pos);
         Area dest(pos_cam.get_x(), pos_cam.get_y(), 32, 32);
         Area origin(10, 0, 54, 32);
-
         switch (gun_type) {
             case GunType::AWP:
-                awp_t.render(origin, dest);
+                awp_t.render(origin, dest, angle);
                 break;
             case GunType::M3:
-                m3_t.render(origin, dest);
+                m3_t.render(origin, dest, angle);
                 break;
             case GunType::AK47:
-                ak_t.render(origin, dest);
+                ak_t.render(origin, dest, angle);
                 break;
             default:
                 break;

@@ -6,12 +6,12 @@
 #include "server/errors.h"
 #include "statuses/idle_status.h"
 
-#include "player_config.h"
-
-Player::Player(Team team, CharacterType character_type, Circle hitbox):
+Player::Player(Team team, CharacterType character_type, Circle hitbox,
+               const GameConfig::PlayerConfig& player_config,
+               const GameConfig::ItemsConfig& items_config):
         Logic<PlayerState, PlayerUpdate>(PlayerState(
                 team, character_type, hitbox, Vector2D(0.0f, 0.0f), Vector2D(0.0f, 0.0f), false,
-                PlayerConfig::full_health, ItemSlot::Secondary)),
+                ItemSlot::Secondary, player_config, items_config)),
         scoreboard_entry(state.get_inventory().get_money(), 0, 0, 0),
         status(std::make_unique<IdleStatus>()) {}
 
@@ -39,6 +39,8 @@ CharacterType Player::get_character_type() const { return state.get_character_ty
 Circle Player::get_hitbox() const { return state.get_hitbox(); }
 
 Vector2D Player::get_move_dir() const { return state.get_velocity(); }
+
+int Player::get_speed() const { return state.get_speed(); }
 
 Inventory& Player::get_inventory() { return state.get_inventory(); }
 
@@ -199,7 +201,7 @@ void Player::handle_stop_defusing(Bomb& bomb, TimePoint now) {
 void Player::reset() {
     status = std::make_unique<IdleStatus>();
     state.set_velocity(Vector2D(0.0f, 0.0f));
-    state.set_health(PlayerConfig::full_health);
+    state.set_health(state.get_player_config().full_health);
     state.set_equipped_item(ItemSlot::Melee);
     state.get_inventory().get_knife().reset();
     for (auto& [_, gun]: state.get_inventory().get_guns()) gun->reset();

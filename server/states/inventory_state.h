@@ -20,7 +20,7 @@ class InventoryState: public State<InventoryUpdate> {
     std::optional<Bomb> bomb;
 
 public:
-    explicit InventoryState(int money);
+    InventoryState(int money, const GameConfig::ItemsConfig::KnifeConfig& knife_config);
 
     int get_money() const;
     std::map<ItemSlot, std::unique_ptr<Gun>>& get_guns();

@@ -43,6 +43,5 @@ private:
     std::vector<GameConfig::AmmoInfo> ammo;  // Moved ammo into the class
     void renderSlots();
     void renderItem();
-    void get_item_slots(int id_slot);
 };
 #endif  // SHOP_DISPLAY_H

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <array>
 #include <string>
 #include <vector>
 
@@ -12,7 +13,6 @@
 #include "common/commands.h"
 #include "common/message.h"
 #include "common/models.h"
-
 class skinSelect {
 public:
     explicit skinSelect(SdlWindow& window, const GameUpdate& state, const std::string& player_name);
@@ -36,6 +36,7 @@ private:
     SdlTexture background;
     SdlTexture skins_tt;
     SdlTexture skins_ct;
+    std::array<SdlText, 4> skin_labels;
 
     float widthRatio, heightRatio, scaleRatio;
     float slot_width, slot_height;

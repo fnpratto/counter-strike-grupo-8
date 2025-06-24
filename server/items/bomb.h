@@ -2,17 +2,19 @@
 
 #include "effects/effect.h"
 #include "server/clock/clock.h"
+#include "server/game/game_config.h"
 #include "server/logic.h"
 #include "server/states/bomb_state.h"
 
 class Bomb: public Logic<BombState, BombUpdate> {
+    GameConfig::ItemsConfig::BombConfig bomb_config;
     TimePoint phase_start_time;
     TimePoint plant_time;
 
     void change_bomb_phase(BombPhaseType new_phase, TimePoint now);
 
 public:
-    Bomb();
+    explicit Bomb(const GameConfig::ItemsConfig::BombConfig& bomb_config);
 
     Bomb(const Bomb&) = delete;
     Bomb& operator=(const Bomb&) = delete;

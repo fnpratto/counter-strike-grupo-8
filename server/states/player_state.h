@@ -4,6 +4,7 @@
 #include "common/updates/player_update.h"
 #include "common/utils/circle.h"
 #include "common/utils/vector_2d.h"
+#include "server/game/game_config.h"
 #include "server/player/inventory.h"
 
 #include "state.h"
@@ -14,8 +15,10 @@ class PlayerState: public State<PlayerUpdate> {
     Team team;
     CharacterType character_type;
     Circle hitbox;
+    GameConfig::PlayerConfig player_config;
     Vector2D aim_direction;
     Vector2D velocity;
+    int speed;
     bool ready;
     int health;
     ItemSlot equipped_item;
@@ -23,13 +26,17 @@ class PlayerState: public State<PlayerUpdate> {
 
 public:
     PlayerState(Team team, CharacterType character_type, Circle hitbox, Vector2D aim_direction,
-                Vector2D velocity, bool ready, int health, ItemSlot equipped_item);
+                Vector2D velocity, bool ready, ItemSlot equipped_item,
+                const GameConfig::PlayerConfig& player_config,
+                const GameConfig::ItemsConfig& items_config);
 
     Team get_team() const;
     CharacterType get_character_type() const;
     Circle get_hitbox() const;
+    GameConfig::PlayerConfig get_player_config() const;
     Vector2D get_aim_direction() const;
     Vector2D get_velocity() const;
+    int get_speed() const;
     bool get_ready() const;
     int get_health() const;
     ItemSlot get_equipped_item() const;
