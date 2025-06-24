@@ -14,8 +14,8 @@
 
 Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map,
            GameConfig&& config):
-        Logic<GameState, GameUpdate>(
-                GameState(std::move(game_clock), map.get_max_players(), std::move(config))),
+        Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.get_max_players(),
+                                               map.get_guns(), std::move(config))),
         name(name),
         shop(state.get_config().shop_prices),
         physics_system(std::move(map), state.get_players(), state.get_dropped_guns(),
@@ -95,6 +95,7 @@ void Game::advance_bomb_logic() {
                 bomb.advance(state.get_phase().get_time_now());
                 if (!bomb.is_planted())
                     return;
+                player->handle_stop_planting(state.get_phase().get_time_now());
                 state.add_bomb(std::move(player->drop_bomb().value()), player->get_hitbox().center);
                 state.get_phase().start_bomb_planted_phase();
             }

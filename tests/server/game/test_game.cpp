@@ -699,3 +699,20 @@ TEST_F(TestGame, PlayerCanPickUpDroppedItem) {
     EXPECT_EQ(updates.get_dropped_guns()[0].hitbox.get_pos(),
               updates.get_players().at("ct").get_pos());
 }
+
+TEST_F(TestGame, GameStartWithDroppedGunsWhenMapHasDefaultDroppedGuns) {
+    Map map_with_dropped_guns(MapBuilder("./tests/server/map/map3.yaml").build());
+    Game game_with_dropped_guns("test_game_with_dropped_guns", clock,
+                                std::move(map_with_dropped_guns),
+                                GameConfig::load_config("./server/config.yaml"));
+    game_with_dropped_guns.join_player("tt");
+
+    GameUpdate updates = game_with_dropped_guns.get_full_update();
+    EXPECT_EQ(updates.get_dropped_guns().size(), 2);
+    EXPECT_EQ(updates.get_dropped_guns()[0].item, GunType::AK47);
+    EXPECT_EQ(updates.get_dropped_guns()[0].hitbox.get_pos(),
+              Vector2D(PhysicsConfig::meter_size, PhysicsConfig::meter_size));
+    EXPECT_EQ(updates.get_dropped_guns()[1].item, GunType::M3);
+    EXPECT_EQ(updates.get_dropped_guns()[1].hitbox.get_pos(),
+              Vector2D(3 * PhysicsConfig::meter_size, 3 * PhysicsConfig::meter_size));
+}

@@ -28,7 +28,8 @@ class GameState: public State<GameUpdate> {
     bool is_tts_win_condition() const;
 
 public:
-    GameState(std::shared_ptr<Clock>&& game_clock, int max_players, GameConfig&& game_config);
+    GameState(std::shared_ptr<Clock>&& game_clock, int max_players,
+              const std::vector<std::pair<GunType, Vector2D>>& guns, GameConfig&& game_config);
 
     bool player_is_in_game(const std::string& player_name) const;
     bool all_players_ready() const;

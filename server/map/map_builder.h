@@ -12,6 +12,8 @@ private:
 
     void load_tiles(const YAML::Node& tiles, Map& map);
 
+    void load_guns(const YAML::Node& guns, Map& map);
+
 public:
     explicit MapBuilder(const std::string& filename);
 

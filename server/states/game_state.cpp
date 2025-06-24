@@ -3,14 +3,20 @@
 #include <utility>
 
 #include "server/game/game_config.h"
+#include "server/items/gun.h"
 #include "server/physics/circular_hitbox.h"
 #include "server/physics/rect_hitbox.h"
 
 GameState::GameState(std::shared_ptr<Clock>&& game_clock, int max_players,
+                     const std::vector<std::pair<GunType, Vector2D>>& guns,
                      GameConfig&& game_config):
         config(std::move(game_config)),
         phase(std::move(game_clock), config.phase_times),
         max_players(max_players) {
+    for (const auto& [gun_type, pos]: guns)
+        add_dropped_gun(std::move(std::make_unique<Gun>(
+                                gun_type, config.items_config.get_gun_config(gun_type))),
+                        pos);
     updates = get_full_update();
 }
 
