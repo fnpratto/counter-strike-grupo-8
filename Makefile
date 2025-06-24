@@ -7,6 +7,8 @@ fish: install-deps gui install-path-fish
 install-deps:
 	@echo "Checking and installing missing dependencies..."
 	@for pkg in \
+		libssl-dev \
+		cmake \
 		libopusfile-dev \
 		libxmp-dev \
 		fluidsynth \
