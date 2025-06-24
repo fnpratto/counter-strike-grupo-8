@@ -15,7 +15,6 @@ bool FieldOfView::is_visible(const Vector2D& camera_pos, const Vector2D& target_
 }
 
 void FieldOfView::render(int screen_width, int screen_height, float angle) {
-    SDL_Renderer* renderer = window.getRenderer();
 
     SDL_Point center_w = {screen_width / 2, screen_height / 2};
 
@@ -23,10 +22,9 @@ void FieldOfView::render(int screen_width, int screen_height, float angle) {
     int diagonal = static_cast<int>(
             std::ceil(std::sqrt(screen_width * screen_width + screen_height * screen_height)));
 
-    SDL_Rect dst_rect = {0, 0, 5000, 5000};
+    SDL_Rect dst_rect = {0, 0, 1000, 1000};
     SDL_Point center = {diagonal / 2, diagonal / 2};
 
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     mask.render(center_w.x - diagonal / 2, center_w.y - diagonal / 2, diagonal, diagonal, &dst_rect,
                 angle, &center, SDL_FLIP_NONE);
 }
