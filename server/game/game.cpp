@@ -231,7 +231,7 @@ template <>
 void Game::handle<SetReadyCommand>(const std::string& player_name,
                                    [[maybe_unused]] const SetReadyCommand& msg) {
     if (state.get_phase().is_playing())
-        throw SetReadyError();
+        return;
 
     state.get_player(player_name)->set_ready();
     if (state.all_players_ready()) {

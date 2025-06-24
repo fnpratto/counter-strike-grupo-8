@@ -107,23 +107,6 @@ TEST_F(TestGame, PlayerCannotJoinFullTeam) {
     EXPECT_EQ(updates.get_players().at("extra_player").get_team(), Team::CT);
 }
 
-TEST_F(TestGame, CannotStartAnAlreadyStartedGame) {
-    game.join_player("test_player");
-    game.tick({});
-
-    auto player_messages = game.tick({PlayerMessage("test_player", Message(SetReadyCommand()))});
-    GameUpdate updates;
-    updates = player_messages[0].get_message().get_content<GameUpdate>();
-
-    std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
-    EXPECT_EQ(player_updates.at("test_player").get_ready(), true);
-    PhaseUpdate phase_updates = updates.get_phase();
-    EXPECT_EQ(phase_updates.get_type(), PhaseType::Buying);
-
-    EXPECT_THROW({ game.tick({PlayerMessage("test_player", Message(SetReadyCommand()))}); },
-                 SetReadyError);
-}
-
 TEST_F(TestGame, PlayerCannotJoinStartedGame) {
     game.join_player("test_player");
     Message msg_start = Message(SetReadyCommand());
