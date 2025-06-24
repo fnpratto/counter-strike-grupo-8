@@ -8,10 +8,15 @@
 #include "server/physics/rect_hitbox.h"
 
 GameState::GameState(std::shared_ptr<Clock>&& game_clock, int max_players,
-                     const std::vector<std::pair<GunType, Vector2D>>& guns):
-        phase(std::move(game_clock)), max_players(max_players) {
+                     const std::vector<std::pair<GunType, Vector2D>>& guns,
+                     GameConfig&& game_config):
+        config(std::move(game_config)),
+        phase(std::move(game_clock), config.phase_times),
+        max_players(max_players) {
     for (const auto& [gun_type, pos]: guns)
-        add_dropped_gun(std::move(Gun::make_gun(gun_type)), pos);
+        add_dropped_gun(std::move(std::make_unique<Gun>(
+                                gun_type, config.items_config.get_gun_config(gun_type))),
+                        pos);
     updates = get_full_update();
 }
 
@@ -69,6 +74,8 @@ int GameState::get_num_cts() const {
     return num_cts;
 }
 
+const GameConfig& GameState::get_config() const { return config; }
+
 GamePhase& GameState::get_phase() { return phase; }
 
 const std::map<std::string, std::unique_ptr<Player>>& GameState::get_players() const {
@@ -115,8 +122,9 @@ void GameState::add_player(const std::string& player_name, Team team, const Vect
     if (players.find(player_name) != players.end())
         throw std::runtime_error("Player already exists");
     CharacterType default_character = get_default_character(team);
-    players[player_name] = std::make_unique<Player>(
-            team, default_character, CircularHitbox::player_hitbox(pos).get_bounds());
+    players[player_name] = std::make_unique<Player>(team, default_character,
+                                                    CircularHitbox::player_hitbox(pos).get_bounds(),
+                                                    config.player_config, config.items_config);
 }
 
 void GameState::add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos) {
@@ -185,9 +193,9 @@ void GameState::give_rewards_to_players(Team winning_team) {
     for (const auto& [p_name, player]: players) {
         if ((winning_team == Team::TT && player->is_tt()) ||
             (winning_team == Team::CT && player->is_ct()))
-            player->add_rewards(Scores::win, Bonifications::win);
+            player->add_rewards(config.scores.win, config.bonifications.win);
         else
-            player->add_rewards(Scores::loss, Bonifications::loss);
+            player->add_rewards(config.scores.loss, config.bonifications.loss);
     }
 }
 

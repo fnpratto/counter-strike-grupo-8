@@ -2,11 +2,10 @@
 
 #include <algorithm>
 
-#include "items_config.h"
-
-Bomb::Bomb():
+Bomb::Bomb(const GameConfig::ItemsConfig::BombConfig& bomb_config):
         Logic<BombState, BombUpdate>(
-                BombState(BombConfig::secs_to_explode, BombPhaseType::NotPlanted)) {}
+                BombState(bomb_config.secs_to_explode, BombPhaseType::NotPlanted)),
+        bomb_config(bomb_config) {}
 
 void Bomb::change_bomb_phase(BombPhaseType new_phase, TimePoint now) {
     if (state.get_bomb_phase() == new_phase)
@@ -57,7 +56,7 @@ void Bomb::stop_defusing([[maybe_unused]] TimePoint now) {
 
 void Bomb::advance(TimePoint now) {
     if (is_planting()) {
-        if (now - phase_start_time >= std::chrono::seconds(BombConfig::secs_to_plant)) {
+        if (now - phase_start_time >= std::chrono::seconds(bomb_config.secs_to_plant)) {
             change_bomb_phase(BombPhaseType::Planted, now);
             plant_time = now;
         }
@@ -65,7 +64,7 @@ void Bomb::advance(TimePoint now) {
     }
 
     if (is_defusing()) {
-        if (now - phase_start_time >= std::chrono::seconds(BombConfig::secs_to_defuse))
+        if (now - phase_start_time >= std::chrono::seconds(bomb_config.secs_to_defuse))
             change_bomb_phase(BombPhaseType::Defused, now);
     }
 
@@ -73,18 +72,18 @@ void Bomb::advance(TimePoint now) {
         return;
 
     float new_secs_to_explode =
-            BombConfig::secs_to_explode - std::chrono::duration<float>(now - plant_time).count();
+            bomb_config.secs_to_explode - std::chrono::duration<float>(now - plant_time).count();
     state.set_secs_to_explode(std::max(0.0f, new_secs_to_explode));
 }
 
 Effect Bomb::explode(const Vector2D& origin) {
     state.set_bomb_phase(BombPhaseType::Exploded);
-    return Effect(origin, BombConfig::damage, BombConfig::max_range, BombConfig::precision,
-                  BombConfig::falloff);
+    return Effect(origin, bomb_config.damage, bomb_config.max_range, bomb_config.precision,
+                  bomb_config.falloff);
 }
 
 void Bomb::reset() {
     change_bomb_phase(BombPhaseType::NotPlanted, TimePoint());
     plant_time = TimePoint();
-    state.set_secs_to_explode(BombConfig::secs_to_explode);
+    state.set_secs_to_explode(bomb_config.secs_to_explode);
 }

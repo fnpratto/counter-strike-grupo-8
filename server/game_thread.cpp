@@ -9,12 +9,15 @@
 #include "server/game/game_config.h"
 #include "server/player_message.h"
 
+#define CONFIG_FILE "./server/config.yaml"
+
 GameThread::GameThread(const std::string& name, Map&& map):
-        game(name, std::make_unique<RealClock>(), std::move(map)),
+        game(name, std::make_unique<RealClock>(), std::move(map),
+             GameConfig::load_config(CONFIG_FILE)),
         input_queue(std::make_shared<Queue<PlayerMessage>>()) {}
 
 void GameThread::run() {
-    RateController rate_controller(GameConfig::tickrate);
+    RateController rate_controller(TICKRATE);
     rate_controller.run_at_rate([this]() {
         std::vector<PlayerMessage> msgs;
         for (int i = 0; i < MSG_BATCH_SIZE; ++i) {

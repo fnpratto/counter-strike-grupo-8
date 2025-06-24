@@ -24,11 +24,6 @@ public:
     JoinGameError(): GameError("could not join game") {}
 };
 
-class SetReadyError: public GameError {
-public:
-    SetReadyError(): GameError("try to set ready when playing an already started game") {}
-};
-
 class SelectTeamError: public GameError {
 public:
     SelectTeamError(): GameError("error at select team") {}

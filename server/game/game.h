@@ -13,10 +13,10 @@
 #include "server/physics/physics_system.h"
 #include "server/player/player.h"
 #include "server/player_message.h"
+#include "server/shop/shop.h"
 #include "server/states/game_state.h"
 
 #include "game_phase.h"
-#include "shop.h"
 
 class Game: public Logic<GameState, GameUpdate> {
 private:
@@ -29,7 +29,8 @@ private:
     std::vector<PlayerMessage> output_messages;
 
 public:
-    Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map);
+    Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map,
+         GameConfig&& config);
 
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete;
