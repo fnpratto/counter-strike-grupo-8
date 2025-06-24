@@ -10,8 +10,8 @@
 
 Player::Player(Team team, CharacterType character_type, Circle hitbox):
         Logic<PlayerState, PlayerUpdate>(PlayerState(
-                team, character_type, hitbox, Vector2D(0.0f, 0.0f), Vector2D(0.0f, 0.0f), false,
-                PlayerConfig::full_health, ItemSlot::Secondary)),
+                team, character_type, hitbox, Vector2D(0.0f, 0.0f), Vector2D(0.0f, 0.0f),
+                PlayerConfig::speed, false, PlayerConfig::full_health, ItemSlot::Secondary)),
         scoreboard_entry(state.get_inventory().get_money(), 0, 0, 0),
         status(std::make_unique<IdleStatus>()) {}
 
@@ -39,6 +39,8 @@ CharacterType Player::get_character_type() const { return state.get_character_ty
 Circle Player::get_hitbox() const { return state.get_hitbox(); }
 
 Vector2D Player::get_move_dir() const { return state.get_velocity(); }
+
+int Player::get_speed() const { return state.get_speed(); }
 
 Inventory& Player::get_inventory() { return state.get_inventory(); }
 

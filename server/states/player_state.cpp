@@ -3,13 +3,14 @@
 #include <utility>
 
 PlayerState::PlayerState(Team team, CharacterType character_type, Circle hitbox,
-                         Vector2D aim_direction, Vector2D velocity, bool ready, int health,
-                         ItemSlot equipped_item):
+                         Vector2D aim_direction, Vector2D velocity, int speed, bool ready,
+                         int health, ItemSlot equipped_item):
         team(team),
         character_type(character_type),
         hitbox(hitbox),
         aim_direction(aim_direction),
         velocity(velocity),
+        speed(speed),
         ready(ready),
         health(health),
         equipped_item(equipped_item) {
@@ -25,6 +26,8 @@ Circle PlayerState::get_hitbox() const { return hitbox; }
 Vector2D PlayerState::get_aim_direction() const { return aim_direction; }
 
 Vector2D PlayerState::get_velocity() const { return velocity; }
+
+int PlayerState::get_speed() const { return speed; }
 
 bool PlayerState::get_ready() const { return ready; }
 

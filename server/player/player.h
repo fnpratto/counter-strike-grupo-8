@@ -42,6 +42,7 @@ public:
     CharacterType get_character_type() const;
     Circle get_hitbox() const;
     Vector2D get_move_dir() const;
+    int get_speed() const;
     Inventory& get_inventory();
     ScoreboardEntry get_scoreboard_entry() const;
 

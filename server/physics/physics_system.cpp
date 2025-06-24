@@ -6,7 +6,6 @@
 #include <memory>
 
 #include "common/physics/physics_config.h"
-#include "server/game/game_config.h"
 
 #include "circular_hitbox.h"
 #include "rect_hitbox.h"
@@ -85,7 +84,7 @@ Vector2D PhysicsSystem::calculate_new_pos(const std::unique_ptr<Player>& player,
     if (move_dir == Vector2D(0, 0))
         return player->get_hitbox().center;
 
-    Vector2D step = calculate_step(move_dir, tick_duration);
+    Vector2D step = calculate_step(player->get_speed(), move_dir, tick_duration);
     Vector2D new_pos = player->get_hitbox().center + step;
 
     if (can_move_to_pos(new_pos))
@@ -106,8 +105,8 @@ Vector2D PhysicsSystem::calculate_new_pos(const std::unique_ptr<Player>& player,
     return player->get_hitbox().center;
 }
 
-Vector2D PhysicsSystem::calculate_step(const Vector2D& dir, float tick_duration) const {
-    return dir.normalized(PhysicsConfig::meter_size) * GameConfig::player_speed * tick_duration;
+Vector2D PhysicsSystem::calculate_step(int speed, const Vector2D& dir, float tick_duration) const {
+    return dir.normalized(PhysicsConfig::meter_size) * speed * tick_duration;
 }
 
 bool PhysicsSystem::can_move_to_pos(const Vector2D& pos) const {

@@ -14,6 +14,7 @@
 #include "server/game/game_config.h"
 #include "server/game/shop.h"
 #include "server/map/map_builder.h"
+#include "server/player/player_config.h"
 #include "server/player_message.h"
 
 #include "mock_clock.h"
@@ -278,7 +279,7 @@ TEST_F(TestGame, PlayerCanMove) {
     player_updates = updates.get_players();
     Vector2D new_pos = player_updates.at("test_player").get_pos();
 
-    Vector2D step = dir * GameConfig::player_speed * (1.0f / GameConfig::tickrate);
+    Vector2D step = dir * PlayerConfig::speed * (1.0f / GameConfig::tickrate);
 
     EXPECT_EQ(new_pos.get_x(), old_pos.get_x() + step.get_x());
     EXPECT_EQ(new_pos.get_y(), old_pos.get_y() + step.get_y());
@@ -301,7 +302,7 @@ TEST_F(TestGame, PlayerCanMoveInDiagonal) {
     std::map<std::string, PlayerUpdate> player_updates = updates.get_players();
     Vector2D new_pos = player_updates.at("test_player").get_pos();
 
-    Vector2D step = dir * GameConfig::player_speed * (1.0f / GameConfig::tickrate);
+    Vector2D step = dir * PlayerConfig::speed * (1.0f / GameConfig::tickrate);
 
     EXPECT_EQ(new_pos.get_x(), old_pos.get_x() + step.get_x());
     EXPECT_EQ(new_pos.get_y(), old_pos.get_y() + step.get_y());
