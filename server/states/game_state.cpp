@@ -3,11 +3,15 @@
 #include <utility>
 
 #include "server/game/game_config.h"
+#include "server/items/gun.h"
 #include "server/physics/circular_hitbox.h"
 #include "server/physics/rect_hitbox.h"
 
-GameState::GameState(std::shared_ptr<Clock>&& game_clock, int max_players):
+GameState::GameState(std::shared_ptr<Clock>&& game_clock, int max_players,
+                     const std::vector<std::pair<GunType, Vector2D>>& guns):
         phase(std::move(game_clock)), max_players(max_players) {
+    for (const auto& [gun_type, pos]: guns)
+        add_dropped_gun(std::move(Gun::make_gun(gun_type)), pos);
     updates = get_full_update();
 }
 
@@ -121,7 +125,7 @@ void GameState::add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos)
     dropped_guns.emplace_back(std::move(gun), gun_hitbox);
 }
 
-std::unique_ptr<Gun>&& GameState::remove_dropped_gun_at_pos(const Vector2D& pos) {
+std::unique_ptr<Gun> GameState::remove_dropped_gun_at_pos(const Vector2D& pos) {
     auto it = std::find_if(dropped_guns.begin(), dropped_guns.end(),
                            [&pos](const WorldItem<std::unique_ptr<Gun>>& item) {
                                return item.hitbox.get_pos() == pos;
@@ -129,13 +133,13 @@ std::unique_ptr<Gun>&& GameState::remove_dropped_gun_at_pos(const Vector2D& pos)
     if (it == dropped_guns.end())
         throw std::runtime_error("Dropped gun not found at the specified position");
 
-    std::unique_ptr<Gun>&& gun = std::move(it->item);
+    std::unique_ptr<Gun> gun = std::move(it->item);
     dropped_guns.erase(it);
 
     for (auto& dg: dropped_guns)
         updates.set_dropped_guns({WorldItem<GunType>{dg.item->get_type(), dg.hitbox}});
 
-    return std::move(gun);
+    return gun;
 }
 
 void GameState::add_bomb(Bomb&& bomb, const Vector2D& pos) {
@@ -147,6 +151,7 @@ Bomb GameState::remove_bomb() {
         throw std::runtime_error("Bomb not found");
     Bomb removed_bomb = std::move(bomb.value().item);
     bomb.reset();
+    updates.set_bomb(std::optional<WorldItem<BombUpdate>>());
     return removed_bomb;
 }
 
@@ -207,8 +212,6 @@ GameUpdate GameState::get_updates() const {
     if (bomb.has_value())
         update.set_bomb(
                 WorldItem<BombUpdate>{bomb.value().item.get_updates(), bomb.value().hitbox});
-    else
-        update.set_bomb(std::optional<WorldItem<BombUpdate>>());
 
     return update;
 }

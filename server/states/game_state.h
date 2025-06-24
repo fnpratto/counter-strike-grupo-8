@@ -27,7 +27,8 @@ class GameState: public State<GameUpdate> {
     bool is_tts_win_condition() const;
 
 public:
-    GameState(std::shared_ptr<Clock>&& game_clock, int max_players);
+    GameState(std::shared_ptr<Clock>&& game_clock, int max_players,
+              const std::vector<std::pair<GunType, Vector2D>>& guns);
 
     bool player_is_in_game(const std::string& player_name) const;
     bool all_players_ready() const;
@@ -51,7 +52,7 @@ public:
 
     void add_player(const std::string& player_name, Team team, const Vector2D& pos);
     void add_dropped_gun(std::unique_ptr<Gun>&& gun, const Vector2D& pos);
-    std::unique_ptr<Gun>&& remove_dropped_gun_at_pos(const Vector2D& pos);
+    std::unique_ptr<Gun> remove_dropped_gun_at_pos(const Vector2D& pos);
     void add_bomb(Bomb&& bomb, const Vector2D& pos);
     Bomb remove_bomb();
 

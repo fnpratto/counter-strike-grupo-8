@@ -1,12 +1,13 @@
 #include <gtest/gtest.h>
 
 #include "common/models.h"
-#include "server/clock/mock_clock.h"
 #include "server/errors.h"
 #include "server/game/shop.h"
 #include "server/items/gun.h"
 #include "server/player/player.h"
 #include "server/player/player_config.h"
+
+#include "mock_clock.h"
 
 class TestShop: public ::testing::Test {
 protected:

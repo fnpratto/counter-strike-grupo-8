@@ -21,7 +21,6 @@
     F(BombExplodedResponse, BOMB_EXPLODED_RESP) \
     F(JoinedGameResponse, JOINED_GAME_RESP)
 
-
 #define LOBBY_COMMANDS_MAP(F)             \
     F(CreateGameCommand, CREATE_GAME_CMD) \
     F(JoinGameCommand, JOIN_GAME_CMD)     \
@@ -47,8 +46,7 @@
     F(StopPlantingBombCommand, STOP_PLANTING_BOMB_CMD)   \
     F(StartDefusingBombCommand, START_DEFUSING_BOMB_CMD) \
     F(StopDefusingBombCommand, STOP_DEFUSING_BOMB_CMD)   \
-    F(PickUpItemCommand, PICK_UP_ITEM_CMD)               \
-    F(LeaveGameCommand, LEAVE_GAME_CMD)
+    F(PickUpItemCommand, PICK_UP_ITEM_CMD)
 
 #define UPDATES_MAP(F) F(GameUpdate, GAME_UPDATE)
 

@@ -35,8 +35,8 @@ tiles:
       y: 1
       collidable: false
     - id: 9
-      x: 1
       y: 1
+      x: 1
       collidable: false
     - id: 10
       x: 2
@@ -71,8 +71,8 @@ tiles:
       y: 2
       collidable: false
     - id: 18
-      x: 2
       y: 2
+      x: 2
       collidable: false
     - id: 19
       x: 3
@@ -107,8 +107,8 @@ tiles:
       y: 3
       collidable: false
     - id: 27
-      x: 3
       y: 3
+      x: 3
       collidable: false
     - id: 28
       x: 4
@@ -143,8 +143,8 @@ tiles:
       y: 4
       collidable: false
     - id: 36
-      x: 4
       y: 4
+      x: 4
       collidable: false
     - id: 37
       x: 5
@@ -175,8 +175,8 @@ tiles:
       y: 5
       collidable: false
     - id: 44
-      x: 5
       y: 5
+      x: 5
       collidable: false
     - id: 45
       x: 6
@@ -211,8 +211,8 @@ tiles:
       y: 6
       collidable: false
     - id: 53
-      x: 6
       y: 6
+      x: 6
       collidable: false
     - id: 54
       x: 0
@@ -243,8 +243,8 @@ tiles:
       y: 7
       collidable: true
     - id: 61
-      x: 7
       y: 7
+      x: 7
       collidable: false
     - id: 62
       x: 2

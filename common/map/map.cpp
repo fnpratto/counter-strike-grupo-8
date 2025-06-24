@@ -11,7 +11,7 @@ Map::Map(const std::string& name, int max_players, int height, int width):
         max_players(max_players),
         height(height),
         width(width),
-        tiles(height, std::vector<std::optional<Tile>>(width)) {}
+        tiles(width, std::vector<std::optional<Tile>>(height)) {}
 
 std::string Map::get_name() const { return name; }
 
@@ -33,6 +33,8 @@ const std::vector<std::reference_wrapper<Tile>>& Map::get_spawns_cts() const { r
 
 const std::vector<std::reference_wrapper<Tile>>& Map::get_bomb_sites() const { return bomb_sites; }
 
+const std::vector<std::pair<GunType, Vector2D>>& Map::get_guns() const { return guns; }
+
 void Map::validate() const {
     if (spawns_tts.empty())
         throw std::runtime_error("Map '" + name + "' has no Terrorist spawns");
@@ -53,4 +55,8 @@ void Map::add_tile(Tile&& tile) {
         spawns_cts.emplace_back(added_tile);
     if (added_tile.is_bomb_site)
         bomb_sites.emplace_back(added_tile);
+}
+
+void Map::add_gun(GunType gun_type, const Vector2D& pos) {
+    guns.push_back(std::make_pair(gun_type, pos));
 }

@@ -3,8 +3,8 @@
 
 #include <gtest/gtest.h>
 
+#include "../game/mock_clock.h"
 #include "common/models.h"
-#include "server/clock/mock_clock.h"
 #include "server/errors.h"
 #include "server/game/shop.h"
 #include "server/items/gun.h"

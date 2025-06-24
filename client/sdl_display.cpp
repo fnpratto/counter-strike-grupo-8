@@ -91,7 +91,7 @@ void SDLDisplay::run() {
             MouseHandler(output_queue, SCREEN_WIDTH, SCREEN_HEIGHT, list_teams, *shop_display,
                          *hud_display, list_skins),
             KeyboardHandler(output_queue, *shop_display, *score_display, sound_manager,
-                            *hud_display));
+                            *hud_display, *world));
     end_round_display = std::make_unique<EndRoundDisplay>(window, state);
     input_handler->start();
 
@@ -125,6 +125,9 @@ void SDLDisplay::run() {
             world->render();
             hud_display->render();
             end_round_display->render();
+        } else if (state.get_phase().get_type() == PhaseType::BombPlanted) {
+            world->render();
+            hud_display->render();
         }
 
         if (score_display->isActive()) {
@@ -286,6 +289,12 @@ void SDLDisplay::update_state() {
             case MessageType::ERROR_RESP: {
                 const ErrorResponse& error = msg.get_content<ErrorResponse>();
                 sound_manager.play("error");
+                break;
+            }
+            case MessageType::BOMB_EXPLODED_RESP: {
+                std::cout << "Received BombExplodedResponse" << std::endl;
+                auto bomb_exploded_resp = msg.get_content<BombExplodedResponse>();
+                sound_manager.play("bomb_exploded");
                 break;
             }
             default: {

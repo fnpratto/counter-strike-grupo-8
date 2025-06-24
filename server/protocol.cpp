@@ -289,12 +289,6 @@ PickUpItemCommand ServerProtocol::deserialize_msg<PickUpItemCommand>(payload_t& 
     return PickUpItemCommand();
 }
 
-template <>
-LeaveGameCommand ServerProtocol::deserialize_msg<LeaveGameCommand>(payload_t& payload) const {
-    (void)payload;
-    return LeaveGameCommand();
-}
-
 #define DESERIALIZE_MSG(command, msg_type) \
     case MessageType::msg_type:            \
         return Message(deserialize_msg<command>(payload));

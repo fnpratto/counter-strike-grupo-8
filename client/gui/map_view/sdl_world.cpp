@@ -32,8 +32,11 @@ SdlWorld::SdlWorld(const SdlWindow& window, Map&& map, const GameUpdate& game_st
         player_name(player_name),
         camera(window.getWidth(), window.getHeight()),
         map(window, camera, std::move(map)),
+        field_of_view(window, 1000.0f),
+        background(BACKGROUND_PATH, window),
         player(SdlPlayer(window, camera)),
         items(window, game_state, camera) {}
+
 
 void SdlWorld::handle_hit(HitResponse&& hit) {
     auto origin = game_state.get_players().at(hit.get_player_name()).get_pos();
@@ -48,7 +51,27 @@ void SdlWorld::handle_hit(HitResponse&& hit) {
     }
 }
 
+void SdlWorld::renderBackground() {
+
+    const Area& src = Area(0, 0, 500, 300);
+    const Area& dest = Area(0, 0, window.getWidth() + 100, window.getHeight());
+    background.render(src, dest);
+}
+
+float SdlWorld::get_rotation(const PlayerUpdate& player_state) {
+    auto aim_direction = player_state.get_aim_direction();
+    float angle;
+    if (aim_direction != Vector2D(0, 0)) {
+        angle = std::atan2(aim_direction.get_y(), aim_direction.get_x()) * 180 / M_PI;
+        angle += 90.0f;
+    } else {
+        angle = 0.0f;
+    }
+    return angle;
+}
+
 void SdlWorld::render() {
+    renderBackground();
     camera.center(game_state.get_players().at(player_name).get_pos());
 
     map.render();
@@ -66,4 +89,57 @@ void SdlWorld::render() {
             std::remove_if(knife_slashes.begin(), knife_slashes.end(),
                            [](const auto& knife_slash) { return knife_slash->is_finished(); }),
             knife_slashes.end());
+
+
+    field_of_view.render(window.getWidth(), window.getHeight(),
+                         get_rotation(game_state.get_players().at(player_name)));
+}
+
+// enum class BombPhaseType { NotPlanted, Planted, Exploded, Defused, Planting, Defusing };
+std::optional<Message> SdlWorld::getStartBombMessage(SoundManager& sound_manager) {
+    if (game_state.get_phase().get_type() != PhaseType::InRound &&
+        game_state.get_phase().get_type() != PhaseType::BombPlanted) {
+        std::cout << "Cannot start bomb action outside of InRound phase." << std::endl;
+        return std::nullopt;
+    }
+    std::cout << "getStartBombMessage called" << std::endl;
+    Team player_team = game_state.get_players().at(player_name).get_team();
+    if (player_team == Team::CT) {
+        /*if (game_state.get_bomb().value().item.get_bomb_phase() == BombPhaseType::Planted) {*/
+        std::cout << "Starting bomb defusing" << std::endl;
+        sound_manager.play("defuse_bomb");
+        return Message(StartDefusingBombCommand());
+        //}
+    } else if (player_team == Team::TT) {
+        // if (game_state.get_bomb().value().item.get_bomb_phase() == BombPhaseType::NotPlanted) {
+        sound_manager.play("plant_bomb");
+        std::cout << "Starting bomb planting" << std::endl;
+        return Message(StartPlantingBombCommand());
+        // }
+    }
+    return std::nullopt;
+}
+
+std::optional<Message> SdlWorld::getStopBombMessage(SoundManager& sound_manager) {
+    if (game_state.get_phase().get_type() != PhaseType::InRound) {
+        std::cout << "Cannot start bomb action outside of InRound phase." << std::endl;
+        return std::nullopt;
+    }
+    Team player_team = game_state.get_players().at(player_name).get_team();
+    if (player_team == Team::CT) {
+        // if (game_state.get_bomb().value().item.get_bomb_phase() == BombPhaseType::Defusing) {
+        std::cout << "Stop defusing bomb" << std::endl;
+        sound_manager.play("stop_defuse_bomb");
+        return Message(StopDefusingBombCommand());
+        //}
+
+    } else if (player_team == Team::TT) {
+        // if (game_state.get_bomb().value().item.get_bomb_phase() == BombPhaseType::Planting) {
+        std::cout << "Stop plant bomb" << std::endl;
+        sound_manager.play("stop_plant_bomb");
+        return Message(StopPlantingBombCommand());
+        // }
+    }
+
+    return std::nullopt;
 }

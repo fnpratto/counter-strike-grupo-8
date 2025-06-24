@@ -13,7 +13,8 @@
 #include "game_config.h"
 
 Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map):
-        Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.get_max_players())),
+        Logic<GameState, GameUpdate>(
+                GameState(std::move(game_clock), map.get_max_players(), map.get_guns())),
         name(name),
         physics_system(std::move(map), state.get_players(), state.get_dropped_guns(),
                        state.get_bomb()) {}
@@ -67,12 +68,6 @@ void Game::advance_round_logic() {
         }
     }
 
-    if (state.get_num_rounds() == GameConfig::max_rounds / 2) {
-        state.swap_players_teams();
-        broadcast(Message(SwapTeamsResponse()));
-        return;
-    }
-
     if (!phase.is_game_end() && state.get_num_rounds() == GameConfig::max_rounds) {
         phase.end_game();
         broadcast(Message(ScoreboardResponse(state.get_scoreboard())));
@@ -98,6 +93,7 @@ void Game::advance_bomb_logic() {
                 bomb.advance(state.get_phase().get_time_now());
                 if (!bomb.is_planted())
                     return;
+                player->handle_stop_planting(state.get_phase().get_time_now());
                 state.add_bomb(std::move(player->drop_bomb().value()), player->get_hitbox().center);
                 state.get_phase().start_bomb_planted_phase();
             }
@@ -202,7 +198,7 @@ void Game::handle<SelectTeamCommand>(const std::string& player_name, const Selec
     if (state.get_phase().is_playing())
         throw SelectTeamError();
     if (state.team_is_full(msg.get_team())) {
-        send_msg(player_name, Message(ErrorResponse()));
+        send_msg(player_name, Message(ErrorResponse("Team is full")));
         return;
     }
 
@@ -256,7 +252,7 @@ void Game::handle<BuyGunCommand>(const std::string& player_name, const BuyGunCom
     auto& player = state.get_player(player_name);
     if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name) ||
         !shop.can_buy_gun(msg.get_gun(), player->get_inventory())) {
-        send_msg(player_name, Message(ErrorResponse()));
+        send_msg(player_name, Message(ErrorResponse("Cannot buy gun")));
         return;
     }
 
@@ -271,7 +267,7 @@ void Game::handle<BuyAmmoCommand>(const std::string& player_name, const BuyAmmoC
     auto& player = state.get_player(player_name);
     if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name) ||
         !shop.can_buy_ammo(msg.get_slot(), player->get_inventory())) {
-        send_msg(player_name, Message(ErrorResponse()));
+        send_msg(player_name, Message(ErrorResponse("Cannot buy ammo")));
         return;
     }
 
@@ -390,13 +386,6 @@ void Game::handle<PickUpItemCommand>(const std::string& player_name,
     }
 }
 
-// TODO: Implement
-template <>
-void Game::handle<LeaveGameCommand>(const std::string& player_name,
-                                    [[maybe_unused]] const LeaveGameCommand& msg) {
-    (void)player_name;
-}
-
 #define HANDLE_MSG(command, msg_type)                    \
     case MessageType::msg_type:                          \
         handle(player_name, msg.get_content<command>()); \
@@ -452,15 +441,21 @@ void Game::give_bomb_to_random_tt(Bomb&& bomb) {
 void Game::prepare_new_round() {
     state.advance_round();
     for (const auto& [p_name, player]: state.get_players()) {  // cppcheck-suppress[unusedVariable]
-        move_player_to_spawn(player);
         player->reset();
         auto bomb = player->drop_bomb();
         if (bomb.has_value())
             state.add_bomb(std::move(bomb.value()), player->get_hitbox().center);
     }
+    if (state.get_num_rounds() == GameConfig::max_rounds / 2) {
+        state.swap_players_teams();
+        broadcast(Message(SwapTeamsResponse()));
+    }
+    for (const auto& [_, player]: state.get_players()) move_player_to_spawn(player);
     if (state.get_bomb().has_value()) {
         state.get_bomb().value().item.reset();
         give_bomb_to_random_tt(std::move(state.remove_bomb()));
+    } else {
+        give_bomb_to_random_tt(Bomb());
     }
     state.get_dropped_guns().clear();
 }
