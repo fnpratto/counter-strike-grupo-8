@@ -1,6 +1,6 @@
 #pragma once
 
-#include "clock.h"
+#include "server/clock/clock.h"
 
 class MockClock: public Clock {
 private:

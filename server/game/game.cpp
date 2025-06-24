@@ -196,7 +196,7 @@ void Game::handle<SelectTeamCommand>(const std::string& player_name, const Selec
     if (state.get_phase().is_playing())
         throw SelectTeamError();
     if (state.team_is_full(msg.get_team())) {
-        send_msg(player_name, Message(ErrorResponse()));
+        send_msg(player_name, Message(ErrorResponse("Team is full")));
         return;
     }
 
@@ -250,7 +250,7 @@ void Game::handle<BuyGunCommand>(const std::string& player_name, const BuyGunCom
     auto& player = state.get_player(player_name);
     if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name) ||
         !shop.can_buy_gun(msg.get_gun(), player->get_inventory())) {
-        send_msg(player_name, Message(ErrorResponse()));
+        send_msg(player_name, Message(ErrorResponse("Cannot buy gun")));
         return;
     }
 
@@ -265,7 +265,7 @@ void Game::handle<BuyAmmoCommand>(const std::string& player_name, const BuyAmmoC
     auto& player = state.get_player(player_name);
     if (!state.get_phase().is_buying_phase() || !physics_system.player_in_spawn(player_name) ||
         !shop.can_buy_ammo(msg.get_slot(), player->get_inventory())) {
-        send_msg(player_name, Message(ErrorResponse()));
+        send_msg(player_name, Message(ErrorResponse("Cannot buy ammo")));
         return;
     }
 
@@ -382,13 +382,6 @@ void Game::handle<PickUpItemCommand>(const std::string& player_name,
             state.add_dropped_gun(std::move(old_gun.value()), player->get_hitbox().center);
         player->pick_gun(std::move(new_gun));
     }
-}
-
-// TODO: Implement
-template <>
-void Game::handle<LeaveGameCommand>(const std::string& player_name,
-                                    [[maybe_unused]] const LeaveGameCommand& msg) {
-    (void)player_name;
 }
 
 #define HANDLE_MSG(command, msg_type)                    \

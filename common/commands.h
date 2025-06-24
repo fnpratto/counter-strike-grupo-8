@@ -225,9 +225,3 @@ class StopDefusingBombCommand: public Command {};
  * @brief Command to pick up an item at the current position.
  */
 class PickUpItemCommand: public Command {};
-
-/**
- * @class LeaveGameCommand
- * @brief Command to leave the current game.
- */
-class LeaveGameCommand: public Command {};

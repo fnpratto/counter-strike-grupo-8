@@ -55,7 +55,7 @@ target_sources(taller_tests
     ../common/updates/knife_update.h
     ../server/errors.h
     # clock
-    ../server/clock/mock_clock.h
+    server/game/mock_clock.h
     # testing
     common/mock_socket.h
     # game
