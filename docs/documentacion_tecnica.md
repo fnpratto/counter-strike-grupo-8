@@ -1,19 +1,8 @@
 # Documentación técnica
 
-Todas las funcionalidades y mejoras se rastrean mediante issues y pull requests en GitHub. A continuación, se documentan los aspectos más relevantes del desarrollo.
+Todas las funcionalidades y mejoras se rastrean mediante issues y pull requests en GitHub.
 
-## Funcionalidades completas
-
-- Lobby (crear / unirse a partidas)
-- Implementación de arquitectura cliente-servidor básica
-- HUD funcional
-- Definición del protocolo de mensajes
-- Implementación de cámara
-- Switch display entre QT y SDL
-- Pre game (selección de equipos y skin)
-- Warm up (espera a que todos los usuarios hayan terminado sus selecciones)
-
-## Funcionalidades en progreso o planificadas
+## Aspectos más relevantes del desarrollo
 
 ### 1. Client
 
@@ -47,10 +36,11 @@ Todas las funcionalidades y mejoras se rastrean mediante issues y pull requests 
 
 ### 1. Server
 
-- Tenemos una constante global meter_size. Estamos en duda de si centralizar el manejo de esta constante en el Physics System, pero, a su vez, queremos guardar atributos como las posiciones de los tiles en el mapa (clase Map) o el máximo rango de las armas (max_range) de acuerdo a la métrica del meter_size. Es por eso que en principio lo pusimos como una constante global.
-- Arreglar los parámetros de velocidad del jugador y las configuraciones de las armas para que el juego esté mejor balanceado.
+-
 
-## Bugs
+## Funcionalidades incompletas
 
-- Movimiento izquierda y/o arriba
-- Animación
+- El client yaml de config tenga si 1200x 800 o full screen
+- Sonidos no varian segun la distancia
+- El client animacion de explocion
+- El armado del mapa del Editor de niveles no abarca el colocado de armas
