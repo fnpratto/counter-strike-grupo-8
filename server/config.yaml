@@ -15,7 +15,7 @@ PhaseTimes:
   round_end_duration: 5
 
 Player:
-  speed: 9
+  speed: 4.5
   full_health: 100
   initial_money: 800
 
