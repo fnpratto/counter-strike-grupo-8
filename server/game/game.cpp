@@ -13,7 +13,8 @@
 #include "game_config.h"
 
 Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map):
-        Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.get_max_players())),
+        Logic<GameState, GameUpdate>(
+                GameState(std::move(game_clock), map.get_max_players(), map.get_guns())),
         name(name),
         physics_system(std::move(map), state.get_players(), state.get_dropped_guns(),
                        state.get_bomb()) {}

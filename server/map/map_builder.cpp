@@ -1,6 +1,7 @@
 #include "map_builder.h"
 
 #include "common/map/tile.h"
+#include "common/models.h"
 #include "common/physics/physics_config.h"
 #include "common/utils/vector_2d.h"
 
@@ -17,6 +18,9 @@ Map MapBuilder::build() {
 
     YAML::Node tiles = map_data["tiles"];
     load_tiles(tiles, map);
+
+    YAML::Node guns = map_data["guns"];
+    load_guns(guns, map);
 
     map.validate();
     return map;
@@ -37,5 +41,19 @@ void MapBuilder::load_tiles(const YAML::Node& tiles, Map& map) {
 
         Vector2D pos = Vector2D(x, y) * PhysicsConfig::meter_size;
         map.add_tile(Tile{pos, id, is_collidable, is_spawn_tt, is_spawn_ct, is_bomb_site});
+    }
+}
+
+void MapBuilder::load_guns(const YAML::Node& guns, Map& map) {
+    if (!guns || !guns.IsSequence())
+        return;
+
+    for (const auto& gun_data: guns) {
+        int x = gun_data["x"].as<int>();
+        int y = gun_data["y"].as<int>();
+        GunType gun_type = static_cast<GunType>(gun_data["type"].as<int>());
+
+        Vector2D pos = Vector2D(x, y) * PhysicsConfig::meter_size;
+        map.add_gun(gun_type, pos);
     }
 }
