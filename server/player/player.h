@@ -11,6 +11,7 @@
 #include "common/updates/player_update.h"
 #include "common/utils/vector_2d.h"
 #include "server/clock/clock.h"
+#include "server/game/game_config.h"
 #include "server/items/effects/attack_effect.h"
 #include "server/logic.h"
 #include "server/states/player_state.h"
@@ -24,7 +25,9 @@ private:
     std::unique_ptr<PlayerStatus> status;
 
 public:
-    Player(Team team, CharacterType character_type, Circle hitbox);
+    Player(Team team, CharacterType character_type, Circle hitbox,
+           const GameConfig::PlayerConfig& player_config,
+           const GameConfig::ItemsConfig& items_config);
 
     Player(const Player&) = delete;
     Player& operator=(const Player&) = delete;
@@ -42,6 +45,7 @@ public:
     CharacterType get_character_type() const;
     Circle get_hitbox() const;
     Vector2D get_move_dir() const;
+    int get_speed() const;
     Inventory& get_inventory();
     ScoreboardEntry get_scoreboard_entry() const;
 

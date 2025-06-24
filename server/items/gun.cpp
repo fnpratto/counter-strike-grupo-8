@@ -5,25 +5,10 @@
 
 #include "common/utils/random_float_generator.h"
 
-Gun::Gun(GunType gun, GunConfig gun_config):
+Gun::Gun(GunType gun, const GameConfig::ItemsConfig::GunConfig& gun_config):
         Logic<GunState, GunUpdate>(
                 GunState(gun, gun_config.init_mag_ammo, gun_config.init_reserve_ammo)),
         gun_config(gun_config) {}
-
-std::unique_ptr<Gun> Gun::make_gun(const GunType& gun_type) {
-    switch (gun_type) {
-        case GunType::Glock:
-            return std::make_unique<Gun>(GunType::Glock, GlockConfig);
-        case GunType::AK47:
-            return std::make_unique<Gun>(GunType::AK47, Ak47Config);
-        case GunType::AWP:
-            return std::make_unique<Gun>(GunType::AWP, AwpConfig);
-        case GunType::M3:
-            return std::make_unique<Gun>(GunType::M3, M3Config);
-        default:
-            throw std::invalid_argument("Unknown gun type");
-    }
-}
 
 bool Gun::is_attacking() const { return state.get_is_attacking(); }
 

@@ -49,11 +49,18 @@ SDL_Texture* SdlText::createTextureFromText(const std::string& text) {
     return newTexture;
 }
 
-void SdlText::setTextString(const std::string& text) {
-    if (texture) {
+
+void SdlText::setTextString(const std::string& str) {
+    if (str == current_text)
+        return;  // No change
+    current_text = str;
+
+    if (texture)
         SDL_DestroyTexture(texture);
-    }
-    texture = createTextureFromText(text);
+
+    SDL_Surface* surface = TTF_RenderText_Blended(font, current_text.c_str(), color);
+    texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
 }
 
 int SdlText::render(const Area& dest) const {

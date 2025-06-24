@@ -13,6 +13,8 @@ target_sources(taller_server
     # game
     game/game.cpp
     game/game_phase.cpp
+    # shop
+    shop/shop.cpp
     # items
     items/gun.cpp
     items/bomb.cpp
@@ -53,10 +55,11 @@ target_sources(taller_server
     clock/clock.h
     clock/real_clock.h
     # game
-    game/shop.h
     game/game.h
     game/game_phase.h
     game/game_config.h
+    # shop
+    shop/shop.h
     # items
     items/gun.h
     items/bomb.h
@@ -64,7 +67,6 @@ target_sources(taller_server
     items/weapon.h
     items/effects/effect.h
     items/effects/attack_effect.h
-    items/items_config.h
     # physics
     physics/physics_system.h
     physics/target_type.h
@@ -75,7 +77,6 @@ target_sources(taller_server
     map/map_builder.h
     # player
     player/player.h
-    player/player_config.h
     player/inventory.h
     player/statuses/player_status.h
     player/statuses/idle_status.h

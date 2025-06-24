@@ -34,6 +34,7 @@ public:
     void render(int x, int y, double angle);
     void render(int x, int y, SDL_Rect* clip = nullptr, double angle = 0,
                 SDL_Point* center = nullptr, SDL_RendererFlip flip = SDL_FLIP_NONE);
+    void render(const Area& src, const Area& dest, double angle) const;
 
     void render(int x, int y, int w, int h, SDL_Rect* clip, double angle, SDL_Point* center,
                 SDL_RendererFlip flip);

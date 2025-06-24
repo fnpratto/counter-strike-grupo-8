@@ -58,7 +58,7 @@ private:
     Vector2D rand_pos_in_vector(const std::vector<std::reference_wrapper<Tile>>& vector) const;
 
     // Movement and positioning
-    Vector2D calculate_step(const Vector2D& dir, float tick_duration) const;
+    Vector2D calculate_step(int speed, const Vector2D& dir, float tick_duration) const;
     bool can_move_to_pos(const Vector2D& pos) const;
 
     // Target finding helpers

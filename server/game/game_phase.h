@@ -8,6 +8,8 @@
 #include "server/logic.h"
 #include "server/states/phase_state.h"
 
+#include "game_config.h"
+
 class GamePhase: public Logic<PhaseState, PhaseUpdate> {
 private:
     std::shared_ptr<Clock> game_clock;
@@ -16,7 +18,8 @@ private:
     std::map<PhaseType, PhaseType> next_phase_map;
 
 public:
-    explicit GamePhase(std::shared_ptr<Clock>&& game_clock);
+    explicit GamePhase(std::shared_ptr<Clock>&& game_clock,
+                       const GameConfig::PhaseTimes& phase_times);
 
     GamePhase(const GamePhase&) = delete;
     GamePhase& operator=(const GamePhase&) = delete;

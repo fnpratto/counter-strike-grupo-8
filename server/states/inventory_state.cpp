@@ -2,7 +2,10 @@
 
 #include <vector>
 
-InventoryState::InventoryState(int money): money(money) { updates = get_full_update(); }
+InventoryState::InventoryState(int money, const GameConfig::ItemsConfig::KnifeConfig& knife_config):
+        money(money), knife(knife_config) {
+    updates = get_full_update();
+}
 
 int InventoryState::get_money() const { return money; }
 

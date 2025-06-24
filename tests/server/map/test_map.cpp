@@ -14,7 +14,7 @@ TEST(YamlTest, LoadMap) {
 }
 
 TEST(YamlTest, BuildMap) {
-    MapBuilder builder("./tests/server/map/map.yaml");
+    MapBuilder builder("./tests/server/map/map3.yaml");
     Map map = builder.build();
 
     EXPECT_EQ(map.get_name(), "test_map");
@@ -27,4 +27,5 @@ TEST(YamlTest, BuildMap) {
     EXPECT_EQ(map.get_spawns_tts().size(), 1);
     EXPECT_EQ(map.get_spawns_cts().size(), 1);
     EXPECT_EQ(map.get_bomb_sites().size(), 1);
+    EXPECT_EQ(map.get_guns().size(), 2);
 }

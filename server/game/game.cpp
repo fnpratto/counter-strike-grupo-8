@@ -12,9 +12,12 @@
 
 #include "game_config.h"
 
-Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map):
-        Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.get_max_players())),
+Game::Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map,
+           GameConfig&& config):
+        Logic<GameState, GameUpdate>(GameState(std::move(game_clock), map.get_max_players(),
+                                               map.get_guns(), std::move(config))),
         name(name),
+        shop(state.get_config().shop_prices),
         physics_system(std::move(map), state.get_players(), state.get_dropped_guns(),
                        state.get_bomb()) {}
 
@@ -67,7 +70,7 @@ void Game::advance_round_logic() {
         }
     }
 
-    if (!phase.is_game_end() && state.get_num_rounds() == GameConfig::max_rounds) {
+    if (!phase.is_game_end() && state.get_num_rounds() == state.get_config().max_rounds) {
         phase.end_game();
         broadcast(Message(ScoreboardResponse(state.get_scoreboard())));
     }
@@ -92,6 +95,7 @@ void Game::advance_bomb_logic() {
                 bomb.advance(state.get_phase().get_time_now());
                 if (!bomb.is_planted())
                     return;
+                player->handle_stop_planting(state.get_phase().get_time_now());
                 state.add_bomb(std::move(player->drop_bomb().value()), player->get_hitbox().center);
                 state.get_phase().start_bomb_planted_phase();
             }
@@ -100,10 +104,14 @@ void Game::advance_bomb_logic() {
     }
 
     auto& bomb = state.get_bomb().value();
+    bool bomb_was_defused = bomb.item.is_defused();
     bomb.item.advance(state.get_phase().get_time_now());
 
-    if (bomb.item.is_defused())
+    if (!bomb_was_defused && bomb.item.is_defused()) {
+        for (const auto& [_, player]: state.get_players())
+            player->handle_stop_defusing(bomb.item, state.get_phase().get_time_now());
         return;
+    }
 
     if (!bomb.item.should_explode())
         return;
@@ -155,7 +163,8 @@ bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker, const Ef
     bool is_hit = effect.apply(target_player);
     if (target_player->is_dead()) {
         attacker->add_kill();
-        attacker->add_rewards(Scores::kill, Bonifications::kill);
+        attacker->add_rewards(state.get_config().scores.kill,
+                              state.get_config().bonifications.kill);
         auto gun = target_player->drop_primary_weapon();
         if (gun.has_value())
             state.add_dropped_gun(std::move(gun.value()), target_player->get_hitbox().center);
@@ -227,11 +236,11 @@ template <>
 void Game::handle<SetReadyCommand>(const std::string& player_name,
                                    [[maybe_unused]] const SetReadyCommand& msg) {
     if (state.get_phase().is_playing())
-        throw SetReadyError();
+        return;
 
     state.get_player(player_name)->set_ready();
     if (state.all_players_ready()) {
-        give_bomb_to_random_tt(Bomb());
+        give_bomb_to_random_tt(Bomb(state.get_config().items_config.bomb));
         state.get_phase().start_game();
         for (const auto& [_, player]: state.get_players())  // cppcheck-suppress[unusedVariable]
             move_player_to_spawn(player);
@@ -257,7 +266,8 @@ void Game::handle<BuyGunCommand>(const std::string& player_name, const BuyGunCom
     auto gun = player->drop_primary_weapon();
     if (gun.has_value())
         state.add_dropped_gun(std::move(gun.value()), player->get_hitbox().center);
-    shop.buy_gun(msg.get_gun(), player->get_inventory());
+    shop.buy_gun(msg.get_gun(), player->get_inventory(),
+                 state.get_config().items_config.get_gun_config(msg.get_gun()));
 }
 
 template <>
@@ -406,12 +416,12 @@ void Game::handle_msg(const Message& msg, const std::string& player_name) {
 float Game::get_tick_duration() {
     TimePoint now = state.get_phase().get_time_now();
     if (last_tick == TimePoint()) {
-        return 1.0f / GameConfig::tickrate;
+        return 1.0f / TICKRATE;
     } else {
         if (now < last_tick)
             last_tick = now;
         if (last_tick == now) {
-            return 1.0f / GameConfig::tickrate;
+            return 1.0f / TICKRATE;
         } else {
             float elapsed = std::chrono::duration<float>(now - last_tick).count();
             return elapsed;
@@ -444,7 +454,7 @@ void Game::prepare_new_round() {
         if (bomb.has_value())
             state.add_bomb(std::move(bomb.value()), player->get_hitbox().center);
     }
-    if (state.get_num_rounds() == GameConfig::max_rounds / 2) {
+    if (state.get_num_rounds() == state.get_config().max_rounds / 2) {
         state.swap_players_teams();
         broadcast(Message(SwapTeamsResponse()));
     }
@@ -453,7 +463,7 @@ void Game::prepare_new_round() {
         state.get_bomb().value().item.reset();
         give_bomb_to_random_tt(std::move(state.remove_bomb()));
     } else {
-        give_bomb_to_random_tt(Bomb());
+        give_bomb_to_random_tt(Bomb(state.get_config().items_config.bomb));
     }
     state.get_dropped_guns().clear();
 }

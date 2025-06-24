@@ -6,15 +6,17 @@
 
 #include "common/models.h"
 #include "common/updates/inventory_update.h"
+#include "server/game/game_config.h"
 #include "server/items/gun.h"
 #include "server/items/knife.h"
 #include "server/logic.h"
-#include "server/player/player_config.h"
 #include "server/states/inventory_state.h"
 
 class Inventory: public Logic<InventoryState, InventoryUpdate> {
+    GameConfig::ItemsConfig items_config;
+
 public:
-    Inventory();
+    Inventory(int initial_money, const GameConfig::ItemsConfig& items_config);
 
     Inventory(const Inventory&) = delete;
     Inventory& operator=(const Inventory&) = delete;
@@ -29,7 +31,7 @@ public:
     Knife& get_knife();
     std::optional<Bomb>& get_bomb();
 
-    void set_money(int new_money) { state.set_money(new_money); }
+    void set_money(int new_money);
 
     void set_gun(std::unique_ptr<Gun>&& gun);
     std::unique_ptr<Gun> remove_primary_weapon();

@@ -3,15 +3,14 @@
 #include <memory>
 #include <utility>
 
-#include "game_config.h"
-
-GamePhase::GamePhase(std::shared_ptr<Clock>&& game_clock):
+GamePhase::GamePhase(std::shared_ptr<Clock>&& game_clock,
+                     const GameConfig::PhaseTimes& phase_times):
         Logic<PhaseState, PhaseUpdate>(PhaseState(PhaseType::WarmUp)),
         game_clock(std::move(game_clock)),
         phase_durations({{PhaseType::WarmUp, 0},
-                         {PhaseType::Buying, PhaseTimes::buying_duration},
-                         {PhaseType::InRound, PhaseTimes::round_duration},
-                         {PhaseType::RoundEnd, PhaseTimes::round_end_duration},
+                         {PhaseType::Buying, phase_times.buying_duration},
+                         {PhaseType::InRound, phase_times.round_duration},
+                         {PhaseType::RoundEnd, phase_times.round_end_duration},
                          {PhaseType::GameEnd, 0}}),
         next_phase_map({{PhaseType::WarmUp, PhaseType::Buying},
                         {PhaseType::Buying, PhaseType::InRound},
