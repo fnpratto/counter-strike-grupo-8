@@ -96,7 +96,7 @@ void SdlWorld::render() {
 }
 
 // enum class BombPhaseType { NotPlanted, Planted, Exploded, Defused, Planting, Defusing };
-std::optional<Message> SdlWorld::getStartBombMessage(SoundManager& sound_manager) {
+std::optional<Message> SdlWorld::getStartBombMessage() {
     if (game_state.get_phase().get_type() != PhaseType::InRound &&
         game_state.get_phase().get_type() != PhaseType::BombPlanted) {
         std::cout << "Cannot start bomb action outside of InRound phase." << std::endl;
@@ -105,41 +105,35 @@ std::optional<Message> SdlWorld::getStartBombMessage(SoundManager& sound_manager
     std::cout << "getStartBombMessage called" << std::endl;
     Team player_team = game_state.get_players().at(player_name).get_team();
     if (player_team == Team::CT) {
-        /*if (game_state.get_bomb().value().item.get_bomb_phase() == BombPhaseType::Planted) {*/
-        std::cout << "Starting bomb defusing" << std::endl;
-        sound_manager.play("defuse_bomb");
-        return Message(StartDefusingBombCommand());
-        //}
+        if (game_state.get_phase().get_type() == PhaseType::BombPlanted) {
+            std::cout << "Starting bomb defusing" << std::endl;
+            return Message(StartDefusingBombCommand());
+        }
     } else if (player_team == Team::TT) {
-        // if (game_state.get_bomb().value().item.get_bomb_phase() == BombPhaseType::NotPlanted) {
-        sound_manager.play("plant_bomb");
-        std::cout << "Starting bomb planting" << std::endl;
-        return Message(StartPlantingBombCommand());
-        // }
+        if (game_state.get_phase().get_type() != PhaseType::BombPlanted) {
+            std::cout << "Starting bomb planting" << std::endl;
+            return Message(StartPlantingBombCommand());
+        }
     }
     return std::nullopt;
 }
 
-std::optional<Message> SdlWorld::getStopBombMessage(SoundManager& sound_manager) {
+std::optional<Message> SdlWorld::getStopBombMessage() {
     if (game_state.get_phase().get_type() != PhaseType::InRound) {
         std::cout << "Cannot start bomb action outside of InRound phase." << std::endl;
         return std::nullopt;
     }
+    if (!game_state.get_bomb().has_value())
+        return std::nullopt;
     Team player_team = game_state.get_players().at(player_name).get_team();
     if (player_team == Team::CT) {
-        // if (game_state.get_bomb().value().item.get_bomb_phase() == BombPhaseType::Defusing) {
-        std::cout << "Stop defusing bomb" << std::endl;
-        sound_manager.play("stop_defuse_bomb");
-        return Message(StopDefusingBombCommand());
-        //}
-
+        if (game_state.get_phase().get_type() == PhaseType::BombPlanted) {
+            std::cout << "Stop defusing bomb" << std::endl;
+            return Message(StopDefusingBombCommand());
+        }
     } else if (player_team == Team::TT) {
-        // if (game_state.get_bomb().value().item.get_bomb_phase() == BombPhaseType::Planting) {
         std::cout << "Stop plant bomb" << std::endl;
-        sound_manager.play("stop_plant_bomb");
         return Message(StopPlantingBombCommand());
-        // }
     }
-
     return std::nullopt;
 }
