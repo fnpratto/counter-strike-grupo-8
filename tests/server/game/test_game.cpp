@@ -390,15 +390,15 @@ TEST_F(TestGame, PlayerIsDeadAfterTakingAllHealthDamage) {
     game.join_player("test_player");
     game.join_player("target_player");
 
+    Message msg_select_team = Message(SelectTeamCommand(Team::CT));
+    game.tick({PlayerMessage("test_player", msg_select_team)});
+    msg_select_team = Message(SelectTeamCommand(Team::TT));
+    game.tick({PlayerMessage("target_player", msg_select_team)});
+
     updates = game.get_full_update();
     Vector2D player_pos = updates.get_players().at("test_player").get_pos();
     Vector2D target_pos = updates.get_players().at("target_player").get_pos();
     int health = updates.get_players().at("target_player").get_health();
-
-    Message msg_select_team = Message(SelectTeamCommand(Team::TT));
-    game.tick({PlayerMessage("test_player", msg_select_team)});
-    msg_select_team = Message(SelectTeamCommand(Team::CT));
-    game.tick({PlayerMessage("target_player", msg_select_team)});
 
     Message msg_aim = Message(AimCommand(target_pos - player_pos));
     Message msg_switch_weap = Message(SwitchItemCommand(ItemSlot::Secondary));
@@ -439,6 +439,12 @@ TEST_F(TestGame, PlayerIsDeadAfterTakingAllHealthDamage) {
             break;
         }
     }
+
+    updates = game.get_full_update();
+    EXPECT_FALSE(updates.get_players().at("target_player").get_inventory().get_bomb().has_value());
+    EXPECT_TRUE(updates.get_bomb().has_value());
+    EXPECT_EQ(updates.get_bomb().value().hitbox.get_pos(),
+              updates.get_players().at("target_player").get_pos());
 }
 
 TEST_F(TestGame, WeaponDoesNotMakeDamageWhenTargetIsOutOfRange) {
@@ -646,4 +652,65 @@ TEST_F(TestGame, OneTerroristHasBombWhenRoundStarts) {
     updates = player_messages[0].get_message().get_content<GameUpdate>();
     EXPECT_TRUE(updates.get_players().at("tt").get_inventory().get_bomb().has_value());
     EXPECT_FALSE(updates.get_bomb().has_value());
+}
+
+TEST_F(TestGame, PlayerCanPickUpDroppedItem) {
+    game.join_player("tt");
+    game.join_player("ct");
+    Message msg_select_team = Message(SelectTeamCommand(Team::TT));
+    game.tick({PlayerMessage("tt", msg_select_team)});
+    msg_select_team = Message(SelectTeamCommand(Team::CT));
+    game.tick({PlayerMessage("ct", msg_select_team)});
+
+    Message msg_start = Message(SetReadyCommand());
+    game.tick({PlayerMessage("tt", msg_start), PlayerMessage("ct", msg_start)});
+
+    advance_secs(PhaseTimes::buying_duration);
+    game.tick({});
+    advance_secs(PhaseTimes::round_duration);
+    game.tick({});
+    advance_secs(PhaseTimes::round_end_duration);
+    game.tick({});
+    Message msg_buy_m3 = Message(BuyGunCommand(GunType::M3));
+    game.tick({PlayerMessage("ct", msg_buy_m3)});
+
+    for (int i = 0; i < 5; i++) {
+        advance_secs(PhaseTimes::buying_duration);
+        game.tick({});
+        advance_secs(PhaseTimes::round_duration);
+        game.tick({});
+        advance_secs(PhaseTimes::round_end_duration);
+        game.tick({});
+    }
+
+    Message msg_buy_ak47 = Message(BuyGunCommand(GunType::AK47));
+    game.tick({PlayerMessage("ct", msg_buy_ak47)});
+
+    GameUpdate updates = game.get_full_update();
+    EXPECT_EQ(updates.get_players()
+                      .at("ct")
+                      .get_inventory()
+                      .get_guns()
+                      .at(ItemSlot::Primary)
+                      .get_gun(),
+              GunType::AK47);
+    EXPECT_EQ(updates.get_dropped_guns().size(), 1);
+    EXPECT_EQ(updates.get_dropped_guns()[0].item, GunType::M3);
+    EXPECT_EQ(updates.get_dropped_guns()[0].hitbox.get_pos(),
+              updates.get_players().at("ct").get_pos());
+
+    Message msg_pick_up = Message(PickUpItemCommand());
+    game.tick({PlayerMessage("ct", msg_pick_up)});
+    updates = game.get_full_update();
+    EXPECT_EQ(updates.get_players()
+                      .at("ct")
+                      .get_inventory()
+                      .get_guns()
+                      .at(ItemSlot::Primary)
+                      .get_gun(),
+              GunType::M3);
+    EXPECT_EQ(updates.get_dropped_guns().size(), 1);
+    EXPECT_EQ(updates.get_dropped_guns()[0].item, GunType::AK47);
+    EXPECT_EQ(updates.get_dropped_guns()[0].hitbox.get_pos(),
+              updates.get_players().at("ct").get_pos());
 }
