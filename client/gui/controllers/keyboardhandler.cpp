@@ -18,6 +18,7 @@ KeyboardHandler::KeyboardHandler(Queue<Message>& output_queue, shopDisplay& shop
 
 void KeyboardHandler::handleEvent(const SDL_Event& event) {
     if (event.type != SDL_KEYDOWN) {
+        active = false;
         switch (event.key.keysym.sym) {
             case SDLK_ESCAPE:
                 shopRef.updateShopState(false);
@@ -70,20 +71,22 @@ void KeyboardHandler::handleEvent(const SDL_Event& event) {
                 std::cout << "Picking up item" << std::endl;
                 break;
             case SDLK_e:
-                std::optional<Message> maybe_message = worldRef.getStartBombMessage(sound_manager);
+                std::optional<Message> maybe_message = worldRef.getStartBombMessage();
                 if (maybe_message.has_value()) {
                     output_queue.push(std::move(*maybe_message));
-                    return;
+                    active = true;
                 }
-                return;
+
                 break;
         }
     }
-
-    std::optional<Message> maybe_message = worldRef.getStopBombMessage(sound_manager);
-    if (maybe_message.has_value()) {
-        output_queue.push(std::move(*maybe_message));
+    if (!active) {
+        std::optional<Message> maybe_message = worldRef.getStopBombMessage();
+        if (maybe_message.has_value()) {
+            output_queue.push(std::move(*maybe_message));
+        }
     }
+
     update_direction();
 }
 
