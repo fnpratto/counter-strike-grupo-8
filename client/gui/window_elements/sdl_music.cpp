@@ -8,7 +8,6 @@ SdlMusic::SdlMusic(const std::string& file): sound(nullptr) {
 }
 void SdlMusic::play_sound(int loops) { Mix_PlayMusic(sound, loops); }
 
-void SdlMusic::play_sound(int loops, float volume) { Mix_PlayMusic(sound, loops); }
 
 void SdlMusic::pause_sound() { Mix_PauseMusic(); }
 

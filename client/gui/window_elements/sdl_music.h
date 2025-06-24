@@ -15,8 +15,6 @@ public:
     explicit SdlMusic(const std::string& file);
 
     void play_sound(int loops);
-    void play_sound(int loops, float volume);
-
     void pause_sound();
 
     void set_volume(float volume);
