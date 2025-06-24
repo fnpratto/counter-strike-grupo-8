@@ -170,7 +170,7 @@ bool Game::apply_attack_effect(const std::unique_ptr<Player>& attacker, const Ef
 void Game::join_player(const std::string& player_name) {
     if (player_name.empty() || state.player_is_in_game(player_name) || is_full() ||
         state.get_phase().is_playing())
-        return send_msg(player_name, Message(ErrorResponse("Cannot join game")));
+        throw JoinGameError();
 
     Team default_team = (state.get_num_tts() > state.get_num_cts()) ? Team::CT : Team::TT;
     if (default_team == Team::TT) {

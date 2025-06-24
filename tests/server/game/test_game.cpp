@@ -44,15 +44,13 @@ TEST_F(TestGame, PlayerCannotJoinGameTwice) {
     game.join_player("test_player");
     GameUpdate updates = game.get_full_update();
     EXPECT_EQ(static_cast<int>(updates.get_players().size()), 1);
-    game.join_player("test_player");
-    // TODO: assert error response
+    EXPECT_THROW(game.join_player("test_player"), JoinGameError);
     updates = game.get_full_update();
     EXPECT_EQ(static_cast<int>(updates.get_players().size()), 1);
 }
 
 TEST_F(TestGame, PlayerCannotJoinGameWithEmptyName) {
-    game.join_player("");
-    // TODO: assert error response
+    EXPECT_THROW(game.join_player(""), JoinGameError);
     GameUpdate updates = game.get_full_update();
     EXPECT_EQ(static_cast<int>(updates.get_players().size()), 0);
 }
@@ -61,8 +59,7 @@ TEST_F(TestGame, PlayersCanJoinGameUntilItIsFull) {
     for (int i = 1; i <= max_players; i++) {
         game.join_player("test_player_" + std::to_string(i));
     }
-    game.join_player("extra_player");
-    // TODO: assert error response
+    EXPECT_THROW(game.join_player("extra_player"), JoinGameError);
     GameUpdate update = game.get_full_update();
     EXPECT_EQ(static_cast<int>(update.get_players().size()), max_players);
 }
@@ -129,8 +126,7 @@ TEST_F(TestGame, PlayerCannotJoinStartedGame) {
     Message msg_start = Message(SetReadyCommand());
     game.tick({PlayerMessage("test_player", msg_start)});
 
-    game.join_player("another_player");
-    // TODO: assert error response
+    EXPECT_THROW(game.join_player("another_player"), JoinGameError);
     GameUpdate update = game.get_full_update();
     EXPECT_EQ(static_cast<int>(update.get_players().size()), 1);
 }
