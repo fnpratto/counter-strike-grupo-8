@@ -97,7 +97,8 @@ void SdlWorld::render() {
 
 // enum class BombPhaseType { NotPlanted, Planted, Exploded, Defused, Planting, Defusing };
 std::optional<Message> SdlWorld::getStartBombMessage(SoundManager& sound_manager) {
-    if (game_state.get_phase().get_type() != PhaseType::InRound) {
+    if (game_state.get_phase().get_type() != PhaseType::InRound &&
+        game_state.get_phase().get_type() != PhaseType::BombPlanted) {
         std::cout << "Cannot start bomb action outside of InRound phase." << std::endl;
         return std::nullopt;
     }
