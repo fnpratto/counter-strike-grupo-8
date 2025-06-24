@@ -348,8 +348,6 @@ void EditorWindow::write_yaml(YAML::Node& map_data) {
     map_data["width"] = MAX_COLS_MAPVIEW;
     map_data["tiles"] = YAML::Node(YAML::NodeType::Sequence);
 
-    int left = MAX_COLS_MAPVIEW - 1;
-    int top = MAX_ROWS_MAPVIEW - 1;
     int right = 0;
     int bottom = 0;
 
@@ -361,22 +359,16 @@ void EditorWindow::write_yaml(YAML::Node& map_data) {
                 YAML::Node tile_data;
                 Tile tile = map_view_tile->get_tile();
                 tile_data["id"] = tile.id;
-                tile_data["x"] = tile.x;
-                tile_data["y"] = tile.y;
+                tile_data["x"] = tile.y;
+                tile_data["y"] = tile.x;
                 tile_data["is_collidable"] = tile.is_collidable;
                 tile_data["is_spawn_ct"] = tile.is_ct_spawn;
                 tile_data["is_spawn_tt"] = tile.is_t_spawn;
                 tile_data["is_bomb_site"] = tile.is_bomb_site;
                 map_data["tiles"].push_back(tile_data);
 
-                if (i < top) {
-                    top = i;
-                }
                 if (i > bottom) {
                     bottom = i;
-                }
-                if (j < left) {
-                    left = j;
                 }
                 if (j > right) {
                     right = j;
@@ -385,8 +377,8 @@ void EditorWindow::write_yaml(YAML::Node& map_data) {
         }
     }
 
-    int width = right - left + 1;
-    int height = bottom - top + 1;
+    int width = right + 1;
+    int height = bottom + 1;
     map_data["height"] = height;
     map_data["width"] = width;
 }
