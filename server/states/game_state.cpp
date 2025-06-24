@@ -147,6 +147,7 @@ Bomb GameState::remove_bomb() {
         throw std::runtime_error("Bomb not found");
     Bomb removed_bomb = std::move(bomb.value().item);
     bomb.reset();
+    updates.set_bomb(std::optional<WorldItem<BombUpdate>>());
     return removed_bomb;
 }
 
@@ -207,8 +208,6 @@ GameUpdate GameState::get_updates() const {
     if (bomb.has_value())
         update.set_bomb(
                 WorldItem<BombUpdate>{bomb.value().item.get_updates(), bomb.value().hitbox});
-    else
-        update.set_bomb(std::optional<WorldItem<BombUpdate>>());
 
     return update;
 }

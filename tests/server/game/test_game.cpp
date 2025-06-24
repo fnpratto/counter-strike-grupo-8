@@ -206,9 +206,8 @@ TEST_F(TestGame, CounterTerroristDoesNotHaveBombWhenGameStarted) {
 
     auto player_messages = game.tick({PlayerMessage("test_player", msg_select_team),
                                       PlayerMessage("test_player", msg_start)});
-    GameUpdate updates;
-    updates = player_messages[0].get_message().get_content<GameUpdate>();
 
+    GameUpdate updates = game.get_full_update();
     PlayerUpdate player_updates = updates.get_players().at("test_player");
 
     EXPECT_TRUE(player_updates.get_inventory().has_bomb_changed());
