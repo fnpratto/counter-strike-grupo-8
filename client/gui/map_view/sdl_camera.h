@@ -22,7 +22,6 @@ private:
     int screen_width;
     int screen_height;
     Vector2D position;
-    float field_of_view;
 
 public:
     SdlCamera(int screen_width, int screen_height);
