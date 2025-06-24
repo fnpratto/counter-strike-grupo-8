@@ -1,6 +1,7 @@
 #ifndef LIST_TEAMS_H
 #define LIST_TEAMS_H
 
+#include <array>
 #include <atomic>
 #include <optional>
 #include <string>
@@ -36,6 +37,11 @@ private:
     int base_y;
     SdlText text;
     SdlText smaller_text;
+
+    std::array<SdlText, 2> team_labels;
+    std::array<SdlText, 3> tt_descriptions;
+    std::array<SdlText, 3> ct_descriptions;
+
     SdlTexture rectangulo_horizontal;
     SdlTexture background;
     SdlTexture terrorist;

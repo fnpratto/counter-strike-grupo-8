@@ -15,26 +15,28 @@ void SdlWorldItem::render() {
     if (game_state.get_bomb().has_value()) {
         const auto& bomb = game_state.get_bomb().value();
         Vector2D pos = bomb.hitbox.get_pos();
+        double angle = bomb.hitbox.get_rotation_deg();
         Area origin(0, 0, 24, 24);
         Vector2D pos_cam = camera.get_screen_pos(pos);
         Area dest(pos_cam.get_x(), pos_cam.get_y(), 32, 32);
         if (camera.can_see(pos_cam))
-            bomb_t.render(origin, dest);
+            bomb_t.render(origin, dest, angle);
     }
     for (const auto& [gun_type, gun_item]:  // cppcheck-suppress[unassignedVariable]
          game_state.get_dropped_guns()) {
         Vector2D pos = gun_item.get_pos();
+        float angle = gun_item.get_rotation_deg();
         if (!camera.can_see(pos))
             return;
         Vector2D pos_cam = camera.get_screen_pos(pos);
         Area dest(pos_cam.get_x(), pos_cam.get_y(), 32, 32);
         Area origin(10, 0, 54, 32);
         if (gun_type == GunType::AWP) {
-            awp_t.render(origin, dest);
+            awp_t.render(origin, dest, angle);
         } else if (gun_type == GunType::M3) {
-            m3_t.render(origin, dest);
+            m3_t.render(origin, dest, angle);
         } else if (gun_type == GunType::AK47) {
-            ak_t.render(origin, dest);
+            ak_t.render(origin, dest, angle);
         }
     }
 }

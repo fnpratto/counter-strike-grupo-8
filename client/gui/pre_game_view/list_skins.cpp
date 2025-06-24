@@ -20,8 +20,18 @@ skinSelect::skinSelect(SdlWindow& window, const GameUpdate& state, const std::st
         background(BACKGROUND1_PATH, window),
         skins_tt(SKIN_PATHS_TT, window),
         skins_ct(SKIN_PATHS_CT, window),
+        skin_labels{{SdlText(TEXT1_PATH, 100, {255, 255, 255, 255}, window),
+                     SdlText(TEXT1_PATH, 100, {255, 255, 255, 255}, window),
+                     SdlText(TEXT1_PATH, 100, {255, 255, 255, 255}, window),
+                     SdlText(TEXT1_PATH, 100, {255, 255, 255, 255}, window)}},
         selected_skin(-1),
         active(true) {
+
+
+    for (int i = 0; i < 4; ++i) {
+        skin_labels[i].setTextString("Skin " + std::to_string(i + 1));
+    }
+
 
     float BASE_WIDTH = 800.0f;
     float BASE_HEIGHT = 600.0f;
@@ -91,10 +101,8 @@ void skinSelect::renderSkins() {
             SDL_RenderDrawRect(window.getRenderer(), &highlight);
         }
 
-        // Draw skin label
-        text.setTextString("Skin " + std::to_string(i + 1));
         Area label_area(x + 10, y + slot_height + 10, 100, 30);
-        text.render(label_area);
+        skin_labels[i].render(label_area);
     }
 }
 
