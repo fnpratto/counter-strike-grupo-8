@@ -57,6 +57,7 @@ void KeyboardHandler::handleEvent(const SDL_Event& event) {
             case SDLK_g:
                 sound_manager.play("item_pick");
                 output_queue.push(Message(PickUpItemCommand()));
+                std::cout << "Picking up item" << std::endl;
                 break;
         }
     }

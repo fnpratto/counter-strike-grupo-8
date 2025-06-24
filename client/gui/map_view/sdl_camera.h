@@ -41,6 +41,8 @@ public:
     bool can_see(const T& obj) const;
 
     bool can_see(const Tile& obj) const;
+
+    Vector2D get_position() const { return position; }
 };
 
 template <typename T>

@@ -34,7 +34,7 @@ SDLDisplay::SDLDisplay(Queue<Message>& input_queue, Queue<Message>& output_queue
         sound_manager(),
         current_phase(PhaseType::WarmUp) {
     SCREEN_WIDTH = 1200;
-    SCREEN_HEIGHT = 600;
+    SCREEN_HEIGHT = 800;
 }
 
 void SDLDisplay::setup() {
@@ -70,7 +70,7 @@ void SDLDisplay::setup() {
     /*SCREEN_WIDTH = displayMode.w;
     SCREEN_HEIGHT = displayMode.h - 150;*/
     SCREEN_WIDTH = 1200;
-    SCREEN_HEIGHT = 600;
+    SCREEN_HEIGHT = 800;
 }
 
 void SDLDisplay::run() {
