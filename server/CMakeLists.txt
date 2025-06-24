@@ -60,7 +60,6 @@ target_sources(taller_server
     game/game_config.h
     # shop
     shop/shop.h
-    shop/shop_prices.h
     # items
     items/gun.h
     items/bomb.h
@@ -68,7 +67,6 @@ target_sources(taller_server
     items/weapon.h
     items/effects/effect.h
     items/effects/attack_effect.h
-    items/items_config.h
     # physics
     physics/physics_system.h
     physics/target_type.h
@@ -79,7 +77,6 @@ target_sources(taller_server
     map/map_builder.h
     # player
     player/player.h
-    player/player_config.h
     player/inventory.h
     player/statuses/player_status.h
     player/statuses/idle_status.h

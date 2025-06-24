@@ -2,14 +2,13 @@
 
 #include <utility>
 
-#include "items_config.h"
-
-Knife::Knife(): Logic<KnifeState, KnifeUpdate>(KnifeState()) {}
+Knife::Knife(const GameConfig::ItemsConfig::KnifeConfig& knife_config):
+        Logic<KnifeState, KnifeUpdate>(KnifeState()), knife_config(knife_config) {}
 
 bool Knife::is_attacking() const { return state.get_is_attacking(); }
 
 void Knife::start_attacking(TimePoint now) {
-    if (!can_attack(KnifeConfig::attack_rate, now))
+    if (!can_attack(knife_config.attack_rate, now))
         return;
     state.set_is_attacking(true);
 }
@@ -19,10 +18,10 @@ std::vector<AttackEffect> Knife::attack(const Vector2D& origin, const Vector2D& 
     std::vector<AttackEffect> effects;
     if (!is_attacking())
         return effects;
-    int damage = get_random_damage(KnifeConfig::min_damage, KnifeConfig::max_damage);
+    int damage = get_random_damage(knife_config.min_damage, knife_config.max_damage);
 
-    Effect effect(origin, damage, KnifeConfig::max_range, KnifeConfig::precision,
-                  KnifeConfig::falloff);
+    Effect effect(origin, damage, knife_config.max_range, knife_config.precision,
+                  knife_config.falloff);
     effects.push_back(AttackEffect{std::move(effect), dir});
 
     state.set_is_attacking(false);

@@ -66,7 +66,6 @@ target_sources(taller_tests
     ../server/game/game_config.h
     # shop
     ../server/shop/shop.h
-    ../server/shop/shop_prices.h
     # items
     ../server/items/gun.h
     ../server/items/bomb.h
@@ -74,7 +73,6 @@ target_sources(taller_tests
     ../server/items/weapon.h
     ../server/items/effects/effect.h
     ../server/items/effects/attack_effect.h
-    ../server/items/items_config.h
     # physics
     ../server/physics/physics_system.h
     ../server/physics/target_type.h
@@ -87,7 +85,6 @@ target_sources(taller_tests
     ../common/map/tile.h
     # player
     ../server/player/player.h
-    ../server/player/player_config.h
     ../server/player/inventory.h
     ../server/player/statuses/idle_status.h
     ../server/player/statuses/moving_status.h

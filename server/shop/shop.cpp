@@ -4,17 +4,15 @@
 
 #include "server/items/gun.h"
 
-#include "shop_prices.h"
+Shop::Shop(const GameConfig::ShopPrices& prices) {
+    gun_prices[GunType::AK47] = prices.ak47;
+    gun_prices[GunType::M3] = prices.m3;
+    gun_prices[GunType::AWP] = prices.awp;
 
-Shop::Shop() {
-    gun_prices[GunType::AK47] = ShopPrices::ak47;
-    gun_prices[GunType::M3] = ShopPrices::m3;
-    gun_prices[GunType::AWP] = ShopPrices::awp;
-
-    ammo_prices[GunType::AK47] = ShopPrices::mag_ak47;
-    ammo_prices[GunType::M3] = ShopPrices::mag_m3;
-    ammo_prices[GunType::AWP] = ShopPrices::mag_awp;
-    ammo_prices[GunType::Glock] = ShopPrices::mag_glock;
+    ammo_prices[GunType::AK47] = prices.mag_ak47;
+    ammo_prices[GunType::M3] = prices.mag_m3;
+    ammo_prices[GunType::AWP] = prices.mag_awp;
+    ammo_prices[GunType::Glock] = prices.mag_glock;
 }
 
 std::map<GunType, int> Shop::get_gun_prices() const { return gun_prices; }
@@ -36,10 +34,11 @@ bool Shop::can_buy_ammo(const ItemSlot& slot, Inventory& inventory) const {
     return ammo_prices.at(gun_type) <= inventory.get_money();
 }
 
-void Shop::buy_gun(const GunType& gun_type, Inventory& inventory) const {
+void Shop::buy_gun(const GunType& gun_type, Inventory& inventory,
+                   const GameConfig::ItemsConfig::GunConfig& gun_config) const {
     if (!can_buy_gun(gun_type, inventory))
         return;
-    inventory.set_gun(Gun::make_gun(gun_type));
+    inventory.set_gun(std::make_unique<Gun>(gun_type, gun_config));
     inventory.set_money(inventory.get_money() - gun_prices.at(gun_type));
 }
 

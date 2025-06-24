@@ -7,14 +7,14 @@
 #include "common/utils/vector_2d.h"
 #include "effects/attack_effect.h"
 #include "server/clock/clock.h"
+#include "server/game/game_config.h"
 #include "server/logic.h"
 #include "server/states/gun_state.h"
 
-#include "items_config.h"
 #include "weapon.h"
 
 class Gun: public Logic<GunState, GunUpdate>, public Weapon {
-    GunConfig gun_config;
+    GameConfig::ItemsConfig::GunConfig gun_config;
     int burst_bullets_fired = 0;
 
     int get_bullets_ready_to_fire(TimePoint now);
@@ -23,9 +23,7 @@ class Gun: public Logic<GunState, GunUpdate>, public Weapon {
     void decrease_mag_ammo();
 
 public:
-    Gun(GunType gun, GunConfig initial_config);
-
-    static std::unique_ptr<Gun> make_gun(const GunType& gun_type);
+    Gun(GunType gun, const GameConfig::ItemsConfig::GunConfig& initial_config);
 
     bool is_attacking() const;
     bool has_ammo();

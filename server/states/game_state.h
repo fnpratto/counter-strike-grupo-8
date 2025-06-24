@@ -16,6 +16,7 @@
 #include "state.h"
 
 class GameState: public State<GameUpdate> {
+    GameConfig config;
     GamePhase phase;
     int num_rounds = 0;
     int max_players;
@@ -27,7 +28,7 @@ class GameState: public State<GameUpdate> {
     bool is_tts_win_condition() const;
 
 public:
-    GameState(std::shared_ptr<Clock>&& game_clock, int max_players);
+    GameState(std::shared_ptr<Clock>&& game_clock, int max_players, GameConfig&& game_config);
 
     bool player_is_in_game(const std::string& player_name) const;
     bool all_players_ready() const;
@@ -39,6 +40,7 @@ public:
     int get_num_rounds() const;
     int get_num_tts() const;
     int get_num_cts() const;
+    const GameConfig& get_config() const;
     GamePhase& get_phase();
     const std::map<std::string, std::unique_ptr<Player>>& get_players() const;
     const std::unique_ptr<Player>& get_player(const std::string& player_name) const;

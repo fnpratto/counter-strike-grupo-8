@@ -29,7 +29,8 @@ private:
     std::vector<PlayerMessage> output_messages;
 
 public:
-    Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map);
+    Game(const std::string& name, std::shared_ptr<Clock>&& game_clock, Map&& map,
+         GameConfig&& config);
 
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete;

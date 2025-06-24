@@ -3,6 +3,7 @@
 #include <map>
 
 #include "common/models.h"
+#include "server/game/game_config.h"
 #include "server/player/inventory.h"
 
 class Shop {
@@ -11,7 +12,7 @@ private:
     std::map<GunType, int> ammo_prices;
 
 public:
-    Shop();
+    explicit Shop(const GameConfig::ShopPrices& prices);
 
     Shop(const Shop&) = delete;
     Shop& operator=(const Shop&) = delete;
@@ -26,7 +27,8 @@ public:
 
     bool can_buy_ammo(const ItemSlot& slot, Inventory& inventory) const;
 
-    void buy_gun(const GunType& gun_type, Inventory& inventory) const;
+    void buy_gun(const GunType& gun_type, Inventory& inventory,
+                 const GameConfig::ItemsConfig::GunConfig& gun_config) const;
 
     void buy_ammo(const ItemSlot& slot, Inventory& inventory) const;
 };

@@ -6,31 +6,34 @@
 #include "../game/mock_clock.h"
 #include "common/models.h"
 #include "server/errors.h"
+#include "server/game/game_config.h"
 #include "server/items/gun.h"
 #include "server/physics/circular_hitbox.h"
 #include "server/player/player.h"
-#include "server/player/player_config.h"
 #include "server/shop/shop.h"
 
 class TestPlayer: public ::testing::Test {
 protected:
+    GameConfig config;
     MockClock clock;
     Player player;
 
     TestPlayer():
+            config(GameConfig::load_config("./server/config.yaml")),
             clock(std::chrono::steady_clock::now()),
-            player(Team::TT, CharacterType::Pheonix,
-                   CircularHitbox::player_hitbox(Vector2D(0, 0))) {}
+            player(Team::TT, CharacterType::Pheonix, CircularHitbox::player_hitbox(Vector2D(0, 0)),
+                   config.player_config, config.items_config) {}
 
     void advance_secs(float secs) { clock.advance(std::chrono::duration<float>(secs)); }
 };
 
 TEST_F(TestPlayer, PlayerStartWithFullHealth) {
-    EXPECT_EQ(PlayerConfig::full_health, player.get_full_update().get_health());
+    EXPECT_EQ(config.player_config.full_health, player.get_full_update().get_health());
 }
 
 TEST_F(TestPlayer, PlayerStartWithDefaultInventory) {
-    InventoryUpdate i_inv = Inventory().get_full_update();
+    InventoryUpdate i_inv =
+            Inventory(config.player_config.initial_money, config.items_config).get_full_update();
     InventoryUpdate p_inv = player.get_full_update().get_inventory();
 
     GunUpdate i_sec_weapon = i_inv.get_guns().at(ItemSlot::Secondary);
@@ -53,27 +56,28 @@ TEST_F(TestPlayer, GunReduceMagAmmoWhenPlayerAttacks) {
     auto attack_effects = player.attack(clock.now());
     EXPECT_EQ(attack_effects.size(), 1);
     EXPECT_EQ(player.get_inventory().get_guns().at(ItemSlot::Secondary)->get_mag_ammo(),
-              old_mag_ammo - GlockConfig.bullets_per_attack);
+              old_mag_ammo - config.items_config.glock.bullets_per_attack);
 }
 
 TEST_F(TestPlayer, GunBurst) {
-    Shop shop;
+    Shop shop(config.shop_prices);
     player.get_inventory().set_money(10000);
-    shop.buy_gun(GunType::AK47, player.get_inventory());
+    shop.buy_gun(GunType::AK47, player.get_inventory(),
+                 config.items_config.get_gun_config(GunType::AK47));
 
     player.equip_item(ItemSlot::Primary);
     player.handle_start_attacking(clock.now());
 
-    for (int i = 0; i < Ak47Config.bullets_per_attack; i++) {
+    for (int i = 0; i < config.items_config.ak47.bullets_per_attack; i++) {
         if (i > 0) {
             auto effects = player.attack(clock.now());
             EXPECT_EQ(effects.size(), 0);
         }
-        advance_secs(Ak47Config.burst_interval);
+        advance_secs(config.items_config.ak47.burst_interval);
         auto attack_effects = player.attack(clock.now());
         EXPECT_EQ(attack_effects.size(), 1);
         EXPECT_EQ(player.get_inventory().get_guns().at(ItemSlot::Primary)->get_mag_ammo(),
-                  Ak47Config.bullets_per_mag - (i + 1));
+                  config.items_config.ak47.bullets_per_mag - (i + 1));
     }
 
     auto attack_effects = player.attack(clock.now());

@@ -3,17 +3,20 @@
 #include <utility>
 
 PlayerState::PlayerState(Team team, CharacterType character_type, Circle hitbox,
-                         Vector2D aim_direction, Vector2D velocity, int speed, bool ready,
-                         int health, ItemSlot equipped_item):
+                         Vector2D aim_direction, Vector2D velocity, bool ready,
+                         ItemSlot equipped_item, const GameConfig::PlayerConfig& player_config,
+                         const GameConfig::ItemsConfig& items_config):
         team(team),
         character_type(character_type),
         hitbox(hitbox),
+        player_config(player_config),
         aim_direction(aim_direction),
         velocity(velocity),
-        speed(speed),
+        speed(player_config.speed),
         ready(ready),
-        health(health),
-        equipped_item(equipped_item) {
+        health(player_config.full_health),
+        equipped_item(equipped_item),
+        inventory(player_config.initial_money, items_config) {
     updates = get_full_update();
 }
 
@@ -22,6 +25,8 @@ Team PlayerState::get_team() const { return team; }
 CharacterType PlayerState::get_character_type() const { return character_type; }
 
 Circle PlayerState::get_hitbox() const { return hitbox; }
+
+GameConfig::PlayerConfig PlayerState::get_player_config() const { return player_config; }
 
 Vector2D PlayerState::get_aim_direction() const { return aim_direction; }
 
