@@ -29,7 +29,6 @@ private:
     SdlHud& hudDisplayRef;
     SdlWorld& worldRef;
     void update_direction();
-    bool active_b;
 };
 
 #endif  // KEYBOARDHANDLER_H
