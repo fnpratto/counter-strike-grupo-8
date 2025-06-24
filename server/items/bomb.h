@@ -7,6 +7,7 @@
 
 class Bomb: public Logic<BombState, BombUpdate> {
     TimePoint phase_start_time;
+    TimePoint plant_time;
 
     void change_bomb_phase(BombPhaseType new_phase, TimePoint now);
 
