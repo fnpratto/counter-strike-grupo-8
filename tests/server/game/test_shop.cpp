@@ -2,10 +2,11 @@
 
 #include "common/models.h"
 #include "server/errors.h"
-#include "server/game/shop.h"
 #include "server/items/gun.h"
 #include "server/player/player.h"
 #include "server/player/player_config.h"
+#include "server/shop/shop.h"
+#include "server/shop/shop_prices.h"
 
 #include "mock_clock.h"
 
@@ -43,7 +44,7 @@ TEST_F(TestShop, CannotBuyWeaponIfNotEnoughMoney) {
     Shop shop;
     GunType gun = GunType::AK47;
     int initial_money = inventory.get_full_update().get_money();
-    int gun_price = PRICE_AK47;
+    int gun_price = ShopPrices::ak47;
 
     while (gun_price <= initial_money) {
         EXPECT_TRUE(shop.can_buy_gun(gun, inventory));
@@ -69,7 +70,7 @@ TEST_F(TestShop, BuyAmmo) {
     InventoryUpdate new_update = inventory.get_full_update();
     int new_money = new_update.get_money();
 
-    EXPECT_EQ(new_money, old_money - PRICE_MAG_GLOCK);
+    EXPECT_EQ(new_money, old_money - ShopPrices::mag_glock);
 
     GunUpdate new_glock = new_update.get_guns().at(ItemSlot::Secondary);
     EXPECT_EQ(new_glock.get_mag_ammo(), old_glock.get_mag_ammo());

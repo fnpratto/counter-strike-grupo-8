@@ -12,10 +12,10 @@
 #include "server/errors.h"
 #include "server/game/game.h"
 #include "server/game/game_config.h"
-#include "server/game/shop.h"
 #include "server/map/map_builder.h"
 #include "server/player/player_config.h"
 #include "server/player_message.h"
+#include "server/shop/shop.h"
 
 #include "mock_clock.h"
 

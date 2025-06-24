@@ -13,6 +13,8 @@ target_sources(taller_server
     # game
     game/game.cpp
     game/game_phase.cpp
+    # shop
+    shop/shop.cpp
     # items
     items/gun.cpp
     items/bomb.cpp
@@ -53,10 +55,12 @@ target_sources(taller_server
     clock/clock.h
     clock/real_clock.h
     # game
-    game/shop.h
     game/game.h
     game/game_phase.h
     game/game_config.h
+    # shop
+    shop/shop.h
+    shop/shop_prices.h
     # items
     items/gun.h
     items/bomb.h

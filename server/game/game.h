@@ -13,10 +13,10 @@
 #include "server/physics/physics_system.h"
 #include "server/player/player.h"
 #include "server/player_message.h"
+#include "server/shop/shop.h"
 #include "server/states/game_state.h"
 
 #include "game_phase.h"
-#include "shop.h"
 
 class Game: public Logic<GameState, GameUpdate> {
 private:

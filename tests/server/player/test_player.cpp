@@ -6,17 +6,11 @@
 #include "../game/mock_clock.h"
 #include "common/models.h"
 #include "server/errors.h"
-#include "server/game/shop.h"
 #include "server/items/gun.h"
 #include "server/physics/circular_hitbox.h"
 #include "server/player/player.h"
 #include "server/player/player_config.h"
-
-// Include shop price constants
-#define PRICE_AK47 2700
-#define PRICE_M3 1700
-#define PRICE_AWP 4750
-#define PRICE_MAG_GLOCK 20
+#include "server/shop/shop.h"
 
 class TestPlayer: public ::testing::Test {
 protected:

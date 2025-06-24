@@ -16,6 +16,8 @@ target_sources(taller_tests
     # game
     ../server/game/game.cpp
     ../server/game/game_phase.cpp
+    # shop
+    ../server/shop/shop.cpp
     # items
     ../server/items/gun.cpp
     ../server/items/bomb.cpp
@@ -59,10 +61,12 @@ target_sources(taller_tests
     # testing
     common/mock_socket.h
     # game
-    ../server/game/shop.h
     ../server/game/game.h
     ../server/game/game_phase.h
     ../server/game/game_config.h
+    # shop
+    ../server/shop/shop.h
+    ../server/shop/shop_prices.h
     # items
     ../server/items/gun.h
     ../server/items/bomb.h
