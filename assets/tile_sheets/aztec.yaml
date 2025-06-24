@@ -1,6 +1,6 @@
 name: aztec
 tile_size: 32
-path: assets/gfx/tiles/default_aztec.png
+path: ../assets/gfx/tiles/default_aztec.png
 tiles:
   - id: 70
     x: 1

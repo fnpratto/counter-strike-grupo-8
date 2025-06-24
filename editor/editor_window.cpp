@@ -215,6 +215,8 @@ void EditorWindow::add_tile_buttons() {
         YAML::Node map_data = YAML::LoadFile(fileInfo.absoluteFilePath().toStdString());
 
         QString map_image_path = QString::fromStdString(map_data["path"].as<std::string>());
+        map_image_path = map_image_path.replace("../", "");
+
         int tile_size = map_data["tile_size"].as<int>();
 
         for (const auto& tile_data: map_data["tiles"]) {
