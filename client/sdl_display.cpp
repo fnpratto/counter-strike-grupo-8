@@ -204,7 +204,7 @@ void SDLDisplay::update_music() {
                 break;
         }
 
-        if (current_phase == PhaseType::InRound && new_phase != PhaseType::BombPlanted) {
+        if (current_phase == PhaseType::InRound && new_phase == PhaseType::BombPlanted) {
             sound_manager.play("bomb_planted");
         }
 

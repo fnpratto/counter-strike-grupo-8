@@ -61,7 +61,7 @@ constexpr std::string_view BACKGROUND_WINNER_PATH = "../assets/gfx/hud/end_round
 
 constexpr std::string_view MENU_MUSIC_PATH = "../assets/sfx/menu.wav";
 constexpr std::string_view GAME_MUSIC_PATH = "../assets/sfx/env/ambience1.wav";
-constexpr std::string_view IN_GAME_MUSIC_PATH = "../assets/sfx/env/demon_wind.ogg";
+constexpr std::string_view IN_GAME_MUSIC_PATH = "../assets/sfx/env/demonwind.ogg";
 constexpr std::string_view PLANTED_GAME_MUSIC_PATH = "../assets/sfx/env/siren.wav";
 
 // Sounds
