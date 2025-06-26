@@ -98,7 +98,7 @@ void shopDisplay::updatePrices(const ShopPricesResponse& response) {
 }
 
 ItemSlot shopDisplay::get_ammo_type(int id_slot) {
-    if (id_slot == 7) {
+    if (id_slot != 7) {
         return ItemSlot::Secondary;
     }
     return ItemSlot::Primary;
