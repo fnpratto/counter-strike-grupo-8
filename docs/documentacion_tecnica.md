@@ -28,12 +28,19 @@ Todas las funcionalidades y mejoras se rastrean mediante issues y pull requests 
 - Bonificaciones de dinero de acuerdo a estadísticas de los jugadores
 - Finalización de la partida tras 10 rondas (victoria / derrota).
 
-### Editor de niveles
+### 3. Editor de niveles
 
+- Interfaz gráfica implementada con Qt.
+- Permite crear y editar mapas con estructuras sólidas, terreno, y zonas para plantar bombas.
+- Scroll horizontal y vertical para explorar mapas más grandes que el tamaño de ventana.
+- Guardado y apertura de mapas en formato YAML.
+- Implementación de drag and drop y point and click para facilitar la edición del mapa.
 
 ## Funcionalidades incompletas
 
-- El client yaml de config tenga si 1200x 800 o full screen
-- Sonidos no varian segun la distancia
-- El client animacion de explocion
-- El armado del mapa del Editor de niveles no abarca el colocado de armas
+- Que en el YAML de configuración se pueda definir el tamaño de pantalla; actualmente está hardcodeado.
+- Los sonidos no varían según la distancia del evento.
+- Falta la animación de explosión al detonar la bomba.
+- El editor de niveles no permite colocar armas en el mapa (solo estructuras y zonas de inicio).
+
+---
