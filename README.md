@@ -31,6 +31,8 @@ Este proyecto es un remake en 2D del clásico juego **Counter-Strike**, desarrol
 ---
 
 ## 📽️ Demo / Video Trailer
+https://www.youtube.com/watch?v=nU_Tqc8K2BM
+
 
 [![Watch the video](docs/img/log-in-window.png)](https://youtu.be/nU_Tqc8K2BM)
 
