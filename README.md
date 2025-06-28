@@ -8,8 +8,8 @@ Facultad de Ingeniería, Universidad de Buenos Aires
 
 ## 👥 Integrantes
 
-- **[FernandYu](https://github.com/FernandoYu)**
-- **[Tcorzo](https://github.com/tcorzo)**
+- **[FernandoYu](https://github.com/FernandoYu)**
+- **[tcorzo](https://github.com/tcorzo)**
 - **[fnpratto](https://github.com/fnpratto)**
 - **[jesapugliese](https://github.com/jesapugliese)**
 
@@ -32,7 +32,7 @@ Este proyecto es un remake en 2D del clásico juego **Counter-Strike**, desarrol
 
 ## 📽️ Demo / Video Trailer
 
-[![Watch the video](docs\img\log-in-window.png)](https://youtu.be/liW75mH29Ns)
+[![Watch the video](docs/img/log-in-window.png)](https://youtu.be/nU_Tqc8K2BM)
 
 ---
 
@@ -64,7 +64,7 @@ El juego comienza cuando todos están listos para la batalla.
 ---
 
 ### 📊 Scoreboard  
-Al final de cada ronda, se muestra un resumen con estadísticas por jugador.
+Al tocar `tab`, se muestra un resumen con estadísticas por jugador
 
 ![Scoreboard](docs/gif/score_board_view.gif)
 
@@ -113,8 +113,8 @@ make
 
 Toda la documentación se encuentra en la carpeta `/docs`:
 
-📘 [Manual de Usuario](docs\manual_usuario.md): cómo compilar, ejecutar y jugar.
+📘 [Manual de Usuario](docs/manual_usuario.md): cómo compilar, ejecutar y jugar.
 
-🧠 [Documentación Técnica](docs\documentacion_tecnica.md): estructura del código, módulos, funcionalidades y pendientes.
+🧠 [Documentación Técnica](docs/documentacion_tecnica.md): estructura del código, módulos, funcionalidades y pendientes.
 
-🛠️ [Manual del Proyecto](docs\manual_de_proyecto.md): organización del equipo, herramientas utilizadas, problemas y aprendizajes.
+🛠️ [Manual del Proyecto](docs/manual_de_proyecto.md): organización del equipo, herramientas utilizadas, problemas y aprendizajes.
