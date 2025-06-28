@@ -30,6 +30,12 @@ Este proyecto es un remake en 2D del clásico juego **Counter-Strike**, desarrol
 
 ---
 
+## 📽️ Demo / Video Trailer
+
+[![Watch the video](docs\img\log-in-window.png)](https://youtu.be/liW75mH29Ns)
+
+---
+
 ## 🎥 Vistazo al juego
 
 > Muestra de las funcionalidades principales del juego en acción:
@@ -107,8 +113,8 @@ make
 
 Toda la documentación se encuentra en la carpeta `/docs`:
 
-📘 Manual de Usuario: cómo compilar, ejecutar y jugar.
+📘 [Manual de Usuario](docs\manual_usuario.md): cómo compilar, ejecutar y jugar.
 
-🧠 Documentación Técnica: estructura del código, módulos, funcionalidades y pendientes.
+🧠 [Documentación Técnica](docs\documentacion_tecnica.md): estructura del código, módulos, funcionalidades y pendientes.
 
-🛠️ Manual del Proyecto: organización del equipo, herramientas utilizadas, problemas y aprendizajes.
+🛠️ [Manual del Proyecto](docs\manual_de_proyecto.md): organización del equipo, herramientas utilizadas, problemas y aprendizajes.

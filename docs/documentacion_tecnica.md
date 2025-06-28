@@ -6,13 +6,12 @@ Todas las funcionalidades y mejoras se rastrean mediante issues y pull requests 
 
 ### 1. Client
 
-- Shop ( el cliente le llega la información de la tienda pero no la usa esta hardcodeado y no envia los mensajes correspondientes para la compra)
+- Shop 
 - Implementación del campo de visión
 - Implementación de animaciones del disparo y plantar bomba
 - Visualización del contador de tiempo bomba y objetos en el suelo
 - Integración de sonidos (gestor y eventos)
 - Visualización de fin de ronda ( mostrar los scores de equipos, mensaje de quipo ganador de ronda)
-- Hay problemas de delay al mandar muchos comandos a la vez
 
 ### 2. Server
 
@@ -28,15 +27,9 @@ Todas las funcionalidades y mejoras se rastrean mediante issues y pull requests 
 - Agregado de dinero a los jugadores al empezar una nueva ronda
 - Bonificaciones de dinero de acuerdo a estadísticas de los jugadores
 - Finalización de la partida tras 10 rondas (victoria / derrota).
-- Respuestas de error desde el server (error responses).
 
 ### Editor de niveles
 
-## Posibles modificaciones
-
-### 1. Server
-
--
 
 ## Funcionalidades incompletas
 
