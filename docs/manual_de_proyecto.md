@@ -10,14 +10,14 @@ El presente manual documenta el trabajo realizado por el equipo durante el desar
 
 ### **Roles y Responsabilidades**
 
-- **[FernandYu](https://github.com/FernandoYu)**: Desarrollo del lobby y editor de niveles.
-- **[Tcorzo](https://github.com/tcorzo)**: Diseño del protocolo de comunicación, arquitectura general y lógica de conexión cliente-servidor.
-- **[https://github.com/fnpratto](https://github.com/fnpratto)**: Implementación del cliente utilizando SDL.
+- **[fernandYu](https://github.com/FernandoYu)**: Desarrollo del lobby y editor de niveles.
+- **[tcorzo](https://github.com/tcorzo)**: Diseño del protocolo de comunicación, arquitectura general y lógica de conexión cliente-servidor.
+- **[fnpratto](https://github.com/fnpratto)**: Implementación del cliente utilizando SDL.
 - **[jesapugliese](https://github.com/jesapugliese)**: Desarrollo de la lógica del juego, física y funcionalidades del servidor.
 
 ### **Plan Semanal**
 
-- **Semana 1**: Setapeo del repositorio, interiorizacion con herramientas, se agregaron rules,flags, test al repositorio.
+- **Semana 1**: Setup del repositorio, interiorizacion con herramientas, se agregaron rules,flags, test al repositorio.
 - **Semana 2**: Desarrollo en paralelo del client y server. Se plantearon y establecio un manejo de threads correcto
 - **Semana 3**: Protocolo establecido , se empezo a conectar el client con el server
 - **Semana 4**: Se tiene una version conectada del client y server pero no se tienen las funcionalidades principales para jugar una roda(disparar, plantar bomba)
@@ -58,10 +58,10 @@ El presente manual documenta el trabajo realizado por el equipo durante el desar
 
 ### **Errores Conocidos**
 
-- Logica en el cliente al crear el mensaje de plantar la bomba o defusing
-- Comprar ammo para arma principal
+- Logica en el cliente al crear el mensaje de plantar la bomba o defusing, aunque anden, se tiene que mantener la tecla debida sin mover el mouse( lo cual no era lo planeado) 
+- Falta la funcionalidad de comprar ammo para arma principal
 - Items de viejas rondas no se resetean
-- Pick up item
+- Falta la funcionalidad del Pick up item
 
 ---
 
